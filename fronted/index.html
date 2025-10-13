@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edufy - Modern Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://browser.sentry-cdn.com/7.89.0/bundle.min.js" crossorigin="anonymous"></script>
+<script>
+  Sentry.init({
+    dsn: "https://a64a4e3bc0ce360cbc1a67947075e678@o4510103204397056.ingest.de.sentry.io/4510103229104208",
+    tracesSampleRate: 1.0
+  });
+</script>
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        .logo-glow {
+            filter: drop-shadow(0 0 8px rgba(74, 144, 226, 0.6));
+        }
+        .card-flip {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flip:hover {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #4a90e2 0%, #8a2be2 100%);
+            animation: progress 2s ease-in-out forwards;
+        }
+        @keyframes progress {
+            from { width: 0%; }
+            to { width: 85%; }
+        }
+        .coin-counter {
+            animation: countUp 2s ease-out forwards;
+        }
+        @keyframes countUp {
+            from { content: "0"; }
+            to { content: "50"; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="vanta-globe" class="fixed top-0 left-0 w-full h-full z-0"></div>
+    <div class="relative z-10">
+        <!-- Hero Section -->
+        <section class="min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-4xl" data-aos="fade-up">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 font-space">
+                    <span class="logo-glow">Edufy</span>
+                </h1>
+                <p class="text-xl md:text-3xl font-medium mb-6">Welcome to Edufy — Learn smarter. Achieve more.</p>
+                <p class="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
+                    A modern learning platform from Uzbekistan, helping students prepare for IELTS, SAT, TOEFL, AP, and ACT with AI-powered tools and expert-designed courses.
+                </p>
+                <div class="flex justify-center">
+                    <button class="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-medium transition-all transform hover:scale-105">
+                        Start Learning
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section class="py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div data-aos="fade-right">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 font-space">Edufy is where progress meets possibility.</h2>
+                    <p class="text-gray-300 mb-4">
+                        Born in Uzbekistan, Edufy is built for ambitious students everywhere. Our mission is to make learning smarter, simpler, and more personal.
+                    </p>
+                    <p class="text-gray-300 mb-4">
+                        With world-class courses and AI-powered tools, we guide learners step by step toward success in IELTS, SAT, TOEFL, and beyond.
+                    </p>
+                    <p class="text-gray-300">
+                        Edufy is not just lessons — it's a community of learners breaking barriers and reaching top universities worldwide.
+                    </p>
+                </div>
+                <div class="relative h-64 md:h-96" data-aos="fade-left">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-20 rounded-2xl"></div>
+                    <div class="absolute inset-4 border border-gray-700 rounded-xl flex items-center justify-center">
+                        <i data-feather="book-open" class="w-16 h-16 text-blue-400"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Highlights Section -->
+        <section class="py-20 bg-gray-900 bg-opacity-50 backdrop-blur-sm">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center mb-16 font-space" data-aos="fade-up">Our Impact</h2>
+
+                <div class="grid md:grid-cols-3 gap-8 mb-16">
+                    <div class="bg-gray-800 bg-opacity-50 p-6 rounded-xl" data-aos="fade-up" data-aos-delay="100">
+                        <div class="text-5xl font-bold text-blue-400 mb-2">10,000+</div>
+                        <div class="text-gray-300">Students joined</div>
+                    </div>
+                    <div class="bg-gray-800 bg-opacity-50 p-6 rounded-xl" data-aos="fade-up" data-aos-delay="200">
+                        <div class="text-5xl font-bold text-purple-400 mb-2">50,000+</div>
+                        <div class="text-gray-300">Lessons completed</div>
+                    </div>
+                    <div class="bg-gray-800 bg-opacity-50 p-6 rounded-xl" data-aos="fade-up" data-aos-delay="300">
+                        <div class="text-5xl font-bold text-green-400 mb-2">1M+</div>
+                        <div class="text-gray-300">Coins earned</div>
+                    </div>
+                </div>
+
+                <div class="mb-16" data-aos="fade-up">
+                    <h3 class="text-xl font-medium mb-4">Student Progress Journey</h3>
+                    <div class="h-4 bg-gray-700 rounded-full overflow-hidden">
+                        <div class="progress-bar h-full rounded-full relative">
+                            <div class="absolute right-0 top-0 h-full w-1 bg-white opacity-30"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-sm text-gray-400">
+                        <span>Beginner</span>
+                        <span>Intermediate</span>
+                        <span>Advanced</span>
+                        <span>Master</span>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 bg-opacity-50 p-6 rounded-xl max-w-2xl mx-auto" data-aos="fade-up">
+                    <h3 class="text-xl font-medium mb-4 flex items-center">
+                        <i data-feather="info" class="mr-2 text-blue-400"></i> Did you know?
+                    </h3>
+                    <p class="text-gray-300" id="fun-fact">
+                        Students who study with personalized learning plans improve their test scores by 30% on average.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Course Preview -->
+        <section class="py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-16 font-space" data-aos="fade-up">Popular Courses</h2>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="relative h-48" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card-flip w-full h-full">
+                        <div class="card-front bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-6 flex flex-col justify-between">
+                            <div class="text-2xl font-bold">IELTS</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-80">Score Booster</span>
+                                <span class="px-3 py-1 bg-black bg-opacity-30 rounded-full text-sm">50 coins</span>
+                            </div>
+                        </div>
+                        <div class="card-back bg-gradient-to-br from-blue-800 to-blue-900 rounded-xl p-6 flex items-center justify-center">
+                            <p class="text-center text-sm">Comprehensive preparation with speaking simulations and writing evaluations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative h-48" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card-flip w-full h-full">
+                        <div class="card-front bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-6 flex flex-col justify-between">
+                            <div class="text-2xl font-bold">SAT</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-80">Math Focus</span>
+                                <span class="px-3 py-1 bg-black bg-opacity-30 rounded-full text-sm">60 coins</span>
+                            </div>
+                        </div>
+                        <div class="card-back bg-gradient-to-br from-purple-800 to-purple-900 rounded-xl p-6 flex items-center justify-center">
+                            <p class="text-center text-sm">Master algebra, geometry and data analysis with adaptive practice tests.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative h-48" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card-flip w-full h-full">
+                        <div class="card-front bg-gradient-to-br from-green-600 to-green-800 rounded-xl p-6 flex flex-col justify-between">
+                            <div class="text-2xl font-bold">TOEFL</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-80">Speaking Lab</span>
+                                <span class="px-3 py-1 bg-black bg-opacity-30 rounded-full text-sm">45 coins</span>
+                            </div>
+                        </div>
+                        <div class="card-back bg-gradient-to-br from-green-800 to-green-900 rounded-xl p-6 flex items-center justify-center">
+                            <p class="text-center text-sm">AI-powered speaking practice with instant feedback on pronunciation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative h-48" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card-flip w-full h-full">
+                        <div class="card-front bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-6 flex flex-col justify-between">
+                            <div class="text-2xl font-bold">ACT</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-80">Science Prep</span>
+                                <span class="px-3 py-1 bg-black bg-opacity-30 rounded-full text-sm">55 coins</span>
+                            </div>
+                        </div>
+                        <div class="card-back bg-gradient-to-br from-red-800 to-red-900 rounded-xl p-6 flex items-center justify-center">
+                            <p class="text-center text-sm">Data interpretation and scientific reasoning strategies.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Demo -->
+        <section class="py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+            <div class="bg-gray-900 bg-opacity-50 rounded-2xl p-8 md:p-12 backdrop-blur-sm">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div data-aos="fade-right">
+                        <h2 class="text-3xl font-bold mb-6 font-space">Experience Edufy</h2>
+                        <p class="text-gray-300 mb-6">
+                            Join thousands of students who are already advancing their education with our interactive platform.
+                        </p>
+                        <div class="flex items-center mb-6">
+                            <div class="mr-4 p-3 bg-blue-900 bg-opacity-50 rounded-lg">
+                                <i data-feather="award" class="text-blue-400 w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Earn achievements</div>
+                                <div class="text-sm text-gray-400">Track your progress with badges</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="mr-4 p-3 bg-purple-900 bg-opacity-50 rounded-lg">
+                                <i data-feather="dollar-sign" class="text-purple-400 w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Your balance: <span class="coin-counter">50</span> coins</div>
+                                <div class="text-sm text-gray-400">Redeem for premium content</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative h-64 md:h-80" data-aos="fade-left">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-20 rounded-xl"></div>
+                        <div class="absolute inset-4 border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center">
+                            <i data-feather="globe" class="w-16 h-16 text-blue-400 animate-pulse"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-800 bg-gray-900 bg-opacity-50">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div class="md:col-span-2">
+                        <div class="text-2xl font-bold mb-4 font-space">Edufy</div>
+                        <p class="text-gray-400 text-sm mb-4">
+                            Empowering students through innovative learning solutions since 2025.
+                        </p>
+                        <div class="flex items-center space-x-4">
+                            <a href="https://t.me/edufy_uz" class="text-gray-400 hover:text-blue-400 transition-colors">
+                                <i data-feather="send"></i>
+                            </a>
+                            <a href="https://instagram.com/edufy_uz" class="text-gray-400 hover:text-pink-500 transition-colors">
+                                <i data-feather="instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-4">About Us</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Our Mission</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Team</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-4">Contact Us</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Email: edufyuzbekistan@gmail.com</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Phone: +998 77 110 23 39</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Address: Tashkent, Uzbekistan</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-4">Legal</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t border-gray-800 mt-8 pt-6 text-center md:text-left">
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <div class="text-gray-400 text-sm mb-4 md:mb-0">
+                            © 2025 Edufy Learning Platform. All rights reserved.
+                        </div>
+                        <div class="text-gray-500 text-xs">
+                            Made with <i data-feather="heart" class="w-3 h-3 inline text-red-400"></i> in Tashkent, Uzbekistan
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Initialize Vanta.js globe
+        VANTA.GLOBE({
+            el: "#vanta-globe",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x3a86ff,
+            backgroundColor: 0x0,
+            points: 8.00,
+            maxDistance: 20.00,
+            spacing: 15.00
+        });
+
+        // Fun facts rotation
+        const funFacts = [
+            "Students who study with personalized learning plans improve their test scores by 30% on average.",
+            "Regular 20-minute practice sessions are more effective than marathon study sessions.",
+            "Edufy students report 2.5x higher confidence levels before exams.",
+            "The average IELTS score improvement for Edufy students is 1.5 bands in 3 months.",
+            "85% of Edufy students achieve their target scores on standardized tests."
+        ];
+
+        let currentFact = 0;
+        setInterval(() => {
+            currentFact = (currentFact + 1) % funFacts.length;
+            document.getElementById('fun-fact').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('fun-fact').textContent = funFacts[currentFact];
+                document.getElementById('fun-fact').style.opacity = 1;
+            }, 500);
+        }, 5000);
+
+        // Initialize feather icons
+        feather.replace();
+    </script>
+</body>
+</html>
+
+
+<script>
+  // Тестовая ошибка
+  function testError() {
+    undefinedFunction(); // этой функции нет → вызовет ошибку
+  }
+  testError();
+</script>
