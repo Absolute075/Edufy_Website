@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" class="dark:dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edufy - Register</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'media', // автоматически по системной теме
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6', // blue-500
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        .input-field:focus-within {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center">
+    <div class="fixed inset-0 z-0 bg-gradient-to-br from-gray-900 to-gray-800"></div>
+<div class="relative z-10 w-full max-w-md px-6 py-8 bg-gray-800 rounded-xl shadow-2xl backdrop-blur-sm bg-opacity-90">
+        <div class="flex justify-center mb-8">
+            <div class="flex items-center">
+                <img src="https://huggingface.co/spaces/Mekashiki/edufy-learn-with-ease/resolve/main/images/favicon.png" alt="Logo" class="w-16 h-16 mr-3 rounded-full">
+<h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600 text-white">Edufy Platform</h1>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-center mb-6">Welcome</h2>
+
+        <form class="space-y-5">
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-center text-gray-300 mb-4">Are you a student or teacher?</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <button type="button" onclick="selectRole(this, 'student')" class="role-btn group p-4 rounded-xl bg-gray-700/50 backdrop-blur-sm border border-gray-600 hover:border-primary-500 transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20">
+                        <div class="flex flex-col items-center">
+                            <div class="text-4xl mb-2 group-hover:text-primary-400 transition-colors">🎓</div>
+                            <span class="font-medium">Student</span>
+                        </div>
+                    </button>
+                    <button type="button" onclick="selectRole(this, 'teacher')" class="role-btn group p-4 rounded-xl bg-gray-700/50 backdrop-blur-sm border border-gray-600 hover:border-primary-500 transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20">
+                        <div class="flex flex-col items-center">
+                            <div class="text-4xl mb-2 group-hover:text-primary-400 transition-colors">🧑‍🏫</div>
+                            <span class="font-medium">Teacher</span>
+                        </div>
+                    </button>
+                </div>
+                <p class="text-xs text-center text-gray-400 mt-3"></p>
+            </div>
+
+            <script>
+                function selectRole(element, role) {
+                    // Remove active state from all buttons
+                    document.querySelectorAll('.role-btn').forEach(btn => {
+                        btn.classList.remove('border-primary-500', 'bg-primary-500/10', 'shadow-primary-500/30');
+                        btn.classList.add('border-gray-600');
+                    });
+
+                    // Add active state to clicked button
+                    element.classList.add('border-primary-500', 'bg-primary-500/10', 'shadow-primary-500/30');
+                    element.classList.remove('border-gray-600');
+
+                    // Store selected role (you can use this for form submission)
+                    document.getElementById('selectedRole').value = role;
+                }
+            </script>
+            <input type="hidden" id="selectedRole" name="role">
+<div class="input-field bg-gray-700 rounded-lg px-4 py-3 border border-gray-600 focus-within:border-primary-500">
+                <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+<div class="flex items-center">
+                    <i data-feather="user" class="text-gray-400 mr-2"></i>
+                    <input type="text" id="name" class="bg-transparent w-full outline-none text-gray-100 placeholder-gray-400" placeholder="Star">
+                </div>
+            </div>
+            <div class="input-field bg-gray-700 rounded-lg px-4 py-3 border border-gray-600 focus-within:border-primary-500">
+                <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
+                <div class="flex items-center">
+                    <i data-feather="mail" class="text-gray-400 mr-2"></i>
+                    <input type="email" id="email" class="bg-transparent w-full outline-none text-gray-100 placeholder-gray-400" placeholder="star@example.com">
+                </div>
+            </div>
+            <div class="input-field bg-gray-700 rounded-lg px-4 py-3 border border-gray-600 focus-within:border-primary-500">
+                <label for="phone" class="block text-sm font-medium text-gray-300 mb-1">Phone Number <span class="text-gray-500">(optional)</span></label>
+<div class="flex items-center">
+                    <i data-feather="phone" class="text-gray-400 mr-2"></i>
+                    <input type="tel" id="phone" class="bg-transparent w-full outline-none text-gray-100 placeholder-gray-400" placeholder="+998 (77) 110-23-39 ">
+                </div>
+            </div>
+            <div class="input-field bg-gray-700 rounded-lg px-4 py-3 border border-gray-600 focus-within:border-primary-500">
+                <label for="dob" class="block text-sm font-medium text-gray-300 mb-1">Date of Birth <span class="text-gray-500">(optional)</span></label>
+<div class="flex items-center">
+                    <i data-feather="calendar" class="text-gray-400 mr-2"></i>
+                    <input type="text" id="dob" class="bg-transparent w-full outline-none text-gray-100 placeholder-gray-400" placeholder="DD/MM/YYYY" maxlength="10" oninput="formatDate(this)">
+</div>
+            </div>
+<div class="input-field bg-gray-700 rounded-lg px-4 py-3 border border-gray-600 focus-within:border-primary-500">
+                <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                <div class="flex items-center">
+                    <i data-feather="lock" class="text-gray-400 mr-2"></i>
+                    <input type="password" id="password" class="bg-transparent w-full outline-none text-gray-100 placeholder-gray-400" placeholder="••••••••" oninput="checkPasswordStrength()">
+                    <button type="button" class="text-gray-400 hover:text-primary-500" onclick="togglePassword('password')">
+                        <i data-feather="eye" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <div class="h-2 w-full bg-gray-700 rounded-full overflow-hidden">
+                        <div id="strength-meter" class="h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs mt-1">
+                        <span id="strength-text" class="text-gray-400"></span>
+                        <span class="text-gray-400"></span>
+                    </div>
+                </div>
+            </div>
+<div class="input-field bg-gray-700 rounded-lg px-4 py-3 border border-gray-600 focus-within:border-primary-500">
+                <label for="confirm-password" class="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
+                <div class="flex items-center">
+                    <i data-feather="lock" class="text-gray-400 mr-2"></i>
+                    <input type="password" id="confirm-password" class="bg-transparent w-full outline-none text-gray-100 placeholder-gray-400" placeholder="••••••••" oninput="checkPasswordMatch()">
+                    <button type="button" class="text-gray-400 hover:text-primary-500" onclick="togglePassword('confirm-password')">
+                        <i data-feather="eye" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <div class="h-2 w-full bg-gray-700 rounded-full overflow-hidden">
+                        <div id="match-meter" class="h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs mt-1">
+                        <span id="match-text" class="text-gray-400"></span>
+                    </div>
+                </div>
+</div>
+
+            <div class="flex items-center">
+                <input type="checkbox" id="terms" class="rounded text-primary-500 focus:ring-primary-500 border-gray-600">
+                <label for="terms" class="ml-2 text-sm text-gray-300">
+                    I agree to the <a href="#" class="text-primary-500 hover:underline">Terms of Service</a>, <a href="#" class="text-primary-500 hover:underline">Privacy Policy</a> and <a href="#" class="text-primary-500 hover:underline">Cookies Policy</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-register w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 rounded-lg font-medium text-white transition-all duration-300 shadow-lg hover:shadow-primary-500/30">
+                Create Account
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-gray-400">
+            <p>Already have an account? <a href="#" class="text-primary-500 hover:underline font-medium">Sign in</a></p>
+        </div>
+    </div>
+
+    <script>
+// Toggle password visibility
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            const icon = input.nextElementSibling.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-feather', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-feather', 'eye');
+            }
+            feather.replace();
+        }
+        // Initialize feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+        // Date formatting function
+        function formatDate(input) {
+            // Remove non-digit characters
+            let value = input.value.replace(/\D/g, '');
+
+            // Add slashes after day and month
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2);
+            }
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '/' + value.substring(5, 9);
+            }
+
+            // Update input value
+            input.value = value;
+
+            // Validate date format and values
+            const isValid = /^\d{2}\/\d{2}\/\d{4}$/.test(value);
+            let isValidValues = true;
+
+            if (isValid) {
+                const parts = value.split('/');
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10);
+                const year = parseInt(parts[2], 10);
+
+                // Validate day (1-31)
+                if (day < 1 || day > 31) {
+                    isValidValues = false;
+                }
+
+                // Validate month (1-12)
+                if (month < 1 || month > 12) {
+                    isValidValues = false;
+                }
+
+                // Validate year length (exactly 4 digits)
+                if (parts[2].length !== 4 || year < 1000) {
+                    isValidValues = false;
+                }
+            }
+
+            if (value.length > 0 && (!isValid || !isValidValues)) {
+                input.parentElement.parentElement.classList.remove('border-gray-600');
+                input.parentElement.parentElement.classList.add('border-red-500');
+            } else {
+                input.parentElement.parentElement.classList.remove('border-red-500');
+                input.parentElement.parentElement.classList.add('border-gray-600');
+            }
+        }
+// Check password match
+function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const confirmField = document.getElementById('confirm-password').parentElement.parentElement;
+            const matchMeter = document.getElementById('match-meter');
+            const matchText = document.getElementById('match-text');
+
+            if (confirmPassword.length > 0) {
+                if (password === confirmPassword) {
+                    confirmField.classList.remove('border-red-500');
+                    confirmField.classList.add('border-green-500');
+                    matchMeter.className = 'h-full rounded-full transition-all duration-500 bg-green-500';
+                    matchMeter.style.width = '100%';
+                    matchText.textContent = 'Match';
+                    matchText.className = 'text-green-500';
+                } else {
+                    confirmField.classList.remove('border-green-500');
+                    confirmField.classList.add('border-red-500');
+                    matchMeter.className = 'h-full rounded-full transition-all duration-500 bg-red-500';
+                    matchMeter.style.width = '100%';
+                    matchText.textContent = 'No Match';
+                    matchText.className = 'text-red-500';
+                }
+            } else {
+                confirmField.classList.remove('border-red-500', 'border-green-500');
+                confirmField.classList.add('border-gray-600');
+                matchMeter.className = 'h-full rounded-full transition-all duration-500 bg-gray-700';
+                matchMeter.style.width = '0%';
+                matchText.textContent = 'Password Match';
+                matchText.className = 'text-gray-400';
+            }
+}
+
+        // Password strength checker
+        function checkPasswordStrength() {
+const password = document.getElementById('password').value;
+            const meter = document.getElementById('strength-meter');
+            const text = document.getElementById('strength-text');
+
+            // Reset to default
+            let strength = 0;
+            let color = '';
+            let label = '';
+
+            // Check password length
+            if (password.length >= 1) strength += 10;
+            if (password.length >= 4) strength += 20;
+            if (password.length >= 8) strength += 30;
+
+            // Check for uppercase letters
+            if (/[A-Z]/.test(password)) strength += 10;
+
+            // Check for numbers
+            if (/[0-9]/.test(password)) strength += 10;
+
+            // Check for special characters
+            if (/[^A-Za-z0-9]/.test(password)) strength += 10;
+
+            // Calculate percentage and set colors/labels
+            if (strength <= 30) {
+                color = 'bg-red-500';
+                label = 'Weak';
+            } else if (strength <= 60) {
+                color = 'bg-orange-500';
+                label = 'Medium';
+            } else if (strength <= 80) {
+                color = 'bg-yellow-500';
+                label = 'Strong';
+            } else {
+                color = 'bg-green-500';
+                label = 'Very Strong';
+            }
+
+            // Update UI
+            meter.className = `h-full rounded-full transition-all duration-500 ${color}`;
+            meter.style.width = `${strength}%`;
+            text.textContent = label;
+            text.className = strength <= 30 ? 'text-red-500' :
+                            strength <= 60 ? 'text-orange-500' :
+                            strength <= 80 ? 'text-yellow-500' : 'text-green-500';
+
+            // Also check password match when password changes
+            checkPasswordMatch();
+        }
+</script>
+</body>
+</html>
+
+
+
+
