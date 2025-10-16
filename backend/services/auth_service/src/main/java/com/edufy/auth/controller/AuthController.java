@@ -5,6 +5,8 @@ import com.edufy.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import com.edufy.auth.dto.RegisterRequest;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -16,18 +18,25 @@ public class AuthController {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping("/register")
-    public String register(@RequestBody UserEntity user) {
-        if (userRepository.existsByUsername(user.getUsername())) {
+    public String register(@RequestBody RegisterRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             return "Username already exists!";
         }
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return "Email already exists!";
         }
 
-        // Хешируем пароль
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        UserEntity user = new UserEntity();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setDob(request.getDob());
+        user.setRole(request.getRole());
 
         userRepository.save(user);
         return "User registered successfully!";
     }
 }
+
