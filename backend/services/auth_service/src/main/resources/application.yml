@@ -5,8 +5,8 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://37.60.243.113:5432/edufy_auth
-    username: edufy_user
-    password: YourStrongPassword
+    username: admin
+    password: star4536446
     driver-class-name: org.postgresql.Driver
 
   jpa:
