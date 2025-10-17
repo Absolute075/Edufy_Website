@@ -1,12 +1,11 @@
 package com.edufy.auth.controller;
 
+import com.edufy.auth.dto.RegisterRequest;
 import com.edufy.auth.entity.UserEntity;
 import com.edufy.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.edufy.auth.dto.RegisterRequest;
-
 
 @RestController
 @RequestMapping("/auth")
@@ -29,7 +28,6 @@ public class AuthController {
         UserEntity user = new UserEntity();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setDob(request.getDob());
@@ -39,4 +37,3 @@ public class AuthController {
         return "User registered successfully!";
     }
 }
-
