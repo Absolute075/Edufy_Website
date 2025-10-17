@@ -17,13 +17,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // CSRF отключаем
+                .csrf(csrf -> csrf.disable()) // CSRF отключаем, для REST API это нормально
                 .cors(Customizer.withDefaults()) // включаем CORS
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/auth/register", "/auth/login").permitAll() // эти два публичные
+                        .anyRequest().authenticated() // всё остальное требует авторизации
                 )
-                .formLogin(form -> form.disable()); // стандартный login отключаем
+                .httpBasic(Customizer.withDefaults()); // можно использовать Basic Auth для простоты
 
         return http.build();
     }
@@ -31,7 +31,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://edufyuzbekistan.com"));
+        configuration.setAllowedOrigins(List.of("*")); // фронтенд dev и прод
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

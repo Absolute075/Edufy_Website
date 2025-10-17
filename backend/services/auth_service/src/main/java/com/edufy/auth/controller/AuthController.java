@@ -18,6 +18,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public String register(@RequestBody RegisterRequest request) {
+        // Логируем полученные данные для отладки
+        System.out.println("Received DTO: " + request);
+        System.out.println("Username: " + request.getUsername());
+        System.out.println("Email: " + request.getEmail());
+        System.out.println("Role: " + request.getRole());
+
         if (userRepository.existsByUsername(request.getUsername())) {
             return "Username already exists!";
         }
