@@ -1,17 +1,15 @@
 package com.edufy.auth.dto;
 
-import lombok.*;
+import com.edufy.auth.entity.UserEntity;
+import lombok.Data;
+import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 public class RegisterRequest {
     private String username;
     private String email;
-    private String phoneNumber;
-    private String dateOfBirth;
     private String password;
-    private String role; // STUDENT или TEACHER
+    private String phone;
+    private LocalDate birthDate;
+    private UserEntity.Role role;
 }

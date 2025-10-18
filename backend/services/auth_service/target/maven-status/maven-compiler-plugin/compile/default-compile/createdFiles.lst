@@ -1,2 +1,9 @@
+com\edufy\auth\dto\RegisterRequest.class
 com\edufy\auth\AuthServiceApplication.class
+com\edufy\auth\entity\UserEntity$UserEntityBuilder.class
+com\edufy\auth\service\AuthService.class
 com\edufy\auth\controller\AuthController.class
+com\edufy\auth\repository\UserRepository.class
+com\edufy\auth\security\SecurityConfig.class
+com\edufy\auth\entity\UserEntity.class
+com\edufy\auth\dto\RegisterRequest$RegisterRequestBuilder.class
