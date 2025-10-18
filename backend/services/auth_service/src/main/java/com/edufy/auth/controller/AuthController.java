@@ -1,45 +1,21 @@
 package com.edufy.auth.controller;
 
 import com.edufy.auth.dto.RegisterRequest;
-import com.edufy.auth.entity.UserEntity;
-import com.edufy.auth.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import com.edufy.auth.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final AuthService authService;
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
-        // Логируем полученные данные для отладки
-        System.out.println("Received DTO: " + request);
-        System.out.println("Username: " + request.getUsername());
-        System.out.println("Email: " + request.getEmail());
-        System.out.println("Role: " + request.getRole());
-
-        if (userRepository.existsByUsername(request.getUsername())) {
-            return "Username already exists!";
-        }
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            return "Email already exists!";
-        }
-
-        UserEntity user = new UserEntity();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
-        user.setDob(request.getDob());
-        user.setRole(request.getRole());
-
-        userRepository.save(user);
-        return "User registered successfully!";
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+        String result = authService.register(request);
+        return ResponseEntity.ok(result);
     }
 }
