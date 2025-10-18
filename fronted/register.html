@@ -150,11 +150,18 @@ async function registerUser(event) {
         role: document.getElementById("selectedRole").value
     };
 
-    const response = await fetch("https://access.edufyuzbekistan.com/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    });
+    fetch("https://access.edufyuzbekistan.com/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+        username: "...",
+        email: "...",
+        phone: "...",
+        birthDate: "...",
+        role: "...",
+        password: "..."
+    })
+})
 
     const result = await response.json();
     if(response.ok) {
