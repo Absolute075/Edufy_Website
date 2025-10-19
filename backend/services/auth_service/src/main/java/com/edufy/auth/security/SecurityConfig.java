@@ -6,8 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 
 @Configuration
 public class SecurityConfig {
@@ -25,11 +24,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/register.html", "/auth/**").permitAll()
+                        .requestMatchers("/auth/**", "/", "/index.html", "/css/**", "/js/**").permitAll()
                         .anyRequest().authenticated()
                 );
-
-
         return http.build();
     }
 }
