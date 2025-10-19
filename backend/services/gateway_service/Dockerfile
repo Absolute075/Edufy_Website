@@ -1,4 +1,5 @@
-FROM golang:1.24g
+FROM golang:1.24ggit remote -v
+
 
 WORKDIR /app
 
