@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: edufy_db
+    environment:
+      POSTGRES_DB: edufy_auth
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: star4536446
+    ports:
+      - "5432:5432"
+    volumes:
+      - edufy_db_data:/var/lib/postgresql/data
+    restart: always
+
+  auth_service:
+    build: ./services/auth_service
+    image: auth_service:latest
+    container_name: auth_service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/edufy_auth
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: star4536446
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - db
+    restart: always
+
+  gateway_service:
+    build: ./services/gateway_service
+    image: gateway_service:latest
+    container_name: gateway_service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - auth_service
+    restart: always
+
+volumes:
+  edufy_db_data:

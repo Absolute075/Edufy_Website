@@ -4,11 +4,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://37.60.243.113:5432/edufy_auth
+    url: jdbc:postgresql://db:5432/edufy_auth
     username: admin
     password: star4536446
-    driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,4 +14,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  jackson:
+    serialization:
+      indent_output: true
