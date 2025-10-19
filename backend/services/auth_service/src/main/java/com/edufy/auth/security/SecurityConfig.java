@@ -24,13 +24,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // отключаем CSRF для fetch-запросов
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // разрешаем все на /auth/**
+                        .requestMatchers("/auth/register", "/auth/login").permitAll() // публичные маршруты
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()); // можно оставить базовую настройку
+                .httpBasic(Customizer.withDefaults()); // оставляем для внутренних нужд
 
         return http.build();
     }
 }
+
+
