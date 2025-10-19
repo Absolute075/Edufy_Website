@@ -19,19 +19,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ================== CORS CONFIG ==================
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("https://edufyuzbekistan.com")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowCredentials(true);
-            }
-        };
-    }
 
     // ================== SECURITY FILTER CHAIN ==================
     @Bean
