@@ -1,21 +1,31 @@
-# Используем Go 1.23+
-FROM golang:1.25.3
 
-# Рабочая директория внутри контейнера
+FROM golang:1.25 AS builder
+
+
 WORKDIR /app
 
-# Копируем go.mod и go.sum и скачиваем зависимости
+
 COPY go.mod go.sum ./
+
+
 RUN go mod download
 
-# Копируем остальные файлы проекта
+
 COPY . .
 
-# Собираем бинарник из cmd/main.go
+
 RUN go build -o gateway_service ./cmd
 
-# Пробрасываем порт
-EXPOSE 8082
 
-# Запуск приложения
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+
+COPY --from=builder /app/gateway_service .
+
+
+EXPOSE 8080
+
+
 CMD ["./gateway_service"]
