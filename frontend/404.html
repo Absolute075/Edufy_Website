@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Not Found</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js"></script>
+    <style>
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        .glow {
+            text-shadow: 0 0 10px rgba(100, 149, 237, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <div id="vanta-bg" class="absolute inset-0 z-0"></div>
+
+    <div class="relative z-10 text-center px-4">
+        <div class="floating" data-aos="fade-down" data-aos-duration="1000">
+            <h1 class="text-9xl font-bold mb-4 glow">404</h1>
+            <div class="flex justify-center mb-8">
+                <i data-feather="alert-circle" class="w-16 h-16 text-red-400"></i>
+            </div>
+            <h2 class="text-4xl font-semibold mb-6">Lost in Space</h2>
+            <p class="text-xl max-w-lg mx-auto mb-8 text-gray-300">
+                The page you're looking for doesn't exist or has been moved to another galaxy.
+            </p>
+            <div class="space-x-4">
+                <a href="/" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-full transition-all duration-300 transform hover:scale-105">
+                    <i data-feather="home" class="mr-2"></i>
+                    Return Home
+                </a>
+                <a href="#" class="inline-flex items-center px-6 py-3 border border-indigo-400 hover:bg-indigo-900/30 rounded-full transition-all duration-300 transform hover:scale-105">
+                    <i data-feather="compass" class="mr-2"></i>
+                    Explore More
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute bottom-8 left-0 right-0 text-center text-gray-500 text-sm z-10">
+        <p>© 2025 Edufy Uzbekistan. All rights reserved.</p>
+    </div>
+
+    <script>
+        VANTA.GLOBE({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x3a86ff,
+            backgroundColor: 0x111827,
+            size: 0.8
+        });
+
+        AOS.init({
+            duration: 1200,
+            once: true
+        });
+
+        feather.replace();
+
+        // Floating stars animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('body');
+            const starCount = 30;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'absolute rounded-full bg-white';
+
+                // Random size between 1-3px
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+
+                // Random position
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+
+                // Random opacity
+                star.style.opacity = Math.random();
+
+                // Add twinkle animation
+                star.style.animation = `twinkle ${Math.random() * 5 + 3}s ease-in-out infinite alternate`;
+
+                container.appendChild(star);
+            }
+
+            // Add CSS for twinkle animation
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes twinkle {
+                    0% { opacity: 0.2; }
+                    100% { opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
