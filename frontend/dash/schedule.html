@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edufy - Schedule</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="theme.css" />
+  <script src="components.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="animated-bg">
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  </div>
+
+  <!-- Ultra Sidebar (injected) -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- Ultra Main -->
+  <main class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></button>
+      </div>
+      <div class="header-right">
+        <button class="header-icon-btn notification-btn" id="notificationBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span class="notification-badge">1</span></button>
+        <div class="header-user"><img src="../templates/images/caesar.png" alt="User" class="header-avatar"><div class="header-user-info"><span class="header-username">Student</span><span class="header-status">Schedule</span></div></div>
+      </div>
+    </header>
+
+    <div class="profile-container">
+      <div class="profile-card">
+        <div class="card-header"><div class="card-header-left"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect></svg><div><h2 class="card-title">Upcoming</h2><p class="card-subtitle">Your next events</p></div></div></div>
+        <div class="card-body">
+          <div class="timeline" id="scheduleList"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edufy - Report an Issue</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="theme.css" />
+  <script src="components.js" defer></script>
+  <script src="app.js" defer></script>
+  <style>
+    .report-form { display: grid; gap: 14px; }
+    .report-form .field { display: grid; gap: 6px; }
+    .report-form .input, .report-form textarea, .report-form select { width: 100%; padding: 10px 12px; border-radius: 10px; background: #0f1424; border: 1px solid var(--border); color: var(--text); outline: none; }
+    .report-form textarea { min-height: 140px; resize: vertical; }
+    /* Larger category selector for better visibility */
+    #issueCategory { font-size: 16px; padding: 12px 14px; border-radius: 12px; }
+    .report-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+    .hint { color: var(--muted); font-size: 12px; }
+    .uploads { display: grid; gap: 10px; }
+    .dropzone { display: grid; place-items: center; text-align: center; padding: 18px; border: 1px dashed var(--border); border-radius: 12px; background: #0f1424; color: var(--muted); cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+    .dropzone.dragover { border-color: #22d3ee; background: rgba(34,211,238,.06); }
+    .dropzone .dz-title { font-weight: 700; color: var(--text); }
+    .dropzone .dz-sub { font-size: 12px; color: var(--muted); }
+    .thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+    .thumb { position: relative; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #0f1424; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
+    .thumb img { width: 100%; height: 120px; object-fit: cover; display: block; }
+    .thumb .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0)); opacity: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; padding: 6px; transition: opacity .15s ease; }
+    .thumb:hover .overlay { opacity: 1; }
+    .thumb .btn-mini { padding: 4px 8px; border-radius: 8px; font-size: 11px; border: 1px solid var(--border); background: rgba(0,0,0,.4); color: #e5e7eb; cursor: pointer; }
+    .viewer { position: fixed; inset: 0; background: rgba(0,0,0,.82); display: none; align-items: center; justify-content: center; z-index: 10000; }
+    .viewer.open { display: flex; }
+    .viewer img { max-width: 92vw; max-height: 92vh; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+    .viewer .close { position: absolute; top: 20px; right: 24px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: #0f1424; color: #e5e7eb; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="animated-bg">
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  </div>
+
+  <!-- Image Viewer Modal -->
+  <div id="viewer" class="viewer" aria-modal="true" role="dialog">
+    <button class="close" id="viewerClose">Close</button>
+    <img id="viewerImg" alt="Screenshot preview" />
+  </div>
+
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></button>
+      </div>
+      <div class="header-right">
+        <div class="header-user">
+          <img src="../templates/images/caesar.png" alt="User" class="header-avatar">
+          <div class="header-user-info">
+            <span class="header-username">Student</span>
+            <span class="header-status">Report an Issue</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="profile-container">
+      <div class="profile-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 9v4"/>
+              <path d="M12 17h.01"/>
+              <path d="M10 2h4l7 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h5z"/>
+            </svg>
+            <div>
+              <h2 class="card-title">Report an Issue</h2>
+              <p class="card-subtitle">Describe the problem so we can help</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <form id="reportForm" class="report-form" novalidate>
+            <div class="field">
+              <label for="issueTitle">Title</label>
+              <input id="issueTitle" class="input" type="text" placeholder="Short summary (e.g., Payment failed on Plus plan)" required />
+            </div>
+            <div class="field">
+              <label for="issueCategory">Category</label>
+              <select id="issueCategory" class="input" required>
+                <option value="">Select a category</option>
+                <option>Billing</option>
+                <option>Account</option>
+                <option>Performance</option>
+                <option>UI/UX</option>
+                <option>Content</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="issueDescription">Description</label>
+              <textarea id="issueDescription" placeholder="Steps to reproduce, what you expected, what happened" required></textarea>
+              <span class="hint">Include screenshots if possible and the time the issue occurred.</span>
+            </div>
+            <div class="field uploads">
+              <label for="issueImages">Screenshots (optional)</label>
+              <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Add screenshots">
+                <div>
+                  <div class="dz-title">Click to upload or drag & drop</div>
+                  <div class="dz-sub">PNG, JPG supported · Any size · Multiple files</div>
+                </div>
+              </div>
+              <input id="issueImages" class="input" type="file" accept="image/*" multiple style="display:none" />
+              <div id="thumbs" class="thumbs" aria-live="polite"></div>
+              <span class="hint">You can upload images of any size. Multiple files supported.</span>
+            </div>
+            <div class="report-actions">
+              <button type="submit" class="btn">Submit Report</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast">
+    <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span class="toast-message">Thanks! Your report was submitted.</span>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('reportForm');
+      const fileInput = document.getElementById('issueImages');
+      const dropzone = document.getElementById('dropzone');
+      const thumbs = document.getElementById('thumbs');
+      const viewer = document.getElementById('viewer');
+      const viewerImg = document.getElementById('viewerImg');
+      const viewerClose = document.getElementById('viewerClose');
+      let images = [];
+
+      function renderThumbs() {
+        if (!thumbs) return;
+        thumbs.innerHTML = '';
+        images.forEach((file, idx) => {
+          const url = URL.createObjectURL(file);
+          const wrap = document.createElement('div');
+          wrap.className = 'thumb';
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = file.name;
+          const overlay = document.createElement('div');
+          overlay.className = 'overlay';
+          const viewBtn = document.createElement('button');
+          viewBtn.type = 'button';
+          viewBtn.className = 'btn-mini';
+          viewBtn.textContent = 'View';
+          viewBtn.addEventListener('click', () => {
+            if (viewer && viewerImg) {
+              viewerImg.src = url;
+              viewer.classList.add('open');
+            }
+          });
+          const rm = document.createElement('button');
+          rm.type = 'button';
+          rm.className = 'btn-mini';
+          rm.textContent = 'Remove';
+          rm.addEventListener('click', () => {
+            images.splice(idx, 1);
+            renderThumbs();
+          });
+          overlay.appendChild(viewBtn);
+          overlay.appendChild(rm);
+          wrap.appendChild(img);
+          wrap.appendChild(overlay);
+          thumbs.appendChild(wrap);
+        });
+      }
+
+      fileInput?.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        // No size restriction per request; simply append all images
+        images = images.concat(files);
+        renderThumbs();
+      });
+
+      // Dropzone handlers
+      function openPicker() { fileInput?.click(); }
+      dropzone?.addEventListener('click', openPicker);
+      dropzone?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPicker(); } });
+      dropzone?.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+      dropzone?.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+      dropzone?.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const files = Array.from(e.dataTransfer?.files || []).filter(f => f.type.startsWith('image/'));
+        images = images.concat(files);
+        renderThumbs();
+      });
+
+      // Viewer
+      function closeViewer() { viewer?.classList.remove('open'); viewerImg && (viewerImg.src = ''); }
+      viewerClose?.addEventListener('click', closeViewer);
+      viewer?.addEventListener('click', (e) => { if (e.target === viewer) closeViewer(); });
+
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+        const toast = document.getElementById('toast');
+        // Placeholder: here we would prepare FormData with images if sending to backend
+        // const data = new FormData(form);
+        // images.forEach((f, i) => data.append('images', f, f.name));
+        toast?.classList.add('active');
+        setTimeout(() => {
+          toast?.classList.remove('active');
+          if (window.spaNavigate) { window.spaNavigate('settings.html'); }
+          else { window.location.href = 'settings.html'; }
+        }, 1800);
+      });
+    });
+  </script>
+</body>
+</html>

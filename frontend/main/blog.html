@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edufy - Blog & News</title>
+  <link rel="icon" href="../templates/images/favicon.png" type="image/png">
+  <script>tailwind = { config: { corePlugins: { preflight: false } } };</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0a0a0a; --panel:#0f1424; --muted:#9ca3af; --text:#e5e7eb; --border:#1f2937; }
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); }
+    .container { max-width: 1280px; }
+    .card { background:#0f1424; border:1px solid #1f2a44; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    .muted { color:var(--muted) }
+    .post:hover { transform: translateY(-3px); border-color:#2b3b6a; }
+    .post { transition: transform .2s ease, border-color .2s ease; }
+    .pill { border:1px solid #233056; background:#0f1424; padding:4px 10px; border-radius:999px; color:#9fb5ff; font-size:12px; }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen px-4 sm:px-6 lg:px-8">
+    <header class="container mx-auto py-8 flex items-center justify-between">
+      <a href="/" class="text-sm text-gray-400 hover:text-white">← Back to Main Page</a>
+      <span class="pill">Updates</span>
+    </header>
+
+    <main class="container mx-auto">
+      <section class="text-center py-6">
+        <div class="pill inline-flex items-center gap-2">Blog & News</div>
+        <h1 class="text-3xl md:text-5xl font-bold mt-3">Stories and updates from Edufy</h1>
+        <p class="muted max-w-2xl mx-auto mt-3">Анонсы продуктов, советы по подготовке, истории наших студентов.</p>
+      </section>
+
+      <!-- Featured post -->
+      <section class="card overflow-hidden grid md:grid-cols-2 gap-0">
+        <img src="https://picsum.photos/seed/edufy-featured/900/520" alt="Featured" class="w-full h-full object-cover md:h-auto opacity-95">
+        <div class="p-6 flex flex-col justify-center">
+          <div class="text-xs text-blue-300">Featured • Product</div>
+          <h2 class="text-2xl font-semibold mt-2">Новый раздел аналитики: отслеживайте прогресс по навыкам</h2>
+          <p class="muted mt-2 text-sm">Мы добавили детальные метрики Reading/Listening/Writing/Speaking и умные рекомендации по улучшению результата.</p>
+          <div class="mt-4">
+            <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white">Read more</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filters -->
+      <section class="card p-4 mt-4 flex flex-wrap gap-2 items-center justify-between">
+        <div class="flex flex-wrap gap-2">
+          <button class="pill">All</button>
+          <button class="pill">Product</button>
+          <button class="pill">Tips</button>
+          <button class="pill">Community</button>
+          <button class="pill">Admissions</button>
+        </div>
+        <div class="flex gap-2 items-center">
+          <span class="text-sm muted">Sort:</span>
+          <button class="pill">Newest</button>
+          <button class="pill">Popular</button>
+        </div>
+      </section>
+
+      <!-- Posts grid -->
+      <section class="grid md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+        <article class="card post overflow-hidden">
+          <img src="https://picsum.photos/seed/edufy1/640/360" alt="Post cover" class="w-full h-40 object-cover opacity-90">
+          <div class="p-5">
+            <div class="text-xs text-blue-300">Product</div>
+            <h3 class="mt-2 font-semibold">Introducing progress analytics</h3>
+            <p class="muted text-sm mt-1">Следите за навыками и результатами по каждому разделу экзамена.</p>
+            <a href="#" class="inline-flex items-center gap-2 text-blue-400 mt-3">Read more →</a>
+          </div>
+        </article>
+        <article class="card post overflow-hidden">
+          <img src="https://picsum.photos/seed/edufy2/640/360" alt="Post cover" class="w-full h-40 object-cover opacity-90">
+          <div class="p-5">
+            <div class="text-xs text-purple-300">Tips</div>
+            <h3 class="mt-2 font-semibold">7 ошибок при подготовке к IELTS</h3>
+            <p class="muted text-sm mt-1">И как их избежать, чтобы ускорить прогресс и повысить балл.</p>
+            <a href="#" class="inline-flex items-center gap-2 text-blue-400 mt-3">Read more →</a>
+          </div>
+        </article>
+        <article class="card post overflow-hidden">
+          <img src="https://picsum.photos/seed/edufy3/640/360" alt="Post cover" class="w-full h-40 object-cover opacity-90">
+          <div class="p-5">
+            <div class="text-xs text-green-300">Community</div>
+            <h3 class="mt-2 font-semibold">История студента: путь к 7.5</h3>
+            <p class="muted text-sm mt-1">Как осознанная практика и фидбек помогли добиться цели.</p>
+            <a href="#" class="inline-flex items-center gap-2 text-blue-400 mt-3">Read more →</a>
+          </div>
+        </article>
+        <article class="card post overflow-hidden">
+          <img src="https://picsum.photos/seed/edufy4/640/360" alt="Post cover" class="w-full h-40 object-cover opacity-90">
+          <div class="p-5">
+            <div class="text-xs text-blue-300">Product</div>
+            <h3 class="mt-2 font-semibold">Новые Speaking mock‑тесты</h3>
+            <p class="muted text-sm mt-1">Практика в формате экзамена с разбором и подсказками.</p>
+            <a href="#" class="inline-flex items-center gap-2 text-blue-400 mt-3">Read more →</a>
+          </div>
+        </article>
+        <article class="card post overflow-hidden">
+          <img src="https://picsum.photos/seed/edufy5/640/360" alt="Post cover" class="w-full h-40 object-cover opacity-90">
+          <div class="p-5">
+            <div class="text-xs text-purple-300">Tips</div>
+            <h3 class="mt-2 font-semibold">Как планировать подготовку к SAT</h3>
+            <p class="muted text-sm mt-1">Шаблон недельного плана и список ресурсов.</p>
+            <a href="#" class="inline-flex items-center gap-2 text-blue-400 mt-3">Read more →</a>
+          </div>
+        </article>
+        <article class="card post overflow-hidden">
+          <img src="https://picsum.photos/seed/edufy6/640/360" alt="Post cover" class="w-full h-40 object-cover opacity-90">
+          <div class="p-5">
+            <div class="text-xs text-green-300">Community</div>
+            <h3 class="mt-2 font-semibold">Выпускники и офферы</h3>
+            <p class="muted text-sm mt-1">Подборка поступлений наших студентов и их советы.</p>
+            <a href="#" class="inline-flex items-center gap-2 text-blue-400 mt-3">Read more →</a>
+          </div>
+        </article>
+        <article class="card post overflow-hidden">
+          <img src="https://picsum.photos/seed/edufy7/640/360" alt="Post cover" class="w-full h-40 object-cover opacity-90">
+          <div class="p-5">
+            <div class="text-xs text-blue-300">Product</div>
+            <h3 class="mt-2 font-semibold">Обновили раздел Billing</h3>
+            <p class="muted text-sm mt-1">Более прозрачные счета и экспорт инвойсов.</p>
+            <a href="#" class="inline-flex items-center gap-2 text-blue-400 mt-3">Read more →</a>
+          </div>
+        </article>
+        <article class="card post overflow-hidden">
+          <img src="https://picsum.photos/seed/edufy8/640/360" alt="Post cover" class="w-full h-40 object-cover opacity-90">
+          <div class="p-5">
+            <div class="text-xs text-purple-300">Tips</div>
+            <h3 class="mt-2 font-semibold">Список лучших ресурсов для TOEFL</h3>
+            <p class="muted text-sm mt-1">Куда смотреть и как эффективно использовать.</p>
+            <a href="#" class="inline-flex items-center gap-2 text-blue-400 mt-3">Read more →</a>
+          </div>
+        </article>
+      </section>
+
+      <!-- Pagination -->
+      <nav class="mt-6 flex items-center justify-center gap-2 text-sm">
+        <a class="pill" href="#">« Prev</a>
+        <a class="pill" href="#">1</a>
+        <a class="pill" href="#">2</a>
+        <a class="pill" href="#">3</a>
+        <a class="pill" href="#">Next »</a>
+      </nav>
+
+      <!-- Subscribe -->
+      <section class="mt-8 card p-6">
+        <h2 class="text-xl font-semibold">Подписка на обновления</h2>
+        <p class="muted text-sm mt-1">Мы пишем нечасто. Только важные новости и полезные материалы.</p>
+        <form class="mt-3 grid sm:grid-cols-[1fr_auto] gap-2">
+          <input type="email" required placeholder="you@email" class="px-3 py-2 rounded-lg bg-[#0d1221] border border-[#1f2a44] outline-none text-sm">
+          <button type="submit" class="px-4 py-2 rounded-lg border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white">Subscribe</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <footer class="px-4 sm:px-6 lg:px-8 border-t border-gray-800 mt-6 py-8 text-gray-400 text-sm">
+    <div class="container mx-auto flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+      <div>© 2025 Edufy. All rights reserved.</div>
+      <nav class="flex gap-4 flex-wrap">
+        <a href="/" class="hover:text-white">Home</a>
+        <a href="/about" class="hover:text-white">Our Mission</a>
+        <a href="/team" class="hover:text-white">Our Team</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
