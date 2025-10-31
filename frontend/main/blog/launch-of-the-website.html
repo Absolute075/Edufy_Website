@@ -101,7 +101,7 @@
 
           <div class="flex items-center justify-between">
             <a href="/blog" class="text-blue-400 hover:text-white">← Back to Blog</a>
-            <a href="#" class="text-gray-400 hover:text-white">Share</a>
+            <a href="#" id="shareBtn" class="text-gray-400 hover:text-white">Share</a>
           </div>
         </div>
       </article>
@@ -129,4 +129,36 @@
     </footer>
   </div>
 </body>
+<script>
+  (function () {
+    const btn = document.getElementById('shareBtn');
+    if (!btn) return;
+    const data = {
+      title: document.title,
+      text: 'Check out: Launch of the Website — Edufy',
+      url: window.location.href
+    };
+    btn.addEventListener('click', async function (e) {
+      e.preventDefault();
+      const setTemp = (msg) => {
+        const prev = btn.textContent;
+        btn.textContent = msg;
+        setTimeout(() => (btn.textContent = prev), 2000);
+      };
+      try {
+        if (navigator.share) {
+          await navigator.share(data);
+        } else {
+          await navigator.clipboard.writeText(data.url);
+          setTemp('Link copied');
+        }
+      } catch (err) {
+        try {
+          await navigator.clipboard.writeText(data.url);
+          setTemp('Link copied');
+        } catch {}
+      }
+    });
+  })();
+</script>
 </html>
