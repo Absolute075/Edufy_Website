@@ -724,6 +724,20 @@
             .timer {
                 order: 3;
             }
+
+            /* Mobile improvements */
+            body { overflow: auto; }
+            .container { height: auto; min-height: 100vh; }
+            .passage-container { padding: 14px; }
+            .questions-container { padding: 14px; }
+            .start-logo { width: 72px; height: 72px; }
+            .start-title { font-size: 1.25rem; }
+            .start-subtitle { font-size: 0.95rem; }
+            .start-button { padding: 12px 24px; font-size: 1rem; }
+            .btn { padding: 8px 14px; font-size: 0.95rem; }
+            .section-title { font-size: 1.1rem; }
+            .progress-items { gap: 6px; }
+            .passage { padding-bottom: 10px; }
         }
 
         @media (max-width: 480px) {
@@ -736,6 +750,16 @@
             .passage-info {
                 font-size: 0.9rem;
             }
+
+            /* Small phones */
+            .start-logo { width: 64px; height: 64px; }
+            .start-title { font-size: 1.15rem; }
+            .start-subtitle { font-size: 0.9rem; }
+            .passage-container, .questions-container { padding: 12px; }
+            .question { padding: 8px; }
+            .option { padding: 10px 12px; }
+            .input-field { width: 100%; max-width: 320px; }
+            .timer { min-width: 0; }
         }
     </style>
 </head>
