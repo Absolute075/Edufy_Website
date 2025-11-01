@@ -1,196 +1,196 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edufy - Our Mission</title>
-  <link rel="icon" href="../templates/images/favicon.png" type="image/png">
-  <script>
-    tailwind = { config: { corePlugins: { preflight: false } } };
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --bg:#0a0a0a; --panel:#0f1424; --muted:#9ca3af; --text:#e5e7eb; --border:#1f2937; }
-    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); }
-    .container { max-width: 1280px; }
-    .card { background: rgba(17,17,17,.9); border:1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-    .chip { border:1px solid #273257; background:#10172b; color:#a5b4fc; border-radius:999px; padding:6px 12px; font-size:12px; }
-    .muted { color:var(--muted) }
-    .stat { background:#0d1221; border:1px solid #1f2a44; border-radius:14px }
-    .hero { background: radial-gradient(1200px 500px at 50% -10%, rgba(58,134,255,.18), transparent 60%); }
-    .btn { display:inline-flex; gap:8px; align-items:center; padding:10px 16px; border-radius:12px; border:1px solid #2a375e; background:#0f1424; color:#e5e7eb; text-decoration:none; }
-    .btn:hover { filter:brightness(1.1) }
-    .gradient { background: linear-gradient(90deg, #60a5fa, #a78bfa, #34d399); -webkit-background-clip:text; background-clip:text; color:transparent; }
-    .section-title { font-size: 1.25rem; font-weight: 600; }
-    .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; border:1px solid #233056; background:#0f1424; color:#9fb5ff; font-size:12px; }
-    .timeline { position: relative; }
-    .timeline:before { content:""; position:absolute; left:12px; top:0; bottom:0; width:2px; background:#1f2a44; }
-    .t-item { position:relative; padding-left:36px; }
-    .t-item:before { content:""; position:absolute; left:5px; top:6px; width:14px; height:14px; border-radius:50%; background:#3b82f6; box-shadow:0 0 0 4px rgba(59,130,246,.15) }
-    .team-card { background:#0f1424; border:1px solid #1f2a44; border-radius:14px; padding:16px; text-align:center; }
-    .team-card img { width:72px; height:72px; border-radius:50%; object-fit:cover; margin:0 auto; box-shadow:0 4px 14px rgba(0,0,0,.35) }
-    .role { color:#9ca3af; font-size:12px; }
-    .quote { background:#0d1221; border:1px solid #1f2a44; border-radius:14px; padding:16px; }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edufy - Our Mission</title>
+    <link rel="icon" href="../templates/images/favicon.png" type="image/png">
+    <script>
+        tailwind = { config: { corePlugins: { preflight: false } } };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#0a0a0a; --panel:#0f1424; --muted:#9ca3af; --text:#e5e7eb; --border:#1f2937; }
+        body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); }
+        .container { max-width: 1280px; }
+        .card { background: rgba(17,17,17,.9); border:1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+        .chip { border:1px solid #273257; background:#10172b; color:#a5b4fc; border-radius:999px; padding:6px 12px; font-size:12px; }
+        .muted { color:var(--muted) }
+        .stat { background:#0d1221; border:1px solid #1f2a44; border-radius:14px }
+        .hero { background: radial-gradient(1200px 500px at 50% -10%, rgba(58,134,255,.18), transparent 60%); }
+        .btn { display:inline-flex; gap:8px; align-items:center; padding:10px 16px; border-radius:12px; border:1px solid #2a375e; background:#0f1424; color:#e5e7eb; text-decoration:none; }
+        .btn:hover { filter:brightness(1.1) }
+        .gradient { background: linear-gradient(90deg, #60a5fa, #a78bfa, #34d399); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .section-title { font-size: 1.25rem; font-weight: 600; }
+        .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; border:1px solid #233056; background:#0f1424; color:#9fb5ff; font-size:12px; }
+        .timeline { position: relative; }
+        .timeline:before { content:""; position:absolute; left:12px; top:0; bottom:0; width:2px; background:#1f2a44; }
+        .t-item { position:relative; padding-left:36px; }
+        .t-item:before { content:""; position:absolute; left:5px; top:6px; width:14px; height:14px; border-radius:50%; background:#3b82f6; box-shadow:0 0 0 4px rgba(59,130,246,.15) }
+        .team-card { background:#0f1424; border:1px solid #1f2a44; border-radius:14px; padding:16px; text-align:center; }
+        .team-card img { width:72px; height:72px; border-radius:50%; object-fit:cover; margin:0 auto; box-shadow:0 4px 14px rgba(0,0,0,.35) }
+        .role { color:#9ca3af; font-size:12px; }
+        .quote { background:#0d1221; border:1px solid #1f2a44; border-radius:14px; padding:16px; }
+    </style>
 </head>
 <body>
-  <div class="min-h-screen hero px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen hero px-4 sm:px-6 lg:px-8">
     <header class="container mx-auto py-8 flex items-center justify-between">
-      <a href="/" class="text-sm text-gray-400 hover:text-white">← Back to Main Page</a>
-      <span></span>
+        <a href="/" class="text-sm text-gray-400 hover:text-white">← Back to Main Page</a>
+        <span></span>
     </header>
 
     <main class="container mx-auto">
-      <!-- Hero -->
-      <section class="text-center py-8 md:py-14">
-        <div class="inline-flex items-center gap-2 chip">Our Mission</div>
-        <h1 class="text-3xl md:text-5xl font-bold mt-4">Make world‑class exam prep accessible for every student</h1>
-        <p class="muted max-w-3xl mx-auto mt-4">We build tools and courses that help learners from Uzbekistan and beyond prepare for IELTS, SAT, TOEFL, AP and more — smarter, faster, and with confidence.</p>
-        
-      </section>
+        <!-- Hero -->
+        <section class="text-center py-8 md:py-14">
+            <div class="inline-flex items-center gap-2 chip">Our Mission</div>
+            <h1 class="text-3xl md:text-5xl font-bold mt-4">Make world‑class exam prep accessible for every student</h1>
+            <p class="muted max-w-3xl mx-auto mt-4">We build tools and courses that help learners from Uzbekistan and beyond prepare for IELTS, SAT, TOEFL, AP and more — smarter, faster, and with confidence.</p>
 
-      <!-- What we do -->
-      <section class="grid md:grid-cols-2 gap-6 mt-6">
-        <div class="card p-6">
-          <h2 class="text-xl font-semibold">Why Edufy?</h2>
-          <p class="muted mt-2">Traditional prep can be expensive and inefficient. Edufy blends expert‑made content with AI guidance and progress tracking to maximize results in less time.</p>
-          <ul class="mt-4 grid gap-2 text-sm">
-            <li>• Personalized study plans and analytics</li>
-            <li>• Speaking and writing feedback loops</li>
-            <li>• Practice tests with smart review</li>
-          </ul>
-        </div>
-        <div class="card p-6">
-          <h2 class="text-xl font-semibold">Our Promise</h2>
-          <p class="muted mt-2">Clarity, consistency, and care. We aim to remove friction from learning — from first step to test day — and support students on their path to top universities.</p>
-          <div class="mt-4 flex gap-2 flex-wrap">
-            <span class="chip">Access</span>
-            <span class="chip">Quality</span>
-            <span class="chip">Community</span>
-            <span class="chip">Results</span>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Impact stats -->
-      <section class="grid md:grid-cols-3 gap-4 mt-6">
-        <div class="stat p-6 text-center">
-          <div class="text-4xl font-bold text-blue-400">50+</div>
-          <div class="muted mt-1 text-sm">Students joined</div>
-        </div>
-        <div class="stat p-6 text-center">
-          <div class="text-4xl font-bold text-purple-300">100+</div>
-          <div class="muted mt-1 text-sm">Materials completed</div>
-        </div>
-        <div class="stat p-6 text-center">
-          <div class="text-4xl font-bold text-green-300">1.5x</div>
-          <div class="muted mt-1 text-sm">Average score improvement</div>
-        </div>
-      </section>
+        <!-- What we do -->
+        <section class="grid md:grid-cols-2 gap-6 mt-6">
+            <div class="card p-6">
+                <h2 class="text-xl font-semibold">Why Edufy?</h2>
+                <p class="muted mt-2">Traditional prep can be expensive and inefficient. Edufy blends expert‑made content with AI guidance and progress tracking to maximize results in less time.</p>
+                <ul class="mt-4 grid gap-2 text-sm">
+                    <li>• Personalized study plans and analytics</li>
+                    <li>• Speaking and writing feedback loops</li>
+                    <li>• Practice tests with smart review</li>
+                </ul>
+            </div>
+            <div class="card p-6">
+                <h2 class="text-xl font-semibold">Our Promise</h2>
+                <p class="muted mt-2">Clarity, consistency, and care. We aim to remove friction from learning — from first step to test day — and support students on their path to top universities.</p>
+                <div class="mt-4 flex gap-2 flex-wrap">
+                    <span class="chip">Access</span>
+                    <span class="chip">Quality</span>
+                    <span class="chip">Community</span>
+                    <span class="chip">Results</span>
+                </div>
+            </div>
+        </section>
 
-      <!-- Values -->
-      <section class="mt-8 card p-6">
-        <h2 class="text-xl font-semibold">Our Values</h2>
-        <div class="grid md:grid-cols-3 gap-6 mt-4">
-          <div>
-            <h3 class="font-semibold">Learner‑first</h3>
-            <p class="muted mt-1 text-sm">We design everything around learner needs and outcomes.</p>
-          </div>
-          <div>
-            <h3 class="font-semibold">Evidence‑based</h3>
-            <p class="muted mt-1 text-sm">We combine pedagogy, data, and feedback to guide improvements.</p>
-          </div>
-          <div>
-            <h3 class="font-semibold">Accessible</h3>
-            <p class="muted mt-1 text-sm">We strive to make high‑quality prep available to everyone.</p>
-          </div>
-        </div>
-      </section>
+        <!-- Impact stats -->
+        <section class="grid md:grid-cols-3 gap-4 mt-6">
+            <div class="stat p-6 text-center">
+                <div class="text-4xl font-bold text-blue-400">50+</div>
+                <div class="muted mt-1 text-sm">Students joined</div>
+            </div>
+            <div class="stat p-6 text-center">
+                <div class="text-4xl font-bold text-purple-300">100+</div>
+                <div class="muted mt-1 text-sm">Materials completed</div>
+            </div>
+            <div class="stat p-6 text-center">
+                <div class="text-4xl font-bold text-green-300">1.5x</div>
+                <div class="muted mt-1 text-sm">Average score improvement</div>
+            </div>
+        </section>
 
-      <!-- Journey / Timeline -->
-      <section class="mt-8 card p-6">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold">Our Journey</h2>
-          <span class="pill">Since 2025</span>
-        </div>
-        <div class="timeline mt-4 grid gap-4">
-          <div class="t-item">
-            <div class="section-title">Kickoff · 2025</div>
-            <div class="muted text-sm mt-1">We’re just getting started — laying the foundation for a better exam prep journey.</div>
-          </div>
-          <div class="t-item">
-            <div class="section-title">Next</div>
-            <div class="muted text-sm mt-1">Mobile app, deeper personalization, and more languages.</div>
-          </div>
-        </div>
-      </section>
+        <!-- Values -->
+        <section class="mt-8 card p-6">
+            <h2 class="text-xl font-semibold">Our Values</h2>
+            <div class="grid md:grid-cols-3 gap-6 mt-4">
+                <div>
+                    <h3 class="font-semibold">Learner‑first</h3>
+                    <p class="muted mt-1 text-sm">We design everything around learner needs and outcomes.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold">Evidence‑based</h3>
+                    <p class="muted mt-1 text-sm">We combine pedagogy, data, and feedback to guide improvements.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold">Accessible</h3>
+                    <p class="muted mt-1 text-sm">We strive to make high‑quality prep available to everyone.</p>
+                </div>
+            </div>
+        </section>
 
-      <!-- Team -->
-      <section class="mt-8">
-        <h2 class="text-xl font-semibold mb-4">The Core Team</h2>
-        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <div class="team-card">
-            <img src="../templates/images/photo_2025-10-20_20-22-58.jpg" alt="Team member" />
-            <div class="mt-3 font-semibold">Baha</div>
-            <div class="role">CoFounder & Tech-Engineer</div>
-          </div>
-          <div class="team-card">
-            <img src="../templates/images/photo_2025-10-30_18-03-35.jpg" alt="Team member" />
-            <div class="mt-3 font-semibold">T. Asilbek</div>
-            <div class="role">Founder & CEO</div>
-          </div>
-          <div class="team-card">
-            <img src="../templates/images/photo_2025-10-30_17-50-53.jpg" alt="Team member" />
-            <div class="mt-3 font-semibold">A. Jurabek</div>
-            <div class="role">Academics</div>
-          </div>
-        </div>
-      </section>
+        <!-- Journey / Timeline -->
+        <section class="mt-8 card p-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold">Our Journey</h2>
+                <span class="pill">Since 2025</span>
+            </div>
+            <div class="timeline mt-4 grid gap-4">
+                <div class="t-item">
+                    <div class="section-title">Kickoff · 2025</div>
+                    <div class="muted text-sm mt-1">We’re just getting started — laying the foundation for a better exam prep journey.</div>
+                </div>
+                <div class="t-item">
+                    <div class="section-title">Next</div>
+                    <div class="muted text-sm mt-1">Mobile app, deeper personalization, and more languages.</div>
+                </div>
+            </div>
+        </section>
 
-      <!-- Testimonials -->
-      <section class="mt-8">
-        <h2 class="text-xl font-semibold mb-4">What students say</h2>
-        <div class="grid md:grid-cols-3 gap-4">
-          <div class="quote">
-            <div class="text-sm">“Edufy helped me raise my IELTS”</div>
-            <div class="mt-2 text-xs muted">Dilshod • IELTS</div>
-          </div>
-          <div class="quote">
-            <div class="text-sm">“Just Wow”</div>
-            <div class="mt-2 text-xs muted">Nodira • IELTS</div>
-          </div>
-          <div class="quote">
-            <div class="text-sm">“Great platform”</div>
-            <div class="mt-2 text-xs muted">Bekzod • IELTS</div>
-          </div>
-        </div>
-      </section>
+        <!-- Team -->
+        <section class="mt-8">
+            <h2 class="text-xl font-semibold mb-4">The Core Team</h2>
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="team-card">
+                    <img src="../templates/images/photo_2025-10-20_20-22-58.jpg" alt="Team member" />
+                    <div class="mt-3 font-semibold">Baha</div>
+                    <div class="role">CoFounder & Tech-Engineer</div>
+                </div>
+                <div class="team-card">
+                    <img src="../templates/images/photo_2025-10-30_18-03-35.jpg" alt="Team member" />
+                    <div class="mt-3 font-semibold">T. Asilbek</div>
+                    <div class="role">Founder & CEO</div>
+                </div>
+                <div class="team-card">
+                    <img src="../templates/images/photo_2025-10-30_17-50-53.jpg" alt="Team member" />
+                    <div class="mt-3 font-semibold">A. Jurabek</div>
+                    <div class="role">Academics</div>
+                </div>
+            </div>
+        </section>
 
-      <!-- Call to action -->
-      <section class="text-center my-10">
-        <div class="card p-6 inline-block text-left">
-          <h3 class="text-lg font-semibold">Ready to start?</h3>
-          <p class="muted mt-1 text-sm max-w-2xl">Create your account and begin your personalized learning path today.</p>
-          <div class="mt-4 flex gap-3 justify-center">
-            <a href="https://access.edufyuzbekistan.com/register" target="_blank" rel="noopener" class="btn">Create Account</a>
-          </div>
-        </div>
-      </section>
+        <!-- Testimonials -->
+        <section class="mt-8">
+            <h2 class="text-xl font-semibold mb-4">What students say</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="quote">
+                    <div class="text-sm">“Edufy helped me raise my IELTS”</div>
+                    <div class="mt-2 text-xs muted">Dilshod • IELTS</div>
+                </div>
+                <div class="quote">
+                    <div class="text-sm">“Just Wow”</div>
+                    <div class="mt-2 text-xs muted">Nodira • IELTS</div>
+                </div>
+                <div class="quote">
+                    <div class="text-sm">“Great platform”</div>
+                    <div class="mt-2 text-xs muted">Bekzod • IELTS</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to action -->
+        <section class="text-center my-10">
+            <div class="card p-6 inline-block text-left">
+                <h3 class="text-lg font-semibold">Ready to start?</h3>
+                <p class="muted mt-1 text-sm max-w-2xl">Create your account and begin your personalized learning path today.</p>
+                <div class="mt-4 flex gap-3 justify-center">
+                    <a href="https://access.edufyuzbekistan.com/register" target="_blank" rel="noopener" class="btn">Create Account</a>
+                </div>
+            </div>
+        </section>
     </main>
-  </div>
+</div>
 
-  <footer class="px-4 sm:px-6 lg:px-8 border-t border-gray-800 mt-6 py-8 text-gray-400 text-sm">
+<footer class="px-4 sm:px-6 lg:px-8 border-t border-gray-800 mt-6 py-8 text-gray-400 text-sm">
     <div class="container mx-auto flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-      <div>© 2025 Edufy. All rights reserved.</div>
-      <nav class="flex gap-4 flex-wrap">
-        <a href="/" class="hover:text-white">Main Page</a>
-        <a href="/faq" class="hover:text-white">FAQ</a>
-        <a href="/contact" class="hover:text-white">Contact</a>
-      </nav>
+        <div>© 2025 Edufy. All rights reserved.</div>
+        <nav class="flex gap-4 flex-wrap">
+            <a href="/" class="hover:text-white">Main Page</a>
+            <a href="/faq" class="hover:text-white">FAQ</a>
+            <a href="/contact" class="hover:text-white">Contact</a>
+        </nav>
     </div>
-  </footer>
+</footer>
 </body>
 </html>

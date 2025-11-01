@@ -1,273 +1,273 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edufy - Our Team</title>
-  <link rel="icon" href="../templates/images/favicon.png" type="image/png">
-  <script>tailwind = { config: { corePlugins: { preflight: false } } };</script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --bg:#0a0a0a; --panel:#0f1424; --muted:#9ca3af; --text:#e5e7eb; --border:#1f2937; }
-    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); }
-    .container { max-width: 1280px; }
-    .card { background:#0f1424; border:1px solid #1f2a44; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-    .muted { color:var(--muted) }
-    .badge { border:1px solid #273257; background:#10172b; color:#a5b4fc; border-radius:999px; padding:4px 10px; font-size:12px; }
-    .member { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
-    .member:hover { transform: translateY(-4px); border-color:#2b3b6a; box-shadow: 0 14px 30px rgba(0,0,0,.45); }
-    .grid-cards { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:16px; }
-    .avatar { width:96px; height:96px; border-radius:50%; object-fit:cover; box-shadow:0 6px 20px rgba(0,0,0,.35) }
-    .pill { border:1px solid #233056; background:#0f1424; padding:4px 10px; border-radius:999px; color:#9fb5ff; font-size:12px; }
-    .section-title { font-size: 1.25rem; font-weight: 600; }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edufy - Our Team</title>
+    <link rel="icon" href="../templates/images/favicon.png" type="image/png">
+    <script>tailwind = { config: { corePlugins: { preflight: false } } };</script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#0a0a0a; --panel:#0f1424; --muted:#9ca3af; --text:#e5e7eb; --border:#1f2937; }
+        body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); }
+        .container { max-width: 1280px; }
+        .card { background:#0f1424; border:1px solid #1f2a44; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+        .muted { color:var(--muted) }
+        .badge { border:1px solid #273257; background:#10172b; color:#a5b4fc; border-radius:999px; padding:4px 10px; font-size:12px; }
+        .member { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+        .member:hover { transform: translateY(-4px); border-color:#2b3b6a; box-shadow: 0 14px 30px rgba(0,0,0,.45); }
+        .grid-cards { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:16px; }
+        .avatar { width:96px; height:96px; border-radius:50%; object-fit:cover; box-shadow:0 6px 20px rgba(0,0,0,.35) }
+        .pill { border:1px solid #233056; background:#0f1424; padding:4px 10px; border-radius:999px; color:#9fb5ff; font-size:12px; }
+        .section-title { font-size: 1.25rem; font-weight: 600; }
+    </style>
 </head>
 <body>
-  <div class="min-h-screen px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen px-4 sm:px-6 lg:px-8">
     <header class="container mx-auto py-8 flex items-center justify-between">
-      <a href="/" class="text-sm text-gray-400 hover:text-white">← Back to Main Page</a>
-      <span class="pill">We are hiring</span>
+        <a href="/" class="text-sm text-gray-400 hover:text-white">← Back to Main Page</a>
+        <span class="pill">We are hiring</span>
     </header>
 
     <main class="container mx-auto">
-      <section class="text-center py-6">
-        <div class="badge inline-flex items-center gap-2">Our Team</div>
-        <h1 class="text-3xl md:text-5xl font-bold mt-3">People behind Edufy</h1>
-        <p class="muted max-w-2xl mx-auto mt-3">A small and ambitious team creating the best exam preparation experience across countries.</p>
-      </section>
-      <!-- Stats band -->
-      <section class="grid md:grid-cols-3 gap-4 mt-2">
-        <div class="card p-5 text-center">
-          <div class="text-4xl font-bold text-blue-400">50+</div>
-          <div class="muted text-sm mt-1">Core team members</div>
-        </div>
-        <div class="card p-5 text-center">
-          <div class="text-4xl font-bold text-green-300">100%</div>
-          <div class="muted text-sm mt-1">Disciplines</div>
-        </div>
-        <div class="card p-5 text-center">
-          <div class="text-4xl font-bold text-purple-300">100%</div>
-          <div class="muted text-sm mt-1">Student‑focused</div>
-        </div>
-      </section>
+        <section class="text-center py-6">
+            <div class="badge inline-flex items-center gap-2">Our Team</div>
+            <h1 class="text-3xl md:text-5xl font-bold mt-3">People behind Edufy</h1>
+            <p class="muted max-w-2xl mx-auto mt-3">A small and ambitious team creating the best exam preparation experience across countries.</p>
+        </section>
+        <!-- Stats band -->
+        <section class="grid md:grid-cols-3 gap-4 mt-2">
+            <div class="card p-5 text-center">
+                <div class="text-4xl font-bold text-blue-400">50+</div>
+                <div class="muted text-sm mt-1">Core team members</div>
+            </div>
+            <div class="card p-5 text-center">
+                <div class="text-4xl font-bold text-green-300">100%</div>
+                <div class="muted text-sm mt-1">Disciplines</div>
+            </div>
+            <div class="card p-5 text-center">
+                <div class="text-4xl font-bold text-purple-300">100%</div>
+                <div class="muted text-sm mt-1">Student‑focused</div>
+            </div>
+        </section>
 
-      <!-- Founders -->
-      <section class="mt-4">
-        <h2 class="section-title mb-3">Founders</h2>
-        <div class="grid-cards">
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-10-30_18-03-35.jpg" alt="Founder" />
-            <div class="mt-3 font-semibold">T. Asilbek</div>
-            <div class="text-xs muted">Founder & CEO</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-10-20_20-22-58.jpg" alt="CoFounder" />
-            <div class="mt-3 font-semibold">Baha</div>
-            <div class="text-xs muted">CoFounder & CTO</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/10d554ea6f330f1612526b54562c8a33.jpg" alt="Founder" />
-            <div class="mt-3 font-semibold">A. Doniyorbek</div>
-            <div class="text-xs muted"> CoFounder & CCO</div>
-          </div>
-        </div>
-      </section>
+        <!-- Founders -->
+        <section class="mt-4">
+            <h2 class="section-title mb-3">Founders</h2>
+            <div class="grid-cards">
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-10-30_18-03-35.jpg" alt="Founder" />
+                    <div class="mt-3 font-semibold">T. Asilbek</div>
+                    <div class="text-xs muted">Founder & CEO</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-10-20_20-22-58.jpg" alt="CoFounder" />
+                    <div class="mt-3 font-semibold">Baha</div>
+                    <div class="text-xs muted">CoFounder & CTO</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/10d554ea6f330f1612526b54562c8a33.jpg" alt="Founder" />
+                    <div class="mt-3 font-semibold">A. Doniyorbek</div>
+                    <div class="text-xs muted"> CoFounder & CCO</div>
+                </div>
+            </div>
+        </section>
 
-      <!-- Engineering -->
-      <section class="mt-6">
-        <h2 class="section-title mb-3">Engineering</h2>
-        <div class="grid-cards">
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-05-24_00-55-26.jpg" alt="Engineer" />
-            <div class="mt-3 font-semibold">Z. Shoxrukh</div>
-            <div class="text-xs muted">Mobile Dev</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/97cb12c0c2a5bb62c2d6fdcb9dfd0428.jpg" alt="Engineer" />
-            <div class="mt-3 font-semibold">Zokhidjan</div>
-            <div class="text-xs muted">Mobile Dev</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/97cb12c0c2a5bb62c2d6fdcb9dfd0428.jpg" alt="Engineer" />
-            <div class="mt-3 font-semibold">R. Mukhriddin</div>
-            <div class="text-xs muted">Mobile Dev</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-10-20_20-22-58.jpg" alt="Engineer" />
-            <div class="mt-3 font-semibold">Baha</div>
-            <div class="text-xs muted">Tech Engineer</div>
-          </div>
-        </div>
-      </section>
+        <!-- Engineering -->
+        <section class="mt-6">
+            <h2 class="section-title mb-3">Engineering</h2>
+            <div class="grid-cards">
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-05-24_00-55-26.jpg" alt="Engineer" />
+                    <div class="mt-3 font-semibold">Z. Shoxrukh</div>
+                    <div class="text-xs muted">Mobile Dev</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/97cb12c0c2a5bb62c2d6fdcb9dfd0428.jpg" alt="Engineer" />
+                    <div class="mt-3 font-semibold">Zokhidjan</div>
+                    <div class="text-xs muted">Mobile Dev</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/97cb12c0c2a5bb62c2d6fdcb9dfd0428.jpg" alt="Engineer" />
+                    <div class="mt-3 font-semibold">R. Mukhriddin</div>
+                    <div class="text-xs muted">Mobile Dev</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-10-20_20-22-58.jpg" alt="Engineer" />
+                    <div class="mt-3 font-semibold">Baha</div>
+                    <div class="text-xs muted">Tech Engineer</div>
+                </div>
+            </div>
+        </section>
 
-      <!-- UI/UX Design -->
-      <section class="mt-6">
-        <h2 class="section-title mb-3">UI/UX Design</h2>
-        <div class="grid-cards">
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/5dfad380e754694a4b064ab151429547.jpg" alt="Designer" />
-            <div class="mt-3 font-semibold">I. Ruslan</div>
-            <div class="text-xs muted">Mobile Designer</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/5dfad380e754694a4b064ab151429547.jpg" alt="Designer" />
-            <div class="mt-3 font-semibold">N. Otamurod</div>
-            <div class="text-xs muted">Mobile Designer</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/5dfad380e754694a4b064ab151429547.jpg" alt="Designer" />
-            <div class="mt-3 font-semibold">Charos</div>
-            <div class="text-xs muted">Designer</div>
-          </div>
-        </div>
-      </section>
+        <!-- UI/UX Design -->
+        <section class="mt-6">
+            <h2 class="section-title mb-3">UI/UX Design</h2>
+            <div class="grid-cards">
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/5dfad380e754694a4b064ab151429547.jpg" alt="Designer" />
+                    <div class="mt-3 font-semibold">I. Ruslan</div>
+                    <div class="text-xs muted">Mobile Designer</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/5dfad380e754694a4b064ab151429547.jpg" alt="Designer" />
+                    <div class="mt-3 font-semibold">N. Otamurod</div>
+                    <div class="text-xs muted">Mobile Designer</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/5dfad380e754694a4b064ab151429547.jpg" alt="Designer" />
+                    <div class="mt-3 font-semibold">Charos</div>
+                    <div class="text-xs muted">Designer</div>
+                </div>
+            </div>
+        </section>
 
-      <!-- Content Production -->
-      <section class="mt-6">
-        <h2 class="section-title mb-3">Content Production</h2>
-        <div class="grid-cards">
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/564341800_18083585420486333_6036206992583860370_n.jpg" alt="Content Producer" />
-            <div class="mt-3 font-semibold">Feride</div>
-            <div class="text-xs muted">Content Producer</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-10-25_23-24-45.jpg" alt="Video Editor" />
-            <div class="mt-3 font-semibold">Otabek</div>
-            <div class="text-xs muted">Content Producer</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-09-28_21-35-41.jpg" alt="Script Writer" />
-            <div class="mt-3 font-semibold">R. Zaynab</div>
-            <div class="text-xs muted">Copyrighter</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-08-14_08-27-12.jpg" alt="Videographer" />
-            <div class="mt-3 font-semibold">E. Sevinch</div>
-            <div class="text-xs muted">Copyrighter</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-10-25_19-10-11.jpg" alt="Motion Designer" />
-            <div class="mt-3 font-semibold">Bakhtiyor</div>
-            <div class="text-xs muted">Copyrighter</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-10-30_09-42-08.jpg" alt="Content QA" />
-            <div class="mt-3 font-semibold">D. Sevara</div>
-            <div class="text-xs muted">Copyrighter</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/10d554ea6f330f1612526b54562c8a33.jpg" alt="SMM Manager" />
-            <div class="mt-3 font-semibold">Shokh</div>
-            <div class="text-xs muted">Copyrighter</div>
-          </div>
-        </div>
-      </section>
+        <!-- Content Production -->
+        <section class="mt-6">
+            <h2 class="section-title mb-3">Content Production</h2>
+            <div class="grid-cards">
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/564341800_18083585420486333_6036206992583860370_n.jpg" alt="Content Producer" />
+                    <div class="mt-3 font-semibold">Feride</div>
+                    <div class="text-xs muted">Content Producer</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-10-25_23-24-45.jpg" alt="Video Editor" />
+                    <div class="mt-3 font-semibold">Otabek</div>
+                    <div class="text-xs muted">Content Producer</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-09-28_21-35-41.jpg" alt="Script Writer" />
+                    <div class="mt-3 font-semibold">R. Zaynab</div>
+                    <div class="text-xs muted">Copyrighter</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-08-14_08-27-12.jpg" alt="Videographer" />
+                    <div class="mt-3 font-semibold">E. Sevinch</div>
+                    <div class="text-xs muted">Copyrighter</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-10-25_19-10-11.jpg" alt="Motion Designer" />
+                    <div class="mt-3 font-semibold">Bakhtiyor</div>
+                    <div class="text-xs muted">Copyrighter</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-10-30_09-42-08.jpg" alt="Content QA" />
+                    <div class="mt-3 font-semibold">D. Sevara</div>
+                    <div class="text-xs muted">Copyrighter</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/10d554ea6f330f1612526b54562c8a33.jpg" alt="SMM Manager" />
+                    <div class="mt-3 font-semibold">Shokh</div>
+                    <div class="text-xs muted">Copyrighter</div>
+                </div>
+            </div>
+        </section>
 
-      <!-- Academics -->
-      <section class="mt-6">
-        <h2 class="section-title mb-3">Academics</h2>
-        <div class="grid-cards">
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-10-30_17-50-53.jpg" alt="Academics" />
-            <div class="mt-3 font-semibold">A. Jurabek</div>
-            <div class="text-xs muted">IELTS Lead</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/10d554ea6f330f1612526b54562c8a33.jpg" alt="Academics" />
-            <div class="mt-3 font-semibold">Reporter</div>
-            <div class="text-xs muted">Writing</div>
-          </div>
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/10d554ea6f330f1612526b54562c8a33.jpg" alt="Academics" />
-            <div class="mt-3 font-semibold">Reporter</div>
-            <div class="text-xs muted">Speaking</div>
-          </div>
-        </div>
-      </section>
+        <!-- Academics -->
+        <section class="mt-6">
+            <h2 class="section-title mb-3">Academics</h2>
+            <div class="grid-cards">
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-10-30_17-50-53.jpg" alt="Academics" />
+                    <div class="mt-3 font-semibold">A. Jurabek</div>
+                    <div class="text-xs muted">IELTS Lead</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/10d554ea6f330f1612526b54562c8a33.jpg" alt="Academics" />
+                    <div class="mt-3 font-semibold">Reporter</div>
+                    <div class="text-xs muted">Writing</div>
+                </div>
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/10d554ea6f330f1612526b54562c8a33.jpg" alt="Academics" />
+                    <div class="mt-3 font-semibold">Reporter</div>
+                    <div class="text-xs muted">Speaking</div>
+                </div>
+            </div>
+        </section>
 
-      <!-- Advisors -->
-      <section class="mt-6">
-        <h2 class="section-title mb-3">Advisor</h2>
-        <div class="grid-cards">
-          <div class="card p-6 member text-center">
-            <img class="avatar mx-auto" src="../templates/images/photo_2025-10-13_12-33-50.jpg" alt="Advisor" />
-            <div class="mt-3 font-semibold">Sh. Mushtariy</div>
-            <div class="text-xs muted">Education Strategy</div>
-          </div>
-        </div>
-      </section>
+        <!-- Advisors -->
+        <section class="mt-6">
+            <h2 class="section-title mb-3">Advisor</h2>
+            <div class="grid-cards">
+                <div class="card p-6 member text-center">
+                    <img class="avatar mx-auto" src="../templates/images/photo_2025-10-13_12-33-50.jpg" alt="Advisor" />
+                    <div class="mt-3 font-semibold">Sh. Mushtariy</div>
+                    <div class="text-xs muted">Education Strategy</div>
+                </div>
+            </div>
+        </section>
 
-      <!-- Culture & Values -->
-      <section class="mt-8 card p-6">
-        <h2 class="section-title">Culture & Values</h2>
-        <div class="grid md:grid-cols-3 gap-4 mt-3 text-sm">
-          <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">Respect</div>
-          <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">Pace and quality</div>
-          <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">Focus on result of students</div>
-        </div>
-      </section>
+        <!-- Culture & Values -->
+        <section class="mt-8 card p-6">
+            <h2 class="section-title">Culture & Values</h2>
+            <div class="grid md:grid-cols-3 gap-4 mt-3 text-sm">
+                <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">Respect</div>
+                <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">Pace and quality</div>
+                <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">Focus on result of students</div>
+            </div>
+        </section>
 
-      <!-- How We Work (Bottom Section) -->
-      <section class="mt-8 card p-6">
-        <h2 class="section-title">How we work</h2>
-        <div class="grid md:grid-cols-3 gap-4 mt-3 text-sm">
-          <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
-            <div class="font-semibold">Rituals</div>
-            <ul class="mt-1 grid gap-1">
-              <li>• Weekly test</li>
-              <li>• Updates without wasting the time</li>
-              <li>• Clear aims</li>
-            </ul>
-          </div>
-          <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
-            <div class="font-semibold">Toolbox</div>
-            <ul class="mt-1 grid gap-1">
-              <li>• GitHub</li>
-              <li>• Figma / Adobe</li>
-              <li>• IDE / Telegram</li>
-            </ul>
-          </div>
-          <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
-            <div class="font-semibold">Timezones</div>
-            <ul class="mt-1 grid gap-1">
-              <li>• Remote</li>
-              <li>• Main Timezone: Tashkent (GMT+5)</li>
-              <li>• Flexible work-time</li>
-            </ul>
-          </div>
-        </div>
+        <!-- How We Work (Bottom Section) -->
+        <section class="mt-8 card p-6">
+            <h2 class="section-title">How we work</h2>
+            <div class="grid md:grid-cols-3 gap-4 mt-3 text-sm">
+                <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
+                    <div class="font-semibold">Rituals</div>
+                    <ul class="mt-1 grid gap-1">
+                        <li>• Weekly test</li>
+                        <li>• Updates without wasting the time</li>
+                        <li>• Clear aims</li>
+                    </ul>
+                </div>
+                <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
+                    <div class="font-semibold">Toolbox</div>
+                    <ul class="mt-1 grid gap-1">
+                        <li>• GitHub</li>
+                        <li>• Figma / Adobe</li>
+                        <li>• IDE / Telegram</li>
+                    </ul>
+                </div>
+                <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
+                    <div class="font-semibold">Timezones</div>
+                    <ul class="mt-1 grid gap-1">
+                        <li>• Remote</li>
+                        <li>• Main Timezone: Tashkent (GMT+5)</li>
+                        <li>• Flexible work-time</li>
+                    </ul>
+                </div>
+            </div>
 
-        <div class="grid md:grid-cols-3 gap-4 mt-4">
-          <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
-            <div class="font-semibold">Principles</div>
-            <p class="muted mt-1">1) Ship fast. 2) Be kind. 3) Own outcomes.</p>
-          </div>
-          <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
-            <div class="font-semibold">Mentorship</div>
-            <p class="muted mt-1">1:1 interviews, review, roadmaps for grow.</p>
-          </div>
-          <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
-            <div class="font-semibold">Community</div>
-            <p class="muted mt-1">Contribution for society.</p>
-          </div>
-        </div>
-      </section>
+            <div class="grid md:grid-cols-3 gap-4 mt-4">
+                <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
+                    <div class="font-semibold">Principles</div>
+                    <p class="muted mt-1">1) Ship fast. 2) Be kind. 3) Own outcomes.</p>
+                </div>
+                <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
+                    <div class="font-semibold">Mentorship</div>
+                    <p class="muted mt-1">1:1 interviews, review, roadmaps for grow.</p>
+                </div>
+                <div class="p-4 bg-[#0d1221] border border-[#1f2a44] rounded-lg">
+                    <div class="font-semibold">Community</div>
+                    <p class="muted mt-1">Contribution for society.</p>
+                </div>
+            </div>
+        </section>
     </main>
-  </div>
+</div>
 
-  <footer class="px-4 sm:px-6 lg:px-8 border-t border-gray-800 mt-6 py-8 text-gray-400 text-sm">
+<footer class="px-4 sm:px-6 lg:px-8 border-t border-gray-800 mt-6 py-8 text-gray-400 text-sm">
     <div class="container mx-auto flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-      <div>© 2025 Edufy. All rights reserved.</div>
-      <nav class="flex gap-4 flex-wrap">
-        <a href="../index.html" class="hover:text-white">Main Page</a>
-        <a href="/about" class="hover:text-white">Our Mission</a>
-        <a href="/careers" class="hover:text-white">Careers</a>
-      </nav>
+        <div>© 2025 Edufy. All rights reserved.</div>
+        <nav class="flex gap-4 flex-wrap">
+            <a href="../index.html" class="hover:text-white">Main Page</a>
+            <a href="/about" class="hover:text-white">Our Mission</a>
+            <a href="/careers" class="hover:text-white">Careers</a>
+        </nav>
     </div>
-  </footer>
+</footer>
 </body>
 </html>

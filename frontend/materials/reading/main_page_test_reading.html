@@ -767,984 +767,984 @@
 
 
 <body>
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loading-content">
-            <div class="spinner"></div>
-            <h2 class="loading-title">Your test will begin shortly</h2>
-            <p class="loading-subtitle">Please wait</p>
+<!-- Loading Screen -->
+<div id="loadingScreen" class="loading-screen">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <h2 class="loading-title">Your test will begin shortly</h2>
+        <p class="loading-subtitle">Please wait</p>
+    </div>
+</div>
+
+<!-- Start Screen -->
+<div id="startScreen" class="start-screen hidden">
+    <div class="start-content">
+        <img src="https://resources.edufyuzbekistan.com/storage/images/photo_2025-08-21_09-27-50.jpg" alt="Edufy" class="start-logo">
+        <h1 class="start-title">IELTS with Edufy</h1>
+        <p class="start-subtitle">Ready to begin your reading test?</p>
+        <button class="start-button" onclick="startTest()">Start Test</button>
+    </div>
+</div>
+
+
+<!-- Test Container -->
+<div class="container hidden" id="testContainer">
+    <header>
+        <div class="passage-info">IELTS with Edufy</div>
+        <div class="timer">
+            <i class="fas fa-clock"></i>
+            <span>20:00</span>
         </div>
+        <div>
+        </div>
+        <div class="passage-info">Passage 1 of 1</div>
+        <button id="reset-btn" class="btn" title="Reset reading">Reset</button>
+    </header>
+
+    <div id="hl-toolbar" role="toolbar" aria-label="Text tools">
+        <button id="hl-swatch" class="swatch yellow" type="button" title="Highlight (Yellow)" aria-label="Highlight (Yellow)"></button>
+        <button id="rm-swatch" class="swatch white" type="button" title="Remove Highlight" aria-label="Remove Highlight"></button>
     </div>
 
-    <!-- Start Screen -->
-    <div id="startScreen" class="start-screen hidden">
-        <div class="start-content">
-            <img src="https://resources.edufyuzbekistan.com/storage/images/photo_2025-08-21_09-27-50.jpg" alt="Edufy" class="start-logo">
-            <h1 class="start-title">IELTS with Edufy</h1>
-            <p class="start-subtitle">Ready to begin your reading test?</p>
-            <button class="start-button" onclick="startTest()">Start Test</button>
-        </div>
-    </div>
-
-
-    <!-- Test Container -->
-    <div class="container hidden" id="testContainer">
-        <header>
-            <div class="passage-info">IELTS with Edufy</div>
-            <div class="timer">
-                <i class="fas fa-clock"></i>
-                <span>20:00</span>
-            </div>
-            <div>
-            </div>
-            <div class="passage-info">Passage 1 of 1</div>
-            <button id="reset-btn" class="btn" title="Reset reading">Reset</button>
-        </header>
-
-        <div id="hl-toolbar" role="toolbar" aria-label="Text tools">
-            <button id="hl-swatch" class="swatch yellow" type="button" title="Highlight (Yellow)" aria-label="Highlight (Yellow)"></button>
-            <button id="rm-swatch" class="swatch white" type="button" title="Remove Highlight" aria-label="Remove Highlight"></button>
-        </div>
-    
-        <div class="main-content">
-            <!-- Reading Passage -->
-            <div class="passage-container" role="region" aria-label="Reading Passage">
-                <h2 class="section-title">READING PASSAGE 1</h2>
-                <div class="passage-content" id="passage1">
-                    <h3>William Gilbert and Magnetism</h3>
-                    <p id="A"><span class="label">A</span> 16th and 17th centuries saw two great pioneers of modern
-                        science: Galileo and Gilbert. The impact of their findings is eminent. Gilbert was the first
-                        modern scientist, also the accredited father of the science of electricity and magnetism, an
-                        Englishman of learning and a physician at the court of Elizabeth. Prior to him, all that was
-                        known of electricity and magnetism was what the ancients knew, nothing more than that the
-                        lodestone possessed magnetic properties and that amber and jet, when rubbed, would attract bits
-                        of paper or other substances of small specific gravity. However, he is less well-known than he
-                        deserves.</p>
-                    <p id="B"><span class="label">B</span> Gilbert’s birth predated Galileo. Born in an eminent local
-                        family in Colchester county in the UK, on May 24, 1544, he went to grammar school, and then
-                        studied medicine at St. John’s College, Cambridge, graduating in 1573. Later he traveled in the
-                        continent and eventually settled down in London.</p>
-                    <p id="C"><span class="label">C</span> He was a very successful and eminent doctor. All this
-                        culminated in his election to the president of the Royal Science Society. He was also appointed
-                        the personal physician to the Queen (Elizabeth I), and later knighted by the Queen. He
-                        faithfully served her until her death. However, he didn’t outlive the Queen for long and died on
-                        December 10, 1603, only a few months after his appointment as personal physician to King James.
-                    </p>
-                    <p id="D"><span class="label">D</span> Gilbert was first interested in chemistry but later changed
-                        his focus due to the large portion of mysticism of alchemy involved (such as the transmutation
-                        of metal). He gradually developed his interest in physics after the great minds of the ancient,
-                        particularly about the knowledge the ancient Greeks had about lodestones, strange minerals with
-                        the power to attract iron. In the meantime, Britain became a major seafaring nation in 1588 when
-                        the Spanish Armada was defeated, opening the way to British settlement of America. British ships
-                        depended on the magnetic compass, yet no one understood why it worked. Did the pole star attract
-                        it, as Columbus once speculated; or was there a magnetic mountain at the pole, as described in
-                        Odyssey which ships would never approach, because the sailors thought its pull would yank out
-                        all their iron nails and fittings? For nearly 20 years William Gilbert conducted ingenious
-                        experiments to understand magnetism. His works include On the Magnet and Magnetic Bodies, Great
-                        Magnet of the Earth.</p>
-                    <p id="E"><span class="label">E</span> Gilbert’s discovery was so important to modern physics. He
-                        investigated the nature of magnetism and electricity. He even coined the word “electric”. Though
-                        the early beliefs of magnetism were also largely entangled with superstitions such as that
-                        rubbing garlic on lodestone can neutralize its magnetism, one example being that sailors even
-                        believed the smell of garlic would even interfere with the action of compass, which is why
-                        helmsmen were forbidden to eat it near a ship’s compass. Gilbert also found that metals can be
-                        magnetized by rubbing materials such as fur, plastic or the like on them. He named the ends of a
-                        magnet “north pole” and “south pole”. The magnetic poles can attract or repel, depending on
-                        polarity. In addition, however, ordinary iron is always attracted to a magnet. Though he started
-                        to study the relationship between magnetism and electricity, sadly he didn’t complete it. His
-                        research of static electricity using amber and jet only demonstrated that objects with
-                        electrical charges can work like magnets attracting small pieces of paper and stuff. It is a
-                        French guy named du Fay that discovered that there are actually two electrical charges, positive
-                        and negative.</p>
-                    <p id="F"><span class="label">F</span> He also questioned the traditional astronomical beliefs.
-                        Though a Copernican, he didn’t express in his quintessential beliefs whether the earth is at the
-                        center of the universe or in orbit around the sun. However he believed that stars are not
-                        equidistant from the earth, but have their own earth-like planets orbiting around them. The
-                        earth is itself like a giant magnet, which is also why compasses always point north. They spin
-                        on an axis that is aligned with the earth’s polarity. He even likened the polarity of the magnet
-                        to the polarity of the earth and built an entire magnetic philosophy on this analogy. In his
-                        explanation, magnetism was the soul of the earth. Thus a perfectly spherical lodestone, when
-                        aligned with the earth’s poles, would wobble all by itself in 24 hours. Further, he also
-                        believed that stars and other stars wobble just like the earth does around a crystal core, and
-                        speculated that the moon might also be a magnet caused to orbit by its magnetic attraction to
-                        the earth. This was perhaps the first proposal that a force might cause a heavenly orbit.</p>
-                    <p id="G"><span class="label">G</span> His research method was revolutionary in that he used
-                        experiments rather than pure logic and reasoning like the ancient Greek philosophers did. It was
-                        a new attitude toward scientific investigation. Until then, scientific experiments were not in
-                        fashion. It was because of this scientific attitude, together with his contribution to our
-                        knowledge of magnetism, that a unit of magneto motive force, also known as magnetic potential,
-                        was named Gilbert in his honor. His approach of careful observation and experimentation rather
-                        than the authoritative opinion or deductive philosophy of others had laid the very foundation
-                        for modern science.</p>
-                </div>
-            </div>
-
-            <div class="resizer" id="resizer"></div>
-
-            <!-- Questions -->
-            <div class="questions-container" id="questions" role="region" aria-label="Questions">
-                <h2 class="section-title">Questions 1-13</h2>
-                <p>You should spend about 20 minutes on Questions 1–13, which are based on Reading Passage 1.</p>
-
-                <div class="question-group">
-                    <div class="question-group-title">Questions 1-7</div>
-                    <p>Reading Passage 1 has seven paragraphs A-G. Choose the correct heading for each paragraph from
-                        the list of headings below. Write the correct number i-x in boxes on your answer sheet.</p>
-                    <p><strong>List of Headings</strong><br>
-                        i Early years of Gilbert<br>
-                        ii What was new about his scientific research method<br>
-                        iii The development of chemistry<br>
-                        iv Questioning traditional astronomy<br>
-                        v Pioneers of the early science<br>
-                        vi Professional and social recognition<br>
-                        vii Becoming the president of the Royal Science Society<br>
-                        viii The great works of Gilbert<br>
-                        ix His discovery about magnetism<br>
-                        x His change of focus
-                    </p>
-                    <div class="question" data-question="1">
-                        <div class="question-text">1. Paragraph A</div>
-                        <select name="q1">
-                            <option value="">Select an option</option>
-                            <option value="i">i</option>
-                            <option value="ii">ii</option>
-                            <option value="iii">iii</option>
-                            <option value="iv">iv</option>
-                            <option value="v">v</option>
-                            <option value="vi">vi</option>
-                            <option value="vii">vii</option>
-                            <option value="viii">viii</option>
-                            <option value="ix">ix</option>
-                            <option value="x">x</option>
-                        </select>
-                    </div>
-                    <div class="question" data-question="2">
-                        <div class="question-text">2. Paragraph B</div>
-                        <select name="q2">
-                            <option value="">Select an option</option>
-                            <option value="i">i</option>
-                            <option value="ii">ii</option>
-                            <option value="iii">iii</option>
-                            <option value="iv">iv</option>
-                            <option value="v">v</option>
-                            <option value="vi">vi</option>
-                            <option value="vii">vii</option>
-                            <option value="viii">viii</option>
-                            <option value="ix">ix</option>
-                            <option value="x">x</option>
-                        </select>
-                    </div>
-                    <div class="question" data-question="3">
-                        <div class="question-text">3. Paragraph C</div>
-                        <select name="q3">
-                            <option value="">Select an option</option>
-                            <option value="i">i</option>
-                            <option value="ii">ii</option>
-                            <option value="iii">iii</option>
-                            <option value="iv">iv</option>
-                            <option value="v">v</option>
-                            <option value="vi">vi</option>
-                            <option value="vii">vii</option>
-                            <option value="viii">viii</option>
-                            <option value="ix">ix</option>
-                            <option value="x">x</option>
-                        </select>
-                    </div>
-                    <div class="question" data-question="4">
-                        <div class="question-text">4. Paragraph D</div>
-                        <select name="q4">
-                            <option value="">Select an option</option>
-                            <option value="i">i</option>
-                            <option value="ii">ii</option>
-                            <option value="iii">iii</option>
-                            <option value="iv">iv</option>
-                            <option value="v">v</option>
-                            <option value="vi">vi</option>
-                            <option value="vii">vii</option>
-                            <option value="viii">viii</option>
-                            <option value="ix">ix</option>
-                            <option value="x">x</option>
-                        </select>
-                    </div>
-                    <div class="question" data-question="5">
-                        <div class="question-text">5. Paragraph E</div>
-                        <select name="q5">
-                            <option value="">Select an option</option>
-                            <option value="i">i</option>
-                            <option value="ii">ii</option>
-                            <option value="iii">iii</option>
-                            <option value="iv">iv</option>
-                            <option value="v">v</option>
-                            <option value="vi">vi</option>
-                            <option value="vii">vii</option>
-                            <option value="viii">viii</option>
-                            <option value="ix">ix</option>
-                            <option value="x">x</option>
-                        </select>
-                    </div>
-                    <div class="question" data-question="6">
-                        <div class="question-text">6. Paragraph F</div>
-                        <select name="q6">
-                            <option value="">Select an option</option>
-                            <option value="i">i</option>
-                            <option value="ii">ii</option>
-                            <option value="iii">iii</option>
-                            <option value="iv">iv</option>
-                            <option value="v">v</option>
-                            <option value="vi">vi</option>
-                            <option value="vii">vii</option>
-                            <option value="viii">viii</option>
-                            <option value="ix">ix</option>
-                            <option value="x">x</option>
-                        </select>
-                    </div>
-                    <div class="question" data-question="7">
-                        <div class="question-text">7. Paragraph G</div>
-                        <select name="q7">
-                            <option value="">Select an option</option>
-                            <option value="i">i</option>
-                            <option value="ii">ii</option>
-                            <option value="iii">iii</option>
-                            <option value="iv">iv</option>
-                            <option value="v">v</option>
-                            <option value="vi">vi</option>
-                            <option value="vii">vii</option>
-                            <option value="viii">viii</option>
-                            <option value="ix">ix</option>
-                            <option value="x">x</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="question-group">
-                    <div class="question-group-title">Questions 8-10</div>
-                    <p>In boxes <strong>8–10</strong> on your answer sheet, write:<br>
-                        <strong>TRUE</strong> – if the statement agrees with the information given in Reading Passage
-                        1<br>
-                        <strong>FALSE</strong> – if the statement contradicts the information<br>
-                        <strong>NOT GIVEN</strong> – if there is no information on this
-                    </p>
-                    <div class="question" data-question="8">
-                        <div class="question-text">8. He is less famous than he should be.</div>
-                        <div class="options">
-                            <label><input type="radio" name="q8" value="TRUE"> TRUE</label>
-                            <label><input type="radio" name="q8" value="FALSE"> FALSE</label>
-                            <label><input type="radio" name="q8" value="NOT GIVEN"> NOT GIVEN</label>
-                        </div>
-                    </div>
-                    <div class="question" data-question="9">
-                        <div class="question-text">9. He was famous as a doctor before he was employed by the Queen.
-                        </div>
-                        <div class="options">
-                            <label><input type="radio" name="q9" value="TRUE"> TRUE</label>
-                            <label><input type="radio" name="q9" value="FALSE"> FALSE</label>
-                            <label><input type="radio" name="q9" value="NOT GIVEN"> NOT GIVEN</label>
-                        </div>
-                    </div>
-                    <div class="question" data-question="10">
-                        <div class="question-text">10. He lost faith in the medical theories of his time.</div>
-                        <div class="options">
-                            <label><input type="radio" name="q10" value="TRUE"> TRUE</label>
-                            <label><input type="radio" name="q10" value="FALSE"> FALSE</label>
-                            <label><input type="radio" name="q10" value="NOT GIVEN"> NOT GIVEN</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="question-group">
-                    <div class="question-group-title">Questions 11-13</div>
-                    <p>Choose THREE letters A-F. Write your answers in boxes <strong>11–13</strong> on your answer
-                        sheet.</p>
-                    <p>Which THREE of the following are parts of Gilbert’s discovery?</p>
-                    <div class="question" data-question="11">
-                        <div class="options">
-                            <label><input type="checkbox" name="q11_13" value="A"> A. Metal can be transformed into
-                                another.</label>
-                            <label><input type="checkbox" name="q11_13" value="B"> B. Garlic can remove
-                                magnetism.</label>
-                            <label><input type="checkbox" name="q11_13" value="C"> C. Metals can be magnetized.</label>
-                            <label><input type="checkbox" name="q11_13" value="D"> D. Stars are at different distances
-                                from the earth.</label>
-                            <label><input type="checkbox" name="q11_13" value="E"> E. The earth wobbles on its
-                                axis.</label>
-                            <label><input type="checkbox" name="q11_13" value="F"> F. There are two charges of
-                                electricity.</label>
-                        </div>
-                    </div>
-                </div>
+    <div class="main-content">
+        <!-- Reading Passage -->
+        <div class="passage-container" role="region" aria-label="Reading Passage">
+            <h2 class="section-title">READING PASSAGE 1</h2>
+            <div class="passage-content" id="passage1">
+                <h3>William Gilbert and Magnetism</h3>
+                <p id="A"><span class="label">A</span> 16th and 17th centuries saw two great pioneers of modern
+                    science: Galileo and Gilbert. The impact of their findings is eminent. Gilbert was the first
+                    modern scientist, also the accredited father of the science of electricity and magnetism, an
+                    Englishman of learning and a physician at the court of Elizabeth. Prior to him, all that was
+                    known of electricity and magnetism was what the ancients knew, nothing more than that the
+                    lodestone possessed magnetic properties and that amber and jet, when rubbed, would attract bits
+                    of paper or other substances of small specific gravity. However, he is less well-known than he
+                    deserves.</p>
+                <p id="B"><span class="label">B</span> Gilbert’s birth predated Galileo. Born in an eminent local
+                    family in Colchester county in the UK, on May 24, 1544, he went to grammar school, and then
+                    studied medicine at St. John’s College, Cambridge, graduating in 1573. Later he traveled in the
+                    continent and eventually settled down in London.</p>
+                <p id="C"><span class="label">C</span> He was a very successful and eminent doctor. All this
+                    culminated in his election to the president of the Royal Science Society. He was also appointed
+                    the personal physician to the Queen (Elizabeth I), and later knighted by the Queen. He
+                    faithfully served her until her death. However, he didn’t outlive the Queen for long and died on
+                    December 10, 1603, only a few months after his appointment as personal physician to King James.
+                </p>
+                <p id="D"><span class="label">D</span> Gilbert was first interested in chemistry but later changed
+                    his focus due to the large portion of mysticism of alchemy involved (such as the transmutation
+                    of metal). He gradually developed his interest in physics after the great minds of the ancient,
+                    particularly about the knowledge the ancient Greeks had about lodestones, strange minerals with
+                    the power to attract iron. In the meantime, Britain became a major seafaring nation in 1588 when
+                    the Spanish Armada was defeated, opening the way to British settlement of America. British ships
+                    depended on the magnetic compass, yet no one understood why it worked. Did the pole star attract
+                    it, as Columbus once speculated; or was there a magnetic mountain at the pole, as described in
+                    Odyssey which ships would never approach, because the sailors thought its pull would yank out
+                    all their iron nails and fittings? For nearly 20 years William Gilbert conducted ingenious
+                    experiments to understand magnetism. His works include On the Magnet and Magnetic Bodies, Great
+                    Magnet of the Earth.</p>
+                <p id="E"><span class="label">E</span> Gilbert’s discovery was so important to modern physics. He
+                    investigated the nature of magnetism and electricity. He even coined the word “electric”. Though
+                    the early beliefs of magnetism were also largely entangled with superstitions such as that
+                    rubbing garlic on lodestone can neutralize its magnetism, one example being that sailors even
+                    believed the smell of garlic would even interfere with the action of compass, which is why
+                    helmsmen were forbidden to eat it near a ship’s compass. Gilbert also found that metals can be
+                    magnetized by rubbing materials such as fur, plastic or the like on them. He named the ends of a
+                    magnet “north pole” and “south pole”. The magnetic poles can attract or repel, depending on
+                    polarity. In addition, however, ordinary iron is always attracted to a magnet. Though he started
+                    to study the relationship between magnetism and electricity, sadly he didn’t complete it. His
+                    research of static electricity using amber and jet only demonstrated that objects with
+                    electrical charges can work like magnets attracting small pieces of paper and stuff. It is a
+                    French guy named du Fay that discovered that there are actually two electrical charges, positive
+                    and negative.</p>
+                <p id="F"><span class="label">F</span> He also questioned the traditional astronomical beliefs.
+                    Though a Copernican, he didn’t express in his quintessential beliefs whether the earth is at the
+                    center of the universe or in orbit around the sun. However he believed that stars are not
+                    equidistant from the earth, but have their own earth-like planets orbiting around them. The
+                    earth is itself like a giant magnet, which is also why compasses always point north. They spin
+                    on an axis that is aligned with the earth’s polarity. He even likened the polarity of the magnet
+                    to the polarity of the earth and built an entire magnetic philosophy on this analogy. In his
+                    explanation, magnetism was the soul of the earth. Thus a perfectly spherical lodestone, when
+                    aligned with the earth’s poles, would wobble all by itself in 24 hours. Further, he also
+                    believed that stars and other stars wobble just like the earth does around a crystal core, and
+                    speculated that the moon might also be a magnet caused to orbit by its magnetic attraction to
+                    the earth. This was perhaps the first proposal that a force might cause a heavenly orbit.</p>
+                <p id="G"><span class="label">G</span> His research method was revolutionary in that he used
+                    experiments rather than pure logic and reasoning like the ancient Greek philosophers did. It was
+                    a new attitude toward scientific investigation. Until then, scientific experiments were not in
+                    fashion. It was because of this scientific attitude, together with his contribution to our
+                    knowledge of magnetism, that a unit of magneto motive force, also known as magnetic potential,
+                    was named Gilbert in his honor. His approach of careful observation and experimentation rather
+                    than the authoritative opinion or deductive philosophy of others had laid the very foundation
+                    for modern science.</p>
             </div>
         </div>
 
-        <div class="progress-container">
-            <div class="progress-nav">
-                <div class="progress-items">
-                    <div class="progress-item current" data-question="1">1</div>
-                    <div class="progress-item" data-question="2">2</div>
-                    <div class="progress-item" data-question="3">3</div>
-                    <div class="progress-item" data-question="4">4</div>
-                    <div class="progress-item" data-question="5">5</div>
-                    <div class="progress-item" data-question="6">6</div>
-                    <div class="progress-item" data-question="7">7</div>
-                    <div class="progress-item" data-question="8">8</div>
-                    <div class="progress-item" data-question="9">9</div>
-                    <div class="progress-item" data-question="10">10</div>
-                    <div class="progress-item" data-question="11">11-13</div>
+        <div class="resizer" id="resizer"></div>
+
+        <!-- Questions -->
+        <div class="questions-container" id="questions" role="region" aria-label="Questions">
+            <h2 class="section-title">Questions 1-13</h2>
+            <p>You should spend about 20 minutes on Questions 1–13, which are based on Reading Passage 1.</p>
+
+            <div class="question-group">
+                <div class="question-group-title">Questions 1-7</div>
+                <p>Reading Passage 1 has seven paragraphs A-G. Choose the correct heading for each paragraph from
+                    the list of headings below. Write the correct number i-x in boxes on your answer sheet.</p>
+                <p><strong>List of Headings</strong><br>
+                    i Early years of Gilbert<br>
+                    ii What was new about his scientific research method<br>
+                    iii The development of chemistry<br>
+                    iv Questioning traditional astronomy<br>
+                    v Pioneers of the early science<br>
+                    vi Professional and social recognition<br>
+                    vii Becoming the president of the Royal Science Society<br>
+                    viii The great works of Gilbert<br>
+                    ix His discovery about magnetism<br>
+                    x His change of focus
+                </p>
+                <div class="question" data-question="1">
+                    <div class="question-text">1. Paragraph A</div>
+                    <select name="q1">
+                        <option value="">Select an option</option>
+                        <option value="i">i</option>
+                        <option value="ii">ii</option>
+                        <option value="iii">iii</option>
+                        <option value="iv">iv</option>
+                        <option value="v">v</option>
+                        <option value="vi">vi</option>
+                        <option value="vii">vii</option>
+                        <option value="viii">viii</option>
+                        <option value="ix">ix</option>
+                        <option value="x">x</option>
+                    </select>
                 </div>
-                <div class="nav-buttons">
-                    <button class="btn btn-secondary" id="prev-btn" disabled><i class="fas fa-arrow-left"></i>
-                        Previous</button>
-                    <button class="btn btn-secondary" id="next-btn">Next <i class="fas fa-arrow-right"></i></button>
-                    <button class="btn btn-submit" id="submit-btn">Submit Test</button>
+                <div class="question" data-question="2">
+                    <div class="question-text">2. Paragraph B</div>
+                    <select name="q2">
+                        <option value="">Select an option</option>
+                        <option value="i">i</option>
+                        <option value="ii">ii</option>
+                        <option value="iii">iii</option>
+                        <option value="iv">iv</option>
+                        <option value="v">v</option>
+                        <option value="vi">vi</option>
+                        <option value="vii">vii</option>
+                        <option value="viii">viii</option>
+                        <option value="ix">ix</option>
+                        <option value="x">x</option>
+                    </select>
+                </div>
+                <div class="question" data-question="3">
+                    <div class="question-text">3. Paragraph C</div>
+                    <select name="q3">
+                        <option value="">Select an option</option>
+                        <option value="i">i</option>
+                        <option value="ii">ii</option>
+                        <option value="iii">iii</option>
+                        <option value="iv">iv</option>
+                        <option value="v">v</option>
+                        <option value="vi">vi</option>
+                        <option value="vii">vii</option>
+                        <option value="viii">viii</option>
+                        <option value="ix">ix</option>
+                        <option value="x">x</option>
+                    </select>
+                </div>
+                <div class="question" data-question="4">
+                    <div class="question-text">4. Paragraph D</div>
+                    <select name="q4">
+                        <option value="">Select an option</option>
+                        <option value="i">i</option>
+                        <option value="ii">ii</option>
+                        <option value="iii">iii</option>
+                        <option value="iv">iv</option>
+                        <option value="v">v</option>
+                        <option value="vi">vi</option>
+                        <option value="vii">vii</option>
+                        <option value="viii">viii</option>
+                        <option value="ix">ix</option>
+                        <option value="x">x</option>
+                    </select>
+                </div>
+                <div class="question" data-question="5">
+                    <div class="question-text">5. Paragraph E</div>
+                    <select name="q5">
+                        <option value="">Select an option</option>
+                        <option value="i">i</option>
+                        <option value="ii">ii</option>
+                        <option value="iii">iii</option>
+                        <option value="iv">iv</option>
+                        <option value="v">v</option>
+                        <option value="vi">vi</option>
+                        <option value="vii">vii</option>
+                        <option value="viii">viii</option>
+                        <option value="ix">ix</option>
+                        <option value="x">x</option>
+                    </select>
+                </div>
+                <div class="question" data-question="6">
+                    <div class="question-text">6. Paragraph F</div>
+                    <select name="q6">
+                        <option value="">Select an option</option>
+                        <option value="i">i</option>
+                        <option value="ii">ii</option>
+                        <option value="iii">iii</option>
+                        <option value="iv">iv</option>
+                        <option value="v">v</option>
+                        <option value="vi">vi</option>
+                        <option value="vii">vii</option>
+                        <option value="viii">viii</option>
+                        <option value="ix">ix</option>
+                        <option value="x">x</option>
+                    </select>
+                </div>
+                <div class="question" data-question="7">
+                    <div class="question-text">7. Paragraph G</div>
+                    <select name="q7">
+                        <option value="">Select an option</option>
+                        <option value="i">i</option>
+                        <option value="ii">ii</option>
+                        <option value="iii">iii</option>
+                        <option value="iv">iv</option>
+                        <option value="v">v</option>
+                        <option value="vi">vi</option>
+                        <option value="vii">vii</option>
+                        <option value="viii">viii</option>
+                        <option value="ix">ix</option>
+                        <option value="x">x</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <div class="question-group-title">Questions 8-10</div>
+                <p>In boxes <strong>8–10</strong> on your answer sheet, write:<br>
+                    <strong>TRUE</strong> – if the statement agrees with the information given in Reading Passage
+                    1<br>
+                    <strong>FALSE</strong> – if the statement contradicts the information<br>
+                    <strong>NOT GIVEN</strong> – if there is no information on this
+                </p>
+                <div class="question" data-question="8">
+                    <div class="question-text">8. He is less famous than he should be.</div>
+                    <div class="options">
+                        <label><input type="radio" name="q8" value="TRUE"> TRUE</label>
+                        <label><input type="radio" name="q8" value="FALSE"> FALSE</label>
+                        <label><input type="radio" name="q8" value="NOT GIVEN"> NOT GIVEN</label>
+                    </div>
+                </div>
+                <div class="question" data-question="9">
+                    <div class="question-text">9. He was famous as a doctor before he was employed by the Queen.
+                    </div>
+                    <div class="options">
+                        <label><input type="radio" name="q9" value="TRUE"> TRUE</label>
+                        <label><input type="radio" name="q9" value="FALSE"> FALSE</label>
+                        <label><input type="radio" name="q9" value="NOT GIVEN"> NOT GIVEN</label>
+                    </div>
+                </div>
+                <div class="question" data-question="10">
+                    <div class="question-text">10. He lost faith in the medical theories of his time.</div>
+                    <div class="options">
+                        <label><input type="radio" name="q10" value="TRUE"> TRUE</label>
+                        <label><input type="radio" name="q10" value="FALSE"> FALSE</label>
+                        <label><input type="radio" name="q10" value="NOT GIVEN"> NOT GIVEN</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <div class="question-group-title">Questions 11-13</div>
+                <p>Choose THREE letters A-F. Write your answers in boxes <strong>11–13</strong> on your answer
+                    sheet.</p>
+                <p>Which THREE of the following are parts of Gilbert’s discovery?</p>
+                <div class="question" data-question="11">
+                    <div class="options">
+                        <label><input type="checkbox" name="q11_13" value="A"> A. Metal can be transformed into
+                            another.</label>
+                        <label><input type="checkbox" name="q11_13" value="B"> B. Garlic can remove
+                            magnetism.</label>
+                        <label><input type="checkbox" name="q11_13" value="C"> C. Metals can be magnetized.</label>
+                        <label><input type="checkbox" name="q11_13" value="D"> D. Stars are at different distances
+                            from the earth.</label>
+                        <label><input type="checkbox" name="q11_13" value="E"> E. The earth wobbles on its
+                            axis.</label>
+                        <label><input type="checkbox" name="q11_13" value="F"> F. There are two charges of
+                            electricity.</label>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Results Modal -->
-    <div class="modal" id="results-modal">
-        <div class="modal-content">
-            <h2>Test Results</h2>
-            <div class="score-display" id="score-display">0/11</div>
-            <div class="score-breakdown">
-                <div class="score-item">
-                    <span>Passage 1:</span>
-                    <span id="passage1-score">0/11</span>
-                </div>
+    <div class="progress-container">
+        <div class="progress-nav">
+            <div class="progress-items">
+                <div class="progress-item current" data-question="1">1</div>
+                <div class="progress-item" data-question="2">2</div>
+                <div class="progress-item" data-question="3">3</div>
+                <div class="progress-item" data-question="4">4</div>
+                <div class="progress-item" data-question="5">5</div>
+                <div class="progress-item" data-question="6">6</div>
+                <div class="progress-item" data-question="7">7</div>
+                <div class="progress-item" data-question="8">8</div>
+                <div class="progress-item" data-question="9">9</div>
+                <div class="progress-item" data-question="10">10</div>
+                <div class="progress-item" data-question="11">11-13</div>
             </div>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" id="close-modal">Close</button>
-                <button class="btn btn-primary" id="review-answers">Review Answers</button>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" id="prev-btn" disabled><i class="fas fa-arrow-left"></i>
+                    Previous</button>
+                <button class="btn btn-secondary" id="next-btn">Next <i class="fas fa-arrow-right"></i></button>
+                <button class="btn btn-submit" id="submit-btn">Submit Test</button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Correct Answers for Questions 1-13
-        const correctAnswers = {
-            q1: "v",
-            q2: "i",
-            q3: "vi",
-            q4: "x",
-            q5: "ix",
-            q6: "iv",
-            q7: "ii",
-            q8: "TRUE",
-            q9: "TRUE",
-            q10: "NOT GIVEN",
-            q11_13: ["C", "D", "E"]
-        };
+<!-- Results Modal -->
+<div class="modal" id="results-modal">
+    <div class="modal-content">
+        <h2>Test Results</h2>
+        <div class="score-display" id="score-display">0/11</div>
+        <div class="score-breakdown">
+            <div class="score-item">
+                <span>Passage 1:</span>
+                <span id="passage1-score">0/11</span>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" id="close-modal">Close</button>
+            <button class="btn btn-primary" id="review-answers">Review Answers</button>
+        </div>
+    </div>
+</div>
 
-        let lastSelection = null;
-        let savedRange = null;
-        let currentPanel = null;
-        let submitted = false;
-        let currentQuestion = 1;
-        let isResizing = false;
-        let seconds = 20 * 60; // 20 minutes for Passage 1
-        let timerInterval;
+<script>
+    // Correct Answers for Questions 1-13
+    const correctAnswers = {
+        q1: "v",
+        q2: "i",
+        q3: "vi",
+        q4: "x",
+        q5: "ix",
+        q6: "iv",
+        q7: "ii",
+        q8: "TRUE",
+        q9: "TRUE",
+        q10: "NOT GIVEN",
+        q11_13: ["C", "D", "E"]
+    };
 
-        const hlToolbar = document.getElementById('hl-toolbar');
-        const hlSwatch = document.getElementById('hl-swatch');
-        const rmSwatch = document.getElementById('rm-swatch');
-        const passagePanel = document.querySelector('.passage-container');
-        const questionsPanel = document.getElementById('questions');
-        const resizer = document.getElementById('resizer');
-        const resetBtn = document.getElementById('reset-btn');
-        const submitBtn = document.getElementById('submit-btn');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const resultsModal = document.getElementById('results-modal');
-        const scoreDisplay = document.getElementById('score-display');
-        const passage1Score = document.getElementById('passage1-score');
-        const closeModalBtn = document.getElementById('close-modal');
-        const reviewBtn = document.getElementById('review-answers');
-        const timerElement = document.querySelector('.timer span');
-        const timerContainer = document.querySelector('.timer');
+    let lastSelection = null;
+    let savedRange = null;
+    let currentPanel = null;
+    let submitted = false;
+    let currentQuestion = 1;
+    let isResizing = false;
+    let seconds = 20 * 60; // 20 minutes for Passage 1
+    let timerInterval;
 
-        // Timer
-        function updateTimer() {
-            seconds--;
-            const minutes = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            if (seconds <= 2 * 60) {
-                timerContainer.classList.add('warning');
+    const hlToolbar = document.getElementById('hl-toolbar');
+    const hlSwatch = document.getElementById('hl-swatch');
+    const rmSwatch = document.getElementById('rm-swatch');
+    const passagePanel = document.querySelector('.passage-container');
+    const questionsPanel = document.getElementById('questions');
+    const resizer = document.getElementById('resizer');
+    const resetBtn = document.getElementById('reset-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const resultsModal = document.getElementById('results-modal');
+    const scoreDisplay = document.getElementById('score-display');
+    const passage1Score = document.getElementById('passage1-score');
+    const closeModalBtn = document.getElementById('close-modal');
+    const reviewBtn = document.getElementById('review-answers');
+    const timerElement = document.querySelector('.timer span');
+    const timerContainer = document.querySelector('.timer');
+
+    // Timer
+    function updateTimer() {
+        seconds--;
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        if (seconds <= 2 * 60) {
+            timerContainer.classList.add('warning');
+        }
+        if (seconds <= 0) {
+            clearInterval(timerInterval);
+            if (!submitted) {
+                alert('Time is up! Submitting your test.');
+                submitTest();
             }
-            if (seconds <= 0) {
-                clearInterval(timerInterval);
-                if (!submitted) {
-                    alert('Time is up! Submitting your test.');
-                    submitTest();
+        }
+    }
+
+    // Highlight functionality
+    function getValidSelection() {
+        const sel = window.getSelection();
+        if (!sel.rangeCount || sel.isCollapsed) return null;
+        const range = sel.getRangeAt(0);
+        if (passagePanel.contains(range.commonAncestorContainer)) {
+            currentPanel = passagePanel;
+        } else if (questionsPanel.contains(range.commonAncestorContainer)) {
+            currentPanel = questionsPanel;
+        } else {
+            return null;
+        }
+        return range;
+    }
+
+    function showToolbar(range) {
+        const rect = (savedRange || range).getBoundingClientRect();
+        hlToolbar.style.top = (window.scrollY + rect.top - 42) + 'px';
+        hlToolbar.style.left = (window.scrollX + rect.left) + 'px';
+        hlToolbar.style.display = 'flex';
+    }
+
+    function hideToolbar() {
+        hlToolbar.style.display = 'none';
+    }
+
+    // Robust apply highlight (yellow) by wrapping only text nodes, splitting as needed
+    function applyHighlightYellow() {
+        const sel = window.getSelection();
+        let baseRange = savedRange && !savedRange.collapsed ? savedRange.cloneRange() : (lastSelection && !lastSelection.collapsed ? lastSelection.cloneRange() : null);
+        if (!baseRange && sel && sel.rangeCount && !sel.isCollapsed) {
+            try { baseRange = sel.getRangeAt(0).cloneRange(); } catch {}
+        }
+        if (!baseRange) return;
+
+        const range = baseRange;
+        const rootForWalk = range.commonAncestorContainer && range.commonAncestorContainer.nodeType === 3
+            ? range.commonAncestorContainer.parentNode
+            : range.commonAncestorContainer;
+        const walker = document.createTreeWalker(
+            rootForWalk,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode: (node) => {
+                    return (node.nodeValue && node.nodeValue.length) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
                 }
+            }
+        );
+
+        const nodes = [];
+        let t; while ((t = walker.nextNode())) {
+            try {
+                if (typeof range.intersectsNode === 'function') {
+                    if (range.intersectsNode(t)) nodes.push(t);
+                } else {
+                    // Fallback check
+                    const nr = document.createRange();
+                    nr.selectNodeContents(t);
+                    const intersects = !(range.compareBoundaryPoints(Range.END_TO_START, nr) <= 0 || range.compareBoundaryPoints(Range.START_TO_END, nr) >= 0);
+                    if (intersects) nodes.push(t);
+                }
+            } catch (_) {
+                // Skip problematic nodes
             }
         }
 
-        // Highlight functionality
-        function getValidSelection() {
-            const sel = window.getSelection();
-            if (!sel.rangeCount || sel.isCollapsed) return null;
-            const range = sel.getRangeAt(0);
-            if (passagePanel.contains(range.commonAncestorContainer)) {
-                currentPanel = passagePanel;
-            } else if (questionsPanel.contains(range.commonAncestorContainer)) {
-                currentPanel = questionsPanel;
-            } else {
-                return null;
-            }
-            return range;
-        }
+        // Оборачиваем только текстовые узлы — без extractContents по всему диапазону,
+        // чтобы не нарушать структуру блоков и не терять содержимое
 
-        function showToolbar(range) {
-            const rect = (savedRange || range).getBoundingClientRect();
-            hlToolbar.style.top = (window.scrollY + rect.top - 42) + 'px';
-            hlToolbar.style.left = (window.scrollX + rect.left) + 'px';
-            hlToolbar.style.display = 'flex';
-        }
-
-        function hideToolbar() {
-            hlToolbar.style.display = 'none';
-        }
-
-        // Robust apply highlight (yellow) by wrapping only text nodes, splitting as needed
-        function applyHighlightYellow() {
-            const sel = window.getSelection();
-            let baseRange = savedRange && !savedRange.collapsed ? savedRange.cloneRange() : (lastSelection && !lastSelection.collapsed ? lastSelection.cloneRange() : null);
-            if (!baseRange && sel && sel.rangeCount && !sel.isCollapsed) {
-                try { baseRange = sel.getRangeAt(0).cloneRange(); } catch {}
-            }
-            if (!baseRange) return;
-
-            const range = baseRange;
-            const rootForWalk = range.commonAncestorContainer && range.commonAncestorContainer.nodeType === 3
-                ? range.commonAncestorContainer.parentNode
-                : range.commonAncestorContainer;
-            const walker = document.createTreeWalker(
-                rootForWalk,
-                NodeFilter.SHOW_TEXT,
-                {
-                    acceptNode: (node) => {
-                        return (node.nodeValue && node.nodeValue.length) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-                    }
-                }
-            );
-
-            const nodes = [];
-            let t; while ((t = walker.nextNode())) {
-                try {
-                    if (typeof range.intersectsNode === 'function') {
-                        if (range.intersectsNode(t)) nodes.push(t);
-                    } else {
-                        // Fallback check
-                        const nr = document.createRange();
-                        nr.selectNodeContents(t);
-                        const intersects = !(range.compareBoundaryPoints(Range.END_TO_START, nr) <= 0 || range.compareBoundaryPoints(Range.START_TO_END, nr) >= 0);
-                        if (intersects) nodes.push(t);
-                    }
-                } catch (_) {
-                    // Skip problematic nodes
-                }
-            }
-
-            // Оборачиваем только текстовые узлы — без extractContents по всему диапазону,
-            // чтобы не нарушать структуру блоков и не терять содержимое
-
-            // Фолбэк: если выделение в пределах одного текстового узла и walker не нашёл ноды
-            if (nodes.length === 0 && range.startContainer === range.endContainer && range.startContainer.nodeType === 3) {
-                const node = range.startContainer;
-                let start = range.startOffset;
-                let end = range.endOffset;
-                if (start < end) {
-                    let target = node;
-                    if (start > 0) { target = target.splitText(start); end -= start; }
-                    if (end < target.nodeValue.length) { target.splitText(end); }
-                    const span = document.createElement('span');
-                    span.className = 'highlight';
-                    if (target.parentNode) {
-                        target.parentNode.insertBefore(span, target);
-                        span.appendChild(target);
-                        sel.removeAllRanges();
-                        hideToolbar();
-                        savedRange = null;
-                        return;
-                    }
-                }
-            }
-
-            // Крайний фолбэк: если так и не нашли ни одной текстовой ноды, аккуратно обернём весь диапазон
-            if (nodes.length === 0) {
-                try {
-                    const span = document.createElement('span');
-                    span.className = 'highlight';
-                    const frag = range.extractContents();
-                    span.appendChild(frag);
-                    range.insertNode(span);
-                    sel.removeAllRanges();
-                    hideToolbar();
-                    savedRange = null;
-                    return;
-                } catch {}
-            }
-
-            nodes.forEach((node) => {
-                let start = 0; let end = node.nodeValue.length;
-                if (range.startContainer === node) start = range.startOffset;
-                if (range.endContainer === node) end = range.endOffset;
-                if (start >= end) return;
-
-                // Avoid double wrap of already fully highlighted nodes
-                const parentHl = node.parentElement && node.parentElement.closest('.highlight');
-                if (parentHl && start === 0 && end === node.nodeValue.length) return;
-
+        // Фолбэк: если выделение в пределах одного текстового узла и walker не нашёл ноды
+        if (nodes.length === 0 && range.startContainer === range.endContainer && range.startContainer.nodeType === 3) {
+            const node = range.startContainer;
+            let start = range.startOffset;
+            let end = range.endOffset;
+            if (start < end) {
                 let target = node;
                 if (start > 0) { target = target.splitText(start); end -= start; }
                 if (end < target.nodeValue.length) { target.splitText(end); }
-
                 const span = document.createElement('span');
                 span.className = 'highlight';
                 if (target.parentNode) {
                     target.parentNode.insertBefore(span, target);
                     span.appendChild(target);
+                    sel.removeAllRanges();
+                    hideToolbar();
+                    savedRange = null;
+                    return;
                 }
-            });
-
-            sel.removeAllRanges();
-            hideToolbar();
-            savedRange = null;
+            }
         }
 
-        // Click on yellow swatch applies highlight
-        hlSwatch.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            hlSwatch.classList.add('active');
-            applyHighlightYellow();
-            setTimeout(() => hlSwatch.classList.remove('active'), 120);
-        });
-
-        // Remove highlight only on selected part
-        function removeHighlightInRange() {
-            const baseRange = savedRange && !savedRange.collapsed ? savedRange.cloneRange() : (lastSelection && !lastSelection.collapsed ? lastSelection.cloneRange() : null);
-            const sel = window.getSelection();
-            if (!baseRange) {
-                // Fallback: no range – if caret inside highlight, unwrap it
-                const caretNode = sel && sel.rangeCount ? sel.getRangeAt(0).startContainer : null;
-                const caretEl = caretNode && caretNode.nodeType === 3 ? caretNode.parentElement : caretNode;
-                const span = caretEl && caretEl.closest ? caretEl.closest('.highlight') : null;
-                if (span) {
-                    const parent = span.parentNode;
-                    while (span.firstChild) parent.insertBefore(span.firstChild, span);
-                    parent.removeChild(span);
-                }
+        // Крайний фолбэк: если так и не нашли ни одной текстовой ноды, аккуратно обернём весь диапазон
+        if (nodes.length === 0) {
+            try {
+                const span = document.createElement('span');
+                span.className = 'highlight';
+                const frag = range.extractContents();
+                span.appendChild(frag);
+                range.insertNode(span);
+                sel.removeAllRanges();
                 hideToolbar();
                 savedRange = null;
                 return;
-            }
-            
-
-            // Collect intersecting text nodes
-            const walker = document.createTreeWalker(
-                baseRange.commonAncestorContainer,
-                NodeFilter.SHOW_TEXT,
-                {
-                    acceptNode: (node) => {
-                        if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
-                        const nr = document.createRange();
-                        nr.selectNodeContents(node);
-                        const intersects = !(baseRange.compareBoundaryPoints(Range.END_TO_START, nr) <= 0 || baseRange.compareBoundaryPoints(Range.START_TO_END, nr) >= 0);
-                        return intersects ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-                    }
-                }
-            );
-
-            const nodes = [];
-            let t; while ((t = walker.nextNode())) nodes.push(t);
-
-            let changed = false;
-            nodes.forEach((node) => {
-                // Only operate on portions that are currently highlighted
-                const ancestorHl = node.parentElement && node.parentElement.closest('.highlight');
-                if (!ancestorHl) return;
-
-                let start = 0; let end = node.nodeValue.length;
-                if (baseRange.startContainer === node) start = baseRange.startOffset;
-                if (baseRange.endContainer === node) end = baseRange.endOffset;
-                if (start >= end) return;
-
-                // Isolate the selected segment in this text node
-                let target = node;
-                if (start > 0) { target = target.splitText(start); end -= start; }
-                if (end < target.nodeValue.length) { target.splitText(end); }
-
-                // Now unwrap only the isolated target, preserving order by splitting the span around it
-                const span = target.parentElement && target.parentElement.closest('.highlight');
-                if (!span) return;
-                const parent = span.parentNode;
-
-                // Build left and right highlight spans around the target
-                const leftSpan = document.createElement('span');
-                leftSpan.className = 'highlight';
-                while (span.firstChild && span.firstChild !== target) {
-                    leftSpan.appendChild(span.firstChild);
-                }
-
-                // Remove target from span to isolate right side
-                span.removeChild(target);
-
-                const rightSpan = document.createElement('span');
-                rightSpan.className = 'highlight';
-                while (span.firstChild) {
-                    rightSpan.appendChild(span.firstChild);
-                }
-
-                // Insert back in correct order: leftSpan (if any), target (unstyled), rightSpan (if any)
-                if (leftSpan.childNodes.length) parent.insertBefore(leftSpan, span);
-                parent.insertBefore(target, span);
-                if (rightSpan.childNodes.length) parent.insertBefore(rightSpan, span);
-                parent.removeChild(span);
-                changed = true;
-            });
-            
-            // If nothing was changed (e.g., selection fully inside a single highlight without text node split), unwrap ancestor
-            if (!changed) {
-                const startNode = baseRange.startContainer;
-                const startEl = startNode && startNode.nodeType === 3 ? startNode.parentElement : startNode;
-                const span = startEl && startEl.closest ? startEl.closest('.highlight') : null;
-                if (span) {
-                    const parent = span.parentNode;
-                    while (span.firstChild) parent.insertBefore(span.firstChild, span);
-                    parent.removeChild(span);
-                    changed = true;
-                }
-            }
-
-            sel.removeAllRanges();
-            hideToolbar();
-            savedRange = null;
+            } catch {}
         }
 
-        rmSwatch.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            rmSwatch.classList.add('active');
-            removeHighlightInRange();
-            setTimeout(() => rmSwatch.classList.remove('active'), 120);
-        });
+        nodes.forEach((node) => {
+            let start = 0; let end = node.nodeValue.length;
+            if (range.startContainer === node) start = range.startOffset;
+            if (range.endContainer === node) end = range.endOffset;
+            if (start >= end) return;
 
-        // (legacy remove button listener removed)
+            // Avoid double wrap of already fully highlighted nodes
+            const parentHl = node.parentElement && node.parentElement.closest('.highlight');
+            if (parentHl && start === 0 && end === node.nodeValue.length) return;
 
-        document.addEventListener('selectionchange', () => {
-            // Keep swatch visible and preserve lastSelection to allow clicking it
-            const range = getValidSelection();
-            if (range) {
-                lastSelection = range;
-                try { savedRange = range.cloneRange(); } catch { savedRange = null; }
-                showToolbar(range);
-            } else {
-                // do not null savedRange here; might use it to apply highlight after selection collapses
-                lastSelection = null;
+            let target = node;
+            if (start > 0) { target = target.splitText(start); end -= start; }
+            if (end < target.nodeValue.length) { target.splitText(end); }
+
+            const span = document.createElement('span');
+            span.className = 'highlight';
+            if (target.parentNode) {
+                target.parentNode.insertBefore(span, target);
+                span.appendChild(target);
             }
         });
 
-        [passagePanel, questionsPanel].forEach(panel => {
-            panel.addEventListener('scroll', () => {
-                hideToolbar();
-            });
-        });
+        sel.removeAllRanges();
+        hideToolbar();
+        savedRange = null;
+    }
 
-        document.addEventListener('mousedown', (e) => {
-            if (!hlToolbar.contains(e.target)) {
-                hideToolbar();
-            }
-        });
+    // Click on yellow swatch applies highlight
+    hlSwatch.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        hlSwatch.classList.add('active');
+        applyHighlightYellow();
+        setTimeout(() => hlSwatch.classList.remove('active'), 120);
+    });
 
-        // No separate click-to-remove; removal is via white swatch
-
-        // Resizer
-        resizer.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none';
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
-            const container = document.querySelector('.main-content');
-            const containerRect = container.getBoundingClientRect();
-            const mouseX = e.clientX - containerRect.left;
-            const containerWidth = containerRect.width;
-            const leftPercentage = (mouseX / containerWidth) * 100;
-            const rightPercentage = 100 - leftPercentage;
-            if (leftPercentage >= 30 && leftPercentage <= 70) {
-                document.querySelector('.passage-container').style.flex = leftPercentage + '%';
-                document.querySelector('.questions-container').style.width = rightPercentage + '%';
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isResizing) {
-                isResizing = false;
-                document.body.style.cursor = '';
-                document.body.style.userSelect = '';
-            }
-        });
-
-        // Navigation
-        function scrollToQuestion(num) {
-            const el = document.querySelector(`[data-question="${num}"]`) || document.querySelector(`select[name="q${num}"], input[name="q${num}"]:first-of-type, input[name="q11_13"]:first-of-type`);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            updateCurrentQuestion(num);
-        }
-
-        function updateCurrentQuestion(num) {
-            currentQuestion = num;
-            document.querySelectorAll('.progress-item').forEach(item => {
-                item.classList.remove('current');
-                if (item.dataset.question == num || (num >= 11 && item.dataset.question == 11)) item.classList.add('current');
-            });
-            prevBtn.disabled = num <= 1;
-            nextBtn.disabled = num >= 11;
-        }
-
-        document.querySelectorAll('.progress-item').forEach(item => {
-            item.addEventListener('click', () => {
-                scrollToQuestion(parseInt(item.dataset.question));
-            });
-        });
-
-        prevBtn.addEventListener('click', () => {
-            if (currentQuestion > 1) scrollToQuestion(currentQuestion - 1);
-        });
-
-        nextBtn.addEventListener('click', () => {
-            if (currentQuestion < 11) scrollToQuestion(currentQuestion + 1);
-        });
-
-        // Event listener for marking questions as answered
-        document.querySelectorAll('select, input[type="radio"], input[type="checkbox"]').forEach(input => {
-            input.addEventListener('change', () => {
-                if (submitted) return;
-                const qNumMatch = input.name.match(/^q(\d+)$/);
-                const isMulti = input.name === 'q11_13';
-                if (qNumMatch || isMulti) {
-                    const qNum = isMulti ? 11 : parseInt(qNumMatch[1]);
-                    const item = document.querySelector(`.progress-item[data-question="${qNum}"]`);
-                    if (item && !item.classList.contains('answered')) {
-                        const value = isMulti ? Array.from(document.querySelectorAll('input[name="q11_13"]:checked')).map(el => el.value) : input.value;
-                        if (value && (isMulti ? value.length > 0 : value !== '')) {
-                            item.classList.add('answered');
-                        }
-                    }
-                }
-            });
-        });
-
-        submitBtn.addEventListener('click', submitTest);
-
-        function submitTest() {
-            if (submitted) return;
-            if (!confirm('Are you sure you want to submit?')) return;
-            submitted = true;
-            clearInterval(timerInterval);
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-check"></i> Submitted';
-            let score = 0;
-            const results = {};
-
-            // Process questions 1-7 (dropdowns)
-            for (let i = 1; i <= 7; i++) {
-                const key = `q${i}`;
-                let userAnswer = '';
-                let isCorrect = false;
-                const select = document.querySelector(`select[name="${key}"]`);
-                if (select && select.value) {
-                    userAnswer = select.value;
-                    isCorrect = userAnswer === correctAnswers[key];
-                    select.disabled = true;
-                }
-                if (isCorrect) score++;
-                results[key] = { userAnswer, correct: correctAnswers[key], isCorrect };
-            }
-
-            // Process questions 8-10 (radio buttons)
-            for (let i = 8; i <= 10; i++) {
-                const key = `q${i}`;
-                let userAnswer = '';
-                let isCorrect = false;
-                const checkedRadio = document.querySelector(`input[name="${key}"]:checked`);
-                if (checkedRadio) {
-                    userAnswer = checkedRadio.value;
-                    isCorrect = userAnswer === correctAnswers[key];
-                    document.querySelectorAll(`input[name="${key}"]`).forEach(radio => {
-                        radio.disabled = true;
-                    });
-                }
-                if (isCorrect) score++;
-                results[key] = { userAnswer, correct: correctAnswers[key], isCorrect };
-            }
-
-            // Process questions 11-13 (checkboxes)
-            const key = 'q11_13';
-            let userAnswers = Array.from(document.querySelectorAll(`input[name="${key}"]:checked`)).map(el => el.value).sort();
-            let isCorrect = false;
-            if (userAnswers.length === 3) {
-                isCorrect = userAnswers.every(val => correctAnswers[key].includes(val)) && correctAnswers[key].every(val => userAnswers.includes(val));
-            }
-            if (isCorrect) score++;
-            results[key] = { userAnswer: userAnswers.join(', '), correct: correctAnswers[key].join(', '), isCorrect };
-            document.querySelectorAll(`input[name="${key}"]`).forEach(checkbox => {
-                checkbox.disabled = true;
-            });
-
-            scoreDisplay.textContent = `${score}/11`;
-            passage1Score.textContent = `${score}/11`;
-            for (let i = 1; i <= 11; i++) {
-                const item = document.querySelector(`.progress-item[data-question="${i}"]`);
-                const res = results[i < 11 ? `q${i}` : key];
-                if (item && res) {
-                    item.classList.remove('current', 'answered');
-                    item.classList.add(res.isCorrect ? 'correct' : 'incorrect');
-                }
-            }
-            window.testResults = results;
-            resultsModal.style.display = 'flex';
-        }
-
-        function showCorrectAnswers() {
-            if (!submitted) return;
-            document.querySelectorAll('.answer-indicator').forEach(el => el.remove());
-
-            // Process questions 1-7 (dropdowns)
-            for (let i = 1; i <= 7; i++) {
-                const key = `q${i}`;
-                const res = window.testResults[key];
-                if (!res) continue;
-                const targetElement = document.querySelector(`[data-question="${i}"]`);
-                if (!targetElement) continue;
-                const div = document.createElement('div');
-                div.className = 'answer-indicator';
-                div.classList.add(res.isCorrect ? 'correct' : 'incorrect');
-                if (res.isCorrect) {
-                    div.innerHTML = `<i class="fas fa-check"></i> Correct! You chose: <strong>${res.userAnswer || 'No answer'}</strong>`;
-                } else {
-                    const userDisplay = res.userAnswer || 'No answer';
-                    div.innerHTML = `<i class="fas fa-times"></i> Incorrect. You chose: <strong>${userDisplay}</strong><br><strong>Correct:</strong> ${res.correct}`;
-                }
-                targetElement.appendChild(div);
-            }
-
-            // Process questions 8-10 (radio buttons)
-            for (let i = 8; i <= 10; i++) {
-                const key = `q${i}`;
-                const res = window.testResults[key];
-                if (!res) continue;
-                const targetElement = document.querySelector(`[data-question="${i}"] .options`);
-                if (!targetElement) continue;
-                const div = document.createElement('div');
-                div.className = 'answer-indicator';
-                div.classList.add(res.isCorrect ? 'correct' : 'incorrect');
-                if (res.isCorrect) {
-                    div.innerHTML = `<i class="fas fa-check"></i> Correct! You chose: <strong>${res.userAnswer || 'No answer'}</strong>`;
-                } else {
-                    const userDisplay = res.userAnswer || 'No answer';
-                    div.innerHTML = `<i class="fas fa-times"></i> Incorrect. You chose: <strong>${userDisplay}</strong><br><strong>Correct:</strong> ${res.correct}`;
-                }
-                targetElement.appendChild(div);
-            }
-
-            // Process questions 11-13 (checkboxes)
-            const key = 'q11_13';
-            const res = window.testResults[key];
-            if (res) {
-                const targetElement = document.querySelector(`[data-question="11"] .options`);
-                if (targetElement) {
-                    const div = document.createElement('div');
-                    div.className = 'answer-indicator';
-                    div.classList.add(res.isCorrect ? 'correct' : 'incorrect');
-                    if (res.isCorrect) {
-                        div.innerHTML = `<i class="fas fa-check"></i> Correct! You chose: <strong>${res.userAnswer || 'No answer'}</strong>`;
-                    } else {
-                        const userDisplay = res.userAnswer || 'No answer';
-                        div.innerHTML = `<i class="fas fa-times"></i> Incorrect. You chose: <strong>${userDisplay}</strong><br><strong>Correct:</strong> ${res.correct}`;
-                    }
-                    targetElement.appendChild(div);
-                }
-            }
-        }
-
-        closeModalBtn.addEventListener('click', () => {
-            resultsModal.style.display = 'none';
-        });
-
-        reviewBtn.addEventListener('click', () => {
-            resultsModal.style.display = 'none';
-            showCorrectAnswers();
-            scrollToQuestion(1);
-        });
-
-        function startTest() {
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('testContainer').classList.remove('hidden');
-            timerInterval = setInterval(updateTimer, 1000);
-        }
-
-        setTimeout(() => {
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('startScreen').classList.remove('hidden');
-        }, 2000);
-
-        // Полный сброс чтения
-        function resetReading() {
-            if (!confirm('Сбросить прогресс и начать заново?')) return;
-            // Сброс таймера
-            clearInterval(timerInterval);
-            seconds = 20 * 60;
-            const timerEl = document.querySelector('.timer span');
-            const timerBox = document.querySelector('.timer');
-            timerBox.classList.remove('warning');
-            timerEl.textContent = '20:00';
-
-            // Очистить ответы: selects 1-7
-            for (let i = 1; i <= 7; i++) {
-                const sel = document.querySelector(`select[name="q${i}"]`);
-                if (sel) sel.value = '';
-            }
-            // Радио 8-10
-            for (let i = 8; i <= 10; i++) {
-                document.querySelectorAll(`input[name="q${i}"]`).forEach(r => r.checked = false);
-            }
-            // Чекбоксы 11-13
-            document.querySelectorAll('input[name="q11_13"]').forEach(cb => cb.checked = false);
-
-            // Очистить индикаторы ответов, если есть
-            document.querySelectorAll('.answer-indicator').forEach(el => el.remove());
-            document.querySelectorAll('.progress-item').forEach((item, idx) => {
-                item.classList.remove('current', 'answered', 'correct', 'incorrect');
-                if (idx === 0) item.classList.add('current');
-            });
-
-            // Снять все хайлайты
-            document.querySelectorAll('.highlight').forEach(span => {
+    // Remove highlight only on selected part
+    function removeHighlightInRange() {
+        const baseRange = savedRange && !savedRange.collapsed ? savedRange.cloneRange() : (lastSelection && !lastSelection.collapsed ? lastSelection.cloneRange() : null);
+        const sel = window.getSelection();
+        if (!baseRange) {
+            // Fallback: no range – if caret inside highlight, unwrap it
+            const caretNode = sel && sel.rangeCount ? sel.getRangeAt(0).startContainer : null;
+            const caretEl = caretNode && caretNode.nodeType === 3 ? caretNode.parentElement : caretNode;
+            const span = caretEl && caretEl.closest ? caretEl.closest('.highlight') : null;
+            if (span) {
                 const parent = span.parentNode;
                 while (span.firstChild) parent.insertBefore(span.firstChild, span);
                 parent.removeChild(span);
-            });
-            if (hlToolbar) hlToolbar.style.display = 'none';
-            savedRange = null; lastSelection = null;
-
-            // Сброс размеров панелей
-            const passageEl = document.querySelector('.passage-container');
-            const questionsEl = document.querySelector('.questions-container');
-            if (passageEl) passageEl.style.flex = '';
-            if (questionsEl) questionsEl.style.width = '40%';
-            passagePanel.scrollTop = 0; questionsPanel.scrollTop = 0;
-
-            // Вернуться на стартовый экран
-            document.getElementById('testContainer').classList.add('hidden');
-            document.getElementById('startScreen').classList.remove('hidden');
+            }
+            hideToolbar();
+            savedRange = null;
+            return;
         }
 
-        resetBtn.addEventListener('click', resetReading);
-    </script>
+
+        // Collect intersecting text nodes
+        const walker = document.createTreeWalker(
+            baseRange.commonAncestorContainer,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode: (node) => {
+                    if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+                    const nr = document.createRange();
+                    nr.selectNodeContents(node);
+                    const intersects = !(baseRange.compareBoundaryPoints(Range.END_TO_START, nr) <= 0 || baseRange.compareBoundaryPoints(Range.START_TO_END, nr) >= 0);
+                    return intersects ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+                }
+            }
+        );
+
+        const nodes = [];
+        let t; while ((t = walker.nextNode())) nodes.push(t);
+
+        let changed = false;
+        nodes.forEach((node) => {
+            // Only operate on portions that are currently highlighted
+            const ancestorHl = node.parentElement && node.parentElement.closest('.highlight');
+            if (!ancestorHl) return;
+
+            let start = 0; let end = node.nodeValue.length;
+            if (baseRange.startContainer === node) start = baseRange.startOffset;
+            if (baseRange.endContainer === node) end = baseRange.endOffset;
+            if (start >= end) return;
+
+            // Isolate the selected segment in this text node
+            let target = node;
+            if (start > 0) { target = target.splitText(start); end -= start; }
+            if (end < target.nodeValue.length) { target.splitText(end); }
+
+            // Now unwrap only the isolated target, preserving order by splitting the span around it
+            const span = target.parentElement && target.parentElement.closest('.highlight');
+            if (!span) return;
+            const parent = span.parentNode;
+
+            // Build left and right highlight spans around the target
+            const leftSpan = document.createElement('span');
+            leftSpan.className = 'highlight';
+            while (span.firstChild && span.firstChild !== target) {
+                leftSpan.appendChild(span.firstChild);
+            }
+
+            // Remove target from span to isolate right side
+            span.removeChild(target);
+
+            const rightSpan = document.createElement('span');
+            rightSpan.className = 'highlight';
+            while (span.firstChild) {
+                rightSpan.appendChild(span.firstChild);
+            }
+
+            // Insert back in correct order: leftSpan (if any), target (unstyled), rightSpan (if any)
+            if (leftSpan.childNodes.length) parent.insertBefore(leftSpan, span);
+            parent.insertBefore(target, span);
+            if (rightSpan.childNodes.length) parent.insertBefore(rightSpan, span);
+            parent.removeChild(span);
+            changed = true;
+        });
+
+        // If nothing was changed (e.g., selection fully inside a single highlight without text node split), unwrap ancestor
+        if (!changed) {
+            const startNode = baseRange.startContainer;
+            const startEl = startNode && startNode.nodeType === 3 ? startNode.parentElement : startNode;
+            const span = startEl && startEl.closest ? startEl.closest('.highlight') : null;
+            if (span) {
+                const parent = span.parentNode;
+                while (span.firstChild) parent.insertBefore(span.firstChild, span);
+                parent.removeChild(span);
+                changed = true;
+            }
+        }
+
+        sel.removeAllRanges();
+        hideToolbar();
+        savedRange = null;
+    }
+
+    rmSwatch.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        rmSwatch.classList.add('active');
+        removeHighlightInRange();
+        setTimeout(() => rmSwatch.classList.remove('active'), 120);
+    });
+
+    // (legacy remove button listener removed)
+
+    document.addEventListener('selectionchange', () => {
+        // Keep swatch visible and preserve lastSelection to allow clicking it
+        const range = getValidSelection();
+        if (range) {
+            lastSelection = range;
+            try { savedRange = range.cloneRange(); } catch { savedRange = null; }
+            showToolbar(range);
+        } else {
+            // do not null savedRange here; might use it to apply highlight after selection collapses
+            lastSelection = null;
+        }
+    });
+
+    [passagePanel, questionsPanel].forEach(panel => {
+        panel.addEventListener('scroll', () => {
+            hideToolbar();
+        });
+    });
+
+    document.addEventListener('mousedown', (e) => {
+        if (!hlToolbar.contains(e.target)) {
+            hideToolbar();
+        }
+    });
+
+    // No separate click-to-remove; removal is via white swatch
+
+    // Resizer
+    resizer.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        const container = document.querySelector('.main-content');
+        const containerRect = container.getBoundingClientRect();
+        const mouseX = e.clientX - containerRect.left;
+        const containerWidth = containerRect.width;
+        const leftPercentage = (mouseX / containerWidth) * 100;
+        const rightPercentage = 100 - leftPercentage;
+        if (leftPercentage >= 30 && leftPercentage <= 70) {
+            document.querySelector('.passage-container').style.flex = leftPercentage + '%';
+            document.querySelector('.questions-container').style.width = rightPercentage + '%';
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isResizing) {
+            isResizing = false;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+    });
+
+    // Navigation
+    function scrollToQuestion(num) {
+        const el = document.querySelector(`[data-question="${num}"]`) || document.querySelector(`select[name="q${num}"], input[name="q${num}"]:first-of-type, input[name="q11_13"]:first-of-type`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        updateCurrentQuestion(num);
+    }
+
+    function updateCurrentQuestion(num) {
+        currentQuestion = num;
+        document.querySelectorAll('.progress-item').forEach(item => {
+            item.classList.remove('current');
+            if (item.dataset.question == num || (num >= 11 && item.dataset.question == 11)) item.classList.add('current');
+        });
+        prevBtn.disabled = num <= 1;
+        nextBtn.disabled = num >= 11;
+    }
+
+    document.querySelectorAll('.progress-item').forEach(item => {
+        item.addEventListener('click', () => {
+            scrollToQuestion(parseInt(item.dataset.question));
+        });
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentQuestion > 1) scrollToQuestion(currentQuestion - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentQuestion < 11) scrollToQuestion(currentQuestion + 1);
+    });
+
+    // Event listener for marking questions as answered
+    document.querySelectorAll('select, input[type="radio"], input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', () => {
+            if (submitted) return;
+            const qNumMatch = input.name.match(/^q(\d+)$/);
+            const isMulti = input.name === 'q11_13';
+            if (qNumMatch || isMulti) {
+                const qNum = isMulti ? 11 : parseInt(qNumMatch[1]);
+                const item = document.querySelector(`.progress-item[data-question="${qNum}"]`);
+                if (item && !item.classList.contains('answered')) {
+                    const value = isMulti ? Array.from(document.querySelectorAll('input[name="q11_13"]:checked')).map(el => el.value) : input.value;
+                    if (value && (isMulti ? value.length > 0 : value !== '')) {
+                        item.classList.add('answered');
+                    }
+                }
+            }
+        });
+    });
+
+    submitBtn.addEventListener('click', submitTest);
+
+    function submitTest() {
+        if (submitted) return;
+        if (!confirm('Are you sure you want to submit?')) return;
+        submitted = true;
+        clearInterval(timerInterval);
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Submitted';
+        let score = 0;
+        const results = {};
+
+        // Process questions 1-7 (dropdowns)
+        for (let i = 1; i <= 7; i++) {
+            const key = `q${i}`;
+            let userAnswer = '';
+            let isCorrect = false;
+            const select = document.querySelector(`select[name="${key}"]`);
+            if (select && select.value) {
+                userAnswer = select.value;
+                isCorrect = userAnswer === correctAnswers[key];
+                select.disabled = true;
+            }
+            if (isCorrect) score++;
+            results[key] = { userAnswer, correct: correctAnswers[key], isCorrect };
+        }
+
+        // Process questions 8-10 (radio buttons)
+        for (let i = 8; i <= 10; i++) {
+            const key = `q${i}`;
+            let userAnswer = '';
+            let isCorrect = false;
+            const checkedRadio = document.querySelector(`input[name="${key}"]:checked`);
+            if (checkedRadio) {
+                userAnswer = checkedRadio.value;
+                isCorrect = userAnswer === correctAnswers[key];
+                document.querySelectorAll(`input[name="${key}"]`).forEach(radio => {
+                    radio.disabled = true;
+                });
+            }
+            if (isCorrect) score++;
+            results[key] = { userAnswer, correct: correctAnswers[key], isCorrect };
+        }
+
+        // Process questions 11-13 (checkboxes)
+        const key = 'q11_13';
+        let userAnswers = Array.from(document.querySelectorAll(`input[name="${key}"]:checked`)).map(el => el.value).sort();
+        let isCorrect = false;
+        if (userAnswers.length === 3) {
+            isCorrect = userAnswers.every(val => correctAnswers[key].includes(val)) && correctAnswers[key].every(val => userAnswers.includes(val));
+        }
+        if (isCorrect) score++;
+        results[key] = { userAnswer: userAnswers.join(', '), correct: correctAnswers[key].join(', '), isCorrect };
+        document.querySelectorAll(`input[name="${key}"]`).forEach(checkbox => {
+            checkbox.disabled = true;
+        });
+
+        scoreDisplay.textContent = `${score}/11`;
+        passage1Score.textContent = `${score}/11`;
+        for (let i = 1; i <= 11; i++) {
+            const item = document.querySelector(`.progress-item[data-question="${i}"]`);
+            const res = results[i < 11 ? `q${i}` : key];
+            if (item && res) {
+                item.classList.remove('current', 'answered');
+                item.classList.add(res.isCorrect ? 'correct' : 'incorrect');
+            }
+        }
+        window.testResults = results;
+        resultsModal.style.display = 'flex';
+    }
+
+    function showCorrectAnswers() {
+        if (!submitted) return;
+        document.querySelectorAll('.answer-indicator').forEach(el => el.remove());
+
+        // Process questions 1-7 (dropdowns)
+        for (let i = 1; i <= 7; i++) {
+            const key = `q${i}`;
+            const res = window.testResults[key];
+            if (!res) continue;
+            const targetElement = document.querySelector(`[data-question="${i}"]`);
+            if (!targetElement) continue;
+            const div = document.createElement('div');
+            div.className = 'answer-indicator';
+            div.classList.add(res.isCorrect ? 'correct' : 'incorrect');
+            if (res.isCorrect) {
+                div.innerHTML = `<i class="fas fa-check"></i> Correct! You chose: <strong>${res.userAnswer || 'No answer'}</strong>`;
+            } else {
+                const userDisplay = res.userAnswer || 'No answer';
+                div.innerHTML = `<i class="fas fa-times"></i> Incorrect. You chose: <strong>${userDisplay}</strong><br><strong>Correct:</strong> ${res.correct}`;
+            }
+            targetElement.appendChild(div);
+        }
+
+        // Process questions 8-10 (radio buttons)
+        for (let i = 8; i <= 10; i++) {
+            const key = `q${i}`;
+            const res = window.testResults[key];
+            if (!res) continue;
+            const targetElement = document.querySelector(`[data-question="${i}"] .options`);
+            if (!targetElement) continue;
+            const div = document.createElement('div');
+            div.className = 'answer-indicator';
+            div.classList.add(res.isCorrect ? 'correct' : 'incorrect');
+            if (res.isCorrect) {
+                div.innerHTML = `<i class="fas fa-check"></i> Correct! You chose: <strong>${res.userAnswer || 'No answer'}</strong>`;
+            } else {
+                const userDisplay = res.userAnswer || 'No answer';
+                div.innerHTML = `<i class="fas fa-times"></i> Incorrect. You chose: <strong>${userDisplay}</strong><br><strong>Correct:</strong> ${res.correct}`;
+            }
+            targetElement.appendChild(div);
+        }
+
+        // Process questions 11-13 (checkboxes)
+        const key = 'q11_13';
+        const res = window.testResults[key];
+        if (res) {
+            const targetElement = document.querySelector(`[data-question="11"] .options`);
+            if (targetElement) {
+                const div = document.createElement('div');
+                div.className = 'answer-indicator';
+                div.classList.add(res.isCorrect ? 'correct' : 'incorrect');
+                if (res.isCorrect) {
+                    div.innerHTML = `<i class="fas fa-check"></i> Correct! You chose: <strong>${res.userAnswer || 'No answer'}</strong>`;
+                } else {
+                    const userDisplay = res.userAnswer || 'No answer';
+                    div.innerHTML = `<i class="fas fa-times"></i> Incorrect. You chose: <strong>${userDisplay}</strong><br><strong>Correct:</strong> ${res.correct}`;
+                }
+                targetElement.appendChild(div);
+            }
+        }
+    }
+
+    closeModalBtn.addEventListener('click', () => {
+        resultsModal.style.display = 'none';
+    });
+
+    reviewBtn.addEventListener('click', () => {
+        resultsModal.style.display = 'none';
+        showCorrectAnswers();
+        scrollToQuestion(1);
+    });
+
+    function startTest() {
+        document.getElementById('startScreen').classList.add('hidden');
+        document.getElementById('testContainer').classList.remove('hidden');
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    setTimeout(() => {
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('startScreen').classList.remove('hidden');
+    }, 2000);
+
+    // Полный сброс чтения
+    function resetReading() {
+        if (!confirm('Сбросить прогресс и начать заново?')) return;
+        // Сброс таймера
+        clearInterval(timerInterval);
+        seconds = 20 * 60;
+        const timerEl = document.querySelector('.timer span');
+        const timerBox = document.querySelector('.timer');
+        timerBox.classList.remove('warning');
+        timerEl.textContent = '20:00';
+
+        // Очистить ответы: selects 1-7
+        for (let i = 1; i <= 7; i++) {
+            const sel = document.querySelector(`select[name="q${i}"]`);
+            if (sel) sel.value = '';
+        }
+        // Радио 8-10
+        for (let i = 8; i <= 10; i++) {
+            document.querySelectorAll(`input[name="q${i}"]`).forEach(r => r.checked = false);
+        }
+        // Чекбоксы 11-13
+        document.querySelectorAll('input[name="q11_13"]').forEach(cb => cb.checked = false);
+
+        // Очистить индикаторы ответов, если есть
+        document.querySelectorAll('.answer-indicator').forEach(el => el.remove());
+        document.querySelectorAll('.progress-item').forEach((item, idx) => {
+            item.classList.remove('current', 'answered', 'correct', 'incorrect');
+            if (idx === 0) item.classList.add('current');
+        });
+
+        // Снять все хайлайты
+        document.querySelectorAll('.highlight').forEach(span => {
+            const parent = span.parentNode;
+            while (span.firstChild) parent.insertBefore(span.firstChild, span);
+            parent.removeChild(span);
+        });
+        if (hlToolbar) hlToolbar.style.display = 'none';
+        savedRange = null; lastSelection = null;
+
+        // Сброс размеров панелей
+        const passageEl = document.querySelector('.passage-container');
+        const questionsEl = document.querySelector('.questions-container');
+        if (passageEl) passageEl.style.flex = '';
+        if (questionsEl) questionsEl.style.width = '40%';
+        passagePanel.scrollTop = 0; questionsPanel.scrollTop = 0;
+
+        // Вернуться на стартовый экран
+        document.getElementById('testContainer').classList.add('hidden');
+        document.getElementById('startScreen').classList.remove('hidden');
+    }
+
+    resetBtn.addEventListener('click', resetReading);
+</script>
 </body>
 
 </html>

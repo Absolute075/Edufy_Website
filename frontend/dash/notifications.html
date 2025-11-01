@@ -1,112 +1,112 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edufy • Notifications</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="theme.css" />
-  <script src="components.js" defer></script>
-  <script src="app.js" defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edufy • Notifications</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="theme.css" />
+    <script src="components.js" defer></script>
+    <script src="app.js" defer></script>
 </head>
 <body>
-  <div class="animated-bg">
+<div class="animated-bg">
     <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-  </div>
+</div>
 
-  <aside class="sidebar" id="sidebar"></aside>
+<aside class="sidebar" id="sidebar"></aside>
 
-  <main class="main-content">
+<main class="main-content">
     <header class="header">
-      <div class="header-left">
-        <button class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></button>
-      </div>
-      <div class="header-right">
-        <button class="header-icon-btn notification-btn" id="notificationBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          <span class="notification-badge">3</span>
-        </button>
-        <div class="header-user">
-          <img src="../templates/images/caesar.png" alt="User" class="header-avatar">
-          <div class="header-user-info">
-            <span class="header-username">Student</span>
-            <span class="header-status">Notifications</span>
-          </div>
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></button>
         </div>
-      </div>
+        <div class="header-right">
+            <button class="header-icon-btn notification-btn" id="notificationBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span class="notification-badge">3</span>
+            </button>
+            <div class="header-user">
+                <img src="../templates/images/caesar.png" alt="User" class="header-avatar">
+                <div class="header-user-info">
+                    <span class="header-username">Student</span>
+                    <span class="header-status">Notifications</span>
+                </div>
+            </div>
+        </div>
     </header>
 
     <div class="profile-container">
-      <div class="profile-card">
-        <div class="card-header">
-          <div class="card-header-left">
-            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-            <div>
-              <h2 class="card-title">Notifications</h2>
-              <p class="card-subtitle">Latest updates and alerts</p>
+        <div class="profile-card">
+            <div class="card-header">
+                <div class="card-header-left">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                    <div>
+                        <h2 class="card-title">Notifications</h2>
+                        <p class="card-subtitle">Latest updates and alerts</p>
+                    </div>
+                </div>
+                <div class="card-header-actions">
+                    <button class="btn ghost" id="markAllReadBtn">Mark all read</button>
+                </div>
             </div>
-          </div>
-          <div class="card-header-actions">
-            <button class="btn ghost" id="markAllReadBtn">Mark all read</button>
-          </div>
+            <div class="card-body">
+                <div class="list" id="notificationsList">
+                    <div class="list-item unread">
+                        <div>
+                            <div class="title">Your IELTS mock interview is scheduled</div>
+                            <div class="muted">Today at 4:30 PM · Tap to view details</div>
+                        </div>
+                        <span class="badge">New</span>
+                    </div>
+                    <div class="list-item unread">
+                        <div>
+                            <div class="title">Weekly report is ready</div>
+                            <div class="muted">View your study time and scores breakdown</div>
+                        </div>
+                        <button class="btn ghost">Open</button>
+                    </div>
+                    <div class="list-item">
+                        <div>
+                            <div class="title">Course reminder: SAT Math</div>
+                            <div class="muted">Resume Algebra section · 2d ago</div>
+                        </div>
+                        <button class="btn">Resume</button>
+                    </div>
+                    <div class="list-item">
+                        <div>
+                            <div class="title">Badge unlocked: Week Warrior</div>
+                            <div class="muted">7-day learning streak · 5d ago</div>
+                        </div>
+                        <span class="badge ghost">Badge</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-          <div class="list" id="notificationsList">
-            <div class="list-item unread">
-              <div>
-                <div class="title">Your IELTS mock interview is scheduled</div>
-                <div class="muted">Today at 4:30 PM · Tap to view details</div>
-              </div>
-              <span class="badge">New</span>
-            </div>
-            <div class="list-item unread">
-              <div>
-                <div class="title">Weekly report is ready</div>
-                <div class="muted">View your study time and scores breakdown</div>
-              </div>
-              <button class="btn ghost">Open</button>
-            </div>
-            <div class="list-item">
-              <div>
-                <div class="title">Course reminder: SAT Math</div>
-                <div class="muted">Resume Algebra section · 2d ago</div>
-              </div>
-              <button class="btn">Resume</button>
-            </div>
-            <div class="list-item">
-              <div>
-                <div class="title">Badge unlocked: Week Warrior</div>
-                <div class="muted">7-day learning streak · 5d ago</div>
-              </div>
-              <span class="badge ghost">Badge</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </main>
+</main>
 
-  <div class="toast" id="toast">
+<div class="toast" id="toast">
     <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="20 6 9 17 4 12"></polyline>
+        <polyline points="20 6 9 17 4 12"></polyline>
     </svg>
     <span class="toast-message">All notifications marked as read</span>
-  </div>
+</div>
 
-  <script>
+<script>
     document.addEventListener('DOMContentLoaded', () => {
-      const list = document.getElementById('notificationsList');
-      const markAll = document.getElementById('markAllReadBtn');
-      markAll?.addEventListener('click', () => {
-        list?.querySelectorAll('.list-item.unread')?.forEach(el => el.classList.remove('unread'));
-        const toast = document.getElementById('toast');
-        toast?.classList.add('active');
-        setTimeout(() => toast?.classList.remove('active'), 2000);
-      });
+        const list = document.getElementById('notificationsList');
+        const markAll = document.getElementById('markAllReadBtn');
+        markAll?.addEventListener('click', () => {
+            list?.querySelectorAll('.list-item.unread')?.forEach(el => el.classList.remove('unread'));
+            const toast = document.getElementById('toast');
+            toast?.classList.add('active');
+            setTimeout(() => toast?.classList.remove('active'), 2000);
+        });
     });
-  </script>
+</script>
 </body>
 </html>
