@@ -1,5 +1,5 @@
 // version.js
-const VERSION = '5'; // меняешь число при обновлении файлов
+const VERSION = '6'; // меняешь число при обновлении файлов
 
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("img, source, video, script, link").forEach(el => {
