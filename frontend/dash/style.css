@@ -1,4 +1,4 @@
-:root {
+    :root {
     --bg: #0b0f19; --surface: #121826; --border: #1f2740;
     --text: #e6e8ec; --muted: #a0a7b4; --primary: #4f46e5; --ring: rgba(79,70,229,.35);
     --radius: 12px; --shadow-1: 0 6px 20px rgba(0,0,0,.25);
