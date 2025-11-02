@@ -1,5 +1,5 @@
 
-FROM golang:1.25 AS builder
+FROM golang:1.23 AS builder
 
 
 WORKDIR /app
@@ -14,18 +14,20 @@ RUN go mod download
 COPY . .
 
 
-RUN go build -o gateway_service ./cmd
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+RUN go build -trimpath -ldflags "-s -w" -o gateway_service ./cmd
 
 
-FROM debian:bookworm-slim
+FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
 
 
-COPY --from=builder /app/gateway_service .
+COPY --from=builder /app/gateway_service /gateway_service
 
 
 EXPOSE 8080
 
 
-CMD ["./gateway_service"]
+USER 65532:65532
+ENTRYPOINT ["/gateway_service"]

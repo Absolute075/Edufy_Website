@@ -21,21 +21,18 @@ public class AuthService {
     // ================== REGISTER ==================
     public AuthResponse register(RegisterRequest request) {
         // Проверка email
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             return new AuthResponse("❌ Email already registered!");
         }
-
-        // Проверка телефона
-        if (userRepository.findByPhone(request.getPhone()).isPresent()) {
-            return new AuthResponse("❌ Phone number already registered!");
+        // Проверка username
+        if (userRepository.existsByUsername(request.getUsername())) {
+            return new AuthResponse("❌ Username already registered!");
         }
 
         // Создаём нового пользователя
         UserEntity user = new UserEntity();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
-        user.setBirthDate(request.getBirthDate());
         user.setRole(request.getRole()); // STUDENT / TEACHER
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setActive(true);

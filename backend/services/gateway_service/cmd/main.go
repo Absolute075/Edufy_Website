@@ -1,9 +1,10 @@
 package main
 
 import (
-	"io"
 	"net/http"
+	"os"
 
+	"gateway_service/internal/proxy"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,33 +23,18 @@ func main() {
 		c.Next()
 	})
 
-	// Пример маршрута — пересылает запросы в auth_service (порт 8081)
-	router.Any("/auth/*path", func(c *gin.Context) {
-		target := "http://auth_service:8081" + c.Param("path")
+	// Base URL for auth_service (inside Docker network)
+	authBase := os.Getenv("AUTH_SERVICE_URL")
+	if authBase == "" {
+		// auth_service listens on 8080 inside the container
+		authBase = "http://auth_service:8080"
+	}
 
-		req, err := http.NewRequest(c.Request.Method, target, c.Request.Body)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create request"})
-			return
-		}
-
-		req.Header = c.Request.Header
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "auth_service unreachable"})
-			return
-		}
-		defer resp.Body.Close()
-
-		body, _ := io.ReadAll(resp.Body)
-		c.Data(resp.StatusCode, resp.Header.Get("Content-Type"), body)
-	})
+	// Proxy /auth/* to auth_service
+	router.Any("/auth/*path", proxy.ReverseProxy(authBase))
 
 	// Health-check
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "gateway_service running"})
-	})
+	router.GET("/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "gateway_service running"}) })
 
 	router.Run(":8080")
 }
