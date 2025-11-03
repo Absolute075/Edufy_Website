@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,17 @@ public class AuthService {
 
     // ================== REGISTER ==================
     public AuthResponse register(RegisterRequest request) {
+        // Базовая валидация
+        if (request.getUsername() == null || request.getUsername().isBlank()) {
+            return new AuthResponse("❌ Username is required");
+        }
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            return new AuthResponse("❌ Email is required");
+        }
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            return new AuthResponse("❌ Password is required");
+        }
+
         // Проверка email
         if (userRepository.existsByEmail(request.getEmail())) {
             return new AuthResponse("❌ Email already registered!");
@@ -33,12 +45,18 @@ public class AuthService {
         UserEntity user = new UserEntity();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setRole(request.getRole()); // STUDENT / TEACHER
+        // Роль: по умолчанию STUDENT, если не передана
+        user.setRole(request.getRole() != null ? request.getRole() : UserEntity.Role.STUDENT);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setActive(true);
+        user.setCreatedAt(LocalDateTime.now());
 
-        // Сохраняем пользователя
-        userRepository.save(user);
+        // Сохраняем пользователя с обработкой ошибок БД
+        try {
+            userRepository.save(user);
+        } catch (Exception e) {
+            return new AuthResponse("❌ Registration failed: " + e.getClass().getSimpleName());
+        }
 
         return new AuthResponse("✅ User registered successfully!");
     }
