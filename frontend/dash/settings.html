@@ -70,6 +70,14 @@
                         <button class="btn-secondary" id="changePasswordBtn">Change</button>
                     </div>
 
+                    <div class="security-item">
+                        <div class="security-item-info">
+                            <h4 class="security-item-title">Logout</h4>
+                            <p class="security-item-desc">Sign out of your account on this device</p>
+                        </div>
+                        <button class="btn danger" id="logoutSettingsBtn">Logout</button>
+                    </div>
+
 
                 </div>
             </div>
@@ -206,6 +214,23 @@
     </svg>
     <span class="toast-message">Changes saved successfully!</span>
 </div>
+
+<script>
+  // Logout from Settings page
+  (function(){
+    const btn = document.getElementById('logoutSettingsBtn');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      const ok = confirm('Вы уверены, что хотите выйти?');
+      if (!ok) return;
+      btn.disabled = true;
+      try {
+        await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
+      } catch (e) {}
+      window.location.href = 'https://access.edufyuzbekistan.com/login';
+    });
+  })();
+</script>
 
 </body>
 </html>
