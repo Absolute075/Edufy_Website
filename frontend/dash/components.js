@@ -194,7 +194,9 @@ function renderRole(role) {
   renderCourses(d);
   renderActivity(d);
   renderCharts(d);
-  renderProfile(d);
+  if (typeof renderProfile === 'function') {
+    renderProfile(d);
+  }
 }
 
 // Initialize
