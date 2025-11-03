@@ -1,13 +1,12 @@
-FROM openjdk:17-jdk
-
-
+# Этап сборки
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-
-COPY target/auth_service-1.0.0.jar app.jar
-
-
+# Этап запуска
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-
-ENTRYPOINT ["java", "-jar", "app.jar", "--server.port=8081"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
