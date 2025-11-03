@@ -13,13 +13,15 @@ services:
     volumes:
       - edufy_db_data:/var/lib/postgresql/data
     restart: always
+    networks:
+      - edufy_net
 
   auth_service:
     build: ./services/auth_service
     image: auth_service:latest
     container_name: auth_service
     ports:
-      - "8081:8080"    # ВНЕШНИЙ порт 8081 → ВНУТРЕННИЙ 8080 (Spring Boot)
+      - "8081:8080" #8081 внешний порт docker, 8080 внутренний порт Spring Boot
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/edufy_auth
       SPRING_DATASOURCE_USERNAME: admin
@@ -29,18 +31,26 @@ services:
     depends_on:
       - db
     restart: always
+    networks:
+      - edufy_net
 
   gateway_service:
     build: ./services/gateway_service
     image: gateway_service:latest
     container_name: gateway_service
     ports:
-      - "8082:8080"   # ВНЕШНИЙ порт 8082 → ВНУТРЕННИЙ 8080 (Go Gin)
+      - "8082:8080" #8082 внешний порт docker, 8080 внутренний порт Gin
     environment:
-      AUTH_SERVICE_URL: http://auth_service:8080   # внутренняя связь по имени контейнера
+      AUTH_SERVICE_URL: http://auth_service:8080
     depends_on:
       - auth_service
     restart: always
+    networks:
+      - edufy_net
 
 volumes:
   edufy_db_data:
+
+networks:
+  edufy_net:
+    driver: bridge
