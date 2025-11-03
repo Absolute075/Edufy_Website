@@ -1,6 +1,6 @@
 package com.edufy.auth.controller;
 
-import com.edufy.auth.dto.RegisterRequest;
+import  com.edufy.auth.dto.RegisterRequest;
 import com.edufy.auth.dto.LoginRequest;
 import com.edufy.auth.dto.RefreshRequest;
 import com.edufy.auth.dto.TokenResponse;

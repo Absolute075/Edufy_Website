@@ -1,17 +1,22 @@
 package proxy
 
 import (
-	"net/http"
 	"net/http/httputil"
 	"net/url"
+
 	"github.com/gin-gonic/gin"
 )
 
-// универсальный прокси
 func ReverseProxy(target string) gin.HandlerFunc {
+	targetURL, _ := url.Parse(target)
+
 	return func(c *gin.Context) {
-		url, _ := url.Parse(target)
-		proxy := httputil.NewSingleHostReverseProxy(url)
+		proxy := httputil.NewSingleHostReverseProxy(targetURL)
+
+		// добавляем оригинальный путь запроса
+		c.Request.URL.Path = c.Param("path")
+
+		// если был query ?x=1&y=2, сохраняем
 		proxy.ServeHTTP(c.Writer, c.Request)
 	}
 }
