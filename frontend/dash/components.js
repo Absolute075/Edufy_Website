@@ -224,6 +224,23 @@ async function hydrateUserFromServer() {
     if (profileUsernameInput && me.username) profileUsernameInput.value = me.username;
     if (profileEmailInput && me.email) profileEmailInput.value = me.email;
     if (profileDisplayName && me.username) profileDisplayName.textContent = '@' + me.username;
+
+    // Persist into profile storage so other pages pick it up
+    try {
+      const key = 'edufy.profile.v1';
+      const existingRaw = localStorage.getItem(key);
+      const existing = existingRaw ? JSON.parse(existingRaw) : {};
+      const updated = {
+        ...existing,
+        username: me.username || existing.username || '',
+        email: me.email || existing.email || ''
+      };
+      localStorage.setItem(key, JSON.stringify(updated));
+    } catch {}
+
+    // Trigger any dependent UI updates
+    if (profileUsernameInput) profileUsernameInput.dispatchEvent(new Event('input'));
+    if (profileEmailInput) profileEmailInput.dispatchEvent(new Event('input'));
   } catch {}
 }
 
