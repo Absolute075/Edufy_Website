@@ -1,14 +1,25 @@
 package com.edufy.auth.controller;
 
-import  com.edufy.auth.dto.RegisterRequest;
+import com.edufy.auth.dto.RegisterRequest;
 import com.edufy.auth.dto.LoginRequest;
 import com.edufy.auth.dto.RefreshRequest;
 import com.edufy.auth.dto.TokenResponse;
 import com.edufy.auth.dto.AuthResponse;
+import com.edufy.auth.entity.UserEntity;
+import com.edufy.auth.repository.UserRepository;
+import com.edufy.auth.security.JwtService;
 import com.edufy.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -16,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     // Регистрация
     @PostMapping("/register")
@@ -29,14 +42,37 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // Логин
+    // Логин + установка HttpOnly cookie для токенов на домен .edufyuzbekistan.com
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         TokenResponse tokenResponse = authService.login(request);
         if (tokenResponse.getAccessToken() == null) {
             return ResponseEntity.badRequest().body(tokenResponse);
         }
-        return ResponseEntity.ok(tokenResponse);
+
+        // Куки для поддоменов: .edufyuzbekistan.com
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenResponse.getAccessToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(".edufyuzbekistan.com")
+                .path("/")
+                .maxAge(15 * 60) // 15 минут
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(".edufyuzbekistan.com")
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60) // 7 дней
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(tokenResponse);
     }
 
     // Обновление токена
@@ -47,6 +83,39 @@ public class AuthController {
             return ResponseEntity.badRequest().body(tokenResponse);
         }
         return ResponseEntity.ok(tokenResponse);
+    }
+
+    // Текущий пользователь по куке accessToken
+    @GetMapping("/me")
+    public ResponseEntity<?> me(HttpServletRequest request) {
+        String accessToken = null;
+        if (request.getCookies() != null) {
+            for (var c : request.getCookies()) {
+                if ("accessToken".equals(c.getName())) {
+                    accessToken = c.getValue();
+                    break;
+                }
+            }
+        }
+        if (accessToken == null || accessToken.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+        String username;
+        try {
+            username = jwtService.extractUsername(accessToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid token"));
+        }
+        Optional<UserEntity> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("message", "User not found"));
+        }
+        UserEntity user = userOpt.get();
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("username", user.getUsername());
+        payload.put("email", user.getEmail());
+        payload.put("role", user.getRole());
+        return ResponseEntity.ok(payload);
     }
 
     // Проверка здоровья сервиса

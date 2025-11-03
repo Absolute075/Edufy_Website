@@ -575,12 +575,36 @@
                 throw new Error(data.message || 'Registration failed');
             }
 
-            formMessage.textContent = data.message || 'Registered successfully!';
+            formMessage.textContent = data.message || 'Registration successful! Logging you in...';
+            formMessage.classList.remove('text-red-400');
             formMessage.classList.add('text-green-400');
-            // Optional redirect after a short delay
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 1200);
+
+            // Auto-login after successful registration
+            const email = document.getElementById('login-email').value.trim();
+            const password = passwordInput.value;
+            try {
+                const loginRes = await fetch(`${location.origin}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const loginData = await loginRes.json().catch(() => ({}));
+                if (!loginRes.ok || !loginData.accessToken) {
+                    throw new Error(loginData.message || 'Auto-login failed');
+                }
+                // Store tokens and minimal profile
+                localStorage.setItem('accessToken', loginData.accessToken);
+                if (loginData.refreshToken) localStorage.setItem('refreshToken', loginData.refreshToken);
+                localStorage.setItem('email', email);
+                const role = roleSelect.value;
+                if (role) localStorage.setItem('role', role);
+                // Redirect to external dashboard domain
+                window.location.href = `https://dash.edufyuzbekistan.com/`;
+            } catch (e) {
+                formMessage.textContent = 'Registered. Please log in to continue.';
+                formMessage.classList.add('text-yellow-400');
+                setTimeout(() => { window.location.href = 'login.html'; }, 1200);
+            }
         } catch (err) {
             formMessage.textContent = err.message || 'Registration failed';
             formMessage.classList.add('text-red-400');
