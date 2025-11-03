@@ -144,6 +144,14 @@
                 </div>
             </section>
 
+            <!-- Settings -->
+            <section class="rounded-2xl bg-gray-900 border border-gray-800 p-6">
+                <h2 class="text-lg font-semibold">Settings</h2>
+                <div class="mt-4">
+                    <button id="logoutBtn" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-medium">Logout</button>
+                </div>
+            </section>
+
             <!-- Monthly Progress by Weeks -->
             <section class="rounded-2xl bg-gray-900 border border-gray-800 p-6">
                 <h2 class="text-lg font-semibold">Monthly Progress by Weeks</h2>
@@ -225,6 +233,21 @@
         }
 
         // Keep original header behavior if any scripts rely on it
+    })();
+
+    // Logout handler
+    (function(){
+        const btn = document.getElementById('logoutBtn');
+        if (!btn) return;
+        btn.addEventListener('click', async () => {
+            const ok = confirm('Вы уверены, что хотите выйти?');
+            if (!ok) return;
+            btn.disabled = true;
+            try {
+                await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
+            } catch (e) {}
+            window.location.href = 'https://access.edufyuzbekistan.com/login';
+        });
     })();
 </script>
 </body>
