@@ -85,6 +85,33 @@ public class AuthController {
         return ResponseEntity.ok(tokenResponse);
     }
 
+    // Выход: очистка HttpOnly куки
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout() {
+        ResponseCookie clearAccess = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(".edufyuzbekistan.com")
+                .path("/")
+                .maxAge(0)
+                .build();
+        ResponseCookie clearRefresh = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(".edufyuzbekistan.com")
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        Map<String, String> body = Map.of("message", "Logged out");
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, clearAccess.toString())
+                .header(HttpHeaders.SET_COOKIE, clearRefresh.toString())
+                .body(body);
+    }
+
     // Текущий пользователь по куке accessToken
     @GetMapping("/me")
     public ResponseEntity<?> me(HttpServletRequest request) {
