@@ -202,7 +202,30 @@ window.addEventListener("DOMContentLoaded", () => {
   const initialRole = roleSelect?.value || "student";
   renderRole(initialRole);
   initProfileForm();
+  hydrateUserFromServer();
 });
+
+// Fetch real user info and override UI placeholders
+async function hydrateUserFromServer() {
+  try {
+    const res = await fetch('/auth/me', { credentials: 'include' });
+    if (!res.ok) return; // if 401, keep placeholders
+    const me = await res.json();
+    // Header username
+    const headerName = document.querySelector('.header-username');
+    if (headerName && me.username) headerName.textContent = me.username;
+    // Greeting name
+    const studentName = document.getElementById('studentName');
+    if (studentName && me.username) studentName.textContent = me.username;
+    // Profile inputs if present
+    const profileUsernameInput = document.getElementById('profileUsernameInput');
+    const profileEmailInput = document.getElementById('profileEmailInput');
+    const profileDisplayName = document.getElementById('profileDisplayName');
+    if (profileUsernameInput && me.username) profileUsernameInput.value = me.username;
+    if (profileEmailInput && me.email) profileEmailInput.value = me.email;
+    if (profileDisplayName && me.username) profileDisplayName.textContent = '@' + me.username;
+  } catch {}
+}
 
 roleSelect?.addEventListener("change", (e) => {
   const r = e.target.value;
