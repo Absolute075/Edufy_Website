@@ -21,7 +21,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
-        if(response.getMessage().startsWith("❌")) {
+        if (response.getMessage().startsWith("❌")) {
             // Ошибка регистрации — вернём 400
             return ResponseEntity.badRequest().body(response);
         }
@@ -33,7 +33,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         TokenResponse tokenResponse = authService.login(request);
-        if(tokenResponse.getAccessToken() == null) {
+        if (tokenResponse.getAccessToken() == null) {
             return ResponseEntity.badRequest().body(tokenResponse);
         }
         return ResponseEntity.ok(tokenResponse);
@@ -43,9 +43,15 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refresh(@RequestBody RefreshRequest request) {
         TokenResponse tokenResponse = authService.refresh(request);
-        if(tokenResponse.getAccessToken() == null) {
+        if (tokenResponse.getAccessToken() == null) {
             return ResponseEntity.badRequest().body(tokenResponse);
         }
         return ResponseEntity.ok(tokenResponse);
+    }
+
+    // Проверка здоровья сервиса
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("OK");
     }
 }
