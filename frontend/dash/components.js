@@ -218,12 +218,12 @@ async function hydrateUserFromServer() {
     const studentName = document.getElementById('studentName');
     if (studentName && me.username) studentName.textContent = me.username;
     // Profile inputs if present
-    const profileUsernameInput = document.getElementById('profileUsernameInput');
-    const profileEmailInput = document.getElementById('profileEmailInput');
-    const profileDisplayName = document.getElementById('profileDisplayName');
+    const profileUsernameInput = document.getElementById('profileUsernameInput') || document.getElementById('Username');
+    const profileEmailInput = document.getElementById('profileEmailInput') || document.getElementById('email');
+    const profileDisplayName = document.getElementById('profileDisplayName') || document.querySelector('.avatar-name');
     if (profileUsernameInput && me.username) profileUsernameInput.value = me.username;
     if (profileEmailInput && me.email) profileEmailInput.value = me.email;
-    if (profileDisplayName && me.username) profileDisplayName.textContent = '@' + me.username;
+    if (profileDisplayName && me.username) profileDisplayName.textContent = (profileDisplayName.classList?.contains('avatar-name') ? me.username : '@' + me.username);
 
     // Persist into profile storage so other pages pick it up
     try {
@@ -239,8 +239,8 @@ async function hydrateUserFromServer() {
     } catch {}
 
     // Trigger any dependent UI updates
-    if (profileUsernameInput) profileUsernameInput.dispatchEvent(new Event('input'));
-    if (profileEmailInput) profileEmailInput.dispatchEvent(new Event('input'));
+    try { profileUsernameInput?.dispatchEvent(new Event('input')); } catch {}
+    try { profileEmailInput?.dispatchEvent(new Event('input')); } catch {}
   } catch {}
 }
 
