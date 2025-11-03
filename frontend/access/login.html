@@ -172,9 +172,30 @@
         showDots: false
     });
 
-    loginForm.addEventListener('submit', (e) => {
+    const loginForm = document.getElementById('login-form');
+    const emailInput = document.getElementById('login-email');
+    const submitBtn = document.getElementById('submit-btn');
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log('Login submitted');
+        submitBtn.disabled = true;
+        try {
+            const payload = { email: emailInput.value.trim(), password: passwordInput.value };
+            const res = await fetch(`${location.origin}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.message || 'Login failed');
+            }
+            window.location.href = 'https://dash.edufyuzbekistan.com/';
+        } catch (err) {
+            alert(err.message || 'Login failed');
+        } finally {
+            submitBtn.disabled = false;
+        }
     });
 
     feather.replace();
