@@ -171,7 +171,7 @@
         </div>
     </div>
 
-</main>
+ </main>
 
 <!-- Change Password Modal -->
 <div class="modal" id="passwordModal">
@@ -215,18 +215,50 @@
     <span class="toast-message">Changes saved successfully!</span>
 </div>
 
+<!-- Logout Confirmation Modal -->
+<div class="modal" id="logoutModal" style="display:none;">
+  <div class="modal-overlay" id="logoutOverlay"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirm Logout</h3>
+      <button class="modal-close" id="closeLogoutModal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Вы уверены, что хотите выйти из аккаунта?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="cancelLogoutBtn">Отмена</button>
+      <button class="btn danger" id="confirmLogoutBtn">Выйти</button>
+    </div>
+  </div>
+  </div>
+
 <script>
-  // Logout from Settings page
+  // Custom Logout Modal logic
   (function(){
     const btn = document.getElementById('logoutSettingsBtn');
-    if (!btn) return;
-    btn.addEventListener('click', async () => {
-      const ok = confirm('Вы уверены, что хотите выйти?');
-      if (!ok) return;
-      btn.disabled = true;
-      try {
-        await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
-      } catch (e) {}
+    const modal = document.getElementById('logoutModal');
+    const closeBtn = document.getElementById('closeLogoutModal');
+    const cancelBtn = document.getElementById('cancelLogoutBtn');
+    const overlay = document.getElementById('logoutOverlay');
+    const confirmBtn = document.getElementById('confirmLogoutBtn');
+
+    function openModal(){ modal.style.display = 'flex'; }
+    function closeModal(){ modal.style.display = 'none'; }
+
+    btn?.addEventListener('click', openModal);
+    closeBtn?.addEventListener('click', closeModal);
+    cancelBtn?.addEventListener('click', closeModal);
+    overlay?.addEventListener('click', closeModal);
+
+    confirmBtn?.addEventListener('click', async () => {
+      confirmBtn.disabled = true;
+      try { await fetch('/auth/logout', { method: 'POST', credentials: 'include' }); } catch(e) {}
       window.location.href = 'https://access.edufyuzbekistan.com/login';
     });
   })();
