@@ -29,11 +29,18 @@ func SetupRouter() *gin.Engine {
 	// Base URL для auth_service
 	authBase := os.Getenv("AUTH_SERVICE_URL")
 	if authBase == "" {
-		authBase = "http://auth_service:8081"
+		authBase = "http://auth_service:8080"
 	}
 
-	// Proxy всех запросов к auth_service
+	// Base URL для user_service
+	userBase := os.Getenv("USER_SERVICE_URL")
+	if userBase == "" {
+		userBase = "http://user_service:8080"
+	}
+
+	// Proxy всех запросов к auth_service и user_service
 	r.Any("/auth/*path", proxy.ServiceProxy(authBase, "/auth"))
+	r.Any("/user/*path", proxy.ServiceProxy(userBase, "/user"))
 
 	// Health-check самого gateway
 	r.GET("/health", func(c *gin.Context) {
@@ -43,6 +50,18 @@ func SetupRouter() *gin.Engine {
 	// Health-check для auth_service (опционально)
 	r.GET("/auth/health", func(c *gin.Context) {
 		resp, err := http.Get(authBase + "/auth/health")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		c.Data(resp.StatusCode, resp.Header.Get("Content-Type"), body)
+	})
+
+	// Health-check для user_service (опционально)
+	r.GET("/user/health", func(c *gin.Context) {
+		resp, err := http.Get(userBase + "/user/health")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
