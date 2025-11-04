@@ -31,11 +31,17 @@ public class ProfileController {
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
         String token = getAccessToken(request);
         if (token == null || token.isBlank()) {
-            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("message", "Unauthorized");
+            return ResponseEntity.status(401).body(body);
         }
         String username;
         try { username = JwtUtil.extractUsername(token); }
-        catch (Exception e) { return ResponseEntity.status(401).body(Map.of("message", "Invalid token")); }
+        catch (Exception e) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("message", "Invalid token");
+            return ResponseEntity.status(401).body(body);
+        }
 
         UserProfile p = profileService.getOrCreate(username);
         Map<String, Object> body = new LinkedHashMap<>();
