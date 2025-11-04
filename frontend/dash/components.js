@@ -798,4 +798,6 @@ function initProfileForm() {
       }, 800);
     }
   });
+}
+
 })();
