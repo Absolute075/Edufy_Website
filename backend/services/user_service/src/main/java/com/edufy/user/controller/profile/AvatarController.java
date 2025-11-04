@@ -1,5 +1,6 @@
 package com.edufy.user.controller.profile;
 
+import com.edufy.user.integration.SftpUploader;
 import com.edufy.user.security.JwtUtil;
 import com.edufy.user.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -11,11 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Map;
 
@@ -25,8 +22,8 @@ import java.util.Map;
 public class AvatarController {
 
     private final ProfileService profileService;
+    private final SftpUploader sftpUploader;
 
-    private static final String DEFAULT_AVATAR_DIR = "/var/www/Edufy_Website/storage/avatars";
     private static final String RESOURCES_BASE = "https://resources.edufyuzbekistan.com/avatars";
 
     private String getAccessToken(HttpServletRequest request) {
@@ -59,10 +56,12 @@ public class AvatarController {
         long ts = Instant.now().toEpochMilli();
         String filename = username + "-" + ts + "." + ext;
 
-        Path dir = Paths.get(DEFAULT_AVATAR_DIR);
-        Files.createDirectories(dir);
-        Path target = dir.resolve(filename);
-        file.transferTo(target.toFile());
+        // Upload directly to Storage via SFTP
+        try {
+            sftpUploader.upload(file.getInputStream(), filename);
+        } catch (IOException ex) {
+            return ResponseEntity.internalServerError().body(Map.of("message", "Upload failed"));
+        }
 
         String avatarUrl = RESOURCES_BASE + "/" + filename;
         profileService.updateAvatarUrl(username, avatarUrl);

@@ -48,11 +48,20 @@ services:
         SPRING_DATASOURCE_PASSWORD: star4536446
         SPRING_JPA_HIBERNATE_DDL_AUTO: update
         SERVER_PORT: 8080
+        # SFTP to VPS Storage
+        storage.sftp.host: ${STORAGE_SFTP_HOST}
+        storage.sftp.port: ${STORAGE_SFTP_PORT:-22}
+        storage.sftp.user: ${STORAGE_SFTP_USER}
+        storage.sftp.keyPath: /app/ssh/id_rsa
+        storage.sftp.keyPassphrase: ${STORAGE_SFTP_KEY_PASSPHRASE:-}
+        storage.sftp.destDir: /var/www/Edufy_Website/storage/avatars
       depends_on:
         - db
       restart: always
       volumes:
         - /var/www/Edufy_Website/storage/avatars:/var/www/Edufy_Website/storage/avatars
+        # Mount read-only SSH key for SFTP
+        - /root/.ssh/storage_id_rsa:/app/ssh/id_rsa:ro
       networks:
        - edufy_net
 

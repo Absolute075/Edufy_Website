@@ -20,9 +20,15 @@ public class ProfileController {
     private final ProfileService profileService;
 
     private String getAccessToken(HttpServletRequest request) {
-        if (request.getCookies() == null) return null;
-        for (Cookie c : request.getCookies()) {
-            if ("accessToken".equals(c.getName())) return c.getValue();
+        String auth = request.getHeader("Authorization");
+        if (auth != null && auth.startsWith("Bearer ")) {
+            String token = auth.substring(7).trim();
+            if (!token.isEmpty()) return token;
+        }
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if ("accessToken".equals(c.getName())) return c.getValue();
+            }
         }
         return null;
     }
