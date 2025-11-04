@@ -6,6 +6,18 @@
       return p.avatar || null;
     } catch { return null; }
   }
+  // Retry helper to fight late DOM updates overwriting avatar
+  function scheduleAvatarReapply(times = 10, delay = 120) {
+    const url = getCachedAvatarUrl();
+    if (!url) return;
+    let i = 0;
+    const tick = () => {
+      applyAvatar(url);
+      i++;
+      if (i < times) setTimeout(tick, delay);
+    };
+    setTimeout(tick, 0);
+  }
   // Helper: apply avatar URL to all known avatar image elements
   function applyAvatar(url) {
     if (!url) return;
@@ -52,10 +64,7 @@
         // Close sidebar on mobile after navigation
         if (window.innerWidth <= 820) sidebar?.classList.remove("open");
         // Re-apply avatar after SPA content swap
-        setTimeout(() => {
-          const url = getCachedAvatarUrl();
-          if (url) applyAvatar(url);
-        }, 50);
+        scheduleAvatarReapply(12, 120);
       });
     });
   })();
@@ -244,6 +253,7 @@ function renderRole(role) {
   }
   const cached = getCachedAvatarUrl();
   if (cached) applyAvatar(cached);
+  scheduleAvatarReapply(10, 120);
 }
 
 // Initialize
@@ -282,6 +292,7 @@ window.addEventListener('pageshow', (event) => {
   try { hydrateUserFromServer(); } catch {}
   try { fetchProfileFromServer(); } catch {}
   try { const u = getCachedAvatarUrl(); if (u) applyAvatar(u); } catch {}
+  scheduleAvatarReapply(8, 120);
 });
 
 // Re-hydrate on custom event when script is included again
@@ -294,8 +305,8 @@ window.addEventListener('edufy:rehydrate', () => {
 });
 
 // Re-apply avatar on navigation events commonly used in SPAs
-window.addEventListener('hashchange', () => { const u = getCachedAvatarUrl(); if (u) applyAvatar(u); });
-window.addEventListener('popstate', () => { const u = getCachedAvatarUrl(); if (u) applyAvatar(u); });
+window.addEventListener('hashchange', () => { scheduleAvatarReapply(10, 120); });
+window.addEventListener('popstate', () => { scheduleAvatarReapply(10, 120); });
 
 // Fetch real user info and override UI placeholders
 async function hydrateUserFromServer() {
@@ -892,6 +903,7 @@ function initProfileForm() {
         .then(body => {
           if (body && body.avatarUrl) {
             applyAvatar(body.avatarUrl);
+            scheduleAvatarReapply(10, 120);
             try {
               const key = 'edufy.profile.v1';
               const existingRaw = localStorage.getItem(key);
