@@ -1,3 +1,34 @@
+  function getCachedAvatarUrl() {
+    try {
+      const raw = localStorage.getItem('edufy.profile.v1');
+      if (!raw) return null;
+      const p = JSON.parse(raw) || {};
+      return p.avatar || null;
+    } catch { return null; }
+  }
+  // Helper: apply avatar URL to all known avatar image elements
+  function applyAvatar(url) {
+    if (!url) return;
+    const bust = Date.now();
+    const withBust = url.startsWith('http') ? (url + (url.includes('?') ? `&v=${bust}` : `?v=${bust}`)) : url;
+    const selectors = [
+      '#profileAvatarImg',
+      '.header-avatar img',
+      '.header-avatar',
+      'img[data-avatar]',
+      '.avatar-img'
+    ];
+    selectors.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        if (el && el.tagName === 'IMG') {
+          el.src = withBust;
+        } else if (el && el.style) {
+          // fallback for elements that use background-image for avatar
+          el.style.backgroundImage = `url('${withBust}')`;
+        }
+      });
+    });
+  }
 (function(){
   if (window.__edufyInit) {
     try { window.dispatchEvent(new Event('edufy:rehydrate')); } catch(e) {}
@@ -20,6 +51,11 @@
         link.classList.add("active");
         // Close sidebar on mobile after navigation
         if (window.innerWidth <= 820) sidebar?.classList.remove("open");
+        // Re-apply avatar after SPA content swap
+        setTimeout(() => {
+          const url = getCachedAvatarUrl();
+          if (url) applyAvatar(url);
+        }, 50);
       });
     });
   })();
@@ -206,6 +242,8 @@ function renderRole(role) {
   if (typeof renderProfile === 'function') {
     renderProfile(d);
   }
+  const cached = getCachedAvatarUrl();
+  if (cached) applyAvatar(cached);
 }
 
 // Initialize
@@ -217,6 +255,9 @@ window.addEventListener("DOMContentLoaded", () => {
   hydrateUserFromServer();
   fetchProfileFromServer();
   initSimpleProfileEditor();
+  // Ensure avatar applied at init as well
+  const cached = getCachedAvatarUrl();
+  if (cached) applyAvatar(cached);
 });
 
 // Re-hydrate on bfcache restores and forward/back navigations
@@ -255,14 +296,7 @@ async function hydrateUserFromServer() {
     if (profileEmailInput && me.email) profileEmailInput.value = me.email;
     if (profileDisplayName && me.username) profileDisplayName.textContent = (profileDisplayName.classList?.contains('avatar-name') ? me.username : '@' + me.username);
     // Avatar image from cached profile
-    const avatarImg = document.getElementById('profileAvatarImg');
-    if (avatarImg && me.avatar) {
-      const src = String(me.avatar);
-      const bust = Date.now();
-      avatarImg.src = src.startsWith('http')
-        ? src + (src.includes('?') ? `&v=${bust}` : `?v=${bust}`)
-        : src;
-    }
+    if (me.avatar) applyAvatar(String(me.avatar));
 
     // Persist into profile storage so other pages pick it up
     try {
@@ -296,11 +330,7 @@ async function fetchProfileFromServer() {
     if (phoneInput && p.phone) phoneInput.value = p.phone;
     if (locationInput && (p.lastLoginCountry || p.location)) locationInput.value = p.lastLoginCountry || p.location;
     // avatar hydrate
-    const avatarImg = document.getElementById('profileAvatarImg');
-    if (avatarImg && p.avatarUrl) {
-      const bust = Date.now();
-      avatarImg.src = p.avatarUrl + (p.avatarUrl.includes('?') ? `&v=${bust}` : `?v=${bust}`);
-    }
+    if (p.avatarUrl) applyAvatar(p.avatarUrl);
     // persist birthDate into local storage profile cache
     try {
       const key = 'edufy.profile.v1';
@@ -827,7 +857,7 @@ function initProfileForm() {
     }
     const reader = new FileReader();
     reader.onload = () => {
-      avatarImg.src = reader.result;
+      applyAvatar(reader.result);
       showToast("Avatar updated. Click Save to keep changes.", "success");
     };
     reader.readAsDataURL(file);
@@ -840,8 +870,7 @@ function initProfileForm() {
         .then(r => r.ok ? r.json() : Promise.reject(r))
         .then(body => {
           if (body && body.avatarUrl) {
-            const bust = Date.now();
-            avatarImg.src = body.avatarUrl + (body.avatarUrl.includes('?') ? `&v=${bust}` : `?v=${bust}`);
+            applyAvatar(body.avatarUrl);
             try {
               const key = 'edufy.profile.v1';
               const existingRaw = localStorage.getItem(key);
