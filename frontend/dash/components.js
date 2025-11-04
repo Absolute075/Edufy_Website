@@ -258,6 +258,21 @@ window.addEventListener("DOMContentLoaded", () => {
   // Ensure avatar applied at init as well
   const cached = getCachedAvatarUrl();
   if (cached) applyAvatar(cached);
+
+  // Observe DOM changes to re-apply avatar when SPA swaps content
+  try {
+    let applyScheduled = false;
+    const observer = new MutationObserver(() => {
+      if (applyScheduled) return;
+      applyScheduled = true;
+      setTimeout(() => {
+        applyScheduled = false;
+        const url = getCachedAvatarUrl();
+        if (url) applyAvatar(url);
+      }, 60);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  } catch {}
 });
 
 // Re-hydrate on bfcache restores and forward/back navigations
@@ -266,6 +281,7 @@ window.addEventListener('pageshow', (event) => {
   try { primeUserFromStorage(); } catch {}
   try { hydrateUserFromServer(); } catch {}
   try { fetchProfileFromServer(); } catch {}
+  try { const u = getCachedAvatarUrl(); if (u) applyAvatar(u); } catch {}
 });
 
 // Re-hydrate on custom event when script is included again
@@ -274,7 +290,12 @@ window.addEventListener('edufy:rehydrate', () => {
   try { hydrateUserFromServer(); } catch {}
   try { fetchProfileFromServer(); } catch {}
   try { initSimpleProfileEditor(); } catch {}
+  try { const u = getCachedAvatarUrl(); if (u) applyAvatar(u); } catch {}
 });
+
+// Re-apply avatar on navigation events commonly used in SPAs
+window.addEventListener('hashchange', () => { const u = getCachedAvatarUrl(); if (u) applyAvatar(u); });
+window.addEventListener('popstate', () => { const u = getCachedAvatarUrl(); if (u) applyAvatar(u); });
 
 // Fetch real user info and override UI placeholders
 async function hydrateUserFromServer() {
