@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - edufy_db_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
     restart: always
     networks:
       - edufy_net
@@ -64,8 +65,10 @@ services:
       - "8082:8080" #8082 внешний порт docker, 8080 внутренний порт Gin
     environment:
       AUTH_SERVICE_URL: http://auth_service:8080
+      USER_SERVICE_URL: http://user_service:8080
     depends_on:
       - auth_service
+      - user_service
     restart: always
     networks:
       - edufy_net
