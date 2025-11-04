@@ -54,7 +54,7 @@ public class AvatarController {
         }
         String ext = guessExtension(file.getOriginalFilename(), ct);
         long ts = Instant.now().toEpochMilli();
-        String filename = username + "-" + ts + "." + ext;
+        String filename = username + "-" + ts + "-" + java.util.UUID.randomUUID() + "." + ext;
 
         // Upload directly to Storage via SFTP
         try {

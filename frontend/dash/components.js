@@ -883,8 +883,8 @@ function initProfileForm() {
   avatarInput?.addEventListener("change", (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      showToast("Image must be less than 2MB", "error");
+    if (file.size > 10 * 1024 * 1024) {
+      showToast("Image must be less than 10MB", "error");
       return;
     }
     const reader = new FileReader();
@@ -910,6 +910,8 @@ function initProfileForm() {
               const existing = existingRaw ? JSON.parse(existingRaw) : {};
               localStorage.setItem(key, JSON.stringify({ ...existing, avatar: body.avatarUrl }));
             } catch {}
+            // Fetch persisted profile to ensure value reflects DB
+            try { fetchProfileFromServer(); } catch {}
             showToast("Avatar uploaded!", "success");
           } else {
             showToast("Avatar upload failed", "error");
