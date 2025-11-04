@@ -277,7 +277,7 @@ async function hydrateUserFromServer() {
 // Load detailed profile data from server (includes birthDate)
 async function fetchProfileFromServer() {
   try {
-    const res = await fetch('/auth/profile', { credentials: 'include' });
+    const res = await fetch('/user/profile', { credentials: 'include' });
     if (!res.ok) return;
     const p = await res.json();
     const dobInput = document.getElementById('profileDobInput') || document.getElementById('dob');
@@ -286,12 +286,18 @@ async function fetchProfileFromServer() {
     if (dobInput && p.birthDate) dobInput.value = String(p.birthDate);
     if (phoneInput && p.phone) phoneInput.value = p.phone;
     if (locationInput && (p.lastLoginCountry || p.location)) locationInput.value = p.lastLoginCountry || p.location;
+    // avatar hydrate
+    const avatarImg = document.getElementById('profileAvatarImg');
+    if (avatarImg && p.avatarUrl) {
+      const bust = Date.now();
+      avatarImg.src = p.avatarUrl + (p.avatarUrl.includes('?') ? `&v=${bust}` : `?v=${bust}`);
+    }
     // persist birthDate into local storage profile cache
     try {
       const key = 'edufy.profile.v1';
       const existingRaw = localStorage.getItem(key);
       const existing = existingRaw ? JSON.parse(existingRaw) : {};
-      localStorage.setItem(key, JSON.stringify({ ...existing, birthDate: p.birthDate || existing.birthDate }));
+      localStorage.setItem(key, JSON.stringify({ ...existing, birthDate: p.birthDate || existing.birthDate, phone: p.phone || existing.phone, location: (p.location || p.lastLoginCountry || existing.location), avatar: p.avatarUrl || existing.avatar }));
     } catch {}
   } catch {}
 }
@@ -344,16 +350,27 @@ function initSimpleProfileEditor() {
       localStorage.setItem(key, JSON.stringify(updated));
     } catch {}
 
-    // Send to backend
+    // Send to backend (username to auth_service, other fields to user_service)
     try {
-      const payload = { username: usernameEl.value || '', birthDate: dobEl.value || '', phone: phoneEl.value || '', location: '' };
-      const res = await fetch('/auth/profile', {
+      const tasks = [];
+      const newUsername = (usernameEl.value || '').trim();
+      if (newUsername) {
+        tasks.push(fetch('/auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ username: newUsername })
+        }));
+      }
+      tasks.push(fetch('/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
+        body: JSON.stringify({ birthDate: dobEl.value || '', phone: phoneEl.value || '', location: '' })
+      }));
+      const results = await Promise.allSettled(tasks);
+      const ok = results.some(r => r.status === 'fulfilled' && r.value && r.value.ok);
+      if (ok) {
         showSimpleToast('Changes saved successfully!');
         setEditable(false);
         // refresh from server to normalize values
@@ -805,6 +822,32 @@ function initProfileForm() {
       showToast("Avatar updated. Click Save to keep changes.", "success");
     };
     reader.readAsDataURL(file);
+
+    // Upload to backend immediately
+    try {
+      const fd = new FormData();
+      fd.append('file', file, file.name);
+      fetch('/user/avatar', { method: 'POST', body: fd, credentials: 'include' })
+        .then(r => r.ok ? r.json() : Promise.reject(r))
+        .then(body => {
+          if (body && body.avatarUrl) {
+            const bust = Date.now();
+            avatarImg.src = body.avatarUrl + (body.avatarUrl.includes('?') ? `&v=${bust}` : `?v=${bust}`);
+            try {
+              const key = 'edufy.profile.v1';
+              const existingRaw = localStorage.getItem(key);
+              const existing = existingRaw ? JSON.parse(existingRaw) : {};
+              localStorage.setItem(key, JSON.stringify({ ...existing, avatar: body.avatarUrl }));
+            } catch {}
+            showToast("Avatar uploaded!", "success");
+          } else {
+            showToast("Avatar upload failed", "error");
+          }
+        })
+        .catch(() => showToast("Avatar upload failed", "error"));
+    } catch {
+      // ignore
+    }
   });
 
   // Open modal
