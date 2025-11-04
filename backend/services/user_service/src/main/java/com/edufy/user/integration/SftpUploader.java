@@ -52,7 +52,7 @@ public class SftpUploader {
             try (SFTPClient sftp = ssh.newSFTPClient()) {
                 String remotePath = normalize(destDir) + "/" + remoteFileName;
                 sftp.mkdirs(normalize(destDir));
-                byte[] data = IOUtils.readFully(in);
+                byte[] data = IOUtils.readFully(in).toByteArray();
                 InMemorySourceFile src = new InMemorySourceFile() {
                     @Override
                     public String getName() { return remoteFileName; }
