@@ -215,6 +215,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initProfileForm();
   primeUserFromStorage();
   hydrateUserFromServer();
+  fetchProfileFromServer();
 });
 
 // Re-hydrate on bfcache restores and forward/back navigations
@@ -222,6 +223,7 @@ window.addEventListener('pageshow', (event) => {
   // event.persisted indicates bfcache; but we can safely re-run always
   try { primeUserFromStorage(); } catch {}
   try { hydrateUserFromServer(); } catch {}
+  try { fetchProfileFromServer(); } catch {}
 });
 
 // Re-hydrate on custom event when script is included again
@@ -266,6 +268,28 @@ async function hydrateUserFromServer() {
     // Trigger any dependent UI updates
     try { profileUsernameInput?.dispatchEvent(new Event('input')); } catch {}
     try { profileEmailInput?.dispatchEvent(new Event('input')); } catch {}
+  } catch {}
+}
+
+// Load detailed profile data from server (includes birthDate)
+async function fetchProfileFromServer() {
+  try {
+    const res = await fetch('/auth/profile', { credentials: 'include' });
+    if (!res.ok) return;
+    const p = await res.json();
+    const dobInput = document.getElementById('profileDobInput');
+    const phoneInput = document.getElementById('profilePhoneInput');
+    const locationInput = document.getElementById('profileLocationInput');
+    if (dobInput && p.birthDate) dobInput.value = String(p.birthDate);
+    if (phoneInput && p.phone) phoneInput.value = p.phone;
+    if (locationInput && p.lastLoginCountry) locationInput.value = p.lastLoginCountry;
+    // persist birthDate into local storage profile cache
+    try {
+      const key = 'edufy.profile.v1';
+      const existingRaw = localStorage.getItem(key);
+      const existing = existingRaw ? JSON.parse(existingRaw) : {};
+      localStorage.setItem(key, JSON.stringify({ ...existing, birthDate: p.birthDate || existing.birthDate }));
+    } catch {}
   } catch {}
 }
 
@@ -787,7 +811,26 @@ function initProfileForm() {
     };
     profile.certificates = toSave.certificates;
     saveProfileToStorage(toSave);
-    showToast("✅ Profile saved successfully!", "success");
+    // Send to backend
+    try {
+      const payload = {
+        birthDate: dobInput?.value || '',
+        phone: phoneInput?.value || '',
+        location: locationInput?.value || ''
+      };
+      fetch('/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      }).then(r => r.ok ? r.json() : null).then(() => {
+        // refresh from server to be sure
+        fetchProfileFromServer();
+        showToast("✅ Profile saved successfully!", "success");
+      });
+    } catch {
+      showToast("✅ Profile saved locally.", "success");
+    }
   });
 
   logoutBtn?.addEventListener("click", () => {

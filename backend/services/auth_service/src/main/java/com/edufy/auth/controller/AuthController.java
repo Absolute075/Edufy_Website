@@ -5,6 +5,7 @@ import com.edufy.auth.dto.LoginRequest;
 import com.edufy.auth.dto.RefreshRequest;
 import com.edufy.auth.dto.TokenResponse;
 import com.edufy.auth.dto.AuthResponse;
+import com.edufy.auth.dto.UpdateProfileRequest;
 import com.edufy.auth.entity.UserEntity;
 import com.edufy.auth.repository.UserRepository;
 import com.edufy.auth.security.JwtService;
@@ -142,7 +143,67 @@ public class AuthController {
         payload.put("username", user.getUsername());
         payload.put("email", user.getEmail());
         payload.put("role", user.getRole());
+        payload.put("birthDate", user.getBirthDate());
         return ResponseEntity.ok(payload);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> profile(HttpServletRequest request) {
+        String accessToken = null;
+        if (request.getCookies() != null) {
+            for (var c : request.getCookies()) {
+                if ("accessToken".equals(c.getName())) { accessToken = c.getValue(); break; }
+            }
+        }
+        if (accessToken == null || accessToken.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+        String username;
+        try { username = jwtService.extractUsername(accessToken); }
+        catch (Exception e) { return ResponseEntity.status(401).body(Map.of("message", "Invalid token")); }
+        Optional<UserEntity> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) return ResponseEntity.status(401).body(Map.of("message", "User not found"));
+        UserEntity u = userOpt.get();
+        Map<String, Object> body = new HashMap<>();
+        body.put("username", u.getUsername());
+        body.put("email", u.getEmail());
+        body.put("phone", u.getPhone());
+        body.put("role", u.getRole());
+        body.put("birthDate", u.getBirthDate());
+        body.put("createdAt", u.getCreatedAt());
+        return ResponseEntity.ok(body);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest payload, HttpServletRequest request) {
+        String accessToken = null;
+        if (request.getCookies() != null) {
+            for (var c : request.getCookies()) {
+                if ("accessToken".equals(c.getName())) { accessToken = c.getValue(); break; }
+            }
+        }
+        if (accessToken == null || accessToken.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+        String username;
+        try { username = jwtService.extractUsername(accessToken); }
+        catch (Exception e) { return ResponseEntity.status(401).body(Map.of("message", "Invalid token")); }
+        Optional<UserEntity> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) return ResponseEntity.status(401).body(Map.of("message", "User not found"));
+        UserEntity u = userOpt.get();
+
+        // Update fields if present
+        if (payload.getPhone() != null) u.setPhone(payload.getPhone());
+        if (payload.getLocation() != null) u.setLastLoginCountry(payload.getLocation());
+        if (payload.getBirthDate() != null && !payload.getBirthDate().isBlank()) {
+            try {
+                u.setBirthDate(java.time.LocalDate.parse(payload.getBirthDate()));
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Invalid birthDate format, expected YYYY-MM-DD"));
+            }
+        }
+        userRepository.save(u);
+        return ResponseEntity.ok(Map.of("message", "Profile updated"));
     }
 
     // Проверка здоровья сервиса
