@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -37,14 +38,14 @@ public class ProfileController {
         catch (Exception e) { return ResponseEntity.status(401).body(Map.of("message", "Invalid token")); }
 
         UserProfile p = profileService.getOrCreate(username);
-        return ResponseEntity.ok(Map.of(
-                "userId", p.getUserId(),
-                "username", p.getUsername(),
-                "phone", p.getPhone(),
-                "birthDate", p.getBirthDate(),
-                "location", p.getLocation(),
-                "avatarUrl", p.getAvatarUrl()
-        ));
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("userId", p.getUserId());
+        body.put("username", p.getUsername());
+        body.put("phone", p.getPhone());
+        body.put("birthDate", p.getBirthDate());
+        body.put("location", p.getLocation());
+        body.put("avatarUrl", p.getAvatarUrl());
+        return ResponseEntity.ok(body);
     }
 
     @RequestMapping(value = "/profile", method = { RequestMethod.PUT, RequestMethod.POST })
@@ -61,12 +62,13 @@ public class ProfileController {
         String birthDate = payload.getOrDefault("birthDate", null);
         String location = payload.getOrDefault("location", null);
         UserProfile p = profileService.updateBasics(username, phone, birthDate, location);
-        return ResponseEntity.ok(Map.of("message", "Profile updated",
-                "username", p.getUsername(),
-                "phone", p.getPhone(),
-                "birthDate", p.getBirthDate(),
-                "location", p.getLocation(),
-                "avatarUrl", p.getAvatarUrl()
-        ));
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("message", "Profile updated");
+        body.put("username", p.getUsername());
+        body.put("phone", p.getPhone());
+        body.put("birthDate", p.getBirthDate());
+        body.put("location", p.getLocation());
+        body.put("avatarUrl", p.getAvatarUrl());
+        return ResponseEntity.ok(body);
     }
 }
