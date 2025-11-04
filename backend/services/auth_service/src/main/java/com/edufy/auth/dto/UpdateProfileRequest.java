@@ -1,6 +1,5 @@
 package com.edufy.auth.dto;
 
-
 import lombok.Data;
 
 @Data
