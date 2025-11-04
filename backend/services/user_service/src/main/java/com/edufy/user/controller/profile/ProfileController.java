@@ -47,7 +47,7 @@ public class ProfileController {
         ));
     }
 
-    @PutMapping("/profile")
+    @RequestMapping(value = "/profile", method = { RequestMethod.PUT, RequestMethod.POST })
     public ResponseEntity<?> updateProfile(@RequestBody Map<String, String> payload, HttpServletRequest request) {
         String token = getAccessToken(request);
         if (token == null || token.isBlank()) {
