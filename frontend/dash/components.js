@@ -204,7 +204,15 @@ window.addEventListener("DOMContentLoaded", () => {
   const initialRole = roleSelect?.value || "student";
   renderRole(initialRole);
   initProfileForm();
+  primeUserFromStorage();
   hydrateUserFromServer();
+});
+
+// Re-hydrate on bfcache restores and forward/back navigations
+window.addEventListener('pageshow', (event) => {
+  // event.persisted indicates bfcache; but we can safely re-run always
+  try { primeUserFromStorage(); } catch {}
+  try { hydrateUserFromServer(); } catch {}
 });
 
 // Fetch real user info and override UI placeholders
@@ -243,6 +251,28 @@ async function hydrateUserFromServer() {
     // Trigger any dependent UI updates
     try { profileUsernameInput?.dispatchEvent(new Event('input')); } catch {}
     try { profileEmailInput?.dispatchEvent(new Event('input')); } catch {}
+  } catch {}
+}
+
+// Apply cached profile immediately to avoid flashes on navigation
+function primeUserFromStorage() {
+  try {
+    const raw = localStorage.getItem('edufy.profile.v1');
+    if (!raw) return;
+    const me = JSON.parse(raw) || {};
+    // Header username
+    const headerName = document.querySelector('.header-username');
+    if (headerName && me.username) headerName.textContent = me.username;
+    // Greeting name
+    const studentName = document.getElementById('studentName');
+    if (studentName && me.username) studentName.textContent = me.username;
+    // Profile inputs if present
+    const profileUsernameInput = document.getElementById('profileUsernameInput') || document.getElementById('Username');
+    const profileEmailInput = document.getElementById('profileEmailInput') || document.getElementById('email');
+    const profileDisplayName = document.getElementById('profileDisplayName') || document.querySelector('.avatar-name');
+    if (profileUsernameInput && me.username) profileUsernameInput.value = me.username;
+    if (profileEmailInput && me.email) profileEmailInput.value = me.email;
+    if (profileDisplayName && me.username) profileDisplayName.textContent = (profileDisplayName.classList?.contains('avatar-name') ? me.username : '@' + me.username);
   } catch {}
 }
 
