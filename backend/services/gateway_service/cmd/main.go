@@ -32,11 +32,11 @@ func main() {
 	router.Any("/auth/*path", proxy.ServiceProxy(authBase, "/auth"))
 
 	// === Пример другого сервиса (по желанию) ===
-	// userBase := os.Getenv("USER_SERVICE_URL")
-	// if userBase == "" {
-	//     userBase = "http://user_service:8080"
-	// }
-	// router.Any("/user/*path", proxy.ServiceProxy(userBase, "/user"))
+	userBase := os.Getenv("USER_SERVICE_URL")
+	if userBase == "" {
+		userBase = "http://user_service:8080"
+	}
+	router.Any("/user/*path", proxy.ServiceProxy(userBase, "/user"))
 
 	// === Health-check для gateway ===
 	router.GET("/health", func(c *gin.Context) {
