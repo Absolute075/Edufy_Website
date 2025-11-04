@@ -6,6 +6,21 @@
       return p.avatar || null;
     } catch { return null; }
   }
+  // Unified API helper: always send credentials and handle 401 by redirecting to login
+  async function api(url, options = {}) {
+    const opts = { credentials: 'include', ...options };
+    // If caller specified headers, preserve them; otherwise leave as is
+    if (options && options.headers) opts.headers = options.headers;
+    const res = await fetch(url, opts);
+    if (res && res.status === 401) {
+      try { sessionStorage.setItem('postLoginRedirect', location.href); } catch {}
+      // Redirect to login page within the dash app
+      const loginUrl = (window.location.pathname.includes('/access/') ? 'login.html' : '../access/login.html');
+      window.location.href = loginUrl;
+      throw new Error('Unauthorized');
+    }
+    return res;
+  }
   // Retry helper to fight late DOM updates overwriting avatar
   function scheduleAvatarReapply(times = 10, delay = 120) {
     const url = getCachedAvatarUrl();
@@ -311,7 +326,7 @@ window.addEventListener('popstate', () => { scheduleAvatarReapply(10, 120); });
 // Fetch real user info and override UI placeholders
 async function hydrateUserFromServer() {
   try {
-    const res = await fetch('/auth/me', { credentials: 'include' });
+    const res = await api('/auth/me');
     if (!res.ok) return; // if 401, keep placeholders
     const me = await res.json();
     // Header username
@@ -352,7 +367,7 @@ async function hydrateUserFromServer() {
 // Load detailed profile data from server (includes birthDate)
 async function fetchProfileFromServer() {
   try {
-    const res = await fetch('/user/profile', { credentials: 'include' });
+    const res = await api('/user/profile');
     if (!res.ok) return;
     const p = await res.json();
     const dobInput = document.getElementById('profileDobInput') || document.getElementById('dob');
