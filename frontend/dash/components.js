@@ -216,6 +216,7 @@ window.addEventListener("DOMContentLoaded", () => {
   primeUserFromStorage();
   hydrateUserFromServer();
   fetchProfileFromServer();
+  initSimpleProfileEditor();
 });
 
 // Re-hydrate on bfcache restores and forward/back navigations
@@ -277,12 +278,12 @@ async function fetchProfileFromServer() {
     const res = await fetch('/auth/profile', { credentials: 'include' });
     if (!res.ok) return;
     const p = await res.json();
-    const dobInput = document.getElementById('profileDobInput');
-    const phoneInput = document.getElementById('profilePhoneInput');
-    const locationInput = document.getElementById('profileLocationInput');
+    const dobInput = document.getElementById('profileDobInput') || document.getElementById('dob');
+    const phoneInput = document.getElementById('profilePhoneInput') || document.getElementById('phone');
+    const locationInput = document.getElementById('profileLocationInput') || document.getElementById('location');
     if (dobInput && p.birthDate) dobInput.value = String(p.birthDate);
     if (phoneInput && p.phone) phoneInput.value = p.phone;
-    if (locationInput && p.lastLoginCountry) locationInput.value = p.lastLoginCountry;
+    if (locationInput && (p.lastLoginCountry || p.location)) locationInput.value = p.lastLoginCountry || p.location;
     // persist birthDate into local storage profile cache
     try {
       const key = 'edufy.profile.v1';
@@ -291,6 +292,78 @@ async function fetchProfileFromServer() {
       localStorage.setItem(key, JSON.stringify({ ...existing, birthDate: p.birthDate || existing.birthDate }));
     } catch {}
   } catch {}
+}
+
+// Simple editor for profile.html (Username, email, phone, dob)
+function initSimpleProfileEditor() {
+  const editBtn = document.getElementById('editPersonalBtn');
+  const saveBtn = document.getElementById('savePersonalBtn');
+  const usernameEl = document.getElementById('Username');
+  const emailEl = document.getElementById('email');
+  const phoneEl = document.getElementById('phone');
+  const dobEl = document.getElementById('dob');
+  const toast = document.getElementById('toast');
+
+  if (!editBtn || !saveBtn || !usernameEl || !emailEl || !phoneEl || !dobEl) return; // not this layout
+
+  function setEditable(on) {
+    [usernameEl, emailEl, phoneEl, dobEl].forEach(inp => { if (inp) inp.disabled = !on; });
+    saveBtn.style.display = on ? 'inline-flex' : 'none';
+  }
+
+  // Start disabled until Edit
+  setEditable(false);
+
+  editBtn.addEventListener('click', () => {
+    setEditable(true);
+    usernameEl?.focus();
+  });
+
+  function showSimpleToast(msg) {
+    if (!toast) return;
+    toast.querySelector('.toast-message')?.replaceChildren(document.createTextNode(msg));
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 2200);
+  }
+
+  saveBtn.addEventListener('click', async () => {
+    // Persist to localStorage first for instant UI consistency
+    try {
+      const key = 'edufy.profile.v1';
+      const existingRaw = localStorage.getItem(key);
+      const existing = existingRaw ? JSON.parse(existingRaw) : {};
+      const updated = {
+        ...existing,
+        username: usernameEl.value || existing.username || '',
+        email: emailEl.value || existing.email || '',
+        phone: phoneEl.value || existing.phone || '',
+        birthDate: dobEl.value || existing.birthDate || ''
+      };
+      localStorage.setItem(key, JSON.stringify(updated));
+    } catch {}
+
+    // Send to backend
+    try {
+      const payload = { birthDate: dobEl.value || '', phone: phoneEl.value || '', location: '' };
+      const res = await fetch('/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showSimpleToast('Changes saved successfully!');
+        setEditable(false);
+        // refresh from server to normalize values
+        try { await fetchProfileFromServer(); } catch {}
+      } else {
+        showSimpleToast('Failed to save changes');
+      }
+    } catch {
+      showSimpleToast('Saved locally');
+      setEditable(false);
+    }
+  });
 }
 
 // Apply cached profile immediately to avoid flashes on navigation
