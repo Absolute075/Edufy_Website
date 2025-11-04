@@ -18,22 +18,22 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class SftpUploader {
 
-    @Value("${storage.sftp.host}")
+    @Value("${STORAGE_SFTP_HOST:${storage.sftp.host:}}")
     private String host;
 
-    @Value("${storage.sftp.port:22}")
+    @Value("${STORAGE_SFTP_PORT:${storage.sftp.port:22}}")
     private int port;
 
-    @Value("${storage.sftp.user}")
+    @Value("${STORAGE_SFTP_USER:${storage.sftp.user:}}")
     private String user;
 
-    @Value("${storage.sftp.keyPath}")
+    @Value("${STORAGE_SFTP_KEY_PATH:${storage.sftp.keyPath:/app/ssh/id_rsa}}")
     private String keyPath;
 
-    @Value("${storage.sftp.keyPassphrase:}")
+    @Value("${STORAGE_SFTP_KEY_PASSPHRASE:${storage.sftp.keyPassphrase:}}")
     private String keyPassphrase;
 
-    @Value("${storage.sftp.destDir}")
+    @Value("${STORAGE_SFTP_DEST_DIR:${storage.sftp.destDir:/var/www/Edufy_Website/storage/avatars}}")
     private String destDir;
 
     public void upload(InputStream in, String remoteFileName) throws IOException {
