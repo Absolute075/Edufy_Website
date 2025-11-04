@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setActiveSidebarLink();
       rebindSidebarControls();
       bindSidebarActions();
+      try { window.dispatchEvent(new Event('edufy:rehydrate')); } catch {}
     } catch (_) {
       window.location.href = url;
     }
@@ -126,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bindSidebarActions();
         initSpaNavigation();
         initContentLinkRouting();
+        try { window.dispatchEvent(new Event('edufy:rehydrate')); } catch {}
       }
     } catch (_) {
       // Fallback: keep existing markup
@@ -133,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bindSidebarActions();
       initSpaNavigation();
       initContentLinkRouting();
+      try { window.dispatchEvent(new Event('edufy:rehydrate')); } catch {}
     }
   }
 
