@@ -33,7 +33,7 @@ func SetupRouter() *gin.Engine {
 	}
 
 	// Proxy всех запросов к auth_service
-	r.Any("/auth/*path", proxy.ReverseProxy(authBase))
+	r.Any("/auth/*path", proxy.ServiceProxy(authBase, "/auth"))
 
 	// Health-check самого gateway
 	r.GET("/health", func(c *gin.Context) {
