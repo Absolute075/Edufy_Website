@@ -42,16 +42,21 @@ public class SftpUploader {
         SSHClient ssh = new SSHClient();
         // WARNING: PromiscuousVerifier disables host key verification; consider configuring known_hosts in prod
         ssh.addHostKeyVerifier(new PromiscuousVerifier());
-        ssh.connect(host, port);
+        log.info("SFTP: connecting to {}:{} as {}", host, port, user);
         try {
+            ssh.connect(host, port);
+            log.info("SFTP: connected");
             KeyProvider keys = keyPassphrase != null && !keyPassphrase.isBlank()
                     ? ssh.loadKeys(keyPath, keyPassphrase)
                     : ssh.loadKeys(keyPath);
             ssh.authPublickey(user, keys);
+            log.info("SFTP: authenticated");
 
             try (SFTPClient sftp = ssh.newSFTPClient()) {
-                String remotePath = normalize(destDir) + "/" + remoteFileName;
-                sftp.mkdirs(normalize(destDir));
+                String targetDir = normalize(destDir);
+                String remotePath = targetDir + "/" + remoteFileName;
+                log.info("SFTP: ensuring dir {}", targetDir);
+                sftp.mkdirs(targetDir);
                 byte[] data = IOUtils.readFully(in).toByteArray();
                 InMemorySourceFile src = new InMemorySourceFile() {
                     @Override
@@ -61,9 +66,13 @@ public class SftpUploader {
                     @Override
                     public InputStream getInputStream() { return new ByteArrayInputStream(data); }
                 };
+                log.info("SFTP: uploading to {} ({} bytes)", remotePath, data.length);
                 sftp.put(src, remotePath);
                 log.info("Uploaded avatar to {} via SFTP", remotePath);
             }
+        } catch (Exception e) {
+            log.error("SFTP upload error: {}", e.toString());
+            throw new IOException("SFTP upload failed: " + e.getMessage(), e);
         } finally {
             try { ssh.disconnect(); } catch (Exception ignored) {}
         }
