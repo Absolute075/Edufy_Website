@@ -254,6 +254,15 @@ async function hydrateUserFromServer() {
     if (profileUsernameInput && me.username) profileUsernameInput.value = me.username;
     if (profileEmailInput && me.email) profileEmailInput.value = me.email;
     if (profileDisplayName && me.username) profileDisplayName.textContent = (profileDisplayName.classList?.contains('avatar-name') ? me.username : '@' + me.username);
+    // Avatar image from cached profile
+    const avatarImg = document.getElementById('profileAvatarImg');
+    if (avatarImg && me.avatar) {
+      const src = String(me.avatar);
+      const bust = Date.now();
+      avatarImg.src = src.startsWith('http')
+        ? src + (src.includes('?') ? `&v=${bust}` : `?v=${bust}`)
+        : src;
+    }
 
     // Persist into profile storage so other pages pick it up
     try {
