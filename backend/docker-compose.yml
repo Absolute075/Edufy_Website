@@ -54,7 +54,7 @@ services:
         storage.sftp.port: "22"
         storage.sftp.user: "root"
         storage.sftp.keyPath: "/app/ssh/id_rsa"
-        storage.sftp.keyPassphrase: "storage"
+        storage.sftp.keyPassphrase: ""
         storage.sftp.destDir: "/var/www/Edufy_Website/storage/avatars"
       depends_on:
         - db
