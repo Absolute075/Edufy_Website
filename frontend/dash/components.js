@@ -231,6 +231,8 @@ window.addEventListener('pageshow', (event) => {
 window.addEventListener('edufy:rehydrate', () => {
   try { primeUserFromStorage(); } catch {}
   try { hydrateUserFromServer(); } catch {}
+  try { fetchProfileFromServer(); } catch {}
+  try { initSimpleProfileEditor(); } catch {}
 });
 
 // Fetch real user info and override UI placeholders
@@ -385,6 +387,11 @@ function primeUserFromStorage() {
     if (profileUsernameInput && me.username) profileUsernameInput.value = me.username;
     if (profileEmailInput && me.email) profileEmailInput.value = me.email;
     if (profileDisplayName && me.username) profileDisplayName.textContent = (profileDisplayName.classList?.contains('avatar-name') ? me.username : '@' + me.username);
+    // Simple profile fields (phone, dob) if present
+    const phoneEl = document.getElementById('profilePhoneInput') || document.getElementById('phone');
+    const dobEl = document.getElementById('profileDobInput') || document.getElementById('dob');
+    if (phoneEl && me.phone) phoneEl.value = me.phone;
+    if (dobEl && (me.birthDate || me.dob)) dobEl.value = me.birthDate || me.dob;
   } catch {}
 }
 
