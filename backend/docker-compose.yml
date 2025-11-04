@@ -34,6 +34,28 @@ services:
     networks:
       - edufy_net
 
+
+  user_service:
+      build: ./services/user_service
+      image: user_service:latest
+      container_name: user_service
+      ports:
+        - "8083:8080" #8083 внешний порт docker, внутренний порт Spring Boot
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/edufy_users
+        SPRING_DATASOURCE_USERNAME: admin
+        SPRING_DATASOURCE_PASSWORD: star4536446
+        SPRING_JPA_HIBERNATE_DDL_AUTO: update
+        SERVER_PORT: 8080
+      depends_on:
+        - db
+      restart: always
+      volumes:
+        - /var/www/Edufy_Website/storage/avatars:/var/www/Edufy_Website/storage/avatars
+      networks:
+       - edufy_net
+
+
   gateway_service:
     build: ./services/gateway_service
     image: gateway_service:latest
