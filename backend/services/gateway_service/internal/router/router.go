@@ -29,7 +29,7 @@ func SetupRouter() *gin.Engine {
 	// Base URL для auth_service
 	authBase := os.Getenv("AUTH_SERVICE_URL")
 	if authBase == "" {
-		authBase = "http://auth_service:8080"
+		authBase = "http://auth_service:8081"
 	}
 
 	// Proxy всех запросов к auth_service
