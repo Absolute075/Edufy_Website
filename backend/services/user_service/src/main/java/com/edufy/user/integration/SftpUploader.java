@@ -7,11 +7,13 @@ import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
+import net.schmizz.sshj.xfer.InMemorySourceFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -50,7 +52,16 @@ public class SftpUploader {
             try (SFTPClient sftp = ssh.newSFTPClient()) {
                 String remotePath = normalize(destDir) + "/" + remoteFileName;
                 sftp.mkdirs(normalize(destDir));
-                sftp.put(in, remotePath);
+                byte[] data = IOUtils.readFully(in);
+                InMemorySourceFile src = new InMemorySourceFile() {
+                    @Override
+                    public String getName() { return remoteFileName; }
+                    @Override
+                    public long getLength() { return data.length; }
+                    @Override
+                    public InputStream getInputStream() { return new ByteArrayInputStream(data); }
+                };
+                sftp.put(src, remotePath);
                 log.info("Uploaded avatar to {} via SFTP", remotePath);
             }
         } finally {
