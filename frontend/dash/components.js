@@ -346,7 +346,7 @@ function initSimpleProfileEditor() {
 
     // Send to backend
     try {
-      const payload = { birthDate: dobEl.value || '', phone: phoneEl.value || '', location: '' };
+      const payload = { username: usernameEl.value || '', birthDate: dobEl.value || '', phone: phoneEl.value || '', location: '' };
       const res = await fetch('/auth/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -358,6 +358,7 @@ function initSimpleProfileEditor() {
         setEditable(false);
         // refresh from server to normalize values
         try { await fetchProfileFromServer(); } catch {}
+        try { await hydrateUserFromServer(); } catch {}
       } else {
         showSimpleToast('Failed to save changes');
       }
@@ -894,6 +895,7 @@ function initProfileForm() {
     // Send to backend
     try {
       const payload = {
+        username: usernameInput?.value?.trim() || '',
         birthDate: dobInput?.value || '',
         phone: phoneInput?.value || '',
         location: locationInput?.value || ''
@@ -906,6 +908,7 @@ function initProfileForm() {
       }).then(r => r.ok ? r.json() : null).then(() => {
         // refresh from server to be sure
         fetchProfileFromServer();
+        hydrateUserFromServer();
         showToast("✅ Profile saved successfully!", "success");
       });
     } catch {

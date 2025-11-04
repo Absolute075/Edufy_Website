@@ -193,6 +193,16 @@ public class AuthController {
         UserEntity u = userOpt.get();
 
         // Update fields if present
+        boolean usernameChanged = false;
+        if (payload.getUsername() != null && !payload.getUsername().isBlank()
+                && !payload.getUsername().equals(u.getUsername())) {
+            // Check uniqueness
+            if (userRepository.existsByUsername(payload.getUsername())) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Username already taken"));
+            }
+            u.setUsername(payload.getUsername());
+            usernameChanged = true;
+        }
         if (payload.getPhone() != null) u.setPhone(payload.getPhone());
         if (payload.getLocation() != null) u.setLastLoginCountry(payload.getLocation());
         if (payload.getBirthDate() != null && !payload.getBirthDate().isBlank()) {
@@ -203,6 +213,37 @@ public class AuthController {
             }
         }
         userRepository.save(u);
+        // If username changed, re-issue tokens so subject matches
+        if (usernameChanged) {
+            String newAccessToken = jwtService.generateAccessToken(u.getUsername());
+            String newRefreshToken = jwtService.generateRefreshToken(u.getUsername());
+
+            ResponseCookie accessCookie = ResponseCookie.from("accessToken", newAccessToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("None")
+                    .domain(".edufyuzbekistan.com")
+                    .path("/")
+                    .maxAge(15 * 60)
+                    .build();
+
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefreshToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("None")
+                    .domain(".edufyuzbekistan.com")
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60)
+                    .build();
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("message", "Profile updated");
+            body.put("username", u.getUsername());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .body(body);
+        }
         return ResponseEntity.ok(Map.of("message", "Profile updated"));
     }
 
