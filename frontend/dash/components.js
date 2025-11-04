@@ -1,19 +1,28 @@
-const sidebar = document.getElementById("sidebar");
-const sidebarToggle = document.getElementById("sidebarToggle");
+(function(){
+  if (window.__edufyInit) {
+    try { window.dispatchEvent(new Event('edufy:rehydrate')); } catch(e) {}
+    return;
+  }
+  window.__edufyInit = true;
+  const sidebar = document.getElementById("sidebar");
+  const sidebarToggle = document.getElementById("sidebarToggle");
 
-sidebarToggle?.addEventListener("click", () => {
+  sidebarToggle?.addEventListener("click", () => {
     sidebar?.classList.toggle("open");
-});
+  });
 
-// Optional: set active menu item based on hash or route
-document.querySelectorAll(".menu-item").forEach(link => {
-    link.addEventListener("click", () => {
-        document.querySelector(".menu-item.active")?.classList.remove("active");
+  // Optional: set active menu item based on hash or route
+  (function() {
+    const links = document.querySelectorAll(".menu-item");
+    links.forEach(link => {
+      link.addEventListener("click", () => {
+        links.forEach(l => l.classList.remove("active"));
         link.classList.add("active");
         // Close sidebar on mobile after navigation
         if (window.innerWidth <= 820) sidebar?.classList.remove("open");
+      });
     });
-});
+  })();
 
 // ----- Dashboard enhancements (mock data, role switching, charts) -----
 const roleSelect = document.getElementById("roleSelect");
@@ -211,6 +220,12 @@ window.addEventListener("DOMContentLoaded", () => {
 // Re-hydrate on bfcache restores and forward/back navigations
 window.addEventListener('pageshow', (event) => {
   // event.persisted indicates bfcache; but we can safely re-run always
+  try { primeUserFromStorage(); } catch {}
+  try { hydrateUserFromServer(); } catch {}
+});
+
+// Re-hydrate on custom event when script is included again
+window.addEventListener('edufy:rehydrate', () => {
   try { primeUserFromStorage(); } catch {}
   try { hydrateUserFromServer(); } catch {}
 });
@@ -783,4 +798,4 @@ function initProfileForm() {
       }, 800);
     }
   });
-}
+})();
