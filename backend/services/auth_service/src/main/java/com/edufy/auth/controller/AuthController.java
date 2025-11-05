@@ -99,24 +99,36 @@ public class AuthController {
     }
 
     private void postLoginAudit(String username, String ip, String userAgent) {
-        try {
-            String base = System.getenv("USER_SERVICE_URL");
-            if (base == null || base.isBlank()) base = "http://user_service:8080";
-            java.net.URL url = new java.net.URL(base + "/user/internal/login-audit");
-            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(2000);
-            conn.setReadTimeout(2000);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-            String ua = userAgent != null ? userAgent.replace("\"", "'") : null;
-            String json = "{\"username\":\"" + safe(username) + "\",\"ip\":\"" + safe(ip) + "\",\"userAgent\":\"" + safe(ua) + "\"}";
-            try (java.io.OutputStream os = conn.getOutputStream()) {
-                os.write(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            }
-            conn.getResponseCode(); // ignore body
-            conn.disconnect();
-        } catch (Exception ignored) {}
+        String ua = userAgent != null ? userAgent.replace("\"", "'") : null;
+        String payload = "{\"username\":\"" + safe(username) + "\",\"ip\":\"" + safe(ip) + "\",\"userAgent\":\"" + safe(ua) + "\"}";
+        String envBase = System.getenv("USER_SERVICE_URL");
+        String gatewayBase = System.getenv("GATEWAY_URL");
+        String[] bases = new String[]{
+                envBase,
+                gatewayBase,
+                "http://localhost:8083",
+                "http://127.0.0.1:8083",
+                "http://user_service:8083",
+                "http://user_service:8080"
+        };
+        for (String base : bases) {
+            if (base == null || base.isBlank()) continue;
+            try {
+                java.net.URL url = new java.net.URL(base + "/user/internal/login-audit");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(2000);
+                conn.setReadTimeout(2000);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+                try (java.io.OutputStream os = conn.getOutputStream()) {
+                    os.write(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+                int code = conn.getResponseCode();
+                conn.disconnect();
+                if (code >= 200 && code < 300) return; // success
+            } catch (Exception ignored) { /* try next base */ }
+        }
     }
 
     private String safe(String s) { return s == null ? "" : s; }
