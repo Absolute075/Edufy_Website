@@ -37,17 +37,10 @@ public class UserEntity {
     @Column(nullable = false)
     private Boolean active = true;
 
-    @Column(name = "birth_date", nullable = true)
-    private LocalDate birthDate; // дата рождения
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "last_login_ip")
-    private String lastLoginIp;
-
-    @Column(name = "last_login_country")
-    private String lastLoginCountry;
 
     @PrePersist
     protected void onCreate() {
