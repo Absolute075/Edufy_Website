@@ -913,7 +913,7 @@ function initProfileForm() {
     try {
       const fd = new FormData();
       fd.append('file', file, file.name);
-      fetch('/user/avatar', { method: 'POST', body: fd, credentials: 'include' })
+      api('/user/avatar', { method: 'POST', body: fd })
         .then(r => r.ok ? r.json() : Promise.reject(r))
         .then(body => {
           if (body && body.avatarUrl) {
@@ -925,7 +925,6 @@ function initProfileForm() {
               const existing = existingRaw ? JSON.parse(existingRaw) : {};
               localStorage.setItem(key, JSON.stringify({ ...existing, avatar: body.avatarUrl }));
             } catch {}
-            // Fetch persisted profile to ensure value reflects DB
             try { fetchProfileFromServer(); } catch {}
             showToast("Avatar uploaded!", "success");
           } else {
