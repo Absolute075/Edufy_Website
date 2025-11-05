@@ -124,8 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (push) history.pushState({}, '', url);
-      // Trigger app-level rehydrate to rebind UI and then cascade to components.js
-      try { window.dispatchEvent(new Event('app:rehydrate')); } catch {}
+      // Reload sidebar on every navigation to keep it fresh and correctly bound
+      try { await loadSidebarPartial(); } catch {}
     } catch (_) {
       window.location.href = url;
     }
