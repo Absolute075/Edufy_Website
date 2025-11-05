@@ -30,6 +30,7 @@ services:
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: star4536446
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      USER_SERVICE_URL: "http://user_service:8080"
       SERVER_PORT: 8080
     depends_on:
       - db
