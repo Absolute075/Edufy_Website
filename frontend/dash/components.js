@@ -475,24 +475,24 @@ function initSimpleProfileEditor() {
       localStorage.setItem(key, JSON.stringify(updated));
     } catch {}
 
-    // Send to backend (username to auth_service, other fields to user_service)
+    // Send to backend sequentially to avoid race conditions
     try {
-      const tasks = [];
+      let ok = true;
       const newUsername = (usernameEl.value || '').trim();
       if (newUsername) {
-        tasks.push(api('/auth/profile', {
+        const r1 = await api('/auth/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: newUsername })
-        }).then(r => r.ok ? true : Promise.reject(r)));
+        });
+        ok = ok && r1.ok;
       }
-      tasks.push(api('/user/profile', {
+      const r2 = await api('/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ birthDate: dobEl.value || '', phone: phoneEl.value || '', location: '' })
-      }).then(r => r.ok ? true : Promise.reject(r)));
-      const results = await Promise.allSettled(tasks);
-      const ok = results.some(r => r.status === 'fulfilled');
+      });
+      ok = ok && r2.ok;
       if (ok) {
         showSimpleToast('Changes saved successfully!');
         setEditable(false);

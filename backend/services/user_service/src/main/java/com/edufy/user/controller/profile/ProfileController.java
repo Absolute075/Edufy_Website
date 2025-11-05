@@ -49,14 +49,19 @@ public class ProfileController {
             return ResponseEntity.status(401).body(body);
         }
 
-        UserProfile p = profileService.getOrCreate(username);
+        // Do NOT auto-create on GET to avoid duplicates during rename race
+        UserProfile p = profileService.find(username);
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("userId", p.getUserId());
-        body.put("username", p.getUsername());
-        body.put("phone", p.getPhone());
-        body.put("birthDate", p.getBirthDate());
-        body.put("location", p.getLocation());
-        body.put("avatarUrl", p.getAvatarUrl());
+        if (p != null) {
+            body.put("userId", p.getUserId());
+            body.put("username", p.getUsername());
+            body.put("phone", p.getPhone());
+            body.put("birthDate", p.getBirthDate());
+            body.put("location", p.getLocation());
+            body.put("avatarUrl", p.getAvatarUrl());
+        } else {
+            body.put("username", username);
+        }
         return ResponseEntity.ok(body);
     }
 
