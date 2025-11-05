@@ -441,19 +441,17 @@ function initSimpleProfileEditor() {
       const tasks = [];
       const newUsername = (usernameEl.value || '').trim();
       if (newUsername) {
-        tasks.push(fetch('/auth/profile', {
+        tasks.push(api('/auth/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify({ username: newUsername })
-        }));
+        }).then(r => r.ok ? r.json() : Promise.reject(r)));
       }
-      tasks.push(fetch('/user/profile', {
+      tasks.push(api('/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ birthDate: dobEl.value || '', phone: phoneEl.value || '', location: '' })
-      }));
+      }).then(r => r.ok ? r.json() : Promise.reject(r)));
       const results = await Promise.allSettled(tasks);
       const ok = results.some(r => r.status === 'fulfilled' && r.value && r.value.ok);
       if (ok) {
@@ -1030,17 +1028,18 @@ function initProfileForm() {
         phone: phoneInput?.value || '',
         location: locationInput?.value || ''
       };
-      fetch('/auth/profile', {
+      api('/auth/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(payload)
-      }).then(r => r.ok ? r.json() : null).then(() => {
-        // refresh from server to be sure
-        fetchProfileFromServer();
-        hydrateUserFromServer();
-        showToast("✅ Profile saved successfully!", "success");
-      });
+      })
+        .then(r => r.ok ? r.json() : Promise.reject(r))
+        .then(() => {
+          // refresh from server to be sure
+          fetchProfileFromServer();
+          hydrateUserFromServer();
+          showToast("✅ Profile saved successfully!", "success");
+        });
     } catch {
       showToast("✅ Profile saved locally.", "success");
     }
