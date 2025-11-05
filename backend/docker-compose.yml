@@ -8,6 +8,8 @@ services:
       POSTGRES_DB: edufy_auth
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: star4536446
+      TZ: Asia/Tashkent
+      PGTZ: Asia/Tashkent
     ports:
       - "5432:5432"
     volumes:
