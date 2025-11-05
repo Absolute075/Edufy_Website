@@ -523,7 +523,7 @@ function initProfileForm() {
 
   // Inputs
   const avatarImg = document.getElementById("profileAvatarImg");
-  const avatarInput = document.getElementById("profileAvatarInput");
+  const avatarInput = document.getElementById("avatarInput");
   const avatarChangeBtn = document.getElementById("avatarChangeBtn");
   const usernameInput = document.getElementById("profileUsernameInput");
   const emailInput = document.getElementById("profileEmailInput");
