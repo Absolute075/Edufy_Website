@@ -104,8 +104,13 @@ public class AuthController {
         String envBase = System.getenv("USER_SERVICE_URL");
         String gatewayBase = System.getenv("GATEWAY_URL");
         String[] bases = new String[]{
+                // Prefer external user_service 8083 first
+                "http://37.60.243.113:8083",
                 envBase,
                 gatewayBase,
+                // common host aliases when running in docker on dev/servers
+                "http://host.docker.internal:8083",
+                "http://gateway_service:8080",
                 "http://localhost:8083",
                 "http://127.0.0.1:8083",
                 "http://user_service:8083",
@@ -116,8 +121,8 @@ public class AuthController {
             try {
                 java.net.URL url = new java.net.URL(base + "/user/internal/login-audit");
                 java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
-                conn.setConnectTimeout(2000);
-                conn.setReadTimeout(2000);
+                conn.setConnectTimeout(4000);
+                conn.setReadTimeout(4000);
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setDoOutput(true);
@@ -126,9 +131,13 @@ public class AuthController {
                 }
                 int code = conn.getResponseCode();
                 conn.disconnect();
+                try { System.out.println("[auth_service] audit post -> " + base + " code=" + code); } catch (Exception ignore) {}
                 if (code >= 200 && code < 300) return; // success
-            } catch (Exception ignored) { /* try next base */ }
+            } catch (Exception e) {
+                try { System.out.println("[auth_service] audit post failed -> " + base + " err=" + e.getClass().getSimpleName()); } catch (Exception ignore) {}
+            }
         }
+        try { System.out.println("[auth_service] login audit post failed for all bases"); } catch (Exception ignore) {}
     }
 
     private String safe(String s) { return s == null ? "" : s; }
