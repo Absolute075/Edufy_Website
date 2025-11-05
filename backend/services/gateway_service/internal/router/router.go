@@ -14,6 +14,12 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	// Trust all proxies by default so ClientIP() can resolve real client IP from headers
+	// In production, consider restricting to your proxy ranges (e.g., Cloudflare IPs)
+	if err := r.SetTrustedProxies([]string{"0.0.0.0/0", "::/0"}); err != nil {
+		panic(err)
+	}
+
 	// CORS middleware
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")

@@ -45,7 +45,7 @@ public class AuthController {
 
     // Логин + установка HttpOnly cookie для токенов на домен .edufyuzbekistan.com
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
         TokenResponse tokenResponse = authService.login(request);
         if (tokenResponse.getAccessToken() == null) {
             return ResponseEntity.badRequest().body(tokenResponse);
@@ -70,11 +70,56 @@ public class AuthController {
                 .maxAge(7 * 24 * 60 * 60) // 7 дней
                 .build();
 
+        // Fire-and-forget: записать аудит логина в user_service
+        try {
+            String username = jwtService.extractUsername(tokenResponse.getAccessToken());
+            String clientIp = extractClientIp(httpRequest);
+            String userAgent = httpRequest.getHeader("User-Agent");
+            postLoginAudit(username, clientIp, userAgent);
+        } catch (Exception ignored) {}
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(tokenResponse);
     }
+
+    private String extractClientIp(HttpServletRequest req) {
+        String ip = req.getHeader("CF-Connecting-IP");
+        if (ip == null || ip.isBlank()) ip = firstXff(req.getHeader("X-Forwarded-For"));
+        if (ip == null || ip.isBlank()) ip = req.getHeader("X-Real-IP");
+        if (ip == null || ip.isBlank()) ip = req.getRemoteAddr();
+        return ip;
+    }
+
+    private String firstXff(String xff) {
+        if (xff == null || xff.isBlank()) return null;
+        int comma = xff.indexOf(',');
+        return comma == -1 ? xff.trim() : xff.substring(0, comma).trim();
+    }
+
+    private void postLoginAudit(String username, String ip, String userAgent) {
+        try {
+            String base = System.getenv("USER_SERVICE_URL");
+            if (base == null || base.isBlank()) base = "http://user_service:8080";
+            java.net.URL url = new java.net.URL(base + "/user/internal/login-audit");
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(2000);
+            conn.setReadTimeout(2000);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+            String ua = userAgent != null ? userAgent.replace("\"", "'") : null;
+            String json = "{\"username\":\"" + safe(username) + "\",\"ip\":\"" + safe(ip) + "\",\"userAgent\":\"" + safe(ua) + "\"}";
+            try (java.io.OutputStream os = conn.getOutputStream()) {
+                os.write(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+            conn.getResponseCode(); // ignore body
+            conn.disconnect();
+        } catch (Exception ignored) {}
+    }
+
+    private String safe(String s) { return s == null ? "" : s; }
 
     // Обновление токена
     @PostMapping("/refresh")
