@@ -1,10 +1,15 @@
   function getCachedAvatarUrl() {
     try {
-      const raw = localStorage.getItem('edufy.profile.v1');
+      const userKey = (typeof window !== 'undefined') && (window.__edufyUserKey || sessionStorage.getItem('edufy.user.key') || localStorage.getItem('edufy.user.key'));
+      if (!userKey) return null;
+      const raw = localStorage.getItem(`edufy.profile.v1:${userKey}`);
       if (!raw) return null;
       const p = JSON.parse(raw) || {};
       return p.avatar || null;
     } catch { return null; }
+  }
+  function getUserKey() {
+    try { return window.__edufyUserKey || sessionStorage.getItem('edufy.user.key') || localStorage.getItem('edufy.user.key') || null; } catch { return null; }
   }
   // Unified API helper: always send credentials and handle 401 by redirecting to login
   async function api(url, options = {}) {
@@ -269,7 +274,7 @@ function renderRole(role) {
   }
   const cached = getCachedAvatarUrl();
   applyAvatar(cached || "");
-  scheduleAvatarReapply(10, 120);
+  if (cached) scheduleAvatarReapply(10, 120);
 }
 
 // Initialize
@@ -308,7 +313,7 @@ window.addEventListener('pageshow', (event) => {
   try { hydrateUserFromServer(); } catch {}
   try { fetchProfileFromServer(); } catch {}
   try { const u = getCachedAvatarUrl(); applyAvatar(u || ""); } catch {}
-  scheduleAvatarReapply(8, 120);
+  try { const has = !!getCachedAvatarUrl(); if (has) scheduleAvatarReapply(8, 120); } catch {}
 });
 
 // Re-hydrate on custom event when script is included again
@@ -330,6 +335,17 @@ async function hydrateUserFromServer() {
     const res = await api('/auth/me');
     if (!res.ok) return; // if 401, keep placeholders
     const me = await res.json();
+    // Establish per-user storage key based on stable identifier
+    try {
+      const uk = me.email || me.username || me.id;
+      if (uk) {
+        window.__edufyUserKey = uk;
+        try { sessionStorage.setItem('edufy.user.key', uk); } catch {}
+        try { localStorage.setItem('edufy.user.key', uk); } catch {}
+        // Migration: remove legacy shared key to prevent cross-account leaks
+        try { localStorage.removeItem('edufy.profile.v1'); } catch {}
+      }
+    } catch {}
     // Header username
     const headerName = document.querySelector('.header-username');
     if (headerName && me.username) headerName.textContent = me.username;
@@ -346,17 +362,19 @@ async function hydrateUserFromServer() {
     // Avatar image from cached profile
     if (me.avatar) applyAvatar(String(me.avatar));
 
-    // Persist into profile storage so other pages pick it up
+    // Persist into per-user storage so other pages pick it up
     try {
-      const key = 'edufy.profile.v1';
-      const existingRaw = localStorage.getItem(key);
-      const existing = existingRaw ? JSON.parse(existingRaw) : {};
-      const updated = {
-        ...existing,
-        username: me.username || existing.username || '',
-        email: me.email || existing.email || ''
-      };
-      localStorage.setItem(key, JSON.stringify(updated));
+      const k = getProfileStorageKey();
+      if (k) {
+        const existingRaw = localStorage.getItem(k);
+        const existing = existingRaw ? JSON.parse(existingRaw) : {};
+        const updated = {
+          ...existing,
+          username: me.username || existing.username || '',
+          email: me.email || existing.email || ''
+        };
+        localStorage.setItem(k, JSON.stringify(updated));
+      }
     } catch {}
 
     // Trigger any dependent UI updates
@@ -379,12 +397,14 @@ async function fetchProfileFromServer() {
     if (locationInput && (p.lastLoginCountry || p.location)) locationInput.value = p.lastLoginCountry || p.location;
     // avatar hydrate
     if (p.avatarUrl) applyAvatar(p.avatarUrl);
-    // persist birthDate into local storage profile cache
+    // persist fields into per-user local storage profile cache
     try {
-      const key = 'edufy.profile.v1';
-      const existingRaw = localStorage.getItem(key);
-      const existing = existingRaw ? JSON.parse(existingRaw) : {};
-      localStorage.setItem(key, JSON.stringify({ ...existing, birthDate: p.birthDate || existing.birthDate, phone: p.phone || existing.phone, location: (p.location || p.lastLoginCountry || existing.location), avatar: p.avatarUrl || existing.avatar }));
+      const k = getProfileStorageKey();
+      if (k) {
+        const existingRaw = localStorage.getItem(k);
+        const existing = existingRaw ? JSON.parse(existingRaw) : {};
+        localStorage.setItem(k, JSON.stringify({ ...existing, birthDate: p.birthDate || existing.birthDate, phone: p.phone || existing.phone, location: (p.location || p.lastLoginCountry || existing.location), avatar: p.avatarUrl || existing.avatar }));
+      }
     } catch {}
   } catch {}
 }
@@ -431,7 +451,8 @@ function initSimpleProfileEditor() {
   saveBtn.addEventListener('click', async () => {
     // Persist to localStorage first for instant UI consistency
     try {
-      const key = 'edufy.profile.v1';
+      const key = getProfileStorageKey();
+      if (!key) throw new Error('no-user-key');
       const existingRaw = localStorage.getItem(key);
       const existing = existingRaw ? JSON.parse(existingRaw) : {};
       const updated = {
@@ -481,7 +502,9 @@ function initSimpleProfileEditor() {
 // Apply cached profile immediately to avoid flashes on navigation
 function primeUserFromStorage() {
   try {
-    const raw = localStorage.getItem('edufy.profile.v1');
+    const k = getProfileStorageKey();
+    if (!k) return;
+    const raw = localStorage.getItem(k);
     if (!raw) return;
     const me = JSON.parse(raw) || {};
     // Header username
@@ -512,6 +535,11 @@ roleSelect?.addEventListener("change", (e) => {
 
 // ---------------- Profile form logic ----------------
 function getProfileStorageKey() { return "edufy.profile.v1"; }
+// Overwrite getProfileStorageKey to include user key
+function getProfileStorageKey() {
+  const uk = getUserKey();
+  return uk ? `edufy.profile.v1:${uk}` : null;
+}
 
 function loadProfileFromStorage() {
   try {
@@ -762,6 +790,35 @@ function initProfileForm() {
     window.location.href = 'settings.html';
   });
 
+  // ---- Logout helpers: clear user identity and per-user caches ----
+  function clearIdentityAndCaches() {
+    try { sessionStorage.removeItem('edufy.user.key'); } catch {}
+    try { localStorage.removeItem('edufy.user.key'); } catch {}
+    try {
+      // Remove only current user's profile cache; optionally, purge all prefixed keys
+      const uk = getUserKey();
+      if (uk) localStorage.removeItem(`edufy.profile.v1:${uk}`);
+    } catch {}
+  }
+
+  // profile page logout button
+  logoutBtn?.addEventListener('click', async (ev) => {
+    try { ev.preventDefault(); } catch {}
+    const ok = confirm('Are you sure you want to logout?');
+    if (!ok) return;
+    showToast('Logging out...', 'success');
+    try { await api('/auth/logout', { method: 'POST' }); } catch {}
+    clearIdentityAndCaches();
+    setTimeout(() => { window.location.href = 'https://access.edufyuzbekistan.com/login'; }, 500);
+  });
+
+  // Also hook settings modal confirm button if present to clear caches
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  confirmLogoutBtn?.addEventListener('click', () => {
+    // settings.html already calls /auth/logout and redirects; we just clear caches
+    clearIdentityAndCaches();
+  });
+
   // Confetti animation
   function launchConfetti() {
     if (!confettiCanvas) return;
@@ -930,10 +987,10 @@ function initProfileForm() {
             applyAvatar(body.avatarUrl);
             scheduleAvatarReapply(10, 120);
             try {
-              const key = 'edufy.profile.v1';
-              const existingRaw = localStorage.getItem(key);
+              const key = getProfileStorageKey();
+              const existingRaw = key ? localStorage.getItem(key) : null;
               const existing = existingRaw ? JSON.parse(existingRaw) : {};
-              localStorage.setItem(key, JSON.stringify({ ...existing, avatar: body.avatarUrl }));
+              if (key) localStorage.setItem(key, JSON.stringify({ ...existing, avatar: body.avatarUrl }));
             } catch {}
             try { fetchProfileFromServer(); } catch {}
             showToast("Avatar uploaded!", "success");
