@@ -209,7 +209,6 @@ public class AuthController {
         payload.put("username", user.getUsername());
         payload.put("email", user.getEmail());
         payload.put("role", user.getRole());
-        payload.put("birthDate", user.getBirthDate());
         return ResponseEntity.ok(payload);
     }
 
@@ -270,14 +269,7 @@ public class AuthController {
             usernameChanged = true;
         }
         if (payload.getPhone() != null) u.setPhone(payload.getPhone());
-        if (payload.getLocation() != null) u.setLastLoginCountry(payload.getLocation());
-        if (payload.getBirthDate() != null && !payload.getBirthDate().isBlank()) {
-            try {
-                u.setBirthDate(java.time.LocalDate.parse(payload.getBirthDate()));
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid birthDate format, expected YYYY-MM-DD"));
-            }
-        }
+        // location/birthDate fields are not managed in auth_service anymore
         userRepository.save(u);
         // If username changed, re-issue tokens so subject matches
         if (usernameChanged) {

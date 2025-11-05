@@ -2,7 +2,6 @@ package com.edufy.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,10 +36,8 @@ public class UserEntity {
     @Column(nullable = false)
     private Boolean active = true;
 
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
 
     @PrePersist
     protected void onCreate() {
