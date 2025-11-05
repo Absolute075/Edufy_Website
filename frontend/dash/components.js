@@ -321,7 +321,7 @@ window.addEventListener('edufy:rehydrate', () => {
   try { primeUserFromStorage(); } catch {}
   try { hydrateUserFromServer(); } catch {}
   try { fetchProfileFromServer(); } catch {}
-  try { initSimpleProfileEditor(); } catch {}
+  try { initProfileForm(); } catch {}
   try { const u = getCachedAvatarUrl(); applyAvatar(u || ""); } catch {}
 });
 
