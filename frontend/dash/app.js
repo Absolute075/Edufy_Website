@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sidebar elements (will be populated via partial)
   const sidebar = document.querySelector('.sidebar');
   const mainContent = document.querySelector('.main-content');
-  // Temporary kill-switch: force full reload navigation if needed
-  const DISABLE_SPA = (window.__forceFullReload === true);
+  // Force full reload navigation (disable SPA)
+  const DISABLE_SPA = true;
 
   function rebindSidebarControls() {
     const sidebarToggle = document.getElementById('sidebarToggle');
