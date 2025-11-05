@@ -57,7 +57,6 @@ public class ProfileController {
             body.put("username", p.getUsername());
             body.put("phone", p.getPhone());
             body.put("birthDate", p.getBirthDate());
-            body.put("location", p.getLocation());
             body.put("avatarUrl", p.getAvatarUrl());
         } else {
             body.put("username", username);
@@ -77,14 +76,12 @@ public class ProfileController {
 
         String phone = payload.getOrDefault("phone", null);
         String birthDate = payload.getOrDefault("birthDate", null);
-        String location = payload.getOrDefault("location", null);
-        UserProfile p = profileService.updateBasics(username, phone, birthDate, location);
+        UserProfile p = profileService.updateBasics(username, phone, birthDate, null);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("message", "Profile updated");
         body.put("username", p.getUsername());
         body.put("phone", p.getPhone());
         body.put("birthDate", p.getBirthDate());
-        body.put("location", p.getLocation());
         body.put("avatarUrl", p.getAvatarUrl());
         return ResponseEntity.ok(body);
     }

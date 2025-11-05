@@ -475,22 +475,30 @@ function initSimpleProfileEditor() {
       localStorage.setItem(key, JSON.stringify(updated));
     } catch {}
 
-    // Send to backend sequentially to avoid race conditions
+    // Send to backend sequentially to avoid race conditions and keep services in sync
     try {
       let ok = true;
       const newUsername = (usernameEl.value || '').trim();
-      if (newUsername) {
-        const r1 = await api('/auth/profile', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: newUsername })
-        });
-        ok = ok && r1.ok;
+      const newPhone = (phoneEl.value || '').trim();
+      // Always call auth/profile to sync username/phone in edufy_auth.users
+      {
+        const body = {};
+        if (newUsername) body.username = newUsername;
+        if (newPhone) body.phone = newPhone;
+        // Call only if something to update on auth side
+        if (Object.keys(body).length > 0) {
+          const r1 = await api('/auth/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          ok = ok && r1.ok;
+        }
       }
       const r2 = await api('/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ birthDate: dobEl.value || '', phone: phoneEl.value || '', location: '' })
+        body: JSON.stringify({ birthDate: dobEl.value || '', phone: phoneEl.value || '' })
       });
       ok = ok && r2.ok;
       if (ok) {
