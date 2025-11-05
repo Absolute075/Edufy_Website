@@ -32,4 +32,16 @@ public class ProfileService {
         p.setAvatarUrl(avatarUrl);
         return repo.save(p);
     }
+
+    public void renameUsername(String oldUsername, String newUsername) {
+        if (oldUsername == null || newUsername == null) return;
+        if (oldUsername.equals(newUsername)) return;
+        // If profile with old username exists, migrate to new username
+        repo.findByUsername(oldUsername).ifPresent(p -> {
+            // If target exists, do nothing to avoid unique conflict
+            if (repo.existsByUsername(newUsername)) return;
+            p.setUsername(newUsername);
+            repo.save(p);
+        });
+    }
 }

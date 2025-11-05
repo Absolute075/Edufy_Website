@@ -272,6 +272,8 @@ public class AuthController {
         userRepository.save(u);
         // If username changed, re-issue tokens so subject matches
         if (usernameChanged) {
+            // Notify user_service to rename profile
+            try { postRenameUsername(username, u.getUsername()); } catch (Exception ignore) {}
             String newAccessToken = jwtService.generateAccessToken(u.getUsername());
             String newRefreshToken = jwtService.generateRefreshToken(u.getUsername());
 
@@ -302,6 +304,45 @@ public class AuthController {
                     .body(body);
         }
         return ResponseEntity.ok(Map.of("message", "Profile updated"));
+    }
+
+    private void postRenameUsername(String oldUsername, String newUsername) {
+        String payload = "{\"oldUsername\":\"" + safe(oldUsername) + "\",\"newUsername\":\"" + safe(newUsername) + "\"}";
+        String envBase = System.getenv("USER_SERVICE_URL");
+        String gatewayBase = System.getenv("GATEWAY_URL");
+        String[] bases = new String[]{
+                "http://37.60.243.113:8083",
+                envBase,
+                gatewayBase,
+                "http://host.docker.internal:8083",
+                "http://gateway_service:8080",
+                "http://localhost:8083",
+                "http://127.0.0.1:8083",
+                "http://user_service:8083",
+                "http://user_service:8080"
+        };
+        for (String base : bases) {
+            if (base == null || base.isBlank()) continue;
+            try {
+                java.net.URL url = new java.net.URL(base + "/user/internal/rename-username");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(4000);
+                conn.setReadTimeout(4000);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+                try (java.io.OutputStream os = conn.getOutputStream()) {
+                    os.write(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+                int code = conn.getResponseCode();
+                conn.disconnect();
+                try { System.out.println("[auth_service] rename post -> " + base + " code=" + code); } catch (Exception ignore) {}
+                if (code >= 200 && code < 300) return;
+            } catch (Exception e) {
+                try { System.out.println("[auth_service] rename post failed -> " + base + " err=" + e.getClass().getSimpleName()); } catch (Exception ignore) {}
+            }
+        }
+        try { System.out.println("[auth_service] rename post failed for all bases"); } catch (Exception ignore) {}
     }
 
     // Проверка здоровья сервиса
