@@ -322,6 +322,7 @@ window.addEventListener('edufy:rehydrate', () => {
   try { hydrateUserFromServer(); } catch {}
   try { fetchProfileFromServer(); } catch {}
   try { initProfileForm(); } catch {}
+  try { initSimpleProfileEditor(); } catch {}
   try { const u = getCachedAvatarUrl(); applyAvatar(u || ""); } catch {}
 });
 

@@ -104,10 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (push) history.pushState({}, '', url);
-      setActiveSidebarLink();
-      rebindSidebarControls();
-      bindSidebarActions();
-      try { window.dispatchEvent(new Event('edufy:rehydrate')); } catch {}
+      // Trigger app-level rehydrate to rebind UI and then cascade to components.js
+      try { window.dispatchEvent(new Event('app:rehydrate')); } catch {}
     } catch (_) {
       window.location.href = url;
     }
@@ -140,6 +138,45 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   loadSidebarPartial();
+
+  // Rebind page-specific UI after SPA swaps content
+  function rebindPageUi() {
+    // Rebind notification bell
+    try {
+      const notificationBtn = document.getElementById('notificationBtn');
+      notificationBtn?.addEventListener('click', () => { window.location.href = 'notifications.html'; });
+    } catch {}
+    // Smooth scroll for in-page anchors
+    try {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    } catch {}
+    // Close any open modal on Escape
+    try {
+      // no duplicate leaks: handler is idempotent
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const activeModal = document.querySelector('.modal.active');
+          activeModal?.classList.remove('active');
+        }
+      });
+    } catch {}
+  }
+
+  // Global app-level rehydrate: called after SPA navigation
+  window.addEventListener('app:rehydrate', () => {
+    setActiveSidebarLink();
+    rebindSidebarControls();
+    bindSidebarActions();
+    rebindPageUi();
+    // Cascade to components.js for profile/avatar/profile-form logic
+    try { window.dispatchEvent(new Event('edufy:rehydrate')); } catch {}
+  });
 
   // Avatar Upload
   const avatarChangeBtn = document.getElementById('avatarChangeBtn');
