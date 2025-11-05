@@ -76,7 +76,7 @@
                     <span class="logo-glow">Edufy</span>
                 </h1>
                 <p class="text-xl md:text-3xl font-medium mb-6 text-gray-100">
-                    Welcome to Edufy — Learn smarter. Achieve more.
+                    Welcome to Edufy — <span id="dynamicText" class="typewriter"></span>
                 </p>
                 <p class="text-gray-200 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
                     A modern learning platform from Uzbekistan, helping students prepare for IELTS, SAT, TOEFL, AP, and ACT with AI-powered tools and expert-designed courses.
@@ -453,6 +453,61 @@
 
         // Initialize feather icons
         feather.replace();
+    </script>
+    <script>
+        const phrases = [
+            "Learn smarter.",
+            "Learn better.",
+            "Achieve more.",
+            "Master new skills.",
+            "Boost your knowledge.",
+            "Study efficiently.",
+            "Reach your potential.",
+            "Excel faster.",
+            "Grow every day.",
+            "Succeed confidently.",
+            "Unlock your mind.",
+            "Improve consistently.",
+            "Score higher.",
+            "Transform your learning."
+        ];
+
+        let i = 0;          // индекс фразы
+        let j = 0;          // индекс буквы
+        let currentPhrase = "";
+        let isDeleting = false;
+        const speed = 150;  // скорость печати (мс)
+
+        function type() {
+            const element = document.getElementById("dynamicText");
+            const fullText = phrases[i];
+
+            if (isDeleting) {
+                currentPhrase = fullText.substring(0, j--);
+            } else {
+                currentPhrase = fullText.substring(0, j++);
+            }
+
+            element.textContent = currentPhrase;
+
+            if (!isDeleting && j === fullText.length + 1) {
+                // пауза перед удалением
+                setTimeout(() => {
+                    isDeleting = true;
+                    type();
+                }, 1000);
+                return; // чтобы не запускать setTimeout дважды
+            } else if (isDeleting && j === 0) {
+                // переходим к следующей фразе
+                isDeleting = false;
+                i = (i + 1) % phrases.length;
+            }
+
+            setTimeout(type, isDeleting ? speed / 2 : speed);
+        }
+
+        type();
+
     </script>
     </body>
     </html>
