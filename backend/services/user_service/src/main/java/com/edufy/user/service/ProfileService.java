@@ -36,12 +36,24 @@ public class ProfileService {
     public void renameUsername(String oldUsername, String newUsername) {
         if (oldUsername == null || newUsername == null) return;
         if (oldUsername.equals(newUsername)) return;
-        // If profile with old username exists, migrate to new username
-        repo.findByUsername(oldUsername).ifPresent(p -> {
-            // If target exists, do nothing to avoid unique conflict
-            if (repo.existsByUsername(newUsername)) return;
-            p.setUsername(newUsername);
-            repo.save(p);
-        });
+        var oldOpt = repo.findByUsername(oldUsername);
+        if (oldOpt.isEmpty()) return;
+        var oldP = oldOpt.get();
+        var newOpt = repo.findByUsername(newUsername);
+        if (newOpt.isPresent()) {
+            // Merge old into new (prefer non-null values already present in new)
+            var newP = newOpt.get();
+            if (newP.getPhone() == null) newP.setPhone(oldP.getPhone());
+            if (newP.getBirthDate() == null) newP.setBirthDate(oldP.getBirthDate());
+            if (newP.getLocation() == null) newP.setLocation(oldP.getLocation());
+            if (newP.getAvatarUrl() == null) newP.setAvatarUrl(oldP.getAvatarUrl());
+            repo.save(newP);
+            // Delete old duplicate
+            repo.delete(oldP);
+        } else {
+            // Simple rename
+            oldP.setUsername(newUsername);
+            repo.save(oldP);
+        }
     }
 }

@@ -40,7 +40,7 @@
   }
   // Helper: apply avatar URL to all known avatar image elements
   function applyAvatar(url) {
-    const fallback = (typeof window !== 'undefined' && window.__defaultAvatarUrl) || '../templates/images/caesar.png';
+    const fallback = (typeof window !== 'undefined' && window.__defaultAvatarUrl) || '';
     if (!url) url = fallback;
     const bust = Date.now();
     const withBust = url.startsWith('http') ? (url + (url.includes('?') ? `&v=${bust}` : `?v=${bust}`)) : url;
@@ -109,13 +109,13 @@ const mockData = {
       { title: "Listening Quiz #3", sub: "Mon · Score 8/10" }
     ],
     profile: {
-      username: "johndoe",
-      email: "john@example.com",
+      username: "",
+      email: "",
       id: "USR-0001",
       bio: "Aspiring student preparing for IELTS and SAT. Loves math and podcasts.",
-      dob: "2000-01-15",
-      phone: "+1 (234) 567-8900",
-      location: "New York, USA",
+      dob: "",
+      phone: "",
+      location: "",
       certificates: [
         { type: "IELTS", name: "IELTS", issuer: "British Council", score: "Band 7.5", date: "2024-06-15" },
         { type: "SAT", name: "SAT", issuer: "College Board", score: "1450/1600", date: "2024-03-20" },
@@ -449,7 +449,16 @@ function initSimpleProfileEditor() {
     setTimeout(() => { toast.style.display = 'none'; }, 2200);
   }
 
+  // Prevent multiple bindings across re-hydrations
+  if (saveBtn.__edufySaveBound) {
+    return;
+  }
+  saveBtn.__edufySaveBound = true;
+
+  let __isSaving = false;
   saveBtn.addEventListener('click', async () => {
+    if (__isSaving) return;
+    __isSaving = true;
     // Persist to localStorage first for instant UI consistency
     try {
       const key = getProfileStorageKey();
@@ -475,15 +484,15 @@ function initSimpleProfileEditor() {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: newUsername })
-        }).then(r => r.ok ? r.json() : Promise.reject(r)));
+        }).then(r => r.ok ? true : Promise.reject(r)));
       }
       tasks.push(api('/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ birthDate: dobEl.value || '', phone: phoneEl.value || '', location: '' })
-      }).then(r => r.ok ? r.json() : Promise.reject(r)));
+      }).then(r => r.ok ? true : Promise.reject(r)));
       const results = await Promise.allSettled(tasks);
-      const ok = results.some(r => r.status === 'fulfilled' && r.value && r.value.ok);
+      const ok = results.some(r => r.status === 'fulfilled');
       if (ok) {
         showSimpleToast('Changes saved successfully!');
         setEditable(false);
@@ -496,6 +505,8 @@ function initSimpleProfileEditor() {
     } catch {
       showSimpleToast('Saved locally');
       setEditable(false);
+    } finally {
+      __isSaving = false;
     }
   });
 }
