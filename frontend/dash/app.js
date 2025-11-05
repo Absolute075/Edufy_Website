@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sidebar elements (will be populated via partial)
   const sidebar = document.querySelector('.sidebar');
   const mainContent = document.querySelector('.main-content');
+  // Temporary kill-switch: force full reload navigation if needed
+  const DISABLE_SPA = (window.__forceFullReload === true);
 
   function rebindSidebarControls() {
     const sidebarToggle = document.getElementById('sidebarToggle');
@@ -35,11 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!link) return;
       const href = link.getAttribute('href');
       if (!href || href.startsWith('#')) return;
+      if (DISABLE_SPA) return; // allow default full reload
       e.preventDefault();
       navigateTo(href, true);
     });
 
     window.addEventListener('popstate', () => {
+      if (DISABLE_SPA) return;
       const current = (location.pathname.split('/').pop() || 'dashboard.html');
       navigateTo(current, false);
     });
@@ -58,12 +62,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (href.startsWith('#')) return;
       if (target === '_blank') return;
       if (!/\.html?(?:$|[?#])/.test(href)) return;
+      if (DISABLE_SPA) return; // let browser do full reload
       e.preventDefault();
       navigateTo(href, true);
     });
   }
 
   async function navigateTo(url, push) {
+    if (DISABLE_SPA) { window.location.href = url; return; }
     try {
       const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) return (window.location.href = url);
@@ -85,6 +91,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!newMain || !currentMain) return (window.location.href = url);
 
       currentMain.replaceWith(newMain);
+
+      // Replace page-level auxiliaries (modals, toasts) to avoid leftover overlays blocking clicks
+      try {
+        // Remove existing modals/toasts that are outside main-content
+        document.querySelectorAll('.modal').forEach(el => el.remove());
+        const existingToast = document.getElementById('toast');
+        if (existingToast) existingToast.remove();
+        // Append modals from fetched document
+        doc.querySelectorAll('.modal').forEach(m => {
+          document.body.appendChild(m);
+        });
+        const newToast = doc.getElementById('toast');
+        if (newToast) document.body.appendChild(newToast);
+      } catch {}
 
       // Execute scripts from the fetched page
       // 1) Skip external scripts already present to avoid duplicates
@@ -125,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bindSidebarActions();
         initSpaNavigation();
         initContentLinkRouting();
-        try { window.dispatchEvent(new Event('edufy:rehydrate')); } catch {}
+        try { window.dispatchEvent(new Event('app:rehydrate')); } catch {}
       }
     } catch (_) {
       // Fallback: keep existing markup
@@ -133,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bindSidebarActions();
       initSpaNavigation();
       initContentLinkRouting();
-      try { window.dispatchEvent(new Event('edufy:rehydrate')); } catch {}
+      try { window.dispatchEvent(new Event('app:rehydrate')); } catch {}
     }
   }
 
@@ -145,6 +165,112 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const notificationBtn = document.getElementById('notificationBtn');
       notificationBtn?.addEventListener('click', () => { window.location.href = 'notifications.html'; });
+    } catch {}
+    // Profile: avatar change button and file input
+    try {
+      const avatarChangeBtn = document.getElementById('avatarChangeBtn');
+      const avatarInput = document.getElementById('avatarInput');
+      const profileAvatar = document.getElementById('profileAvatar');
+      const headerAvatar = document.querySelector('.header-avatar');
+      avatarChangeBtn?.addEventListener('click', () => { avatarInput?.click(); });
+      avatarInput?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (file && file.type?.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            if (profileAvatar) profileAvatar.src = ev.target.result;
+            if (headerAvatar) headerAvatar.src = ev.target.result;
+            showToast('Profile picture updated successfully!');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    } catch {}
+    // Profile: Edit/Save personal info
+    try {
+      const personalCard = document.getElementById('editPersonalBtn')?.closest('.profile-card');
+      const savePersonalBtn = document.getElementById('savePersonalBtn');
+      const personalInputs = personalCard?.querySelectorAll('.form-input');
+      const personalEditBtn = document.getElementById('editPersonalBtn');
+      let originals = null;
+      function snapshotOriginals(){ originals = {}; personalInputs?.forEach(inp => { originals[inp.id] = inp.value; }); }
+      function checkDirty(){
+        if (!originals) return false;
+        let dirty = false;
+        personalInputs?.forEach(inp => { if (originals[inp.id] !== inp.value) dirty = true; });
+        if (savePersonalBtn) savePersonalBtn.style.display = dirty ? 'inline-flex' : 'none';
+        return dirty;
+      }
+      personalEditBtn?.addEventListener('click', () => {
+        if (!personalInputs) return;
+        personalInputs.forEach(inp => inp.removeAttribute('readonly'));
+        snapshotOriginals();
+        checkDirty();
+        personalInputs.forEach(inp => {
+          inp.addEventListener('input', checkDirty, { once: false });
+          inp.addEventListener('change', checkDirty, { once: false });
+        });
+      });
+      savePersonalBtn?.addEventListener('click', () => {
+        const fullName = document.getElementById('Username')?.value;
+        const email = document.getElementById('email')?.value;
+        if (!fullName || !email) { showToast('Please fill in all required fields', 'error'); return; }
+        const headerUsername = document.querySelector('.header-username');
+        const avatarName = document.querySelector('.avatar-name');
+        if (headerUsername) headerUsername.textContent = fullName;
+        if (avatarName) avatarName.textContent = fullName;
+        personalInputs?.forEach(inp => inp.setAttribute('readonly', true));
+        if (savePersonalBtn) savePersonalBtn.style.display = 'none';
+        originals = null;
+        showToast('Personal information saved successfully!');
+      });
+    } catch {}
+    // Settings: change password modal
+    try {
+      const changePasswordBtn = document.getElementById('changePasswordBtn');
+      const passwordModal = document.getElementById('passwordModal');
+      const closePasswordModal = document.getElementById('closePasswordModal');
+      const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+      const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+      const modalOverlay = document.getElementById('modalOverlay');
+      changePasswordBtn?.addEventListener('click', () => { passwordModal?.classList.add('active'); });
+      [closePasswordModal, cancelPasswordBtn, modalOverlay].forEach(elem => { elem?.addEventListener('click', () => { passwordModal?.classList.remove('active'); }); });
+      submitPasswordBtn?.addEventListener('click', () => { showToast('Password updated successfully!'); passwordModal?.classList.remove('active'); });
+    } catch {}
+    // Settings: 2FA toggle
+    try {
+      const twoFactorToggle = document.getElementById('twoFactorToggle');
+      twoFactorToggle?.addEventListener('change', (e) => { showToast(e.target.checked ? 'Two-factor authentication enabled!' : 'Two-factor authentication disabled'); });
+    } catch {}
+    // Connected Accounts buttons
+    try {
+      const accountBtns = document.querySelectorAll('.account-btn');
+      accountBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const accountItem = btn.closest('.account-item');
+          const accountName = accountItem.querySelector('.account-name')?.textContent || 'Account';
+          const accountStatus = accountItem.querySelector('.account-status');
+          if (btn.classList.contains('disconnect')) {
+            if (accountStatus) { accountStatus.textContent = 'Not Connected'; accountStatus.classList.remove('connected'); accountStatus.classList.add('not-connected'); }
+            btn.textContent = 'Connect'; btn.classList.remove('disconnect'); btn.classList.add('connect');
+            showToast(`${accountName} account disconnected`);
+          } else {
+            if (accountStatus) { accountStatus.textContent = 'Connected'; accountStatus.classList.remove('not-connected'); accountStatus.classList.add('connected'); }
+            btn.textContent = 'Disconnect'; btn.classList.remove('connect'); btn.classList.add('disconnect');
+            showToast(`${accountName} account connected successfully!`);
+          }
+        });
+      });
+    } catch {}
+    // Badge clicks
+    try {
+      const badges = document.querySelectorAll('.badge-item:not(.locked)');
+      badges.forEach(badge => {
+        badge.addEventListener('click', () => {
+          const badgeName = badge.querySelector('.badge-name')?.textContent || 'Badge';
+          showToast(`🏆 ${badgeName} - Keep up the great work!`);
+        });
+      });
     } catch {}
     // Smooth scroll for in-page anchors
     try {
