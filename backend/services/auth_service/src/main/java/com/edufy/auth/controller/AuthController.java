@@ -234,7 +234,6 @@ public class AuthController {
         body.put("email", u.getEmail());
         body.put("phone", u.getPhone());
         body.put("role", u.getRole());
-        body.put("birthDate", u.getBirthDate());
         body.put("createdAt", u.getCreatedAt());
         return ResponseEntity.ok(body);
     }
