@@ -116,7 +116,7 @@ const mockData = {
         { type: "SAT", name: "SAT", issuer: "College Board", score: "1450/1600", date: "2024-03-20" },
         { type: "TOEFL", name: "TOEFL", issuer: "ETS", score: "105/120", date: "2023-11-10" }
       ],
-      avatar: "../templates/images/caesar.png"
+      avatar: "https://resources.edufyuzbekistan.com/storage/images/user.jpg"
     }
   },
   admin: {
