@@ -35,7 +35,8 @@
   }
   // Helper: apply avatar URL to all known avatar image elements
   function applyAvatar(url) {
-    if (!url) return;
+    const fallback = (typeof window !== 'undefined' && window.__defaultAvatarUrl) || '../templates/images/caesar.png';
+    if (!url) url = fallback;
     const bust = Date.now();
     const withBust = url.startsWith('http') ? (url + (url.includes('?') ? `&v=${bust}` : `?v=${bust}`)) : url;
     const selectors = [
@@ -267,7 +268,7 @@ function renderRole(role) {
     renderProfile(d);
   }
   const cached = getCachedAvatarUrl();
-  if (cached) applyAvatar(cached);
+  applyAvatar(cached || "");
   scheduleAvatarReapply(10, 120);
 }
 
@@ -282,7 +283,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initSimpleProfileEditor();
   // Ensure avatar applied at init as well
   const cached = getCachedAvatarUrl();
-  if (cached) applyAvatar(cached);
+  applyAvatar(cached || "");
 
   // Observe DOM changes to re-apply avatar when SPA swaps content
   try {
@@ -293,7 +294,7 @@ window.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         applyScheduled = false;
         const url = getCachedAvatarUrl();
-        if (url) applyAvatar(url);
+        applyAvatar(url || "");
       }, 60);
     });
     observer.observe(document.body, { childList: true, subtree: true });
@@ -306,7 +307,7 @@ window.addEventListener('pageshow', (event) => {
   try { primeUserFromStorage(); } catch {}
   try { hydrateUserFromServer(); } catch {}
   try { fetchProfileFromServer(); } catch {}
-  try { const u = getCachedAvatarUrl(); if (u) applyAvatar(u); } catch {}
+  try { const u = getCachedAvatarUrl(); applyAvatar(u || ""); } catch {}
   scheduleAvatarReapply(8, 120);
 });
 
@@ -316,7 +317,7 @@ window.addEventListener('edufy:rehydrate', () => {
   try { hydrateUserFromServer(); } catch {}
   try { fetchProfileFromServer(); } catch {}
   try { initSimpleProfileEditor(); } catch {}
-  try { const u = getCachedAvatarUrl(); if (u) applyAvatar(u); } catch {}
+  try { const u = getCachedAvatarUrl(); applyAvatar(u || ""); } catch {}
 });
 
 // Re-apply avatar on navigation events commonly used in SPAs
@@ -403,6 +404,13 @@ function initSimpleProfileEditor() {
   function setEditable(on) {
     [usernameEl, emailEl, phoneEl, dobEl].forEach(inp => { if (inp) inp.disabled = !on; });
     saveBtn.style.display = on ? 'inline-flex' : 'none';
+    try { window.__profileEditable = !!on; } catch {}
+    const changeBtn = document.getElementById('avatarChangeBtn');
+    if (changeBtn) {
+      changeBtn.disabled = !on;
+      changeBtn.setAttribute('aria-disabled', (!on).toString());
+      changeBtn.classList.toggle('disabled', !on);
+    }
   }
 
   // Start disabled until Edit
@@ -887,13 +895,17 @@ function initProfileForm() {
     }, 3000);
   }
 
-  // Wire Change button to file input
+  // Wire Change button to file input (only in Edit mode)
   avatarChangeBtn?.addEventListener("click", () => {
+    const canEdit = (typeof window !== 'undefined' && window.__profileEditable === true);
+    if (!canEdit) { showToast("Click Edit to change avatar", "error"); return; }
     avatarInput?.click();
   });
 
-  // Avatar preview
+  // Avatar preview (only in Edit mode)
   avatarInput?.addEventListener("change", (e) => {
+    const canEdit = (typeof window !== 'undefined' && window.__profileEditable === true);
+    if (!canEdit) { if (avatarInput) avatarInput.value = ""; showToast("Click Edit to change avatar", "error"); return; }
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
