@@ -12,6 +12,10 @@ import java.time.LocalDate;
 public class ProfileService {
     private final UserProfileRepository repo;
 
+    public UserProfile find(String username){
+        return repo.findByUsername(username).orElse(null);
+    }
+
     public UserProfile getOrCreate(String username){
         return repo.findByUsername(username).orElseGet(() ->
                 repo.save(UserProfile.builder().username(username).build()));
