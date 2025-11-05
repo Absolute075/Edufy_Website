@@ -519,7 +519,7 @@ function saveProfileToStorage(p) {
 
 function initProfileForm() {
   const form = document.getElementById("profileForm");
-  if (!form) return; // not on profile page
+  // Proceed even if the form container is absent; bind by specific element IDs
 
   // Inputs
   const avatarImg = document.getElementById("profileAvatarImg");
