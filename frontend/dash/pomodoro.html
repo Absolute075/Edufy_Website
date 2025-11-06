@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edufy - Pomodoro Technique</title>
+  <link rel="icon" href="https://resources.edufyuzbekistan.com/storage/images/favicon.png" type="image/png">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="theme.css" />
+  <script>window.__defaultAvatarUrl="https://resources.edufyuzbekistan.com/storage/images/10d554ea6f330f1612526b54562c8a33.jpg";</script>
+  <script src="components.js?v=20251105-2" defer></script>
+  <script src="app.js?v=20251105-2" defer></script>
+  <style>
+    .image-placeholder { position: relative; width: 100%; padding-top: 56.25%; background: #0f1424; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .image-placeholder img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .image-placeholder .hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="animated-bg">
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  </div>
+
+  <!-- Sidebar (injected) -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></button>
+      </div>
+      <div class="header-right">
+        <button class="header-icon-btn notification-btn" id="notificationBtn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span class="notification-badge">1</span>
+        </button>
+        <div class="header-user">
+          <img src="../templates/images/caesar.png" alt="User" class="header-avatar">
+          <div class="header-user-info"><span class="header-username">Student</span><span class="header-status">Pomodoro</span></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="profile-container">
+
+      <div class="profile-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5V4.5A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+            <div>
+              <h2 class="card-title">🍅 Pomodoro Technique</h2>
+              <p class="card-subtitle">Short, focused sprints with restorative breaks</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="list">
+            <div class="list-item">
+              <div>
+                <div class="title">How the Pomodoro Technique Was Born</div>
+                <div class="muted">The Pomodoro Technique was developed in the late 1980s by Francesco Cirillo, an Italian university student.</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">Origin</div>
+                <div class="muted">
+                  <p><strong>Year:</strong> around 1987<br/>
+                  <strong>Place:</strong> Italy</p>
+                  <p><strong>Story:</strong><br/>
+                  While studying at university, Cirillo struggled to maintain focus. He experimented with a kitchen timer to improve his concentration. The timer he used was shaped like a red tomato, which is why he named his method the Pomodoro Technique (pomodoro means “tomato” in Italian).</p>
+                </div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">How It Works</div>
+                <div class="muted">
+                  <ul style="margin-top:8px; padding-left:18px; list-style: disc">
+                    <li>Set a timer for 25 minutes — this is one “pomodoro”.</li>
+                    <li>Work fully focused, without distractions.</li>
+                    <li>Take a short break (5 minutes) after the timer rings.</li>
+                    <li>After 4 “pomodoros,” take a long break (15–30 minutes).</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">Idea</div>
+                <div class="muted">The method is based on the principle that the brain works best in short, focused sessions, and frequent breaks help prevent burnout.</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">Publication</div>
+                <div class="muted">Francesco Cirillo later described his method in the book: <em>Francesco Cirillo — The Pomodoro Technique (2006)</em>. Today, it is one of the most popular time‑management and productivity techniques worldwide.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 6v6l4 2"></path>
+            </svg>
+            <div>
+              <h2 class="card-title">Pomodoro Timer</h2>
+              <p class="card-subtitle">25 • 5 • 25 • 5 • 25 • 5 • 25 • 15</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div style="display:flex; flex-direction:column; gap:16px; align-items:center;">
+            <!-- Mode tabs -->
+            <div style="display:flex; gap:8px;">
+              <button class="btn ghost" id="modePomodoro" aria-pressed="true">Pomodoro</button>
+              <button class="btn ghost" id="modeShort">Short Break</button>
+              <button class="btn ghost" id="modeLong">Long Break</button>
+            </div>
+
+            <!-- Circle timer -->
+            <div style="position:relative; width:220px; height:220px;">
+              <svg viewBox="0 0 120 120" style="transform: rotate(-90deg); width:100%; height:100%;">
+                <circle cx="60" cy="60" r="54" stroke="#1f2937" stroke-width="12" fill="none"/>
+                <circle id="progressCircle" cx="60" cy="60" r="54" stroke="#22d3ee" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="339.292"/>
+              </svg>
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+                <div id="timeDisplay" style="font-size:40px; font-weight:800; letter-spacing:1px;">25:00</div>
+                <div id="phaseDisplay" class="muted">Ready</div>
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+              <button class="btn-primary" id="startPauseBtn">Start</button>
+              <button class="btn-secondary" id="resetBtn">Reset</button>
+              <button class="btn" id="skipBtn">Skip</button>
+            </div>
+
+            <!-- Options and stats -->
+            <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; align-items:center;">
+              <label class="toggle-switch"><input type="checkbox" id="autoStartToggle" checked><span class="toggle-slider"></span></label>
+              <span class="muted">Auto‑start next</span>
+              <label class="toggle-switch"><input type="checkbox" id="soundToggle" checked><span class="toggle-slider"></span></label>
+              <span class="muted">Sound</span>
+              <span class="muted">Completed today: <strong id="completedCount">0</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span class="toast-message">Done</span>
+  </div>
+  <script>
+    (function(){
+      const FULL = 339.292; // 2 * PI * r where r=54
+      const modes = {
+        pomodoro: { minutes: 25, label: 'Focus' },
+        short: { minutes: 5, label: 'Short Break' },
+        long: { minutes: 15, label: 'Long Break' }
+      };
+      let mode = 'pomodoro';
+      let remaining = modes[mode].minutes * 60;
+      let timerId = null;
+      let cycles = 0; // completed pomodoros in current round
+
+      const el = (id) => document.getElementById(id);
+      const timeDisplay = el('timeDisplay');
+      const phaseDisplay = el('phaseDisplay');
+      const circle = el('progressCircle');
+      const btn = el('startPauseBtn');
+      const reset = el('resetBtn');
+      const skip = el('skipBtn');
+      const autoStart = el('autoStartToggle');
+      const sound = el('soundToggle');
+      const completed = el('completedCount');
+
+      function fmt(sec){ const m = Math.floor(sec/60), s = sec%60; return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+      function setCircle(){
+        const total = modes[mode].minutes * 60;
+        const ratio = 1 - (remaining / total);
+        circle.style.strokeDashoffset = String(FULL * (1 - ratio));
+      }
+      function updateUI(){
+        timeDisplay.textContent = fmt(remaining);
+        phaseDisplay.textContent = modes[mode].label;
+        document.title = `${fmt(remaining)} • ${modes[mode].label}`;
+        setCircle();
+      }
+      function beep(){
+        if (!sound.checked) return;
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = 'sine'; o.frequency.value = 880;
+          o.connect(g); g.connect(ctx.destination);
+          g.gain.setValueAtTime(0.0001, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+          o.start();
+          setTimeout(()=>{ g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.2); o.stop(ctx.currentTime + 0.25); }, 250);
+        } catch(e) {}
+      }
+      function switchMode(next){
+        mode = next;
+        remaining = modes[mode].minutes * 60;
+        clearInterval(timerId); timerId = null; btn.textContent = 'Start';
+        updateUI();
+        highlightTabs();
+      }
+      function nextPhase(){
+        if (mode === 'pomodoro') {
+          cycles += 1; completed.textContent = String(Number(completed.textContent)+1);
+          switchMode(cycles % 4 === 0 ? 'long' : 'short');
+        } else {
+          switchMode('pomodoro');
+        }
+        if (autoStart.checked) start();
+      }
+      function tick(){
+        remaining -= 1; if (remaining < 0) { clearInterval(timerId); timerId=null; beep(); nextPhase(); return; }
+        updateUI();
+      }
+      function start(){ if (timerId) return; timerId = setInterval(tick, 1000); btn.textContent='Pause'; }
+      function pause(){ if (!timerId) return; clearInterval(timerId); timerId=null; btn.textContent='Start'; }
+      function resetAll(){ pause(); cycles = 0; completed.textContent = '0'; switchMode('pomodoro'); }
+
+      // Tabs
+      const tabs = { modePomodoro: 'pomodoro', modeShort: 'short', modeLong: 'long' };
+      function highlightTabs(){
+        Object.keys(tabs).forEach(id=>{
+          const pressed = tabs[id] === mode;
+          const b = el(id);
+          if (!b) return; b.setAttribute('aria-pressed', String(pressed));
+          b.classList.toggle('btn-primary', pressed);
+        });
+      }
+
+      // Listeners
+      el('modePomodoro')?.addEventListener('click', ()=> switchMode('pomodoro'));
+      el('modeShort')?.addEventListener('click', ()=> switchMode('short'));
+      el('modeLong')?.addEventListener('click', ()=> switchMode('long'));
+      btn.addEventListener('click', ()=> timerId ? pause() : start());
+      reset.addEventListener('click', resetAll);
+      skip.addEventListener('click', ()=> { beep(); nextPhase(); });
+
+      // Init
+      updateUI();
+      highlightTabs();
+    })();
+  </script>
+</body>
+</html>
