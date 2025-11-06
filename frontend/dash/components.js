@@ -398,6 +398,37 @@ window.addEventListener('edufy:rehydrate', () => {
 window.addEventListener('hashchange', () => { scheduleAvatarReapply(10, 120); });
 window.addEventListener('popstate', () => { scheduleAvatarReapply(10, 120); });
 
+// --- Minimal SPA helper: load HTML and fallback to custom 404 ---
+async function __loadInto(selector, url) {
+  const target = document.querySelector(selector);
+  if (!target) return false;
+  try {
+    let res = await fetch(url, { credentials: 'include' });
+    if (res.status === 404) {
+      // Ask server for custom 404 page (NoRoute serves frontend/main/404.html)
+      // We intentionally accept 404 status and just take the HTML body
+      const nf = await fetch('/404.html', { credentials: 'include' });
+      const html = await nf.text();
+      target.innerHTML = html;
+      return false;
+    }
+    const html = await res.text();
+    target.innerHTML = html;
+    return true;
+  } catch {
+    try {
+      const nf = await fetch('/404.html', { credentials: 'include' });
+      const html = await nf.text();
+      target.innerHTML = html;
+    } catch {}
+    return false;
+  } finally {
+    // Re-apply avatar after DOM swap
+    try { const u = getCachedAvatarUrl(); applyAvatar(u || ''); } catch {}
+  }
+}
+try { window.__loadInto = __loadInto; } catch {}
+
 // Fetch real user info and override UI placeholders
 async function hydrateUserFromServer() {
   try {

@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"gateway_service/internal/proxy"
 
@@ -75,6 +76,13 @@ func SetupRouter() *gin.Engine {
 		defer resp.Body.Close()
 		body, _ := io.ReadAll(resp.Body)
 		c.Data(resp.StatusCode, resp.Header.Get("Content-Type"), body)
+	})
+
+	// Serve custom 404 page for any unmatched routes
+	r.NoRoute(func(c *gin.Context) {
+		c.Status(http.StatusNotFound)
+		c.Header("Content-Type", "text/html; charset=utf-8")
+		c.File(filepath.Clean("frontend/main/404.html"))
 	})
 
 	return r
