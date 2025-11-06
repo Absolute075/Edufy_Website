@@ -34,13 +34,13 @@
     box.style.boxShadow = '0 10px 30px rgba(0,0,0,.35)';
 
     const title = document.createElement('div');
-    title.textContent = 'Сессия истекла';
+    title.textContent = 'Session has expired.';
     title.style.fontWeight = '800';
     title.style.fontSize = '18px';
     title.style.marginBottom = '8px';
 
     const text = document.createElement('div');
-    text.textContent = 'Пожалуйста, выполните вход снова. Откроется новая вкладка, затем вернитесь сюда.';
+    text.textContent = 'Please sign in again. A new tab will open, then return here.';
     text.style.color = '#94a3b8';
     text.style.fontSize = '14px';
     text.style.marginBottom = '16px';
@@ -54,21 +54,12 @@
     loginBtn.href = 'https://access.edufyuzbekistan.com/login';
     loginBtn.target = '_blank';
     loginBtn.rel = 'noopener';
-    loginBtn.textContent = 'Войти';
+    loginBtn.textContent = 'Sign In';
     loginBtn.style.padding = '8px 14px';
     loginBtn.style.border = '1px solid rgba(148,163,184,.3)';
     loginBtn.style.borderRadius = '8px';
     loginBtn.style.background = '#0b1220';
     loginBtn.style.color = '#e2e8f0';
-
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = 'Закрыть';
-    closeBtn.style.padding = '8px 14px';
-    closeBtn.style.border = '1px solid rgba(148,163,184,.3)';
-    closeBtn.style.borderRadius = '8px';
-    closeBtn.style.background = '#111827';
-    closeBtn.style.color = '#e2e8f0';
-    closeBtn.addEventListener('click', ()=> { overlay.style.display = 'none'; });
 
     row.appendChild(closeBtn);
     row.appendChild(loginBtn);
