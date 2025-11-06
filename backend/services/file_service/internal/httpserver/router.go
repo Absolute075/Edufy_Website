@@ -38,8 +38,13 @@ func NewRouter(cfg config.Config) *gin.Engine {
 	// Protected static under /materials with access control
 	mg := r.Group("/materials")
 	mg.Use(middleware.NewAccessMiddleware(service))
-	// Serve static under /materials/content to avoid conflict with /materials/manifest
-	mg.Static("/content", cfg.PublicDir+"/materials")
+	// Serve static under /materials/content from external materials dir
+	// This maps URLs like /materials/content/reading/file.html -> <cfg.MaterialsDir>/reading/file.html
+	if cfg.MaterialsDir != "" {
+		mg.Static("/content", cfg.MaterialsDir)
+	} else {
+		mg.Static("/content", cfg.PublicDir+"/materials")
+	}
 
 	// Optionally expose other public assets if needed (not materials)
 	// r.Static("/static", cfg.PublicDir)
