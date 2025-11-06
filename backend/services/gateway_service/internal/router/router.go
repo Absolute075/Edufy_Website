@@ -45,9 +45,18 @@ func SetupRouter() *gin.Engine {
 		userBase = "http://user_service:8080"
 	}
 
+	// Base URL для file_service
+	fileBase := os.Getenv("FILE_SERVICE_URL")
+	if fileBase == "" {
+		fileBase = "http://file_service:8080"
+	}
+
 	// Proxy всех запросов к auth_service и user_service
 	r.Any("/auth/*path", proxy.ServiceProxy(authBase, "/auth"))
 	r.Any("/user/*path", proxy.ServiceProxy(userBase, "/user"))
+
+	// Проксирование материалов на file_service c прокидкой X-User-Name / X-User-Plan
+	r.Any("/materials/*path", proxy.ServiceProxyWithUserHeaders(fileBase, "/materials"))
 
 	// Health-check самого gateway
 	r.GET("/health", func(c *gin.Context) {

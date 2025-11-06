@@ -1,21 +1,188 @@
 package materials
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
+	"edufy/file_service/internal/config"
+)
 
 type Service interface {
 	GetManifest() (*Manifest, error)
+	Reindex() error
 }
 
 type service struct {
-	repo Repository
+	mu       sync.RWMutex
+	manifest *Manifest
+	cfg      config.Config
 }
 
-func NewService(r Repository) Service { return &service{repo: r} }
+func NewServiceWithConfig(cfg config.Config) Service {
+	s := &service{cfg: cfg}
+	// initial index (best-effort)
+	_ = s.Reindex()
+	return s
+}
 
 func (s *service) GetManifest() (*Manifest, error) {
-	m, err := s.repo.LoadManifest()
-	if err != nil {
-		return nil, fmt.Errorf("load manifest: %w", err)
+	s.mu.RLock()
+	if s.manifest != nil {
+		defer s.mu.RUnlock()
+		copy := *s.manifest
+		return &copy, nil
 	}
-	return m, nil
+	s.mu.RUnlock()
+	// Fallback: if no autoscan configured, try file-based repo via PublicDir manifest
+	// For simplicity, build empty manifest
+	empty := &Manifest{Version: time.Now().UTC().Format(time.RFC3339), Items: []ManifestItem{}}
+	return empty, nil
+}
+
+func (s *service) Reindex() error {
+	if s.cfg.MaterialsDir == "" || s.cfg.ResourcesBase == "" {
+		// nothing to scan; keep current
+		return nil
+	}
+	items := []ManifestItem{}
+	root := s.cfg.MaterialsDir
+	base := strings.TrimRight(s.cfg.ResourcesBase, "/")
+	defaultPlan := func(cat string) string {
+		switch strings.ToLower(cat) {
+		case "reading":
+			if s.cfg.PlanDefaultReading != "" {
+				return s.cfg.PlanDefaultReading
+			}
+		case "listening":
+			if s.cfg.PlanDefaultListening != "" {
+				return s.cfg.PlanDefaultListening
+			}
+		case "speaking":
+			if s.cfg.PlanDefaultSpeaking != "" {
+				return s.cfg.PlanDefaultSpeaking
+			}
+		case "writing":
+			if s.cfg.PlanDefaultWriting != "" {
+				return s.cfg.PlanDefaultWriting
+			}
+		case "mock":
+			if s.cfg.PlanDefaultMock != "" {
+				return s.cfg.PlanDefaultMock
+			}
+		}
+		return s.cfg.DefaultRequiredPlan
+	}
+
+	// Walk categories
+	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			return nil
+		}
+		// Expect structure: <root>/<category>/<name>.<ext>
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return nil
+		}
+		parts := strings.Split(rel, string(filepath.Separator))
+		if len(parts) < 2 {
+			return nil
+		}
+		cat := parts[0]
+		if !isKnownCategory(cat) {
+			return nil
+		}
+		// id is rel without extension, with forward slashes
+		noext := strings.TrimSuffix(rel, filepath.Ext(rel))
+		id := filepath.ToSlash(noext)
+		url := fmt.Sprintf("%s/materials/%s", base, filepath.ToSlash(rel))
+		items = append(items, ManifestItem{
+			ID:           id,
+			Title:        defaultTitleFromID(id),
+			Category:     strings.ToLower(cat),
+			RequiredPlan: defaultPlan(cat),
+			Active:       true,
+			URL:          url,
+		})
+		return nil
+	})
+
+	// Apply overrides if provided
+	if s.cfg.OverridesPath != "" {
+		applyOverrides(&items, s.cfg.OverridesPath)
+	}
+
+	// Sort by id for stability
+	sort.Slice(items, func(i, j int) bool { return items[i].ID < items[j].ID })
+
+	s.mu.Lock()
+	s.manifest = &Manifest{
+		Version: time.Now().UTC().Format(time.RFC3339),
+		Items:   items,
+	}
+	s.mu.Unlock()
+	return nil
+}
+
+func isKnownCategory(s string) bool {
+	switch strings.ToLower(s) {
+	case "reading", "listening", "speaking", "writing", "mock":
+		return true
+	default:
+		return false
+	}
+}
+
+func defaultTitleFromID(id string) string {
+	// Take last segment and replace dashes with spaces, capitalize first letter
+	segs := strings.Split(id, "/")
+	last := segs[len(segs)-1]
+	t := strings.ReplaceAll(last, "-", " ")
+	if t == "" {
+		return id
+	}
+	return strings.ToUpper(t[:1]) + t[1:]
+}
+
+func applyOverrides(items *[]ManifestItem, path string) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return
+	}
+	// map[id]partial
+	var m map[string]struct {
+		Title        *string `json:"title"`
+		RequiredPlan *string `json:"requiredPlan"`
+		Active       *bool   `json:"active"`
+		URL          *string `json:"url"`
+	}
+	if err := json.Unmarshal(b, &m); err != nil {
+		return
+	}
+	for i := range *items {
+		id := (*items)[i].ID
+		if ov, ok := m[id]; ok {
+			if ov.Title != nil {
+				(*items)[i].Title = *ov.Title
+			}
+			if ov.RequiredPlan != nil {
+				(*items)[i].RequiredPlan = *ov.RequiredPlan
+			}
+			if ov.Active != nil {
+				(*items)[i].Active = *ov.Active
+			}
+			if ov.URL != nil {
+				(*items)[i].URL = *ov.URL
+			}
+		}
+	}
 }

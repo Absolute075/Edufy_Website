@@ -28,8 +28,20 @@ services:
     environment:
       - PORT=8080
       - USER_SERVICE_URL=http://user_service:8080
+      - RESOURCES_BASE=https://resources.edufyuzbekistan.com
+      - MATERIALS_DIR=/materials
+      - AUTOSCAN_SECONDS=5
+      - DEFAULT_REQUIRED_PLAN=free
+      - PLAN_DEFAULT_READING=free
+      - PLAN_DEFAULT_LISTENING=plus
+      - PLAN_DEFAULT_SPEAKING=plus
+      - PLAN_DEFAULT_WRITING=pro
+      - PLAN_DEFAULT_MOCK=pro
+      - OVERRIDES_PATH=/app/public/materials/overrides.json
+      - REINDEX_ADMIN_TOKEN=change-me-please
     volumes:
       - ./services/file_service/public:/app/public:ro
+      - /materials:/materials:ro
     restart: always
     networks:
       - edufy_net

@@ -28,6 +28,9 @@ public class UserProfile {
     @Column(length = 300)
     private String avatarUrl;
 
+    @Column(length = 16)
+    private String plan; // free | plus | pro | admin
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -37,6 +40,9 @@ public class UserProfile {
     void onCreate(){
         createdAt = LocalDateTime.now();
         updatedAt = createdAt;
+        if (plan == null || plan.isBlank()) {
+            plan = "free";
+        }
     }
 
     @PreUpdate
