@@ -38,7 +38,7 @@ services:
       - PLAN_DEFAULT_WRITING=pro
       - PLAN_DEFAULT_MOCK=pro
       - OVERRIDES_PATH=/app/public/materials/overrides.json
-      - REINDEX_ADMIN_TOKEN=change-me-please
+      - REINDEX_ADMIN_TOKEN=edufy
     volumes:
       - ./services/file_service/public:/app/public:ro
       - /materials:/materials:ro
