@@ -76,10 +76,11 @@ public class ProfileController {
 
         String phone = payload.getOrDefault("phone", null);
         String birthDate = payload.getOrDefault("birthDate", null);
-        UserProfile p = profileService.updateBasics(username, phone, birthDate, null);
-        if (p == null) {
-            return ResponseEntity.status(409).body(Map.of("message", "Profile not initialized yet. Please retry shortly."));
+        // Ensure profile exists, then update
+        if (profileService.find(username) == null) {
+            profileService.getOrCreate(username);
         }
+        UserProfile p = profileService.updateBasics(username, phone, birthDate, null);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("message", "Profile updated");
         body.put("username", p.getUsername());

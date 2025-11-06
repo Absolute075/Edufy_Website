@@ -8,14 +8,19 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.time.Instant;
@@ -31,6 +36,10 @@ public class OAuthController {
     private final OAuthService oAuthService;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${USER_SERVICE_URL:http://user_service:8080}")
+    private String userServiceBase;
 
     private static final String DASH_URL = "https://dash.edufyuzbekistan.com/";
     private static final String COOKIE_DOMAIN = ".edufyuzbekistan.com";
@@ -127,6 +136,16 @@ public class OAuthController {
         clearCookie(response, "oauth_state");
         clearCookie(response, "oauth_nonce");
         clearCookie(response, "oauth_remember");
+
+        // Best-effort: авто-создать профиль в user_service
+        try {
+            String url = userServiceBase + "/user/profile";
+            HttpHeaders h = new HttpHeaders();
+            h.setContentType(MediaType.APPLICATION_JSON);
+            h.setBearerAuth(accessToken);
+            HttpEntity<String> req = new HttpEntity<>("{}", h);
+            restTemplate.exchange(url, HttpMethod.POST, req, String.class);
+        } catch (Exception ignored) {}
 
         String target = readCookie(request, "oauth_target");
         if (!StringUtils.hasText(target)) target = DASH_URL;
