@@ -61,7 +61,6 @@
     loginBtn.style.background = '#0b1220';
     loginBtn.style.color = '#e2e8f0';
 
-    row.appendChild(closeBtn);
     row.appendChild(loginBtn);
     box.appendChild(title);
     box.appendChild(text);
