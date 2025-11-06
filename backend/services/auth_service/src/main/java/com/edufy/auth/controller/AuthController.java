@@ -61,13 +61,14 @@ public class AuthController {
                 .maxAge(15 * 60) // 15 минут
                 .build();
 
+        int refreshMaxAge = (request.isRememberMe() ? (30 * 24 * 60 * 60) : (7 * 24 * 60 * 60));
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenResponse.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
                 .domain(".edufyuzbekistan.com")
                 .path("/")
-                .maxAge(7 * 24 * 60 * 60) // 7 дней
+                .maxAge(refreshMaxAge)
                 .build();
 
         // Fire-and-forget: записать аудит логина в user_service
@@ -149,7 +150,29 @@ public class AuthController {
         if (tokenResponse.getAccessToken() == null) {
             return ResponseEntity.badRequest().body(tokenResponse);
         }
-        return ResponseEntity.ok(tokenResponse);
+        // Re-issue HttpOnly cookies on refresh as well
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenResponse.getAccessToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(".edufyuzbekistan.com")
+                .path("/")
+                .maxAge(15 * 60) // 15 minutes
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(".edufyuzbekistan.com")
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60) // 7 days
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(tokenResponse);
     }
 
     // Выход: очистка HttpOnly куки

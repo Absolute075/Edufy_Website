@@ -8,20 +8,98 @@
       return p.avatar || null;
     } catch { return null; }
   }
+
+  // Session expired modal (created once and reused)
+  function showSessionExpiredModal(){
+    if (document.getElementById('sessionExpiredModal')) {
+      document.getElementById('sessionExpiredModal').style.display = 'flex';
+      return;
+    }
+    const overlay = document.createElement('div');
+    overlay.id = 'sessionExpiredModal';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.background = 'rgba(0,0,0,.6)';
+    overlay.style.zIndex = '9999';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+
+    const box = document.createElement('div');
+    box.style.background = '#0f172a';
+    box.style.border = '1px solid rgba(148,163,184,.2)';
+    box.style.borderRadius = '12px';
+    box.style.width = 'min(92%, 420px)';
+    box.style.padding = '20px';
+    box.style.boxShadow = '0 10px 30px rgba(0,0,0,.35)';
+
+    const title = document.createElement('div');
+    title.textContent = 'Сессия истекла';
+    title.style.fontWeight = '800';
+    title.style.fontSize = '18px';
+    title.style.marginBottom = '8px';
+
+    const text = document.createElement('div');
+    text.textContent = 'Пожалуйста, выполните вход снова. Откроется новая вкладка, затем вернитесь сюда.';
+    text.style.color = '#94a3b8';
+    text.style.fontSize = '14px';
+    text.style.marginBottom = '16px';
+
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.gap = '10px';
+    row.style.justifyContent = 'flex-end';
+
+    const loginBtn = document.createElement('a');
+    loginBtn.href = 'https://access.edufyuzbekistan.com/login';
+    loginBtn.target = '_blank';
+    loginBtn.rel = 'noopener';
+    loginBtn.textContent = 'Войти';
+    loginBtn.style.padding = '8px 14px';
+    loginBtn.style.border = '1px solid rgba(148,163,184,.3)';
+    loginBtn.style.borderRadius = '8px';
+    loginBtn.style.background = '#0b1220';
+    loginBtn.style.color = '#e2e8f0';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Закрыть';
+    closeBtn.style.padding = '8px 14px';
+    closeBtn.style.border = '1px solid rgba(148,163,184,.3)';
+    closeBtn.style.borderRadius = '8px';
+    closeBtn.style.background = '#111827';
+    closeBtn.style.color = '#e2e8f0';
+    closeBtn.addEventListener('click', ()=> { overlay.style.display = 'none'; });
+
+    row.appendChild(closeBtn);
+    row.appendChild(loginBtn);
+    box.appendChild(title);
+    box.appendChild(text);
+    box.appendChild(row);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+  }
   function getUserKey() {
     try { return window.__edufyUserKey || sessionStorage.getItem('edufy.user.key') || localStorage.getItem('edufy.user.key') || null; } catch { return null; }
   }
-  // Unified API helper: always send credentials and handle 401 by redirecting to login
+  // Unified API helper: always send credentials and handle 401 with refresh->retry then redirect to login
   async function api(url, options = {}) {
     const opts = { credentials: 'include', ...options };
-    // If caller specified headers, preserve them; otherwise leave as is
     if (options && options.headers) opts.headers = options.headers;
-    const res = await fetch(url, opts);
+
+    let res = await fetch(url, opts);
     if (res && res.status === 401) {
+      // Try silent refresh once
+      try {
+        const r = await fetch('/auth/refresh', { method: 'POST', credentials: 'include' });
+        if (r.ok) {
+          // retry original request once after successful refresh
+          res = await fetch(url, opts);
+          if (res.status !== 401) return res;
+        }
+      } catch {}
       try { sessionStorage.setItem('postLoginRedirect', location.href); } catch {}
-      // Redirect to login page within the dash app
-      const loginUrl = (window.location.pathname.includes('/access/') ? 'login.html' : '../access/login.html');
-      window.location.href = loginUrl;
+      // Show session expired modal instead of hard redirect
+      try { showSessionExpiredModal(); } catch {}
       throw new Error('Unauthorized');
     }
     return res;

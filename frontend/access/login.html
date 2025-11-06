@@ -126,6 +126,7 @@
         const emailInput = document.getElementById('login-email');
         const passwordInput = document.getElementById('login-password');
         const submitBtn = document.getElementById('submit-btn');
+        const remember = document.getElementById('remember-me');
 
         function validateForm() {
             const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
@@ -135,6 +136,18 @@
 
         emailInput.addEventListener('input', validateForm);
         passwordInput.addEventListener('input', validateForm);
+
+        // If already authorized, go to dashboard immediately
+        (async () => {
+          try {
+            const res = await fetch('/auth/me', { credentials: 'include' });
+            if (res.ok) {
+              const go = sessionStorage.getItem('postLoginRedirect');
+              if (go) { sessionStorage.removeItem('postLoginRedirect'); window.location.href = go; return; }
+              window.location.href = 'https://dash.edufyuzbekistan.com/';
+            }
+          } catch {}
+        })();
     });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -175,11 +188,12 @@
     const loginForm = document.getElementById('login-form');
     const emailInput = document.getElementById('login-email');
     const submitBtn = document.getElementById('submit-btn');
+    const remember = document.getElementById('remember-me');
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         submitBtn.disabled = true;
         try {
-            const payload = { email: emailInput.value.trim(), password: passwordInput.value };
+            const payload = { email: emailInput.value.trim(), password: passwordInput.value, rememberMe: !!remember.checked };
             const res = await fetch(`${location.origin}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -190,6 +204,8 @@
             if (!res.ok) {
                 throw new Error(data.message || 'Login failed');
             }
+            const go = sessionStorage.getItem('postLoginRedirect');
+            if (go) { sessionStorage.removeItem('postLoginRedirect'); window.location.href = go; return; }
             window.location.href = 'https://dash.edufyuzbekistan.com/';
         } catch (err) {
             alert(err.message || 'Login failed');
