@@ -3,12 +3,9 @@ FROM golang:1.23-alpine AS builder
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
-# Copy only necessary sources explicitly to avoid context issues
-COPY cmd ./cmd
-COPY internal ./internal
-COPY public ./public
-COPY main.go ./
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o file_service ./cmd/file_service
+# Copy all sources (support both root main.go and cmd/ layout)
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o file_service .
 
 ## Run stage
 FROM alpine:3.19
