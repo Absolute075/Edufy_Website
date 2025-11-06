@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edufy - SQ3R Method</title>
+  <link rel="icon" href="https://resources.edufyuzbekistan.com/storage/images/favicon.png" type="image/png">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="theme.css" />
+  <script>window.__defaultAvatarUrl="https://resources.edufyuzbekistan.com/storage/images/10d554ea6f330f1612526b54562c8a33.jpg";</script>
+  <script src="components.js?v=20251105-2" defer></script>
+  <script src="app.js?v=20251105-2" defer></script>
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="animated-bg">
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  </div>
+
+  <!-- Sidebar (injected) -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></button>
+      </div>
+      <div class="header-right">
+        <button class="header-icon-btn notification-btn" id="notificationBtn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span class="notification-badge">1</span>
+        </button>
+        <div class="header-user">
+          <img src="../templates/images/caesar.png" alt="User" class="header-avatar">
+          <div class="header-user-info"><span class="header-username">Student</span><span class="header-status">SQ3R</span></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="profile-container">
+
+      <div class="profile-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5V4.5A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+            <div>
+              <h2 class="card-title">What is SQ3R</h2>
+              <p class="card-subtitle">A brief history and the core idea</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="list">
+            <div class="list-item">
+              <div>
+                <div class="title">📖 Origin</div>
+                <div class="muted">
+                  <p><strong>Year:</strong> around 1941.<br/>
+                  <strong>Place:</strong> Ohio State University.</p>
+                  <p><strong>Context:</strong> during World War II, the U.S. built accelerated training programs for soldiers. The goal was fast, effective learning with deep understanding. Robinson, an educational psychologist, studied how people remember information and how to make reading academic texts more meaningful.</p>
+                </div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">💡 What Robinson proposed</div>
+                <div class="muted">
+                  Robinson designed a step-by-step strategy for reading academic texts called <strong>SQ3R</strong>:
+                  <ul style="margin-top:8px; padding-left:18px; list-style: disc">
+                    <li><strong>Survey</strong> — skim the material first.</li>
+                    <li><strong>Question</strong> — turn headings into questions.</li>
+                    <li><strong>Read</strong> — read to find answers.</li>
+                    <li><strong>Recite</strong> — retell in your own words.</li>
+                    <li><strong>Review</strong> — review later to consolidate.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">📘 Publication</div>
+                <div class="muted">
+                  The method was first described in: <em>Francis P. Robinson – Effective Study (1946)</em>.<br/>
+                  From this book, SQ3R spread across U.S. universities and became a classic technique of academic reading and retention.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5V4.5A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+            <div>
+              <h2 class="card-title">SQ3R Study Method</h2>
+              <p class="card-subtitle">Read smarter: Survey • Question • Read • Recite • Review</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="list">
+            <div class="list-item">
+              <div>
+                <div class="title">S — Survey</div>
+                <div class="muted">Skim headings, subheadings, highlights, introductions and summaries. Goal: grasp structure and key themes before deep reading.</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">Q — Question</div>
+                <div class="muted">Turn headings into questions. Write 2–4 per section: “What is the claim?”, “What steps?”, “What examples?” — this guides focus.</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">R — Read</div>
+                <div class="muted">Read each section to answer your questions. Mark definitions, formulas, conclusions. Avoid passive reading.</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">R — Recite</div>
+                <div class="muted">Close the text and briefly say/write answers in your own words. If you can’t — reread only the needed fragment.</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">R — Review</div>
+                <div class="muted">After 10–15 minutes, revisit notes, self‑test with questions, make a mini‑summary. Repeat after 24 hours and a week.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3h18v4H3z"/><path d="M7 13h10"/><path d="M7 17h7"/>
+            </svg>
+            <div>
+              <h2 class="card-title">How to apply in practice</h2>
+              <p class="card-subtitle">Repeatable steps you can use every time</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="list">
+            <div class="list-item">
+              <div>
+                <div class="title">Before you start</div>
+                <div class="muted">Define your reading goal and a time limit (e.g., 25 minutes Pomodoro).</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">While reading</div>
+                <div class="muted">For each section: 2–4 questions and a 1–3 sentence answer. Note key definitions.</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">After reading</div>
+                <div class="muted">Make a 3–5 point summary of the section. Mark gaps — these become questions for review.</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="title">Regular reinforcement</div>
+                <div class="muted">Review after 24 hours and after 7 days. Self‑test with the same questions without hints.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>
+            </svg>
+            <div>
+              <h2 class="card-title">Tips for maximum effectiveness</h2>
+              <p class="card-subtitle">Small tweaks that compound into big gains</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <ul class="list">
+            <li class="list-item"><div><div class="title">Timer and intervals</div><div class="muted">25–5–25 (work–break–work) keeps focus and rhythm.</div></div></li>
+            <li class="list-item"><div><div class="title">In your own words</div><div class="muted">If you can explain it to a friend without the text — you’ve learned it.</div></div></li>
+            <li class="list-item"><div><div class="title">Micro‑questions</div><div class="muted">For each paragraph, craft 1 question. Answer in 1–2 lines.</div></div></li>
+            <li class="list-item"><div><div class="title">Review by questions</div><div class="muted">Review with your notes closed. Test yourself only with questions.</div></div></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span class="toast-message">Done</span>
+  </div>
+</body>
+</html>
