@@ -1,9 +1,13 @@
 ## Build stage
 FROM golang:1.23-alpine AS builder
 WORKDIR /app
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
-COPY . .
+# Copy only necessary sources explicitly to avoid context issues
+COPY cmd ./cmd
+COPY internal ./internal
+COPY public ./public
+COPY main.go ./
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o file_service ./cmd/file_service
 
 ## Run stage
