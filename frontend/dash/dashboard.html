@@ -160,7 +160,7 @@
             </section>
 
             <!-- Footer (Tailwind style inside original container) -->
-            <footer class="text-center text-sm text-gray-400 py-6 border-t border-gray-800">В© 2025 Edufy. Keep Learning.</footer>
+            <footer class="text-center text-sm text-gray-400 py-6 border-t border-gray-800">©2025 Edufy. Keep Learning.</footer>
         </section>
     </div>
 </main>
@@ -174,9 +174,9 @@
             quote: { text: 'A man who makes a mistake and does not correct it is making another mistake.', author: '-Platon' },
             weeklyHours: [1.2, 0.8, 2.4, 1.6, 2.1, 0.5, 1.0],
             activities: [
-                { text: 'вњ… Completed Reading Practice Test 4', time: Date.now() - 10*60*1000 },
-                { text: 'рџ§  Finished Full IELTS Mock Test', time: Date.now() - 2*60*60*1000 },
-                { text: 'рџ“љ Reviewed Vocabulary Set 7', time: Date.now() - 26*60*60*1000 }
+                { text: 'Completed Reading Practice Test 4', time: Date.now() - 10*60*1000 },
+                { text: 'Finished Full IELTS Mock Test', time: Date.now() - 2*60*60*1000 },
+                { text: 'Reviewed Vocabulary Set 7', time: Date.now() - 26*60*60*1000 }
             ],
             weeks: [35, 52, 68, 60]
         };
@@ -223,7 +223,7 @@
             data.activities.forEach(a => {
                 const li = document.createElement('li');
                 li.className = 'flex items-start gap-3 p-3 rounded-xl border border-gray-800 bg-gray-950 hover:bg-gray-900 transition';
-                li.innerHTML = `<span class="mt-0.5">вЂў</span><div><div class="font-medium">${a.text}</div><div class="text-xs text-gray-400">${relTime(a.time)}</div></div>`;
+                li.innerHTML = `<span class="mt-0.5"></span><div><div class="font-medium">${a.text}</div><div class="text-xs text-gray-400">${relTime(a.time)}</div></div>`;
                 ul.appendChild(li);
             });
         }
