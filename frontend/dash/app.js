@@ -135,9 +135,19 @@ document.addEventListener('DOMContentLoaded', () => {
   window.spaNavigate = (u) => navigateTo(u, true);
 
   async function loadSidebarPartial() {
-    try {
-      const res = await fetch('sidebar-ultra.html', { cache: 'no-store' });
-      if (res.ok) {
+    const candidates = [];
+    // Prefer absolute path in production under /dash/
+    candidates.push('/dash/sidebar-ultra.html');
+    // Relative to current HTML (works when opened from /dash/*.html)
+    candidates.push('sidebar-ultra.html');
+    // Relative one level up (works for /dash/methods/*.html)
+    candidates.push('../sidebar-ultra.html');
+
+    let loaded = false;
+    for (const url of candidates) {
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) continue;
         const html = await res.text();
         if (sidebar) sidebar.innerHTML = html;
         setActiveSidebarLink();
@@ -146,9 +156,12 @@ document.addEventListener('DOMContentLoaded', () => {
         initSpaNavigation();
         initContentLinkRouting();
         try { window.dispatchEvent(new Event('app:rehydrate')); } catch {}
-      }
-    } catch (_) {
-      // Fallback: keep existing markup
+        loaded = true;
+        break;
+      } catch {}
+    }
+    if (!loaded) {
+      // Fallback: keep existing markup but still bind controls to avoid blank UI
       rebindSidebarControls();
       bindSidebarActions();
       initSpaNavigation();
@@ -460,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
       logoutBtn.onclick = () => {
         if (confirm('Are you sure you want to logout?')) {
           showToast('Logging out...');
-          setTimeout(() => { window.location.href = '../access/login.html'; }, 1000);
+          setTimeout(() => { window.location.href = 'https://access.edufyuzbekistan.com/login'; }, 1000);
         }
       };
     }

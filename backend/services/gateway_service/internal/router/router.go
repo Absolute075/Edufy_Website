@@ -78,11 +78,41 @@ func SetupRouter() *gin.Engine {
 		c.Data(resp.StatusCode, resp.Header.Get("Content-Type"), body)
 	})
 
+	// Serve custom 404 page directly
+	r.GET("/404.html", func(c *gin.Context) {
+		// Try a few likely locations depending on container/workdir
+		candidates := []string{
+			"frontend/main/404.html",
+			"../frontend/main/404.html",
+			"/app/frontend/main/404.html",
+		}
+		for _, p := range candidates {
+			if _, err := os.Stat(p); err == nil {
+				c.Header("Content-Type", "text/html; charset=utf-8")
+				c.File(filepath.Clean(p))
+				return
+			}
+		}
+		c.String(http.StatusNotFound, "404 page not found")
+	})
+
 	// Serve custom 404 page for any unmatched routes
 	r.NoRoute(func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 		c.Header("Content-Type", "text/html; charset=utf-8")
-		c.File(filepath.Clean("frontend/main/404.html"))
+		// Try robust candidates
+		candidates := []string{
+			"frontend/main/404.html",
+			"../frontend/main/404.html",
+			"/app/frontend/main/404.html",
+		}
+		for _, p := range candidates {
+			if _, err := os.Stat(p); err == nil {
+				c.File(filepath.Clean(p))
+				return
+			}
+		}
+		c.String(http.StatusNotFound, "404 page not found")
 	})
 
 	return r
