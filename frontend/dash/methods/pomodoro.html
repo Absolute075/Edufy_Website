@@ -228,6 +228,8 @@
       }
       function nextPhase(){
         if (mode === 'pomodoro') {
+          // Record completed focus session into Weekly Study Time
+          try { window.studyTimeStore?.addMinutes(modes.pomodoro.minutes); } catch(e) {}
           cycles += 1; completed.textContent = String(Number(completed.textContent)+1);
           switchMode(cycles % 4 === 0 ? 'long' : 'short');
         } else {

@@ -331,6 +331,47 @@ function renderCharts(d) {
   }
 }
 
+// ----------------- Weekly Study Time store (localStorage-based) -----------------
+window.studyTimeStore = (function(){
+  const KEY_PREFIX = 'edufy.study.weekly.';
+  function weekKey(d){
+    const dt = d ? new Date(d) : new Date();
+    // ISO week key: YYYY-WW
+    const tmp = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
+    const dayNum = (tmp.getUTCDay() + 6) % 7; // Mon=0
+    tmp.setUTCDate(tmp.getUTCDate() - dayNum + 3);
+    const firstThu = new Date(Date.UTC(tmp.getUTCFullYear(),0,4));
+    const week = 1 + Math.round(((tmp - firstThu)/86400000 - 3 + ((firstThu.getUTCDay()+6)%7))/7);
+    const year = tmp.getUTCFullYear();
+    return `${KEY_PREFIX}${year}-${String(week).padStart(2,'0')}`;
+  }
+  function read(key){
+    try { return JSON.parse(localStorage.getItem(key) || 'null') || [0,0,0,0,0,0,0]; } catch{ return [0,0,0,0,0,0,0]; }
+  }
+  function write(key, arr){
+    try { localStorage.setItem(key, JSON.stringify(arr)); } catch {}
+  }
+  function dayIndex(d){
+    const dt = d ? new Date(d) : new Date();
+    // Mon..Sun => 0..6
+    const i = (dt.getDay()+6)%7; return i;
+  }
+  return {
+    addMinutes(mins, when){
+      const key = weekKey(when);
+      const arr = read(key);
+      const idx = dayIndex(when);
+      const n = Number(mins)||0; if (!isFinite(n) || n<=0) return;
+      arr[idx] = (arr[idx]||0) + n;
+      write(key, arr);
+    },
+    getWeek(when){
+      const key = weekKey(when);
+      return read(key);
+    }
+  };
+})();
+
 function renderRole(role) {
   const d = mockData[role] || mockData.student;
   renderKPIs(d);

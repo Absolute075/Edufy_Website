@@ -1,0 +1,13 @@
+{
+  "version": "2025-11-06T00:00:00Z",
+  "items": [
+    {
+      "id": "reading/ielts-07-passage-2",
+      "title": "IELTS 01 — Passage 1",
+      "category": "reading",
+      "requiredPlan": "free",
+      "active": true,
+      "url": "/materials/reading/ielts-07-passage-2.html"
+    }
+  ]
+}

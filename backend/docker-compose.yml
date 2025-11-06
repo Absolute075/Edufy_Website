@@ -19,6 +19,21 @@ services:
     networks:
       - edufy_net
 
+  file_service:
+    build: ./services/file_service
+    image: file_service:latest
+    container_name: file_service
+    ports:
+      - "8084:8080" # 8084 внешний порт docker, 8080 внутренний порт Spring Boot
+    environment:
+      - PORT=8080
+      - USER_SERVICE_URL=http://user_service:8080
+    volumes:
+      - ./services/file_service/public:/app/public:ro
+    restart: always
+    networks:
+      - edufy_net
+
   auth_service:
     build: ./services/auth_service
     image: auth_service:latest

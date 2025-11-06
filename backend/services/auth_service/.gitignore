@@ -1,0 +1,51 @@
+# --- Java / Spring Boot ---
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# --- Maven ---
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+mvnw
+mvnw.cmd
+.settings/
+dependency-reduced-pom.xml
+
+# --- IDE ---
+.idea/
+*.iml
+.vscode/
+*.log
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Environment & Config ---
+.env
+.env.*
+application-*.yml
+application-*.yaml
+application-*.properties
+config/
+secrets/
+
+# --- Docker ---
+*.pid
+*.tar
+*.bak
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Build output ---
+build/
+out/
+
+# --- Temporary files ---
+*.swp
+*.tmp
+*.orig

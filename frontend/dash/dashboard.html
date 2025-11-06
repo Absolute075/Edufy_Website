@@ -172,7 +172,7 @@
             name: '',
             progress: 45,
             quote: { text: 'A man who makes a mistake and does not correct it is making another mistake.', author: '-Platon' },
-            weeklyHours: [1.2, 0.8, 2.4, 1.6, 2.1, 0.5, 1.0],
+            weeklyHours: null,
             activities: [
                 { text: 'Completed Reading Practice Test 4', time: Date.now() - 10*60*1000 },
                 { text: 'Finished Full IELTS Mock Test', time: Date.now() - 2*60*60*1000 },
@@ -199,10 +199,14 @@
         if (qt && qa) { qt.textContent = data.quote.text; qa.textContent = data.quote.author; }
 
         const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-        const max = Math.max(...data.weeklyHours, 1);
+        const mins = (window.studyTimeStore && typeof window.studyTimeStore.getWeek === 'function')
+          ? window.studyTimeStore.getWeek()
+          : [0,0,0,0,0,0,0];
+        const hours = mins.map(m => Math.round((m/60)*10)/10);
+        const max = Math.max(...hours, 1);
         days.forEach((d, i) => {
             const col = document.querySelector(`[data-day="${d}"]`);
-            if (col) col.style.height = Math.max(10, (data.weeklyHours[i] / max) * 144) + 'px';
+            if (col) col.style.height = Math.max(10, (hours[i] / max) * 144) + 'px';
         });
 
         data.weeks.forEach((v, i) => {
