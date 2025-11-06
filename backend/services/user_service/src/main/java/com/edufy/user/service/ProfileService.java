@@ -22,17 +22,20 @@ public class ProfileService {
     }
 
     public UserProfile updateBasics(String username, String phone, String birthDate, String location){
-        UserProfile p = getOrCreate(username);
+        // Update existing only to avoid creating duplicates during rename race
+        UserProfile p = find(username);
+        if (p == null) return null;
         p.setPhone(phone);
         if (birthDate != null && !birthDate.isBlank()) {
             try { p.setBirthDate(LocalDate.parse(birthDate)); } catch (Exception ignored) {}
         }
-        p.setLocation(location);
         return repo.save(p);
     }
 
     public UserProfile updateAvatarUrl(String username, String avatarUrl){
-        UserProfile p = getOrCreate(username);
+        // Update existing only to avoid creating duplicates during rename race
+        UserProfile p = find(username);
+        if (p == null) return null;
         p.setAvatarUrl(avatarUrl);
         return repo.save(p);
     }
@@ -49,7 +52,6 @@ public class ProfileService {
             var newP = newOpt.get();
             if (newP.getPhone() == null) newP.setPhone(oldP.getPhone());
             if (newP.getBirthDate() == null) newP.setBirthDate(oldP.getBirthDate());
-            if (newP.getLocation() == null) newP.setLocation(oldP.getLocation());
             if (newP.getAvatarUrl() == null) newP.setAvatarUrl(oldP.getAvatarUrl());
             repo.save(newP);
             // Delete old duplicate

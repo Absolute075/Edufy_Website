@@ -25,9 +25,6 @@ public class UserProfile {
 
     private LocalDate birthDate;
 
-    @Column(length = 120)
-    private String location;
-
     @Column(length = 300)
     private String avatarUrl;
 
