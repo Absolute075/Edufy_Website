@@ -26,12 +26,17 @@ services:
     ports:
       - "8081:8080" #8081 внешний порт docker, 8080 внутренний порт Spring Boot
     environment:
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: https://access.edufyuzbekistan.com/auth/oauth/google/callback
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/edufy_auth
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: star4536446
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       USER_SERVICE_URL: "http://user_service:8080"
       SERVER_PORT: 8080
+      env_file:
+        .env
     depends_on:
       - db
     restart: always
