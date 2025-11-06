@@ -11,15 +11,24 @@
   <script src="components.js" defer></script>
   <script src="app.js" defer></script>
   <style>
-    .tabs { display:flex; gap:8px; background:#0f1424; padding:6px; border:1px solid var(--border); border-radius:12px; width:max-content }
-    .tab { padding:8px 14px; border-radius:10px; cursor:pointer; color:var(--text); border:1px solid transparent; }
-    .tab.active { background:#10172b; border-color:#273257; }
-    .catalog { margin-top:16px; display:grid; gap:12px; }
-    .item { display:flex; align-items:center; justify-content:space-between; padding:12px; border:1px solid var(--border); border-radius:12px; background:#0f1424 }
-    .item .left { display:flex; gap:10px; align-items:center }
-    .badge { font-size:12px; color:#aab4cf; border:1px solid var(--border); padding:2px 6px; border-radius:999px }
+    :root { --anim-fast: .18s; --anim: .26s; --shadow: 0 6px 24px rgba(8,12,24,.35); }
+    .tabs { position:relative; display:flex; gap:8px; background:#0f1424; padding:6px; border:1px solid var(--border); border-radius:14px; width:max-content }
+    .tab { position:relative; padding:10px 16px; border-radius:10px; cursor:pointer; color:var(--text); border:1px solid transparent; z-index:1; transition: color var(--anim-fast) ease; }
+    .tab.active { color:#dbe6ff; }
+    .tabs .indicator { position:absolute; top:6px; left:6px; height:36px; border-radius:10px; background:#10172b; border:1px solid #273257; transition: transform var(--anim) ease, width var(--anim) ease; z-index:0; }
+    .catalog { margin-top:16px; display:grid; gap:12px; grid-template-columns: 1fr; }
+    @media (min-width: 860px) { .catalog { grid-template-columns: 1fr 1fr; } }
+    .item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border:1px solid var(--border); border-radius:14px; background:#0f1424; transition: transform var(--anim-fast) ease, background var(--anim-fast) ease, border-color var(--anim-fast) ease, box-shadow var(--anim) ease; }
+    .item:hover { transform: translateY(-2px); background:#0f1628; border-color:#263357; box-shadow: var(--shadow); }
+    .item .left { display:flex; gap:12px; align-items:center }
+    .badge { font-size:12px; letter-spacing:.3px; color:#aab4cf; border:1px solid var(--border); padding:3px 8px; border-radius:999px; }
+    .badge.free { background:#22c55e1a; border-color:#22c55e66; color:#b6f3c9; }
+    .badge.plus { background:#3b82f61a; border-color:#3b82f666; color:#cfe7ff; }
+    .badge.pro { background:#8b5cf61a; border-color:#8b5cf666; color:#e5d8ff; }
     .muted { color:#9aa3ba; font-size:12px }
-    .btn.sm { padding:8px 12px; font-size:14px }
+    .btn.sm { padding:9px 14px; font-size:14px }
+    @keyframes fadeUp { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+    .catalog.fade-in { animation: fadeUp var(--anim) ease both; }
   </style>
 </head>
 <body>
@@ -55,6 +64,7 @@
         </div>
         <div class="card-body">
           <div class="tabs" id="planTabs">
+            <span class="indicator" id="tabIndicator" style="width:72px; transform: translateX(0px);"></span>
             <button class="tab active" data-plan="free">Free <span class="badge" id="count-free">0</span></button>
             <button class="tab" data-plan="plus">Plus <span class="badge" id="count-plus">0</span></button>
             <button class="tab" data-plan="pro">Pro <span class="badge" id="count-pro">0</span></button>
@@ -96,6 +106,8 @@
       function buildUrlFromId(id) { return `/materials/content/${id}.html`; }
 
       function render() {
+        // trigger smooth fade for content changes
+        catalog.classList.remove('fade-in');
         const items = state.items
           .filter(i => {
             const rp = (i.requiredPlan || 'free');
@@ -117,7 +129,7 @@
                   <div class="title">${i.title || i.id}</div>
                   <div class="muted">${i.id}</div>
                 </div>
-                <span class="badge">${rp.toUpperCase()}</span>
+                <span class="badge ${rp === 'free' ? 'free' : rp === 'plus' ? 'plus' : 'pro'}">${rp.toUpperCase()}</span>
               </div>
               <div>
                 <a class="btn sm" href="${url}" target="_blank" rel="noopener">Open</a>
@@ -125,6 +137,16 @@
             </div>
           `;
         }).join('');
+        // apply fade-in after DOM update
+        requestAnimationFrame(() => catalog.classList.add('fade-in'));
+      }
+
+      function moveIndicatorTo(el) {
+        const ind = document.getElementById('tabIndicator');
+        if (!ind || !el) return;
+        const { offsetLeft: x, offsetWidth: w } = el;
+        ind.style.width = w + 'px';
+        ind.style.transform = `translateX(${x}px)`;
       }
 
       tabs.addEventListener('click', (e) => {
@@ -134,9 +156,13 @@
         b.classList.add('active');
         state.plan = b.getAttribute('data-plan');
         render();
+        moveIndicatorTo(b);
       });
 
       await loadManifest();
+      // set initial indicator position
+      moveIndicatorTo(tabs.querySelector('.tab.active'));
+      window.addEventListener('resize', () => moveIndicatorTo(tabs.querySelector('.tab.active')));
     });
   </script>
 </body>
