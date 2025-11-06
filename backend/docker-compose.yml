@@ -41,7 +41,6 @@ services:
       - REINDEX_ADMIN_TOKEN=edufy
     env_file:
       .env
-
     volumes:
       - ./services/file_service/public:/app/public:ro
       - /materials:/materials:ro
