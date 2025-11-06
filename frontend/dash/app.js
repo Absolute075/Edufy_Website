@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
       btn?.addEventListener('click', () => {
         sidebar?.classList.toggle('active');
         sidebar?.classList.toggle('collapsed');
+        // Ensure mobile sidebar opens/closes on small screens
+        sidebar?.classList.toggle('open');
         mainContent?.classList.toggle('expanded');
       });
     });
