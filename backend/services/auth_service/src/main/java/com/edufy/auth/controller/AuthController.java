@@ -105,17 +105,15 @@ public class AuthController {
         String envBase = System.getenv("USER_SERVICE_URL");
         String gatewayBase = System.getenv("GATEWAY_URL");
         String[] bases = new String[]{
-                // Prefer external user_service 8083 first
-                "http://37.60.243.113:8083",
-                envBase,
+                // Prefer gateway inside cluster, then direct user_service
                 gatewayBase,
+                envBase,
                 // common host aliases when running in docker on dev/servers
-                "http://host.docker.internal:8083",
                 "http://gateway_service:8080",
+                "http://user_service:8080",
+                "http://host.docker.internal:8083",
                 "http://localhost:8083",
-                "http://127.0.0.1:8083",
-                "http://user_service:8083",
-                "http://user_service:8080"
+                "http://127.0.0.1:8083"
         };
         for (String base : bases) {
             if (base == null || base.isBlank()) continue;
@@ -350,15 +348,13 @@ public class AuthController {
         String envBase = System.getenv("USER_SERVICE_URL");
         String gatewayBase = System.getenv("GATEWAY_URL");
         String[] bases = new String[]{
-                "http://37.60.243.113:8083",
-                envBase,
                 gatewayBase,
-                "http://host.docker.internal:8083",
+                envBase,
                 "http://gateway_service:8080",
+                "http://user_service:8080",
+                "http://host.docker.internal:8083",
                 "http://localhost:8083",
-                "http://127.0.0.1:8083",
-                "http://user_service:8083",
-                "http://user_service:8080"
+                "http://127.0.0.1:8083"
         };
         for (String base : bases) {
             if (base == null || base.isBlank()) continue;
@@ -390,15 +386,13 @@ public class AuthController {
         String envBase = System.getenv("USER_SERVICE_URL");
         String gatewayBase = System.getenv("GATEWAY_URL");
         String[] bases = new String[]{
-                "http://37.60.243.113:8083",
-                envBase,
                 gatewayBase,
-                "http://host.docker.internal:8083",
+                envBase,
                 "http://gateway_service:8080",
+                "http://user_service:8080",
+                "http://host.docker.internal:8083",
                 "http://localhost:8083",
-                "http://127.0.0.1:8083",
-                "http://user_service:8083",
-                "http://user_service:8080"
+                "http://127.0.0.1:8083"
         };
         for (String base : bases) {
             if (base == null || base.isBlank()) continue;

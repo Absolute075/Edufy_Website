@@ -114,6 +114,8 @@ services:
     environment:
       AUTH_SERVICE_URL: http://auth_service:8080
       USER_SERVICE_URL: http://user_service:8080
+      FILE_SERVICE_URL: http://file_service:8080
+      GATEWAY_URL: http://gateway_service:8080
     depends_on:
       - auth_service
       - user_service
