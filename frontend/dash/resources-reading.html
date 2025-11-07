@@ -103,6 +103,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
+      const MATERIALS_BASE = (window.__MATERIALS_BASE) ? window.__MATERIALS_BASE : (location.hostname === 'localhost' ? 'http://localhost:8080' : location.origin);
       const catalog = document.getElementById('catalog');
       const tabs = document.getElementById('planTabs');
       const counts = { free: document.getElementById('count-free'), plus: document.getElementById('count-plus'), pro: document.getElementById('count-pro') };
@@ -110,7 +111,7 @@
 
       async function loadManifest() {
         try {
-          const res = await fetch('/materials/manifest', { cache: 'no-store' });
+          const res = await fetch(`${MATERIALS_BASE}/materials/manifest`, { cache: 'no-store' });
           const data = await res.json();
           state.items = (data.items || []).filter(x => x.category === 'reading' && x.active !== false);
           updateCounts();
@@ -129,7 +130,7 @@
         counts.free.textContent = freeN; counts.plus.textContent = plusN; counts.pro.textContent = proN;
       }
 
-      function buildUrlFromId(id) { return `/materials/content/${id}.html`; }
+      function buildUrlFromItem(i) { return i.url || `${MATERIALS_BASE}/materials/content/${i.id}.html`; }
 
       function render() {
         // trigger smooth fade for content changes
@@ -146,7 +147,7 @@
         if (!items.length) { catalog.innerHTML = '<div class="muted">No materials</div>'; return; }
 
         catalog.innerHTML = items.map(i => {
-          const url = buildUrlFromId(i.id);
+          const url = buildUrlFromItem(i);
           const rp = (i.requiredPlan || 'free');
           return `
             <div class="item">
