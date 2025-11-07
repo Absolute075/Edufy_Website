@@ -39,6 +39,8 @@ services:
       - PLAN_DEFAULT_MOCK=pro
       - OVERRIDES_PATH=/app/public/materials/overrides.json
       - REINDEX_ADMIN_TOKEN=edufy
+      - LINK_TTL_SECONDS=120
+      - LINK_SIGNING_SECRET=
     env_file:
       .env
     volumes:

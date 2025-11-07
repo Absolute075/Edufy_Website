@@ -20,6 +20,8 @@ type Config struct {
 	PlanDefaultSpeaking  string
 	PlanDefaultWriting   string
 	PlanDefaultMock      string
+	LinkSigningSecret    string
+	LinkTTLSeconds       int
 }
 
 func Load() Config {
@@ -33,6 +35,8 @@ func Load() Config {
 	scanSec := getinti("AUTOSCAN_SECONDS", 5)
 	adminToken := getenv("REINDEX_ADMIN_TOKEN", "")
 	defPlan := getenv("DEFAULT_REQUIRED_PLAN", "free")
+	linkSecret := getenv("LINK_SIGNING_SECRET", "")
+	linkTTL := getinti("LINK_TTL_SECONDS", 120)
 	return Config{
 		Port:                 port,
 		PublicDir:            pub,
@@ -48,6 +52,8 @@ func Load() Config {
 		PlanDefaultSpeaking:  getenv("PLAN_DEFAULT_SPEAKING", ""),
 		PlanDefaultWriting:   getenv("PLAN_DEFAULT_WRITING", ""),
 		PlanDefaultMock:      getenv("PLAN_DEFAULT_MOCK", ""),
+		LinkSigningSecret:    linkSecret,
+		LinkTTLSeconds:       linkTTL,
 	}
 }
 

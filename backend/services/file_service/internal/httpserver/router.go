@@ -1,7 +1,12 @@
 package httpserver
 
 import (
+	"crypto/md5"
+	"encoding/base64"
 	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
 	"time"
 
 	"edufy/file_service/internal/config"
@@ -38,6 +43,41 @@ func NewRouter(cfg config.Config) *gin.Engine {
 	// Protected static under /materials with access control
 	mg := r.Group("/materials")
 	mg.Use(middleware.NewAccessMiddleware(service))
+
+	// Signed link issuer: /materials/link?id=<path-like-id>
+	mg.GET("/link", func(c *gin.Context) {
+		id := c.Query("id")
+		if id == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "missing id"})
+			return
+		}
+		if strings.Contains(id, "..") {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid id"})
+			return
+		}
+		if cfg.ResourcesBase == "" || cfg.LinkSigningSecret == "" {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "signing not configured"})
+			return
+		}
+		// uri on resources must map to disk path, keep leading slash
+		uri := "/" + strings.TrimPrefix(id, "/")
+		exp := time.Now().Unix() + int64(cfg.LinkTTLSeconds)
+		expStr := strconv.FormatInt(exp, 10)
+		// Nginx: secure_link_md5 "$uri$arg_e$secure_link_secret"
+		sum := md5.Sum([]byte(uri + expStr + cfg.LinkSigningSecret))
+		sig := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sum[:])
+
+		// Build final redirect URL to resources
+		u, _ := url.Parse(cfg.ResourcesBase)
+		// ensure path join
+		u.Path = strings.TrimRight(u.Path, "/") + uri
+		q := u.Query()
+		q.Set("e", expStr)
+		q.Set("sig", sig)
+		u.RawQuery = q.Encode()
+		c.Redirect(http.StatusFound, u.String())
+	})
+
 	// Serve static under /materials/content from external materials dir
 	// This maps URLs like /materials/content/reading/file.html -> <cfg.MaterialsDir>/reading/file.html
 	if cfg.MaterialsDir != "" {

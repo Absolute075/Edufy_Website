@@ -131,7 +131,10 @@
         counts.free.textContent = freeN; counts.plus.textContent = plusN; counts.pro.textContent = proN;
       }
 
-      function buildUrlFromItem(i) { return i.url || `${MATERIALS_BASE}/materials/content/${i.id}.html`; }
+      function buildUrlFromItem(i) {
+        // Always open through gateway signed-link endpoint to enforce plan/quotas and prevent direct access
+        return `${MATERIALS_BASE}/materials/link?id=${encodeURIComponent(i.id)}`;
+      }
 
       function render() {
         // trigger smooth fade for content changes
