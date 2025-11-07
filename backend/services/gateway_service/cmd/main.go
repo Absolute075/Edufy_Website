@@ -38,6 +38,13 @@ func main() {
 	}
 	router.Any("/user/*path", proxy.ServiceProxy(userBase, "/user"))
 
+	// === Materials proxy -> file_service with user headers ===
+	fileBase := os.Getenv("FILE_SERVICE_URL")
+	if fileBase == "" {
+		fileBase = "http://file_service:8080"
+	}
+	router.Any("/materials/*path", proxy.ServiceProxyWithUserHeaders(fileBase, "/materials"))
+
 	// === Health-check для gateway ===
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "gateway_service running"})
