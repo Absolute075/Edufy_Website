@@ -32,3 +32,6 @@ file_service
 *.tar
 *.bak
 
+# --- Materials ---
+/storage/*.html
+/mock/*.html
