@@ -179,3 +179,9 @@ h1 { margin: 0; font-size: 28px; }
 @media (max-width: 1024px) {
   .main-content { margin-left: 0; }
 }
+
+/* Hard overrides to prevent sidebar/main shifts on desktop */
+@media (min-width: 821px) {
+  body > aside.sidebar { width: 280px !important; transform: none !important; }
+  body > main.main-content { margin-left: 280px !important; }
+}

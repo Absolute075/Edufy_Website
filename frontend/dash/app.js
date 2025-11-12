@@ -139,13 +139,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.spaNavigate = (u) => navigateTo(u, true);
 
   async function loadSidebarPartial() {
-    const candidates = [];
-    // Prefer absolute path in production under /dash/
-    candidates.push('/dash/sidebar-ultra.html');
-    // Relative to current HTML (works when opened from /dash/*.html)
-    candidates.push('sidebar-ultra.html');
-    // Relative one level up (works for /dash/methods/*.html)
-    candidates.push('../sidebar-ultra.html');
+    const candidates = [
+      'sidebar-ultra.html',        // relative to current
+      '/sidebar-ultra.html',       // absolute at site root (server root already points to /dash)
+      '../sidebar-ultra.html',     // one level up (for subpages)
+      '/dash/sidebar-ultra.html'   // legacy absolute under /dash
+    ];
 
     let loaded = false;
     for (const url of candidates) {
@@ -153,6 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) continue;
         const html = await res.text();
+        // Validate that we really fetched the partial, not a full page fallback
+        const isFullDoc = /<html[\s\S]*<\/html>/i.test(html);
+        const looksLikeSidebar = /<nav[^>]*class=["'][^"']*sidebar-nav/i.test(html);
+        if (isFullDoc || !looksLikeSidebar) continue;
         if (sidebar) sidebar.innerHTML = html;
         setActiveSidebarLink();
         rebindSidebarControls();
@@ -165,7 +168,26 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch {}
     }
     if (!loaded) {
-      // Fallback: keep existing markup but still bind controls to avoid blank UI
+      // Fallback: inject a minimal working sidebar to avoid blank UI
+      if (sidebar && !sidebar.innerHTML.trim()) {
+        sidebar.innerHTML = `
+          <div class="sidebar-header">
+            <div class="brand">
+              <img src="https://resources.edufyuzbekistan.com/storage/images/favicon.png" alt="Edufy" class="brand-logo">
+              <span class="brand-name">Edufy</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle"><span class="toggle-icon"></span></button>
+          </div>
+          <nav class="sidebar-nav">
+            <a href="dashboard" class="nav-item" data-page="dashboard"><span class="nav-text">Dashboard</span></a>
+            <a href="profile" class="nav-item" data-page="profile"><span class="nav-text">Profile</span></a>
+            <a href="courses" class="nav-item" data-page="courses"><span class="nav-text">Resources</span></a>
+            <a href="mentor" class="nav-item" data-page="mentor"><span class="nav-text">Mentor AI</span></a>
+            <a href="billing-free" class="nav-item" data-page="billing-free"><span class="nav-text">Billing</span></a>
+            <a href="settings" class="nav-item" data-page="settings"><span class="nav-text">Settings</span></a>
+          </nav>`;
+      }
+      // Bind controls even if we used the fallback
       rebindSidebarControls();
       bindSidebarActions();
       initSpaNavigation();
