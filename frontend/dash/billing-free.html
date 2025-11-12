@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edufy - Billing (Free Trial)</title>
+    <link rel="icon" href="https://resources.edufyuzbekistan.com/storage/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="theme.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script>window.__defaultAvatarUrl="https://resources.edufyuzbekistan.com/storage/images/10d554ea6f330f1612526b54562c8a33.jpg";</script>
+    <script src="components.js?v=20251105-2" defer></script>
+    <script src="app.js?v=20251105-2" defer></script>
+    <style>
+        /* Page-specific tweaks for the trial banner */
+        .trial-hero { display:flex; flex-direction:column; gap:14px; padding:28px; border:1px solid var(--border-color); border-radius:16px; background: linear-gradient(180deg, rgba(37,99,235,.10), rgba(37,99,235,.04)); box-shadow: 0 8px 28px rgba(0,0,0,.12); }
+        .trial-title { font-size: 28px; font-weight: 800; letter-spacing: -.01em; }
+        .trial-sub { color: var(--text-secondary); }
+        .trial-cta { display:flex; gap:10px; flex-wrap:wrap; }
+        .trial-badge { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; font-size:12px; font-weight:700; border-radius:999px; color:#22d3ee; background: rgba(34,211,238,.15); box-shadow: 0 0 0 1px rgba(34,211,238,.35) inset; }
+        .trial-note { font-size: 13px; color: var(--text-secondary); }
+        .trial-cards { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:16px; }
+        .trial-card { background: var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:8px; }
+        .trial-card .title { font-weight:700; }
+        .trial-card .muted { color: var(--text-secondary); font-size: 13px; }
+        @media (max-width: 1024px) { .trial-cards { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="animated-bg">
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+</div>
+
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="main-content">
+    <header class="header">
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></button>
+        </div>
+        <div class="header-right">
+            <button class="header-icon-btn notification-btn" id="notificationBtn" aria-label="Open notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span class="notification-badge">2</span>
+            </button>
+            <div class="header-user">
+                <img src="../templates/images/caesar.png" alt="User" class="header-avatar">
+                <div class="header-user-info">
+                    <span class="header-username">Baha</span>
+                    <span class="header-status">Billing</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        <!-- Trial hero section -->
+        <div class="profile-card">
+            <div class="card-body">
+                <div class="trial-hero">
+                    <div class="trial-badge" aria-label="Trial badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+                        Free Trial
+                    </div>
+                    <div class="trial-title">All free for 10 days</div>
+                    <div class="trial-sub">Enjoy full access to courses, materials and features. No charges during trial. Cancel anytime.</div>
+                    <div class="trial-cta">
+                        <div class="trial-note">No credit card required to begin</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Highlights -->
+        <div class="trial-cards">
+            <div class="trial-card">
+                <div class="title">All courses included</div>
+                <div class="muted">Access Plus & Pro content without limits for 10 days.</div>
+            </div>
+            <div class="trial-card">
+                <div class="title">Keep your progress</div>
+                <div class="muted">Your study history and analytics remain after the trial.</div>
+            </div>
+            <div class="trial-card">
+                <div class="title">Upgrade anytime</div>
+                <div class="muted">Choose a plan when you're ready. No pressure.</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="toast" id="toast">
+    <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span class="toast-message">Trial activated</span>
+</div>
+
+<script>
+    (function initTrialPage(){
+        // Demo toast on Start now
+        const toast = document.getElementById('toast');
+        document.querySelectorAll('.trial-cta .btn').forEach(btn => {
+            btn.addEventListener('click', ()=>{
+                if (!toast) return;
+                toast.classList.add('active');
+                setTimeout(()=> toast.classList.remove('active'), 1600);
+            });
+        });
+    })();
+</script>
+</body>
+</html>
