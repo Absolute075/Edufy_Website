@@ -22,10 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function setActiveSidebarLink() {
-    const page = (location.pathname.split('/').pop() || 'dashboard.html').toLowerCase();
+    const raw = (location.pathname.split('/').pop() || 'dashboard.html').toLowerCase();
+    const page = raw.replace(/\.html?$/, '');
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(a => {
-      const dataPage = (a.getAttribute('data-page') || a.getAttribute('href') || '').toLowerCase();
-      if (dataPage.endsWith(page)) a.classList.add('active');
+      const dp = (a.getAttribute('data-page') || a.getAttribute('href') || '').toLowerCase();
+      const dataPage = dp.replace(/\.html?$/, '').replace(/\/$/, '');
+      if (dataPage === page) a.classList.add('active');
       else a.classList.remove('active');
     });
   }
