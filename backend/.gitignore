@@ -31,7 +31,3 @@ file_service
 *.pid
 *.tar
 *.bak
-
-# --- Materials ---
-/storage/*.html
-/mock/*.html
