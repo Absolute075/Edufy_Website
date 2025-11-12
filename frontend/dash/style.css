@@ -171,3 +171,11 @@ h1 { margin: 0; font-size: 28px; }
     .sidebar.open { transform: translateX(0); }
     .app { margin-left: 0; }
 }
+
+/* Layout overrides to ensure consistent sidebar/main positioning */
+/* These help when multiple stylesheets define .sidebar/.main-content differently */
+.sidebar { width: 280px; }
+.main-content { margin-left: 280px; min-height: 100dvh; }
+@media (max-width: 1024px) {
+  .main-content { margin-left: 0; }
+}

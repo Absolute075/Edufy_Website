@@ -595,11 +595,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Initialize - Check if mobile
+  // Initialize - Check if mobile (align with CSS breakpoint 820px)
   function checkMobile() {
-    if (window.innerWidth <= 1024) {
-      sidebar?.classList.add('collapsed');
-      mainContent?.classList.add('expanded');
+    if (!sidebar || !mainContent) return;
+    if (window.innerWidth <= 820) {
+      // Mobile: hide sidebar by default
+      sidebar.classList.add('collapsed');
+      sidebar.classList.remove('open');
+      mainContent.classList.add('expanded');
+    } else {
+      // Desktop: sidebar visible
+      sidebar.classList.remove('collapsed');
+      sidebar.classList.remove('open');
+      mainContent.classList.remove('expanded');
     }
   }
 
