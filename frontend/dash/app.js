@@ -646,19 +646,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load from localStorage into UI
     try {
       const s = (k, el) => { const v = localStorage.getItem(k); if (v !== null && el) el.value = v; };
-      // Normalize old certificate formats like 'IELTS 6.5' -> '6.5', 'TOEFL 95-109' -> '95-109'
+      // Load certificates (supports multi). If JSON array -> select multiple. Else normalize single legacy value.
       (function(){
         const raw = localStorage.getItem('pref.certificate');
-        if (raw && certEl) {
-          let norm = raw.trim();
-          // Extract numeric value/range like 6.5, 95-109, 110-117, <41, <1000
-          const m = norm.match(/(\d+\.\d+|\d+-\d+|<\d+|\d+)/);
-          if (m) {
-            norm = m[1];
-            // If this value exists among options, apply it
-            const has = Array.from(certEl.querySelectorAll('option')).some(o => o.value === norm);
-            if (has) certEl.value = norm;
+        if (!raw || !certEl) return;
+        try {
+          if (raw.trim().startsWith('[')) {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) {
+              const set = new Set(arr.map(v => String(v)));
+              Array.from(certEl.options).forEach(o => { o.selected = set.has(o.value); });
+              return;
+            }
           }
+        } catch {}
+        // Legacy single string like 'IELTS 6.5' -> select one
+        let norm = raw.trim();
+        const m = norm.match(/(\d+\.\d+|\d+-\d+|<\d+|\d+)/);
+        if (m) {
+          norm = m[1];
+          Array.from(certEl.options).forEach(o => { o.selected = (o.value === norm); });
         }
       })();
       // Subject load stays as-is
@@ -694,41 +701,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function savePrefs() {
-      // Prepare certificate formatting for backend
-      let certificateForBackend = '';
+      // Prepare certificates formatting for backend (multi-select)
+      let certificatesForBackend = [];
+      let rawSelectedValues = [];
       if (certEl) {
-        const raw = (certEl.value || '').trim();
-        const opt = certEl.selectedOptions && certEl.selectedOptions[0];
-        const group = opt ? (opt.getAttribute('data-group') || '').toUpperCase() : '';
-        if (raw === 'none') {
-          certificateForBackend = 'none';
-        } else if (group === 'IELTS') {
-          // Include selected band, e.g., 'IELTS: 6.5'
-          certificateForBackend = raw ? `IELTS: ${raw}` : 'IELTS';
-        } else if (group === 'TOEFL') {
-          if (/^\d+-\d+$/.test(raw)) {
-            certificateForBackend = `TOEFL: ${raw.split('-')[0]}`;
-          } else {
-            certificateForBackend = `TOEFL: ${raw}`; // handles single number and <41
+        const selected = Array.from(certEl.selectedOptions || []);
+        // If 'none' is selected along with others, keep only 'none'
+        const hasNone = selected.some(o => (o.value || '').trim() === 'none');
+        const effective = hasNone ? selected.filter(o => (o.value || '').trim() === 'none') : selected;
+        rawSelectedValues = effective.map(o => (o.value || '').trim());
+        certificatesForBackend = effective.map(opt => {
+          const raw = (opt.value || '').trim();
+          const group = (opt.getAttribute('data-group') || '').toUpperCase();
+          if (raw === 'none') return 'none';
+          if (group === 'IELTS') {
+            return raw ? `IELTS: ${raw}` : 'IELTS';
+          } else if (group === 'TOEFL') {
+            if (/^\d+-\d+$/.test(raw)) return `TOEFL: ${raw}`;
+            return `TOEFL: ${raw}`;
+          } else if (group === 'SAT') {
+            if (/^\d+-\d+$/.test(raw)) return `SAT: ${raw.split('-')[0]}`;
+            return `SAT: ${raw}`;
+          } else if (group === 'AP') {
+            return `AP: ${raw}`;
+          } else if (group === 'ACT') {
+            if (/^\d+-\d+$/.test(raw)) return `ACT: ${raw.split('-')[0]}`;
+            return `ACT: ${raw}`;
           }
-        } else if (group === 'SAT') {
-          if (/^\d+-\d+$/.test(raw)) {
-            certificateForBackend = `SAT: ${raw.split('-')[0]}`;
-          } else {
-            certificateForBackend = `SAT: ${raw}`; // handles single number and <1000
-          }
-        } else if (group === 'AP') {
-          certificateForBackend = `AP: ${raw}`; // AP is a single score 1-5
-        } else if (group === 'ACT') {
-          if (/^\d+-\d+$/.test(raw)) {
-            certificateForBackend = `ACT: ${raw.split('-')[0]}`;
-          } else {
-            certificateForBackend = `ACT: ${raw}`; // handles single number and <20
-          }
-        } else {
-          // default: keep raw
-          certificateForBackend = raw;
-        }
+          return raw;
+        });
       }
 
       // Map hour range to approximate minutes for backend
@@ -746,15 +747,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const selectedHours = hoursEl ? (hoursEl.value || '') : '';
       const payload = {
-        certificate: certificateForBackend,
+        // Backward compatibility: keep single 'certificate' as joined string
+        certificate: certificatesForBackend.length ? certificatesForBackend.join(', ') : '',
+        // New field: send full list as array
+        certificates: certificatesForBackend,
         favorite_subject: subjEl ? subjEl.value : '',
         daily_hours: selectedHours || null,
       };
 
       // Persist locally for instant UX
       try {
-        // Store raw select value for proper UI restore
-        localStorage.setItem('pref.certificate', certEl ? (certEl.value || '') : '');
+        // Store raw selected values as JSON array for proper UI restore (multi)
+        localStorage.setItem('pref.certificate', JSON.stringify(rawSelectedValues));
         localStorage.setItem('pref.subject', payload.favorite_subject || '');
         localStorage.setItem('pref.daily_hours', selectedHours || '');
       } catch {}

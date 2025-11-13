@@ -65,7 +65,7 @@ public class ProfileController {
     }
 
     @PutMapping("/profile/preferences")
-    public ResponseEntity<?> updatePreferences(@RequestBody Map<String, String> payload, HttpServletRequest request) {
+    public ResponseEntity<?> updatePreferences(@RequestBody Map<String, Object> payload, HttpServletRequest request) {
         String token = getAccessToken(request);
         if (token == null || token.isBlank()) {
             return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
@@ -74,9 +74,23 @@ public class ProfileController {
         try { username = JwtUtil.extractUsername(token); }
         catch (Exception e) { return ResponseEntity.status(401).body(Map.of("message", "Invalid token")); }
 
-        String certificate = payload.getOrDefault("certificate", null);
-        String favoriteSubject = payload.getOrDefault("favorite_subject", null);
-        String dailyHours = payload.getOrDefault("daily_hours", null);
+        String certificate = null;
+        Object certObj = payload.get("certificates");
+        if (certObj instanceof java.util.Collection<?>) {
+            java.util.List<String> list = new java.util.ArrayList<>();
+            for (Object o : (java.util.Collection<?>) certObj) {
+                if (o != null) list.add(o.toString());
+            }
+            if (!list.isEmpty()) {
+                certificate = String.join(", ", list);
+            }
+        }
+        if (certificate == null) {
+            Object single = payload.get("certificate");
+            if (single != null) certificate = single.toString();
+        }
+        String favoriteSubject = payload.get("favorite_subject") != null ? payload.get("favorite_subject").toString() : null;
+        String dailyHours = payload.get("daily_hours") != null ? payload.get("daily_hours").toString() : null;
 
         UserProfile p = profileService.updatePreferences(username, certificate, favoriteSubject, dailyHours);
         Map<String, Object> body = new LinkedHashMap<>();
