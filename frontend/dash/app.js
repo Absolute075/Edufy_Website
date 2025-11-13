@@ -654,7 +654,10 @@ document.addEventListener('DOMContentLoaded', () => {
           if (raw.trim().startsWith('[')) {
             const arr = JSON.parse(raw);
             if (Array.isArray(arr)) {
-              const set = new Set(arr.map(v => String(v)));
+              const list = arr.map(v => String(v));
+              // If 'none' is present with others, keep only 'none'
+              const only = (list.includes('none') && list.length > 1) ? ['none'] : list;
+              const set = new Set(only);
               Array.from(certEl.options).forEach(o => { o.selected = set.has(o.value); });
               return;
             }
@@ -668,6 +671,164 @@ document.addEventListener('DOMContentLoaded', () => {
           Array.from(certEl.options).forEach(o => { o.selected = (o.value === norm); });
         }
       })();
+      // Custom dropdown for multi-select certificates: hidden select, button trigger, checkbox list
+      if (certEl) {
+        const container = document.createElement('div');
+        container.style.position = 'relative';
+        container.style.width = '100%';
+        const trigger = document.createElement('div');
+        trigger.className = 'form-input';
+        trigger.style.display = 'flex';
+        trigger.style.alignItems = 'center';
+        trigger.style.justifyContent = 'space-between';
+        trigger.style.width = '100%';
+        // No hover reaction
+        trigger.style.cursor = 'default';
+        trigger.style.transition = 'none';
+        // No focus/active visual reaction
+        trigger.style.outline = 'none';
+        trigger.style.boxShadow = 'none';
+        trigger.style.userSelect = 'none';
+        // Use default background from .form-input CSS to match palette
+        trigger.style.background = '';
+        // No native focus/active since it's a div
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = 'Choose';
+        labelSpan.style.color = 'inherit';
+        trigger.appendChild(labelSpan);
+        const caret = document.createElement('span');
+        caret.textContent = '▾';
+        trigger.appendChild(caret);
+        const menu = document.createElement('div');
+        menu.style.position = 'absolute';
+        menu.style.zIndex = '20';
+        // Open upwards above the trigger
+        menu.style.bottom = 'calc(100% + 4px)';
+        menu.style.left = '0';
+        menu.style.right = '0';
+        menu.style.maxHeight = '240px';
+        menu.style.overflow = 'auto';
+        // Palette will be matched to trigger after insertion
+        menu.style.borderRadius = '6px';
+        menu.style.padding = '6px';
+        menu.style.display = 'none';
+        const list = document.createElement('div');
+        list.style.display = 'grid';
+        list.style.gap = '4px';
+        menu.appendChild(list);
+
+        function addItem(opt) {
+          const val = (opt.value || '').trim();
+          if (val === '') return; // skip placeholder
+          const group = (opt.getAttribute('data-group') || '').toUpperCase();
+          const row = document.createElement('label');
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.gap = '8px';
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = opt.value;
+          cb.checked = opt.selected;
+          cb.disabled = certEl.disabled;
+          if (group) cb.setAttribute('data-group', group);
+          row.appendChild(cb);
+          const txt = document.createElement('span');
+          txt.textContent = opt.textContent;
+          row.appendChild(txt);
+          cb.addEventListener('change', () => {
+            if (cb.value === 'none' && cb.checked) {
+              Array.from(certEl.options).forEach(o => { if (o.value !== 'none') o.selected = false; });
+              Array.from(list.querySelectorAll('input[type="checkbox"]')).forEach(x => { if (x.value !== 'none') x.checked = false; });
+            } else if (cb.checked) {
+              const noneOpt = Array.from(certEl.options).find(o => o.value === 'none');
+              if (noneOpt && noneOpt.selected) {
+                noneOpt.selected = false;
+                const noneCb = list.querySelector('input[type="checkbox"][value="none"]');
+                if (noneCb) noneCb.checked = false;
+              }
+              // Enforce single score per group
+              if (group) {
+                // Unselect other options in same group in select
+                Array.from(certEl.options).forEach(o => {
+                  const g = (o.getAttribute && o.getAttribute('data-group') || '').toUpperCase();
+                  if (g === group && o.value !== cb.value) o.selected = false;
+                });
+                // Uncheck other checkboxes in same group
+                Array.from(list.querySelectorAll('input[type="checkbox"][data-group="' + group + '"]')).forEach(x => {
+                  if (x.value !== cb.value) x.checked = false;
+                });
+              }
+            }
+            const targetOpt = Array.from(certEl.options).find(o => o.value === cb.value);
+            if (targetOpt) targetOpt.selected = cb.checked;
+            certEl.dispatchEvent(new Event('change', { bubbles: true }));
+            updateTriggerLabel();
+          });
+          list.appendChild(row);
+        }
+        function rebuildList() {
+          list.innerHTML = '';
+          const groups = Array.from(certEl.children);
+          for (const node of groups) {
+            if (node.tagName === 'OPTGROUP') {
+              const title = document.createElement('div');
+              title.textContent = node.getAttribute('label') || '';
+              title.style.fontWeight = '600';
+              title.style.margin = '4px 0 2px';
+              list.appendChild(title);
+              Array.from(node.children).forEach(opt => addItem(opt));
+            } else if (node.tagName === 'OPTION') {
+              addItem(node);
+            }
+          }
+        }
+        function updateTriggerLabel(){
+          const sel = Array.from(certEl.selectedOptions || []);
+          if (!sel.length) {
+            labelSpan.textContent = 'Choose';
+            return;
+          }
+          // keep same color as other fields
+          if (sel.length === 1) { labelSpan.textContent = sel[0].value === 'none' ? 'No certificate' : sel[0].textContent; return; }
+          labelSpan.textContent = `${sel.length} selected`;
+        }
+        function syncDisabled(){
+          const isDisabled = certEl.hasAttribute('disabled');
+          // Do not set native disabled on trigger to avoid red barred cursor
+          if (isDisabled) trigger.setAttribute('aria-disabled', 'true'); else trigger.removeAttribute('aria-disabled');
+          list.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.disabled = isDisabled; });
+          // Keep default cursor always (no hover reaction)
+          trigger.style.cursor = 'default';
+          trigger.style.opacity = isDisabled ? '0.7' : '1';
+        }
+        trigger.addEventListener('click', () => {
+          if (certEl.disabled) return;
+          menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        });
+        document.addEventListener('click', (e) => {
+          if (!container.contains(e.target)) menu.style.display = 'none';
+        });
+        certEl.parentElement.insertBefore(container, certEl);
+        container.appendChild(trigger);
+        container.appendChild(menu);
+        rebuildList();
+        updateTriggerLabel();
+        certEl.style.display = 'none';
+        // After in DOM, align palette with trigger/form-input
+        (function alignPalette(){
+          const cs = window.getComputedStyle(trigger);
+          menu.style.backgroundColor = cs.backgroundColor;
+          // Border color fallback handling
+          const borderColor = cs.borderColor && cs.borderColor !== 'rgba(0, 0, 0, 0)' ? cs.borderColor : cs.outlineColor;
+          menu.style.border = `1px solid ${borderColor || '#ccc'}`;
+          menu.style.color = cs.color;
+          menu.style.fontSize = cs.fontSize;
+          menu.style.lineHeight = cs.lineHeight;
+        })();
+        const mo = new MutationObserver(syncDisabled);
+        mo.observe(certEl, { attributes: true, attributeFilter: ['disabled'] });
+        syncDisabled();
+      }
       // Subject load stays as-is
       s('pref.subject', subjEl);
       // Hours: prefer new key, fallback to old minutes and map to range
@@ -705,7 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let certificatesForBackend = [];
       let rawSelectedValues = [];
       if (certEl) {
-        const selected = Array.from(certEl.selectedOptions || []);
+        const selected = Array.from(certEl.selectedOptions || []).filter(o => (o.value || '').trim() !== '');
         // If 'none' is selected along with others, keep only 'none'
         const hasNone = selected.some(o => (o.value || '').trim() === 'none');
         const effective = hasNone ? selected.filter(o => (o.value || '').trim() === 'none') : selected;
