@@ -703,7 +703,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (raw === 'none') {
           certificateForBackend = 'none';
         } else if (group === 'IELTS') {
-          certificateForBackend = 'IELTS';
+          // Include selected band, e.g., 'IELTS: 6.5'
+          certificateForBackend = raw ? `IELTS: ${raw}` : 'IELTS';
         } else if (group === 'TOEFL') {
           if (/^\d+-\d+$/.test(raw)) {
             certificateForBackend = `TOEFL: ${raw.split('-')[0]}`;
