@@ -173,12 +173,8 @@
             progress: 0,
             quote: { text: 'A man who makes a mistake and does not correct it is making another mistake.', author: '-Platon' },
             weeklyHours: null,
-            activities: [
-                { text: 'Completed Reading Practice Test 4', time: Date.now() - 10*60*1000 },
-                { text: 'Finished Full IELTS Mock Test', time: Date.now() - 2*60*60*1000 },
-                { text: 'Reviewed Vocabulary Set 7', time: Date.now() - 26*60*60*1000 }
-            ],
-            weeks: [35, 52, 68, 60]
+            activities: [],
+            weeks: [0, 0, 0, 0]
         };
 
         const nameEl = document.getElementById('studentName');
@@ -211,7 +207,8 @@
 
         data.weeks.forEach((v, i) => {
             const w = document.querySelector(`[data-week="${i+1}"]`);
-            if (w) w.style.height = Math.max(12, (v/100)*160) + 'px';
+            if (!w) return;
+            w.style.height = (v > 0 ? Math.max(12, (v/100)*160) : 6) + 'px';
         });
 
         const ul = document.getElementById('activities');
