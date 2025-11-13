@@ -10,15 +10,29 @@ document.addEventListener('DOMContentLoaded', () => {
   function rebindSidebarControls() {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    [sidebarToggle, mobileMenuBtn].forEach(btn => {
-      btn?.addEventListener('click', () => {
-        sidebar?.classList.toggle('active');
-        sidebar?.classList.toggle('collapsed');
-        // Ensure mobile sidebar opens/closes on small screens
-        sidebar?.classList.toggle('open');
-        mainContent?.classList.toggle('expanded');
-      });
-    });
+    function onToggle() {
+      if (!sidebar || !mainContent) return;
+      const isMobile = window.innerWidth <= 1024;
+      if (isMobile) {
+        // Mobile: use 'active' to show/hide
+        if (sidebar.classList.contains('active')) {
+          sidebar.classList.remove('active');
+          mainContent.classList.remove('expanded');
+        } else {
+          sidebar.classList.add('active');
+          mainContent.classList.add('expanded');
+        }
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.remove('open');
+      } else {
+        // Desktop: collapse/expand
+        sidebar.classList.toggle('collapsed');
+        sidebar.classList.remove('active');
+        sidebar.classList.remove('open');
+        mainContent.classList.toggle('expanded');
+      }
+    }
+    [sidebarToggle, mobileMenuBtn].forEach(btn => { btn?.addEventListener('click', onToggle); });
   }
 
   function setActiveSidebarLink() {
@@ -620,15 +634,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize - Check if mobile (align with CSS breakpoint 820px)
   function checkMobile() {
     if (!sidebar || !mainContent) return;
-    if (window.innerWidth <= 820) {
-      // Mobile: hide sidebar by default
-      sidebar.classList.add('collapsed');
-      sidebar.classList.remove('open');
-      mainContent.classList.add('expanded');
-    } else {
-      // Desktop: sidebar visible
+    if (window.innerWidth <= 1024) {
+      // Mobile default: hidden (no 'active')
       sidebar.classList.remove('collapsed');
       sidebar.classList.remove('open');
+      sidebar.classList.remove('active');
+      mainContent.classList.remove('expanded');
+    } else {
+      // Desktop default: visible (not collapsed)
+      sidebar.classList.remove('active');
+      sidebar.classList.remove('open');
+      sidebar.classList.remove('collapsed');
       mainContent.classList.remove('expanded');
     }
   }
