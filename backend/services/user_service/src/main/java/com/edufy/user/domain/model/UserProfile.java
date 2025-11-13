@@ -31,6 +31,16 @@ public class UserProfile {
     @Column(length = 16)
     private String plan; // free | plus | pro | admin
 
+    // Learning preferences
+    @Column(length = 64)
+    private String certificate; // e.g. IELTS, TOEFL: 110, SAT: 1450, AP: 5, ACT: 30
+
+    @Column(length = 128)
+    private String favoriteSubject; // e.g. Data Science, Economics
+
+    @Column(length = 16)
+    private String dailyHours; // e.g. 2-3, 10+
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

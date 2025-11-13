@@ -64,6 +64,30 @@ public class ProfileController {
         return ResponseEntity.ok(body);
     }
 
+    @PutMapping("/profile/preferences")
+    public ResponseEntity<?> updatePreferences(@RequestBody Map<String, String> payload, HttpServletRequest request) {
+        String token = getAccessToken(request);
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+        String username;
+        try { username = JwtUtil.extractUsername(token); }
+        catch (Exception e) { return ResponseEntity.status(401).body(Map.of("message", "Invalid token")); }
+
+        String certificate = payload.getOrDefault("certificate", null);
+        String favoriteSubject = payload.getOrDefault("favorite_subject", null);
+        String dailyHours = payload.getOrDefault("daily_hours", null);
+
+        UserProfile p = profileService.updatePreferences(username, certificate, favoriteSubject, dailyHours);
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("message", "Preferences updated");
+        body.put("username", p.getUsername());
+        body.put("certificate", p.getCertificate());
+        body.put("favorite_subject", p.getFavoriteSubject());
+        body.put("daily_hours", p.getDailyHours());
+        return ResponseEntity.ok(body);
+    }
+
     @RequestMapping(value = "/profile", method = { RequestMethod.PUT, RequestMethod.POST })
     public ResponseEntity<?> updateProfile(@RequestBody Map<String, String> payload, HttpServletRequest request) {
         String token = getAccessToken(request);

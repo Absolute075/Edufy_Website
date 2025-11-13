@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       personalEditBtn?.addEventListener('click', () => {
         if (!personalInputs) return;
-        personalInputs.forEach(inp => inp.removeAttribute('readonly'));
+        personalInputs.forEach(inp => { inp.removeAttribute('readonly'); inp.removeAttribute('disabled'); });
         snapshotOriginals();
         checkDirty();
         personalInputs.forEach(inp => {
@@ -272,7 +272,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const avatarName = document.querySelector('.avatar-name');
         if (headerUsername) headerUsername.textContent = fullName;
         if (avatarName) avatarName.textContent = fullName;
-        personalInputs?.forEach(inp => inp.setAttribute('readonly', true));
+        personalInputs?.forEach(inp => { inp.setAttribute('readonly', true); if (inp.tagName === 'SELECT') inp.setAttribute('disabled', true); });
+        // Save merged Learning Preferences as part of personal save
+        try { window.__saveLearningPrefs?.(); } catch {}
         if (savePersonalBtn) savePersonalBtn.style.display = 'none';
         originals = null;
         showToast('Personal information saved successfully!');
@@ -404,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
   personalEditBtn?.addEventListener('click', () => {
     if (!personalInputs) return;
     // Enable edit mode
-    personalInputs.forEach(inp => inp.removeAttribute('readonly'));
+    personalInputs.forEach(inp => { inp.removeAttribute('readonly'); inp.removeAttribute('disabled'); });
     snapshotOriginals();
     checkDirty();
     // Watch changes
@@ -429,7 +431,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (avatarName) avatarName.textContent = fullName;
 
     // Exit edit mode
-    personalInputs?.forEach(inp => inp.setAttribute('readonly', true));
+    personalInputs?.forEach(inp => { inp.setAttribute('readonly', true); if (inp.tagName === 'SELECT') inp.setAttribute('disabled', true); });
+    // Save merged Learning Preferences as part of personal save
+    try { window.__saveLearningPrefs?.(); } catch {}
     if (savePersonalBtn) savePersonalBtn.style.display = 'none';
     originals = null;
     showToast('Personal information saved successfully!');
@@ -630,6 +634,149 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Auto-saving:', input.id, input.value);
     });
   });
+
+  // Profile: Learning Preferences (load/save)
+  (function initLearningPreferences(){
+    const certEl = document.getElementById('qCertificate');
+    const subjEl = document.getElementById('qSubject');
+    const hoursEl = document.getElementById('qDailyHours');
+    const saveBtn = document.getElementById('savePreferencesBtn');
+    if (!certEl && !subjEl && !hoursEl && !saveBtn) return; // not on profile
+
+    // Load from localStorage into UI
+    try {
+      const s = (k, el) => { const v = localStorage.getItem(k); if (v !== null && el) el.value = v; };
+      // Normalize old certificate formats like 'IELTS 6.5' -> '6.5', 'TOEFL 95-109' -> '95-109'
+      (function(){
+        const raw = localStorage.getItem('pref.certificate');
+        if (raw && certEl) {
+          let norm = raw.trim();
+          // Extract numeric value/range like 6.5, 95-109, 110-117, <41, <1000
+          const m = norm.match(/(\d+\.\d+|\d+-\d+|<\d+|\d+)/);
+          if (m) {
+            norm = m[1];
+            // If this value exists among options, apply it
+            const has = Array.from(certEl.querySelectorAll('option')).some(o => o.value === norm);
+            if (has) certEl.value = norm;
+          }
+        }
+      })();
+      // Subject load stays as-is
+      s('pref.subject', subjEl);
+      // Hours: prefer new key, fallback to old minutes and map to range
+      (function(){
+        const v = localStorage.getItem('pref.daily_hours');
+        if (v && hoursEl) { hoursEl.value = v; return; }
+        const oldMin = localStorage.getItem('pref.daily_minutes');
+        if (oldMin && hoursEl) {
+          const m = parseInt(oldMin, 10);
+          if (!isNaN(m)) {
+            let bucket = '';
+            if (m <= 60) bucket = '0-1';
+            else if (m <= 180) bucket = '2-3';
+            else if (m <= 300) bucket = '4-5';
+            else if (m <= 420) bucket = '6-7';
+            else if (m <= 540) bucket = '8-9';
+            else bucket = '10+';
+            hoursEl.value = bucket;
+          }
+        }
+      })();
+    } catch {}
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      if (!t) return;
+      const span = t.querySelector('.toast-message');
+      if (span) span.textContent = msg;
+      t.classList.add('active');
+      setTimeout(()=> t.classList.remove('active'), 2000);
+    }
+
+    async function savePrefs() {
+      // Prepare certificate formatting for backend
+      let certificateForBackend = '';
+      if (certEl) {
+        const raw = (certEl.value || '').trim();
+        const opt = certEl.selectedOptions && certEl.selectedOptions[0];
+        const group = opt ? (opt.getAttribute('data-group') || '').toUpperCase() : '';
+        if (raw === 'none') {
+          certificateForBackend = 'none';
+        } else if (group === 'IELTS') {
+          certificateForBackend = 'IELTS';
+        } else if (group === 'TOEFL') {
+          if (/^\d+-\d+$/.test(raw)) {
+            certificateForBackend = `TOEFL: ${raw.split('-')[0]}`;
+          } else {
+            certificateForBackend = `TOEFL: ${raw}`; // handles single number and <41
+          }
+        } else if (group === 'SAT') {
+          if (/^\d+-\d+$/.test(raw)) {
+            certificateForBackend = `SAT: ${raw.split('-')[0]}`;
+          } else {
+            certificateForBackend = `SAT: ${raw}`; // handles single number and <1000
+          }
+        } else if (group === 'AP') {
+          certificateForBackend = `AP: ${raw}`; // AP is a single score 1-5
+        } else if (group === 'ACT') {
+          if (/^\d+-\d+$/.test(raw)) {
+            certificateForBackend = `ACT: ${raw.split('-')[0]}`;
+          } else {
+            certificateForBackend = `ACT: ${raw}`; // handles single number and <20
+          }
+        } else {
+          // default: keep raw
+          certificateForBackend = raw;
+        }
+      }
+
+      // Map hour range to approximate minutes for backend
+      function hoursRangeToMinutes(range){
+        switch(range){
+          case '0-1': return 30;
+          case '2-3': return 150;
+          case '4-5': return 270;
+          case '6-7': return 390;
+          case '8-9': return 510;
+          case '10+': return 600;
+          default: return null;
+        }
+      }
+
+      const selectedHours = hoursEl ? (hoursEl.value || '') : '';
+      const payload = {
+        certificate: certificateForBackend,
+        favorite_subject: subjEl ? subjEl.value : '',
+        daily_hours: selectedHours || null,
+      };
+
+      // Persist locally for instant UX
+      try {
+        // Store raw select value for proper UI restore
+        localStorage.setItem('pref.certificate', certEl ? (certEl.value || '') : '');
+        localStorage.setItem('pref.subject', payload.favorite_subject || '');
+        localStorage.setItem('pref.daily_hours', selectedHours || '');
+      } catch {}
+
+      // Send to backend (adjust endpoint as needed on server)
+      try {
+        const res = await fetch('/user/profile/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('failed');
+        showToast('Preferences saved');
+      } catch (e) {
+        showToast('Saved locally. Sync pending');
+      }
+    }
+
+    // Expose for Personal Information save button
+    try { window.__saveLearningPrefs = savePrefs; } catch {}
+    saveBtn?.addEventListener('click', (e)=>{ e.preventDefault(); savePrefs(); });
+  })();
 
   // Initialize - Check if mobile (align with CSS breakpoint 820px)
   function checkMobile() {

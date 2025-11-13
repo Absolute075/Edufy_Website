@@ -40,6 +40,15 @@ public class ProfileService {
         return repo.save(p);
     }
 
+    public UserProfile updatePreferences(String username, String certificate, String favoriteSubject, String dailyHours) {
+        // Ensure profile exists
+        UserProfile p = getOrCreate(username);
+        if (certificate != null) p.setCertificate(certificate);
+        if (favoriteSubject != null) p.setFavoriteSubject(favoriteSubject);
+        if (dailyHours != null) p.setDailyHours(dailyHours);
+        return repo.save(p);
+    }
+
     public void renameUsername(String oldUsername, String newUsername) {
         if (oldUsername == null || newUsername == null) return;
         if (oldUsername.equals(newUsername)) return;
