@@ -183,33 +183,20 @@
 
       function getUserKey(){
         try {
-          // Prefer the unified key established by components.js
-          const id = (typeof window !== 'undefined' && window.__edufyUserKey)
-                 || sessionStorage.getItem('edufy.user.key')
-                 || localStorage.getItem('edufy.user.key')
-                 || localStorage.getItem('edufy_user_id')
-                 || localStorage.getItem('user.id')
-                 || document.getElementById('profileId')?.textContent?.trim()
-                 || document.querySelector('.header-username')?.textContent?.trim();
-          return (id && id.length) ? id : null;
+          return window.__edufyUserKey || sessionStorage.getItem('edufy.user.key') || localStorage.getItem('edufy.user.key') || null;
         } catch { return null; }
       }
 
       function logActivity(ev) {
         try {
-          const userKey = getUserKey();
-          if (!userKey) {
-            console.warn('[Activity] No user key found, skipping log');
-            return;
-          }
-          const baseKey = 'recentActivities';
-          const key = `${baseKey}::${userKey}`;
-          const entry = { type: ev.type || 'reading_open', text: ev.text || '', sub: ev.sub || '', time: Date.now() };
-          const arr = JSON.parse(localStorage.getItem(key) || '[]');
+          const uk = getUserKey();
+          if (!uk) return;
+          const key = `edufyActivities_${uk}`;
+          const entry = { type: ev.type||'view', text: ev.text||'Activity', sub: ev.sub||'', time: Date.now() };
+          const arr = JSON.parse(localStorage.getItem(key)||'[]');
           arr.unshift(entry);
-          localStorage.setItem(key, JSON.stringify(arr.slice(0, 50)));
-          console.log('[Activity] Logged:', entry, 'to key:', key);
-        } catch (e) { console.error('[Activity] Error:', e); }
+          localStorage.setItem(key, JSON.stringify(arr.slice(0,20)));
+        } catch {}
       }
 
       // Expose helper for inline onclick fallback
@@ -232,8 +219,22 @@
         logActivity({ type: 'reading_open', text: `Opened: ${title}`, sub: id });
       });
 
-      // Log page view (to ensure at least one activity)
-      logActivity({ type: 'reading_catalog_view', text: 'Viewed Reading Catalog', sub: 'resources-reading' });
+      // Clean up old activity keys once
+      try {
+        const uk = getUserKey();
+        if (uk && !sessionStorage.getItem('edufy_cleaned')) {
+          localStorage.removeItem('recentActivities');
+          Object.keys(localStorage).forEach(k => {
+            if (k.startsWith('recentActivities::') && k !== `recentActivities::${uk}`) {
+              localStorage.removeItem(k);
+            }
+          });
+          sessionStorage.setItem('edufy_cleaned', '1');
+        }
+      } catch {}
+      
+      // Log catalog view
+      setTimeout(() => logActivity({ type: 'catalog', text: 'Viewed Reading Catalog', sub: '' }), 500);
 
       // Listen for messages from opened test tabs (cross-origin bridge)
       window.addEventListener('message', (ev) => {

@@ -170,31 +170,17 @@
     (function(){
         function getUserKey(){
             try {
-                const id = localStorage.getItem('edufy_user_id')
-                        || localStorage.getItem('user.id')
-                        || document.getElementById('profileId')?.textContent?.trim()
-                        || document.querySelector('.header-username')?.textContent?.trim();
-                return (id && id.length) ? id : null;
+                return window.__edufyUserKey || sessionStorage.getItem('edufy.user.key') || localStorage.getItem('edufy.user.key') || null;
             } catch { return null; }
         }
         function loadRecentActivities(){
             try {
-                const baseKey = 'recentActivities';
-                const userKey = getUserKey();
-                console.log('[Dashboard] Loading activities for userKey:', userKey);
-                if (!userKey) {
-                    console.warn('[Dashboard] No user key found, returning empty activities');
-                    return [];
-                }
-                const key = `${baseKey}::${userKey}`;
-                const arr = JSON.parse(localStorage.getItem(key) || '[]');
-                const activities = (Array.isArray(arr) ? arr : []).slice(0, 3);
-                console.log('[Dashboard] Loaded', activities.length, 'activities from key:', key);
-                return activities;
-            } catch (e) { 
-                console.error('[Dashboard] Error loading activities:', e);
-                return []; 
-            }
+                const uk = getUserKey();
+                if (!uk) return [];
+                const key = `edufyActivities_${uk}`;
+                const arr = JSON.parse(localStorage.getItem(key)||'[]');
+                return (Array.isArray(arr) ? arr : []).slice(0, 3);
+            } catch { return []; }
         }
 
         const data = {
