@@ -231,3 +231,20 @@ body.sidebar-open > aside.sidebar { transform: translateX(0) !important; }
   font-weight: 600 !important;
   color: var(--text) !important;
 }
+
+/* CRITICAL FIX: Override theme.css mobile sidebar rules with maximum specificity */
+/* theme.css has @media(max-width:1024px){.sidebar{transform:translateX(-280px)}} without !important */
+/* This rule must come last and use !important to win the cascade war */
+@media (max-width: 1024px) {
+  html body aside.sidebar.active,
+  html body aside.sidebar.open {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  html body.sidebar-open aside.sidebar {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
