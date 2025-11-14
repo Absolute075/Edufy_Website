@@ -83,6 +83,13 @@ document.addEventListener('DOMContentLoaded', () => {
       performToggle();
     }
 
+    function onPointerUp() {
+      const now = Date.now();
+      if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
+      lastToggleTs = now;
+      performToggle();
+    }
+
     function onClick() {
       const now = Date.now();
       if (now - lastTouchEndTs < TOGGLE_DEBOUNCE_MS) return; // suppress click right after touch
@@ -97,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
       el.addEventListener('click', onClick);
       el.removeEventListener('touchend', onTouchEnd);
       el.addEventListener('touchend', onTouchEnd, { passive: true });
+      el.removeEventListener('pointerup', onPointerUp);
+      el.addEventListener('pointerup', onPointerUp);
     }
 
     [sidebarToggle, mobileMenuBtn].forEach(attachTrigger);
@@ -111,7 +120,23 @@ document.addEventListener('DOMContentLoaded', () => {
         document.removeEventListener(type, listener, true);
       });
     } catch {}
-    window.__edufySidebarDelegates = [];
+    // Install delegated fallback for dynamically added or replaced triggers
+    try {
+      const delegatedToggle = (ev) => {
+        const t = ev.target && (ev.target.closest ? ev.target.closest('#mobileMenuBtn, .mobile-menu-btn, #sidebarToggle') : null);
+        if (!t) return;
+        const now = Date.now();
+        if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
+        lastToggleTs = now;
+        performToggle();
+      };
+      document.addEventListener('pointerup', delegatedToggle, true);
+      document.addEventListener('click', delegatedToggle, true);
+      window.__edufySidebarDelegates = [
+        { type: 'pointerup', listener: delegatedToggle },
+        { type: 'click', listener: delegatedToggle }
+      ];
+    } catch {}
 
     ensureSidebarOverlay();
     syncSidebarState();
