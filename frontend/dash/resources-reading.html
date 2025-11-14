@@ -137,7 +137,7 @@
           const id = (i.id || '').toString();
           const last = id.split('/').pop();
           if (!last) throw new Error('bad id');
-          return `https://resources.edufyuzbekistan.com/storage/${last}.html`;
+          return `https://resources.edufyuzbekistan.com/materials/${last}.html`;
         } catch {
           // Fallback to previous behavior
           return `${MATERIALS_BASE}/materials/link?id=${encodeURIComponent(i.id)}`;
