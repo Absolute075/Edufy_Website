@@ -181,34 +181,20 @@
             try {
                 const baseKey = 'recentActivities';
                 const userKey = getUserKey();
-                if (userKey) {
-                    const key = `${baseKey}::${userKey}`;
-                    // migrate once from global if present
-                    if (localStorage.getItem(baseKey) && !localStorage.getItem(key)) {
-                        localStorage.setItem(key, localStorage.getItem(baseKey));
-                    }
-                    const a = JSON.parse(localStorage.getItem(key) || '[]');
-                    // Fallback/merge with global if namespaced is empty to avoid missing entries
-                    const b = JSON.parse(localStorage.getItem(baseKey) || '[]');
-                    const merged = ([]).concat(Array.isArray(a)?a:[], Array.isArray(b)?b:[])
-                      .filter(x => x && (x.text || x.sub))
-                      .sort((x,y) => (y.time||0) - (x.time||0));
-                    // Deduplicate and cap 3
-                    const seen = new Set();
-                    const out = [];
-                    for (const it of merged) {
-                        const k = `${it.time||0}|${it.text||''}`;
-                        if (seen.has(k)) continue;
-                        seen.add(k);
-                        out.push(it);
-                        if (out.length >= 3) break;
-                    }
-                    return out;
-                } else {
-                    const arr = JSON.parse(localStorage.getItem(baseKey) || '[]');
-                    return (Array.isArray(arr) ? arr : []).slice(0, 3);
+                console.log('[Dashboard] Loading activities for userKey:', userKey);
+                if (!userKey) {
+                    console.warn('[Dashboard] No user key found, returning empty activities');
+                    return [];
                 }
-            } catch { return []; }
+                const key = `${baseKey}::${userKey}`;
+                const arr = JSON.parse(localStorage.getItem(key) || '[]');
+                const activities = (Array.isArray(arr) ? arr : []).slice(0, 3);
+                console.log('[Dashboard] Loaded', activities.length, 'activities from key:', key);
+                return activities;
+            } catch (e) { 
+                console.error('[Dashboard] Error loading activities:', e);
+                return []; 
+            }
         }
 
         const data = {

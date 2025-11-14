@@ -198,17 +198,18 @@
       function logActivity(ev) {
         try {
           const userKey = getUserKey();
-          const baseKey = 'recentActivities';
-          const key = userKey ? `${baseKey}::${userKey}` : baseKey;
-          // one-time migrate from global key if exists and userKey present
-          if (userKey && localStorage.getItem(baseKey) && !localStorage.getItem(key)) {
-            localStorage.setItem(key, localStorage.getItem(baseKey));
+          if (!userKey) {
+            console.warn('[Activity] No user key found, skipping log');
+            return;
           }
+          const baseKey = 'recentActivities';
+          const key = `${baseKey}::${userKey}`;
           const entry = { type: ev.type || 'reading_open', text: ev.text || '', sub: ev.sub || '', time: Date.now() };
           const arr = JSON.parse(localStorage.getItem(key) || '[]');
           arr.unshift(entry);
           localStorage.setItem(key, JSON.stringify(arr.slice(0, 50)));
-        } catch {}
+          console.log('[Activity] Logged:', entry, 'to key:', key);
+        } catch (e) { console.error('[Activity] Error:', e); }
       }
 
       // Expose helper for inline onclick fallback
