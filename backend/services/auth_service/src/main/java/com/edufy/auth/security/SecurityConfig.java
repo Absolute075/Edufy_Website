@@ -14,7 +14,8 @@ public class SecurityConfig {
     // ================== PASSWORD ENCODER ==================
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // Используем 6 раундов для совместимости с существующими паролями в БД
+        return new BCryptPasswordEncoder(6);
     }
 
 
