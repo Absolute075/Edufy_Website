@@ -72,7 +72,15 @@ public class AuthService {
         UserEntity user = userOpt.get();
 
         // Проверка пароля
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        System.out.println("[DEBUG] Login attempt for: " + user.getEmail());
+        System.out.println("[DEBUG] Password from request: " + request.getPassword());
+        System.out.println("[DEBUG] Password hash from DB: " + user.getPassword().substring(0, Math.min(60, user.getPassword().length())));
+        System.out.println("[DEBUG] PasswordEncoder class: " + passwordEncoder.getClass().getName());
+        
+        boolean matches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+        System.out.println("[DEBUG] Password matches: " + matches);
+        
+        if (!matches) {
             throw new RuntimeException("❌ Invalid password!");
         }
 
