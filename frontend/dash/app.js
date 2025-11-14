@@ -33,6 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     [sidebarToggle, mobileMenuBtn].forEach(btn => { btn?.addEventListener('click', onToggle); });
+    // Also bind to any element that uses the mobile-menu-btn class (fallback for pages that lack the id)
+    try {
+      document.querySelectorAll('.mobile-menu-btn').forEach(btn => {
+        btn.removeEventListener('click', onToggle); // avoid duplicate bindings across rehydrates
+        btn.addEventListener('click', onToggle);
+      });
+    } catch {}
   }
 
   function setActiveSidebarLink() {
