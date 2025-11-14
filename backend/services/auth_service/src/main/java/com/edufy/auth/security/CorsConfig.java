@@ -13,7 +13,11 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://edufyuzbekistan.com")
+                        .allowedOrigins(
+                                "https://edufyuzbekistan.com",
+                                "https://access.edufyuzbekistan.com",
+                                "https://dash.edufyuzbekistan.com"
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
