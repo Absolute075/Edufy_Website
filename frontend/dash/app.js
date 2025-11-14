@@ -136,19 +136,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // Install delegated fallback for dynamically added or replaced triggers
     try {
       const delegatedToggle = (ev) => {
-        const t = ev.target && (ev.target.closest ? ev.target.closest('#mobileMenuBtn, .mobile-menu-btn, #sidebarToggle') : null);
+        // Only target header burger button, not sidebar toggle (which is hidden on mobile)
+        const t = ev.target && (ev.target.closest ? ev.target.closest('#mobileMenuBtn, .mobile-menu-btn') : null);
         if (!t) return;
+        ev.preventDefault();
+        ev.stopPropagation();
         const now = Date.now();
         if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
         lastToggleTs = now;
-        try { dbg('delegatedToggle', { type: ev.type }); } catch {}
+        try { dbg('delegatedToggle', { type: ev.type, target: t.id || t.className }); } catch {}
         performToggle();
       };
       document.addEventListener('pointerup', delegatedToggle, true);
       document.addEventListener('click', delegatedToggle, true);
+      document.addEventListener('touchend', delegatedToggle, { passive: false, capture: true });
       window.__edufySidebarDelegates = [
         { type: 'pointerup', listener: delegatedToggle },
-        { type: 'click', listener: delegatedToggle }
+        { type: 'click', listener: delegatedToggle },
+        { type: 'touchend', listener: delegatedToggle }
       ];
     } catch {}
 
