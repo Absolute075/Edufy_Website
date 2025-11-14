@@ -181,6 +181,25 @@
         requestAnimationFrame(() => catalog.classList.add('fade-in'));
       }
 
+      function logActivity(ev) {
+        try {
+          const key = 'recentActivities';
+          const arr = JSON.parse(localStorage.getItem(key) || '[]');
+          arr.unshift({ type: ev.type || 'reading_open', text: ev.text || '', sub: ev.sub || '', time: Date.now() });
+          localStorage.setItem(key, JSON.stringify(arr.slice(0, 50)));
+        } catch {}
+      }
+
+      // Delegate click on catalog to capture Open events
+      document.addEventListener('click', (e) => {
+        const a = e.target && (e.target.closest ? e.target.closest('#catalog a.btn.sm') : null);
+        if (!a) return;
+        const itemEl = a.closest('.item');
+        const title = itemEl?.querySelector('.title')?.textContent?.trim() || 'Reading material';
+        const id = itemEl?.querySelector('.muted')?.textContent?.trim() || '';
+        logActivity({ type: 'reading_open', text: `Opened: ${title}`, sub: id });
+      });
+
       function renderSkeleton(n=6) {
         catalog.innerHTML = Array.from({length:n}).map(() => `
           <div class="skeleton">
