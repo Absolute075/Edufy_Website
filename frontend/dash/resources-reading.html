@@ -132,8 +132,16 @@
       }
 
       function buildUrlFromItem(i) {
-        // Always open through gateway signed-link endpoint to enforce plan/quotas and prevent direct access
-        return `${MATERIALS_BASE}/materials/link?id=${encodeURIComponent(i.id)}`;
+        // Open directly from static resources to avoid API signing dependency
+        try {
+          const id = (i.id || '').toString();
+          const last = id.split('/').pop();
+          if (!last) throw new Error('bad id');
+          return `https://resources.edufyuzbekistan.com/storage/${last}.html`;
+        } catch {
+          // Fallback to previous behavior
+          return `${MATERIALS_BASE}/materials/link?id=${encodeURIComponent(i.id)}`;
+        }
       }
 
       function render() {
