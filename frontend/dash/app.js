@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <nav class="sidebar-nav">
             <a href="dashboard" class="nav-item" data-page="dashboard"><span class="nav-text">Dashboard</span></a>
             <a href="profile" class="nav-item" data-page="profile"><span class="nav-text">Profile</span></a>
-            <a href="courses" class="nav-item" data-page="courses"><span class="nav-text">Resources</span></a>
+            <a href="resources/resources" class="nav-item" data-page="resources"><span class="nav-text">Resources</span></a>
             <a href="mentor" class="nav-item" data-page="mentor"><span class="nav-text">Mentor AI</span></a>
             <a href="billing-free" class="nav-item" data-page="billing-free"><span class="nav-text">Billing</span></a>
             <a href="settings" class="nav-item" data-page="settings"><span class="nav-text">Settings</span></a>
