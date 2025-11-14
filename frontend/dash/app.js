@@ -881,7 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (/^\d+-\d+$/.test(raw)) return `TOEFL: ${raw}`;
             return `TOEFL: ${raw}`;
           } else if (group === 'SAT') {
-            if (/^\d+-\d+$/.test(raw)) return `SAT: ${raw.split('-')[0]}`;
+            if (/^\d+-\d+$/.test(raw)) return `SAT: ${raw}`;
             return `SAT: ${raw}`;
           } else if (group === 'AP') {
             return `AP: ${raw}`;
