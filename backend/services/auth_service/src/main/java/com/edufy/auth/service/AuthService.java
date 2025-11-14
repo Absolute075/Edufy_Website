@@ -5,7 +5,7 @@ import com.edufy.auth.entity.UserEntity;
 import com.edufy.auth.repository.UserRepository;
 import com.edufy.auth.security.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,7 +17,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     // ================== REGISTER ==================
     public AuthResponse register(RegisterRequest request) {
