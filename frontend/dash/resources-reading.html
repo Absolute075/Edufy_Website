@@ -172,7 +172,7 @@
                 <span class="badge ${rp === 'free' ? 'free' : rp === 'plus' ? 'plus' : 'pro'}">${rp.toUpperCase()}</span>
               </div>
               <div>
-                <a class="btn sm" href="${url}" target="_blank" rel="noopener">Open</a>
+                <a class="btn sm" href="${url}" target="_blank" onclick="try{window.__logReading && window.__logReading(this)}catch{}">Open</a>
               </div>
             </div>
           `;
@@ -204,11 +204,28 @@
           if (userKey && localStorage.getItem(baseKey) && !localStorage.getItem(key)) {
             localStorage.setItem(key, localStorage.getItem(baseKey));
           }
+          const entry = { type: ev.type || 'reading_open', text: ev.text || '', sub: ev.sub || '', time: Date.now() };
           const arr = JSON.parse(localStorage.getItem(key) || '[]');
-          arr.unshift({ type: ev.type || 'reading_open', text: ev.text || '', sub: ev.sub || '', time: Date.now() });
+          arr.unshift(entry);
           localStorage.setItem(key, JSON.stringify(arr.slice(0, 50)));
+          // Also mirror to global key to ensure dashboard can see it even if userKey differs
+          try {
+            const base = JSON.parse(localStorage.getItem(baseKey) || '[]');
+            base.unshift(entry);
+            localStorage.setItem(baseKey, JSON.stringify(base.slice(0, 50)));
+          } catch {}
         } catch {}
       }
+
+      // Expose helper for inline onclick fallback
+      window.__logReading = function(anchor){
+        try {
+          const itemEl = anchor?.closest('.item');
+          const title = itemEl?.querySelector('.title')?.textContent?.trim() || 'Reading material';
+          const id = itemEl?.querySelector('.muted')?.textContent?.trim() || '';
+          logActivity({ type: 'reading_open', text: `Opened: ${title}`, sub: id });
+        } catch {}
+      };
 
       // Delegate click on catalog to capture Open events
       document.addEventListener('click', (e) => {
@@ -218,6 +235,20 @@
         const title = itemEl?.querySelector('.title')?.textContent?.trim() || 'Reading material';
         const id = itemEl?.querySelector('.muted')?.textContent?.trim() || '';
         logActivity({ type: 'reading_open', text: `Opened: ${title}`, sub: id });
+      });
+
+      // Log page view (to ensure at least one activity)
+      logActivity({ type: 'reading_catalog_view', text: 'Viewed Reading Catalog', sub: 'resources-reading' });
+
+      // Listen for messages from opened test tabs (cross-origin bridge)
+      window.addEventListener('message', (ev) => {
+        try {
+          const d = ev && ev.data;
+          if (!d || !d.__edufy) return;
+          const payload = d.payload || { type: d.type, text: d.text, sub: d.sub };
+          if (!payload) return;
+          logActivity(payload);
+        } catch {}
       });
 
       function renderSkeleton(n=6) {

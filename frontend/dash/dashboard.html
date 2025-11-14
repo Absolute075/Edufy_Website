@@ -256,15 +256,17 @@
             const h = Math.floor(m/60); if (h < 24) return h + 'h ago';
             const d = Math.floor(h/24); return d + 'd ago';
         };
-        if (ul) {
+        function renderActivitiesList(){
+            if (!ul) return;
+            const items = loadRecentActivities();
             ul.innerHTML = '';
-            if (!data.activities.length) {
+            if (!items.length) {
                 const empty = document.createElement('li');
                 empty.className = 'text-sm text-gray-400';
                 empty.textContent = 'No recent activity yet';
                 ul.appendChild(empty);
             } else {
-                data.activities.forEach(a => {
+                items.forEach(a => {
                     const li = document.createElement('li');
                     li.className = 'flex items-start gap-3 p-3 rounded-xl border border-gray-800 bg-gray-950 hover:bg-gray-900 transition';
                     li.innerHTML = `<span class="mt-0.5"></span><div><div class="font-medium">${a.text}</div><div class="text-xs text-gray-400">${relTime(a.time)}</div></div>`;
@@ -272,6 +274,14 @@
                 });
             }
         }
+        renderActivitiesList();
+        // Refresh when storage changes in another tab
+        window.addEventListener('storage', (e) => {
+            if (!e || !e.key) return;
+            if (e.key.startsWith('recentActivities')) renderActivitiesList();
+        });
+        // Periodic refresh as safety
+        setInterval(renderActivitiesList, 5000);
 
         // Keep original header behavior if any scripts rely on it
     })();
