@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // Sidebar elements (will be populated via partial)
+  // Note: always re-query inside handlers in case DOM changes
   const sidebar = document.querySelector('.sidebar');
   const mainContent = document.querySelector('.main-content');
   // Force full reload navigation (disable SPA)
@@ -11,25 +12,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     function onToggle() {
-      if (!sidebar || !mainContent) return;
+      const sb = document.querySelector('.sidebar');
+      const mc = document.querySelector('.main-content');
+      if (!sb || !mc) return;
       const isMobile = window.innerWidth <= 1024;
       if (isMobile) {
         // Mobile: use 'active' to show/hide
-        if (sidebar.classList.contains('active')) {
-          sidebar.classList.remove('active');
-          mainContent.classList.remove('expanded');
+        if (sb.classList.contains('active')) {
+          sb.classList.remove('active');
+          sb.classList.remove('open');
+          mc.classList.remove('expanded');
         } else {
-          sidebar.classList.add('active');
-          mainContent.classList.add('expanded');
+          sb.classList.add('active');
+          mc.classList.add('expanded');
         }
-        sidebar.classList.remove('collapsed');
-        sidebar.classList.remove('open');
+        sb.classList.remove('collapsed');
       } else {
         // Desktop: collapse/expand
-        sidebar.classList.toggle('collapsed');
-        sidebar.classList.remove('active');
-        sidebar.classList.remove('open');
-        mainContent.classList.toggle('expanded');
+        sb.classList.toggle('collapsed');
+        sb.classList.remove('active');
+        sb.classList.remove('open');
+        mc.classList.toggle('expanded');
       }
     }
     [sidebarToggle, mobileMenuBtn].forEach(btn => { btn?.addEventListener('click', onToggle); });
@@ -40,6 +43,26 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', onToggle);
       });
     } catch {}
+
+    // Delegated listener as a final safety net (covers dynamically added headers)
+    try {
+      document.removeEventListener('click', __edufyDelegatedMenuToggle, true);
+      document.removeEventListener('pointerdown', __edufyDelegatedMenuToggle, true);
+      document.removeEventListener('touchstart', __edufyDelegatedMenuToggle, true);
+    } catch {}
+    function __edufyDelegatedMenuToggle(e){
+      const trigger = e.target.closest('#mobileMenuBtn, .mobile-menu-btn, #sidebarToggle, .sidebar-toggle');
+      if (!trigger) return;
+      // Prevent duplicate firing between touchstart and click
+      if (e.type === 'touchstart') {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      onToggle();
+    }
+    document.addEventListener('pointerdown', __edufyDelegatedMenuToggle, true);
+    document.addEventListener('touchstart', __edufyDelegatedMenuToggle, true);
+    document.addEventListener('click', __edufyDelegatedMenuToggle, true);
   }
 
   function setActiveSidebarLink() {
