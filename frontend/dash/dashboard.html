@@ -181,14 +181,27 @@
             try {
                 const baseKey = 'recentActivities';
                 const userKey = getUserKey();
-                const key = userKey ? `${baseKey}::${userKey}` : baseKey;
+                const namespacedKey = userKey ? `${baseKey}::${userKey}` : baseKey;
                 // migrate once from global if present
-                if (userKey && localStorage.getItem(baseKey) && !localStorage.getItem(key)) {
-                    localStorage.setItem(key, localStorage.getItem(baseKey));
+                if (userKey && localStorage.getItem(baseKey) && !localStorage.getItem(namespacedKey)) {
+                    localStorage.setItem(namespacedKey, localStorage.getItem(baseKey));
                 }
-                const arr = JSON.parse(localStorage.getItem(key) || '[]');
-                if (!Array.isArray(arr)) return [];
-                return arr.slice(0, 10);
+                const a = JSON.parse(localStorage.getItem(namespacedKey) || '[]');
+                const b = JSON.parse(localStorage.getItem(baseKey) || '[]');
+                const merged = ([]).concat(Array.isArray(a)?a:[], Array.isArray(b)?b:[])
+                  .filter(x => x && (x.text || x.sub))
+                  .sort((x,y) => (y.time||0) - (x.time||0));
+                // dedupe by time+text
+                const seen = new Set();
+                const uniq = [];
+                for (const it of merged) {
+                    const k = `${it.time||0}|${it.text||''}`;
+                    if (seen.has(k)) continue;
+                    seen.add(k);
+                    uniq.push(it);
+                    if (uniq.length >= 3) break;
+                }
+                return uniq;
             } catch { return []; }
         }
 
