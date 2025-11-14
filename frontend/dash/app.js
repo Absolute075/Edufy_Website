@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     let lastToggleTs = 0;
-    let lastTouchStartTs = 0;
+    let lastTouchEndTs = 0;
     const TOGGLE_DEBOUNCE_MS = 350;
 
     function performToggle() {
@@ -88,34 +88,28 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       syncSidebarState();
     }
-    function handleToggleIntent(fromTouch) {
+    function onTouchEnd() {
       const now = Date.now();
-      if (fromTouch) {
-        lastTouchStartTs = now;
-        if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
-      } else {
-        if (now - lastTouchStartTs < TOGGLE_DEBOUNCE_MS) return;
-        if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
-      }
+      if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
+      lastTouchEndTs = now;
       lastToggleTs = now;
       performToggle();
     }
 
-    function onTouchStart(e) {
-      if (e.cancelable) e.preventDefault();
-      handleToggleIntent(true);
-    }
-
-    function onClick(e) {
-      handleToggleIntent(false);
+    function onClick() {
+      const now = Date.now();
+      if (now - lastTouchEndTs < TOGGLE_DEBOUNCE_MS) return; // suppress click right after touch
+      if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
+      lastToggleTs = now;
+      performToggle();
     }
 
     function attachTrigger(el) {
       if (!el) return;
       el.removeEventListener('click', onClick);
       el.addEventListener('click', onClick);
-      el.removeEventListener('touchstart', onTouchStart);
-      el.addEventListener('touchstart', onTouchStart, { passive: false });
+      el.removeEventListener('touchend', onTouchEnd);
+      el.addEventListener('touchend', onTouchEnd, { passive: true });
     }
 
     [sidebarToggle, mobileMenuBtn].forEach(attachTrigger);
@@ -124,29 +118,13 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.mobile-menu-btn').forEach(attachTrigger);
     } catch {}
 
-    // Delegated listener as a final safety net (covers dynamically added headers)
+    // Remove any previously installed global delegates
     try {
       (window.__edufySidebarDelegates || []).forEach(({ type, listener }) => {
         document.removeEventListener(type, listener, true);
       });
     } catch {}
-
-    const delegateHandler = (e) => {
-      const trigger = e.target.closest('#mobileMenuBtn, .mobile-menu-btn, #sidebarToggle, .sidebar-toggle');
-      if (!trigger) return;
-      if (e.type === 'touchstart') onTouchStart(e);
-      else onClick(e);
-    };
-
-    const delegates = [
-      { type: 'touchstart', listener: delegateHandler },
-      { type: 'click', listener: delegateHandler }
-    ];
-
-    delegates.forEach(({ type, listener }) => {
-      document.addEventListener(type, listener, true);
-    });
-    window.__edufySidebarDelegates = delegates;
+    window.__edufySidebarDelegates = [];
 
     ensureSidebarOverlay();
     syncSidebarState();
