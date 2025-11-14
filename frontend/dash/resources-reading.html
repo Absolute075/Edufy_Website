@@ -208,12 +208,6 @@
           const arr = JSON.parse(localStorage.getItem(key) || '[]');
           arr.unshift(entry);
           localStorage.setItem(key, JSON.stringify(arr.slice(0, 50)));
-          // Also mirror to global key to ensure dashboard can see it even if userKey differs
-          try {
-            const base = JSON.parse(localStorage.getItem(baseKey) || '[]');
-            base.unshift(entry);
-            localStorage.setItem(baseKey, JSON.stringify(base.slice(0, 50)));
-          } catch {}
         } catch {}
       }
 
