@@ -168,9 +168,25 @@
 <!-- Dashboard logic: data rendering for Tailwind sections only -->
 <script>
     (function(){
+        function getUserKey(){
+            try {
+                const id = localStorage.getItem('edufy_user_id')
+                        || localStorage.getItem('user.id')
+                        || document.getElementById('profileId')?.textContent?.trim()
+                        || document.querySelector('.header-username')?.textContent?.trim();
+                return (id && id.length) ? id : null;
+            } catch { return null; }
+        }
         function loadRecentActivities(){
             try {
-                const arr = JSON.parse(localStorage.getItem('recentActivities') || '[]');
+                const baseKey = 'recentActivities';
+                const userKey = getUserKey();
+                const key = userKey ? `${baseKey}::${userKey}` : baseKey;
+                // migrate once from global if present
+                if (userKey && localStorage.getItem(baseKey) && !localStorage.getItem(key)) {
+                    localStorage.setItem(key, localStorage.getItem(baseKey));
+                }
+                const arr = JSON.parse(localStorage.getItem(key) || '[]');
                 if (!Array.isArray(arr)) return [];
                 return arr.slice(0, 10);
             } catch { return []; }

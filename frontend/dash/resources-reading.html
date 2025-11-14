@@ -181,9 +181,29 @@
         requestAnimationFrame(() => catalog.classList.add('fade-in'));
       }
 
+      function getUserKey(){
+        try {
+          // Prefer the unified key established by components.js
+          const id = (typeof window !== 'undefined' && window.__edufyUserKey)
+                 || sessionStorage.getItem('edufy.user.key')
+                 || localStorage.getItem('edufy.user.key')
+                 || localStorage.getItem('edufy_user_id')
+                 || localStorage.getItem('user.id')
+                 || document.getElementById('profileId')?.textContent?.trim()
+                 || document.querySelector('.header-username')?.textContent?.trim();
+          return (id && id.length) ? id : null;
+        } catch { return null; }
+      }
+
       function logActivity(ev) {
         try {
-          const key = 'recentActivities';
+          const userKey = getUserKey();
+          const baseKey = 'recentActivities';
+          const key = userKey ? `${baseKey}::${userKey}` : baseKey;
+          // one-time migrate from global key if exists and userKey present
+          if (userKey && localStorage.getItem(baseKey) && !localStorage.getItem(key)) {
+            localStorage.setItem(key, localStorage.getItem(baseKey));
+          }
           const arr = JSON.parse(localStorage.getItem(key) || '[]');
           arr.unshift({ type: ev.type || 'reading_open', text: ev.text || '', sub: ev.sub || '', time: Date.now() });
           localStorage.setItem(key, JSON.stringify(arr.slice(0, 50)));
