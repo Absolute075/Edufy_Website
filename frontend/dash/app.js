@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const DISABLE_SPA = true;
 
   let sidebarOverlay = null;
+  let __edufyDebug = null;
+  const DEBUG_ENABLED = (() => { try { const p = new URLSearchParams(location.search); return p.get('debug') === '1'; } catch { return false; } })();
+  function __ensureDebugPanel() { if (!DEBUG_ENABLED) return null; if (__edufyDebug && document.body.contains(__edufyDebug)) return __edufyDebug; const p = document.createElement('div'); p.id = 'edufyDebugPanel'; p.style.position='fixed'; p.style.zIndex='99999'; p.style.bottom='10px'; p.style.left='10px'; p.style.maxWidth='90%'; p.style.maxHeight='40%'; p.style.overflow='auto'; p.style.background='rgba(0,0,0,0.8)'; p.style.color='#0f0'; p.style.font='12px/1.4 monospace'; p.style.padding='8px'; p.style.border='1px solid #0f0'; p.style.borderRadius='6px'; p.style.pointerEvents='none'; document.body.appendChild(p); __edufyDebug = p; return p; }
+  function dbg(){ try { console.log.apply(console, ['[SB]'].concat(Array.from(arguments))); } catch {} if (!DEBUG_ENABLED) return; try { const p = __ensureDebugPanel(); if (!p) return; const msg = Array.from(arguments).map(a => { try { if (typeof a === 'string') return a; return JSON.stringify(a); } catch { return String(a); } }).join(' '); const line = document.createElement('div'); const t = new Date(); const ts = t.toLocaleTimeString(); line.textContent = ts + ' ' + msg; p.appendChild(line); p.scrollTop = p.scrollHeight; } catch {} }
 
   function closeSidebar() {
     const sb = document.querySelector('.sidebar');
@@ -27,11 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
       sidebarOverlay.id = 'sidebarOverlay';
       sidebarOverlay.className = 'sidebar-overlay';
       document.body.appendChild(sidebarOverlay);
+      try { dbg('overlay-created'); } catch {}
     }
     if (created || !sidebarOverlay.dataset.bound) {
       sidebarOverlay.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        try { dbg('overlay-click'); } catch {}
         closeSidebar();
       });
       sidebarOverlay.dataset.bound = 'true';
@@ -54,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sb.classList.remove('open');
     }
     if (!isOpen) mc?.classList.remove('expanded');
+    try { dbg('syncSidebarState', { isMobile, isOpen, sb: !!sb, overlayVisible: !!(overlay && overlay.classList.contains('visible')), bodyOpen: document.body.classList.contains('sidebar-open') }); } catch {}
   }
 
   function rebindSidebarControls() {
@@ -69,17 +76,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!sb || !mc) return;
       // Always toggle 'active' so mobile slide-in works regardless of viewport quirks
       const nowActive = !sb.classList.contains('active');
+      try { dbg('performToggle:begin', { isMobile: window.innerWidth <= 1024, beforeActive: !nowActive }); } catch {}
       sb.classList.toggle('active', nowActive);
       if (!nowActive) sb.classList.remove('open');
       sb.classList.remove('collapsed');
       mc.classList.toggle('expanded', nowActive);
       syncSidebarState();
+      try { const cs = getComputedStyle(sb); dbg('performToggle:end', { nowActive, sbClass: sb.className, mcClass: mc.className, transform: cs && cs.transform }); } catch {}
     }
     function onTouchEnd() {
       const now = Date.now();
       if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
       lastTouchEndTs = now;
       lastToggleTs = now;
+      try { dbg('onTouchEnd'); } catch {}
       performToggle();
     }
 
@@ -87,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const now = Date.now();
       if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
       lastToggleTs = now;
+      try { dbg('onPointerUp'); } catch {}
       performToggle();
     }
 
@@ -95,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (now - lastTouchEndTs < TOGGLE_DEBOUNCE_MS) return; // suppress click right after touch
       if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
       lastToggleTs = now;
+      try { dbg('onClick'); } catch {}
       performToggle();
     }
 
@@ -106,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
       el.addEventListener('touchend', onTouchEnd, { passive: true });
       el.removeEventListener('pointerup', onPointerUp);
       el.addEventListener('pointerup', onPointerUp);
+      try { dbg('attachTrigger', { id: el.id || null, cls: el.className || null, tag: el.tagName }); } catch {}
     }
 
     [sidebarToggle, mobileMenuBtn].forEach(attachTrigger);
@@ -128,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const now = Date.now();
         if (now - lastToggleTs < TOGGLE_DEBOUNCE_MS) return;
         lastToggleTs = now;
+        try { dbg('delegatedToggle', { type: ev.type }); } catch {}
         performToggle();
       };
       document.addEventListener('pointerup', delegatedToggle, true);
@@ -138,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ];
     } catch {}
 
+    try { dbg('rebindSidebarControls', { sidebarToggle: !!sidebarToggle, mobileMenuBtn: !!mobileMenuBtn, classBtns: (()=>{ try { return document.querySelectorAll('.mobile-menu-btn').length; } catch { return 0; } })() }); } catch {}
     ensureSidebarOverlay();
     syncSidebarState();
   }
