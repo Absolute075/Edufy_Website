@@ -67,25 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const sb = document.querySelector('.sidebar');
       const mc = document.querySelector('.main-content');
       if (!sb || !mc) return;
-      const isMobile = window.innerWidth <= 1024;
-      if (isMobile) {
-        // Mobile: use 'active' to show/hide
-        if (sb.classList.contains('active')) {
-          sb.classList.remove('active');
-          sb.classList.remove('open');
-          mc.classList.remove('expanded');
-        } else {
-          sb.classList.add('active');
-          mc.classList.add('expanded');
-        }
-        sb.classList.remove('collapsed');
-      } else {
-        // Desktop: collapse/expand
-        sb.classList.toggle('collapsed');
-        sb.classList.remove('active');
-        sb.classList.remove('open');
-        mc.classList.toggle('expanded');
-      }
+      // Always toggle 'active' so mobile slide-in works regardless of viewport quirks
+      const nowActive = !sb.classList.contains('active');
+      sb.classList.toggle('active', nowActive);
+      if (!nowActive) sb.classList.remove('open');
+      sb.classList.remove('collapsed');
+      mc.classList.toggle('expanded', nowActive);
       syncSidebarState();
     }
     function onTouchEnd() {

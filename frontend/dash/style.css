@@ -198,6 +198,9 @@ h1 { margin: 0; font-size: 28px; }
     .app { margin-left: 0; }
 }
 
+/* Absolute safeguard: when JS sets body.sidebar-open, sidebar must be visible regardless of other stylesheets */
+body.sidebar-open > aside.sidebar { transform: translateX(0) !important; }
+
 /* Layout overrides to ensure consistent sidebar/main positioning */
 /* These help when multiple stylesheets define .sidebar/.main-content differently */
 .sidebar { width: 280px; }
