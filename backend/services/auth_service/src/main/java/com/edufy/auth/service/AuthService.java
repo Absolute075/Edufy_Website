@@ -47,7 +47,13 @@ public class AuthService {
         user.setEmail(request.getEmail());
         // Роль: по умолчанию STUDENT, если не передана
         user.setRole(request.getRole() != null ? request.getRole() : UserEntity.Role.STUDENT);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        
+        System.out.println("[DEBUG REGISTER] Original password: " + request.getPassword());
+        System.out.println("[DEBUG REGISTER] PasswordEncoder class: " + passwordEncoder.getClass().getName());
+        String hashedPassword = passwordEncoder.encode(request.getPassword());
+        System.out.println("[DEBUG REGISTER] Hashed password: " + hashedPassword);
+        
+        user.setPassword(hashedPassword);
         user.setActive(true);
         user.setCreatedAt(LocalDateTime.now());
 
