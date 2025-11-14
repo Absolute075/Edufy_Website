@@ -11,7 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function rebindSidebarControls() {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    function onToggle() {
+    let skipNext = false;
+
+    function applyToggle() {
       const sb = document.querySelector('.sidebar');
       const mc = document.querySelector('.main-content');
       if (!sb || !mc) return;
@@ -35,34 +37,37 @@ document.addEventListener('DOMContentLoaded', () => {
         mc.classList.toggle('expanded');
       }
     }
-    [sidebarToggle, mobileMenuBtn].forEach(btn => { btn?.addEventListener('click', onToggle); });
+    function requestToggle() {
+      if (skipNext) {
+        skipNext = false;
+        return;
+      }
+      applyToggle();
+    }
+
+    [sidebarToggle, mobileMenuBtn].forEach(btn => { btn?.addEventListener('click', requestToggle); });
     // Also bind to any element that uses the mobile-menu-btn class (fallback for pages that lack the id)
     try {
       document.querySelectorAll('.mobile-menu-btn').forEach(btn => {
-        btn.removeEventListener('click', onToggle); // avoid duplicate bindings across rehydrates
-        btn.addEventListener('click', onToggle);
+        btn.removeEventListener('click', requestToggle); // avoid duplicate bindings across rehydrates
+        btn.addEventListener('click', requestToggle);
       });
     } catch {}
 
     // Delegated listener as a final safety net (covers dynamically added headers)
     try {
-      document.removeEventListener('click', __edufyDelegatedMenuToggle, true);
       document.removeEventListener('pointerdown', __edufyDelegatedMenuToggle, true);
-      document.removeEventListener('touchstart', __edufyDelegatedMenuToggle, true);
     } catch {}
     function __edufyDelegatedMenuToggle(e){
       const trigger = e.target.closest('#mobileMenuBtn, .mobile-menu-btn, #sidebarToggle, .sidebar-toggle');
       if (!trigger) return;
-      // Prevent duplicate firing between touchstart and click
-      if (e.type === 'touchstart') {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      onToggle();
+      skipNext = true;
+      setTimeout(() => { skipNext = false; }, 320);
+      e.preventDefault();
+      e.stopPropagation();
+      applyToggle();
     }
     document.addEventListener('pointerdown', __edufyDelegatedMenuToggle, true);
-    document.addEventListener('touchstart', __edufyDelegatedMenuToggle, true);
-    document.addEventListener('click', __edufyDelegatedMenuToggle, true);
   }
 
   function setActiveSidebarLink() {
