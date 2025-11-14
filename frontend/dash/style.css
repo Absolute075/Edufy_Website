@@ -272,4 +272,9 @@ body.sidebar-open > aside.sidebar { transform: translateX(0) !important; }
   .sidebar-overlay.visible {
     z-index: 9997 !important;
   }
+  /* Hide sidebar toggle button (inside sidebar) on mobile - only use header burger */
+  .sidebar .sidebar-toggle,
+  .sidebar #sidebarToggle {
+    display: none !important;
+  }
 }
