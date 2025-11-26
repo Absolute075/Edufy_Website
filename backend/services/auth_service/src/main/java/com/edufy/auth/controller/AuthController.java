@@ -58,7 +58,7 @@ public class AuthController {
                 .sameSite("None")
                 .domain(".edufyuzbekistan.com")
                 .path("/")
-                .maxAge(15 * 60) // 15 минут
+                .maxAge(24 * 60 * 60) // 24 часа
                 .build();
 
         int refreshMaxAge = (request.isRememberMe() ? (30 * 24 * 60 * 60) : (7 * 24 * 60 * 60));
@@ -155,7 +155,7 @@ public class AuthController {
                 .sameSite("None")
                 .domain(".edufyuzbekistan.com")
                 .path("/")
-                .maxAge(15 * 60) // 15 minutes
+                .maxAge(24 * 60 * 60) // 24 часа
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenResponse.getRefreshToken())
@@ -320,7 +320,7 @@ public class AuthController {
                     .sameSite("None")
                     .domain(".edufyuzbekistan.com")
                     .path("/")
-                    .maxAge(15 * 60)
+                    .maxAge(24 * 60 * 60)
                     .build();
 
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefreshToken)

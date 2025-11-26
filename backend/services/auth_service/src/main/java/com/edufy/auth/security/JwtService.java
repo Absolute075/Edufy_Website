@@ -15,7 +15,7 @@ public class JwtService {
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     // Время жизни токенов
-    private final long ACCESS_TOKEN_EXP = 1000 * 60 * 15; // 15 минут
+    private final long ACCESS_TOKEN_EXP = 1000 * 60 * 60 * 24; // 24 часа
     private final long REFRESH_TOKEN_EXP = 1000 * 60 * 60 * 24 * 7; // 7 дней
 
     // ================== GENERATE ACCESS TOKEN ==================

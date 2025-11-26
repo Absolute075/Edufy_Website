@@ -124,7 +124,7 @@ public class OAuthController {
 
         // Настроить куки (совместимые с сабдоменами)
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
-                .httpOnly(true).secure(true).sameSite("None").domain(COOKIE_DOMAIN).path("/").maxAge(15 * 60).build();
+                .httpOnly(true).secure(true).sameSite("None").domain(COOKIE_DOMAIN).path("/").maxAge(24 * 60 * 60).build(); // 24 часа
         int refreshMaxAge = ("1".equals(readCookie(request, "oauth_remember")) ? (30 * 24 * 60 * 60) : (7 * 24 * 60 * 60));
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true).secure(true).sameSite("None").domain(COOKIE_DOMAIN).path("/").maxAge(refreshMaxAge).build();
