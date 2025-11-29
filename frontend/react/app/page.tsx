@@ -908,7 +908,7 @@ export default function HomePage() {
 
             <div className="relative mt-24 flex flex-col items-center gap-8">
               <div className="flex flex-col items-center gap-6">
-                <p className="founders-title pointer-events-none select-none text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-space font-extrabold uppercase tracking-[0.7em] text-white text-center">
+                <p className="founders-title pointer-events-none select-none text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-space font-extrabold uppercase tracking-[0.7em] text-white text-center">
                   Founders
                 </p>
                 <div className="relative z-10 flex gap-6 sm:gap-10 justify-center flex-wrap">
@@ -931,12 +931,12 @@ export default function HomePage() {
                           {/* Весь текст под окончанием линии: начинается у стрелки и уходит наружу (влево) */}
                           <div
                             className="absolute right-0 top-full mt-0 max-w-[90vw] w-[22rem] sm:w-[24rem] md:w-[26rem] text-left origin-top z-20"
-                            style={{ transform: 'translateY(-30px) rotate(18deg)' }}
+                            style={{ transform: 'translate(190px, 2px) rotate(18deg)' }}
                           >
                             <p className="text-sm sm:text-base md:text-lg font-semibold text-white">
                               Asilbek — CEO &amp; Co-Founder
                             </p>
-                            <p className="mt-1 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-gray-300">
+                            <p className="mt-1 px-2 sm:px-4 text-xs sm:text-sm md:text-sm text-gray-300">
                               Asilbek is responsible for managing the finances of Edufy and guiding the project's initiatives. He focuses on planning, organizing resources, and finding small improvements that make the platform better for students. Asilbek also explores new ideas and ways to make learning more accessible, keeping the team aligned and the project moving forward step by step.
                             </p>
                           </div>
@@ -963,12 +963,12 @@ export default function HomePage() {
                           {/* Весь текст под окончанием линии: начинается у стрелки и уходит наружу (вправо) */}
                           <div
                             className="absolute left-0 top-full mt-0 max-w-[90vw] w-[22rem] sm:w-[24rem] md:w-[26rem] text-left origin-top z-20"
-                            style={{ transform: 'translateY(-30px) rotate(-18deg)' }}
+                            style={{ transform: 'translate(-155px, -8px) rotate(-18deg)' }}
                           >
                             <p className="text-sm sm:text-base md:text-lg font-semibold text-white">
                               Behruz — CTO &amp; Co-Founder
                             </p>
-                            <p className="mt-1 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-gray-300">
+                            <p className="mt-1 px-3 sm:px-4 text-xs sm:text-sm md:text-sm text-gray-300">
                               Behruz takes care of all technical aspects of Edufy, from building and maintaining the platform to implementing new features. He also helps with day-to-day operations to ensure everything runs smoothly. Behruz works behind the scenes to keep the platform stable, efficient, and reliable, making sure that students can focus on learning without interruptions.
                             </p>
                           </div>
@@ -980,13 +980,13 @@ export default function HomePage() {
               </div>
 
               <div className="max-w-md text-center relative z-10">
-                <p className="text-sm sm:text-base md:text-lg font-space font-semibold uppercase tracking-[0.25em] text-white">
+                <p className="text-xs sm:text-sm md:text-base font-space font-semibold uppercase tracking-[0.25em] text-white">
                   Meet the Founders
                 </p>
-                <p className="mt-2 text-base sm:text-lg md:text-xl text-gray-300">
+                <p className="mt-2 text-sm sm:text-base md:text-lg text-gray-300">
                   Uzbek roots, uncommon minds.
                 </p>
-                <p className="mt-4 text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed">
+                <p className="mt-4 text-xs sm:text-sm md:text-base text-gray-400 leading-relaxed">
                   Edufy was created by a team of young innovators driven by a simple mission — to make high-quality exam
                   preparation accessible to every student. We believe in transparent learning, real practice materials,
                   and technology that empowers, not overwhelms.
