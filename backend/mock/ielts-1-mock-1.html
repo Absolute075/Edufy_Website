@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edufy - MOCK</title>
+    <!-- jsPDF (for PDF export) -->
+
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- jsPDF (for PDF export) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            overflow: hidden;
+        }
+
+        .loading-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9fafb;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-title {
+            font-size: 1.2rem;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .loading-subtitle {
+            font-size: 1rem;
+            color: #9ca3af;
+        }
+
+        .start-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9fafb;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9998;
+        }
+
+        .start-content {
+            text-align: center;
+        }
+
+        .start-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 24px;
+        }
+
+        .start-subtitle {
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+
+        .start-button {
+            padding: 12px 32px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .start-button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            background-color: #ffffff;
+            color: #333;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .passage-info {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .timer {
+            background-color: rgba(255, 193, 193, 0.5);
+            padding: 6px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+            min-width: 80px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #c53030;
+            border: 1px solid rgba(255, 120, 120, 0.3);
+        }
+
+        .timer.warning {
+            color: #9b2c2c;
+            background-color: rgba(254, 178, 178, 0.7);
+            border-color: rgba(245, 101, 101, 0.5);
+        }
+
+        .logo-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .logo-area:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+        }
+
+        .logo-area i {
+            font-size: 1.1rem;
+        }
+
+        .progress-container {
+            background-color: #f8f9fa;
+            padding: 4px 20px;
+            z-index: 100;
+            flex-shrink: 0;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .progress-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .progress-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .progress-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a5568;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            border: 1px solid #cbd5e0;
+        }
+
+        .progress-item.current {
+            background-color: #4299e1;
+            color: white;
+            transform: scale(1.1);
+            border-color: #2b6cb0;
+        }
+
+        .progress-item.answered {
+            background-color: #9ae6b4;
+            color: #22543d;
+            border-color: #68d391;
+        }
+
+        .progress-item.correct {
+            background-color: #48bb78;
+            color: white;
+            border-color: #38a169;
+        }
+
+        .progress-item.incorrect {
+            background-color: #fed7d7;
+            color: #c53030;
+            border-color: #feb2b2;
+        }
+
+        .progress-item:hover {
+            background-color: #cbd5e0;
+            transform: scale(1.05);
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95rem;
+            background-color: #f7fafc;
+            color: #4a5568;
+        }
+
+        .btn i {
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #edf2f7;
+            border-color: #a0aec0;
+        }
+
+        .btn-primary {
+            background-color: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+        }
+
+        .btn-primary:hover {
+            background-color: #edf2f7;
+            border-color: #a0aec0;
+        }
+
+        .btn-secondary {
+            background-color: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+        }
+
+        .btn-secondary:hover {
+            background-color: #edf2f7;
+            border-color: #a0aec0;
+        }
+
+        .btn-submit {
+            background-color: #48bb78;
+            color: white;
+            font-weight: 900;
+            border: 1px solid #38a169;
+        }
+
+        .btn-submit:hover {
+            background-color: #38a169;
+            border-color: #2f855a;
+        }
+
+        .btn-submit:disabled {
+            background-color: #9ae6b4;
+            color: #718096;
+            cursor: not-allowed;
+            border: 1px solid #68d391;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .passage-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #fafafa;
+            position: relative;
+        }
+
+        .resizer {
+            width: 4px;
+            background-color: #cbd5e0;
+            cursor: col-resize;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+
+        .resizer:hover {
+            background-color: #a0aec0;
+        }
+
+        .resizer::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 60px;
+            background-color: rgba(203, 213, 224, 0.5);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .questions-container {
+            width: 40%;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: white;
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .passage {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .passage h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .passage-content p {
+            margin-top: 15px;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .passage h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .passage p {
+            margin-top: 20px;
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+
+        .question-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .question {
+            margin-bottom: 25px;
+            padding: 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background-color: #ffffff;
+            transition: box-shadow 0.2s;
+        }
+
+        .question:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .option:hover {
+            background-color: #f7fafc;
+            border-color: #cbd5e0;
+        }
+
+        .option input {
+            margin-right: 2px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .input-field {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            width: 20%;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .input-field:focus {
+            border-color: #4299e1;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+        }
+
+        select.input-field {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            width: 20%;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .answer-indicator {
+            background-color: #e6fffa;
+            border: 1px solid #38b2ac;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .answer-indicator.correct {
+            background-color: #e6fffa;
+            border-color: #38b2ac;
+            color: #234e52;
+        }
+
+        .answer-indicator.incorrect {
+            background-color: #fed7d7;
+            border-color: #fc8181;
+            color: #742a2a;
+        }
+
+        .question-group {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .question-group-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        .highlight {
+            background-color: #ffff00;
+            cursor: pointer;
+        }
+
+        /* Floating highlight toolbar (yellow/white swatches) */
+        #hl-toolbar { position: absolute; display: none; gap: 8px; z-index: 2000; background: #ffffff; border: 1px solid #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,.12); border-radius: 10px; padding: 6px; }
+        #hl-toolbar .swatch { width: 24px; height: 24px; border-radius: 6px; border: 1px solid #e5e7eb; cursor: pointer; transition: transform .12s ease; }
+        #hl-toolbar .swatch.yellow { background: #fff089; }
+        #hl-toolbar .swatch.white { background: #ffffff; }
+        #hl-toolbar .swatch.active { transform: scale(0.95); }
+
+        #highlight-btn,
+        #remove-highlight-btn {
+            position: absolute;
+            z-index: 9999;
+            display: none;
+            padding: 6px 12px;
+            font-size: 14px;
+            border: 1px solid #888;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2d3748;
+        }
+
+        .score-breakdown {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .questions-container {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid #e2e8f0;
+            }
+
+            .resizer {
+                width: 100%;
+                height: 4px;
+                cursor: row-resize;
+            }
+
+            .resizer::before {
+                width: 60px;
+                height: 30px;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .progress-item {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+
+            .passage-info {
+                font-size: 0.9rem;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .logo-area {
+                order: 1;
+            }
+
+            .passage-info {
+                order: 2;
+            }
+
+            .timer {
+                order: 3;
+            }
+            /* Sticky bottom navigation */
+            .progress-container { position: sticky; bottom: 0; z-index: 1500; }
+            .container { padding-bottom: 68px; }
+        }
+
+        @media (max-width: 480px) {
+            .progress-item {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+
+            .passage-info {
+                font-size: 0.9rem;
+            }
+            .resizer, .splitter { display: none !important; }
+            .questions-container, .passage-container { width: 100% !important; }
+            .progress-items { gap: 6px; }
+        }
+    </style>
+</head>
+
+
+<body>
+  <!-- ===================== Loading Screen ===================== -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <h2 class="loading-title">Your test will begin shortly</h2>
+      <p class="loading-subtitle">Please wait</p>
+    </div>
+  </div>
+
+  <!-- ===================== Start Screen ===================== -->
+  <div id="startScreen" class="start-screen hidden">
+    <div class="start-content">
+      <h1 class="start-title">IELTS with Edufy</h1>
+      <p class="start-subtitle">Ready to begin your test?</p>
+
+      <label for="studentName" class="name-label" style="display:block;margin:12px 0 6px;font-weight:600;">
+        Enter your name
+      </label>
+      <input id="studentName" type="text" class="name-input" placeholder="Full name"
+             style="width:100%;max-width:420px;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:16px;">
+      <button class="start-button btn btn-submit" onclick="startTest()" style="margin-top:14px;">Start Test</button>
+    </div>
+  </div>
+
+  <!-- ===================== Test Container ===================== -->
+  <div class="container hidden" id="testContainer">
+    <!-- Header -->
+    <header style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;">
+      <div class="passage-info">IELTSwithJurabek</div>
+      <div class="timer" id="globalTimer"><i class="fas fa-clock"></i> <span>60:00</span></div>
+      <div class="passage-info" id="headerPassageTitle">Passage 1 of 3</div>
+    </header>
+
+    <!-- Highlight toolbar -->
+    <div id="hl-toolbar" role="toolbar" aria-label="Text tools">
+      <button id="hl-swatch" class="swatch yellow" type="button" title="Highlight (Yellow)" aria-label="Highlight (Yellow)"></button>
+      <button id="rm-swatch" class="swatch white" type="button" title="Remove Highlight" aria-label="Remove Highlight"></button>
+    </div>
+
+    <!-- Main: side-by-side split with resizer -->
+    <div class="main-content" style="padding:8px 16px;display:flex;gap:8px;min-height:60vh;">
+      <!-- ===================================================== -->
+      <!-- ===================== PASSAGE 1 ===================== -->
+      <!-- ===================================================== -->
+      <div class="passage-container" id="p1_passagePanel" role="region" aria-label="Reading Passage 1" style="flex:0 0 var(--p1-left, 50%);min-width:280px;max-width:85%;">
+        <h2 class="section-title">READING PASSAGE 1</h2>
+        <div class="passage-content">
+          <h3>Tulip Mania</h3>
+          <p><em>You should spend about 20 minutes on <strong>Questions 1–13</strong>, which are based on Reading Passage 1 below.</em></p>
+
+          <p><strong>A</strong><br>
+          Centuries before anyone ever heard of high-tech stocks such as Qualcomm, CMGI, or Cisco Systems, a tulip in 17th century Holland caused quite the stir. The Semper Augustus was a tulip of extraordinary grandeur, with midnight blue petals topped by a pure white band and highlighted with crimson flares. For the Dutch, there were few things more valuable than the Semper Augustus tulips.</p>
+
+          <p><strong>B</strong><br>
+          Around 1624, there were only a dozen specimens of the Semper Augustus. A man from Amsterdam owned all of the specimens. The man was offered 3,000 guilders in Dutch currency for just one bulb of the specimen. At the time, that was an absurd amount. The well-known Dutch painter Rembrandt Harmenszoon van Rijn received only about half of that amount a few years later for his The Night Watch painting. Despite the apparently exorbitant offer for just one of his tulip bulbs, the Dutch man, whose name has been lost in history, declined the offer.</p>
+
+          <p><strong>C</strong><br>
+          At that time, people wondered who was wackier, the man who refused to sell a tulip bulb for a fortune or the man who had offered to pay a fortune for just one bulb. This question was explored extensively by British journalist Mike Dash in his book, The Story of the World's Most Coveted Flower and the Extraordinary Passions It Aroused. In his account of tulip mania, Dash details the history behind the buzzword and, in doing so, he presents a cautionary tale for modern-day investors, who are often inclined to load up on unproven and yet-to-be-profitable stocks, similar to the tulip mania that raged in Holland in the 17th century.</p>
+
+          <p><strong>D</strong><br>
+          It should be pointed out that the Dutch were not the first people to go bonkers over tulips. Long before the first tulips ever bloomed in Europe, the Persians had already fallen in love with the beauty of the flower, and the rulers of the Ottoman Empire held it in the highest regard, dating back to a time around 1559. However, when the tulip finally arrived in Holland, the flower seemed to find an even more fertile ground, and not just from a horticultural standpoint.</p>
+
+          <p><strong>E</strong><br>
+          In the early 17th century, Holland was entering its Golden Age. Time, energy, and financial resources that had previously been used in fighting for Holland's independence from Spain were now available to be used for commerce. The city of Amsterdam was the hub of lucrative trade with the East Indies and a single voyage to the East Indies could result in substantial profits for the merchants involved in those activities. Those merchants often flaunted their success by building great estates, many landscaped with magnificent flower gardens.</p>
+
+          <p><strong>F</strong><br>
+          Then along came the tulip. "It is impossible to comprehend the tulip mania without understanding just how different tulips were from every other flower known to horticulturists in the 17th century. The colours they exhibited were brighter than those of ordinary plants," Dash explains. Although the rarer tulips sometimes commanded higher prices, the bulbs for most ordinary tulips were sold by the pound for a modest price. Then, around 1630, a different type of tulip fancier appeared on the scene. Motivated by thoughts of great profits, these "florists" or professional tulip traders set out to find flower enthusiasts and speculators alike. But even as the number of tulip buyers grew quickly, the supply of tulip bulbs remained stagnant. It seems that the tulip became a foil in the supply squeeze: there was no quick fix to increase the quantity of available bulbs, as it takes seven years for a tulip to grow from a seed. Even though bulbs can produce two or three offshoots annually, the mother bulb lasts only a few years.</p>
+
+          <p><strong>G</strong><br>
+          Tulip bulb prices continued to soar throughout the 1630s, as more speculators wedged into the market. Even people in other occupations wanted in on the tulip trading business. Weavers and farmers mortgaged their assets in order to get into the tulip market. In 1633, a farmhouse in Hoorn was sold in exchange for three rare bulbs. By 1636, the tulip trading business was flourishing so much that even "garbage" bulbs were being sold for hundreds of guilders. Eventually, a futures market for bulbs was even established. Tulip mania reached its zenith during the winter of 1636-1637, when some bulbs were known to be bought and sold up to ten times a day. Exemplifying this mania is the story of an auction that was held to benefit seven orphans whose only asset was 70 fine tulips left by their father. One of those bulbs, a rare Violetten Admirael van Enkhuizen bulb, sold for 5,200 guilders, an all-time record. All told, the 70 flowers from that auction brought in nearly 53,000 guilders.</p>
+
+          <p><strong>H</strong><br>
+          There is a saying that goes, "All good things must come to an end." That was certainly the case with the tulip market, which crashed quickly and spectacularly. It wasn't long after the above-mentioned orphan auction, when buyers refused to pay high asking prices at a routine bulb auction in Haarlem. In just a matter of days, the word of this auction spread all over the country, creating widespread panic among tulip traders and speculators. And, sure enough, the market for tulips crashed quickly thereafter. Tulips that had sold for 5,000 guilders only a few weeks before now fetched only 50 guilders.</p>
+
+          <p><strong>I</strong><br>
+          In comparing the tulip mania of the 17th century with the recent dot-com craze, there is one major difference: even at its height, the Amsterdam Stock Exchange never touched tulips. "The speculation in tulip bulbs always existed at the margins of Dutch economic life," Dash points out. As tulip trading was at the periphery of the Dutch economy, the fallout had little effect on the Dutch economy. Will we be able to say the same when Wall Street's current obsession with the dot-com craze finally runs its course?</p>
+        </div>
+      </div>
+
+      <!-- Splitter for Passage 1 -->
+      <div id="splitter-1" class="splitter" aria-hidden="true" style="width:6px;cursor:col-resize;background:#e5e7eb;border-radius:4px;"></div>
+
+      <div class="questions-container" id="p1_questionsPanel" role="region" aria-label="Questions 1–13" style="flex:1 1 0%;min-width:280px;">
+        <h2 class="section-title">Questions 1–13</h2>
+
+        <h4>Questions 1–5</h4>
+        <p><strong>Instruction:</strong> Reading Passage 1 has nine paragraphs <strong>A–I</strong>. Which paragraph contains the following information? Choose the correct letter, <strong>A–I</strong>, in boxes 1–5.</p>
+
+        <div class="question" data-question="1">
+          <div class="question-text">1 a reference to an individual who warned of the dangers of investing</div>
+          <div class="options">
+            <select name="q1">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option>
+            </select>
+          </div>
+        </div>
+        <div class="question" data-question="2">
+          <div class="question-text">2 a description of the outstanding appearance of a famous tulip</div>
+          <div class="options">
+            <select name="q2">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option>
+            </select>
+          </div>
+        </div>
+        <div class="question" data-question="3">
+          <div class="question-text">3 a reference to another society fascinated by tulips</div>
+          <div class="options">
+            <select name="q3">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option>
+            </select>
+          </div>
+        </div>
+        <div class="question" data-question="4">
+          <div class="question-text">4 a reference to the highest price offered at an auction</div>
+          <div class="options">
+            <select name="q4">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option>
+            </select>
+          </div>
+        </div>
+        <div class="question" data-question="5">
+          <div class="question-text">5 an incident related to the ending of 'tulip mania'</div>
+          <div class="options">
+            <select name="q5">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option>
+            </select>
+          </div>
+        </div>
+
+        <h4>Questions 6–10</h4>
+        <p><strong>Instruction:</strong> Choose <strong>TRUE</strong> if the statement agrees with the information given in the text, choose <strong>FALSE</strong> if the statement contradicts the information, or choose <strong>NOT GIVEN</strong> if there is no information on this.</p>
+
+        <div class="question" data-question="6">
+          <div class="question-text">6 Rembrandt was known to have spent a considerable sum of money on purchasing flowers such as tulips.</div>
+          <div class="options">
+            <label><input type="radio" name="q6" value="TRUE"> TRUE</label>
+            <label><input type="radio" name="q6" value="FALSE"> FALSE</label>
+            <label><input type="radio" name="q6" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+        <div class="question" data-question="7">
+          <div class="question-text">7 There was little incentive for traders to travel to the East Indies after Holland became independent.</div>
+          <div class="options">
+            <label><input type="radio" name="q7" value="TRUE"> TRUE</label>
+            <label><input type="radio" name="q7" value="FALSE"> FALSE</label>
+            <label><input type="radio" name="q7" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+        <div class="question" data-question="8">
+          <div class="question-text">8 Tulips reproduced too slowly, and in too small a quantity, to keep up with the growing demand for the flower in the 1630s.</div>
+          <div class="options">
+            <label><input type="radio" name="q8" value="TRUE"> TRUE</label>
+            <label><input type="radio" name="q8" value="FALSE"> FALSE</label>
+            <label><input type="radio" name="q8" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+        <div class="question" data-question="9">
+          <div class="question-text">9 The tulip market was comprised entirely of professional tulip traders and was generally inaccessible to most people.</div>
+          <div class="options">
+            <label><input type="radio" name="q9" value="TRUE"> TRUE</label>
+            <label><input type="radio" name="q9" value="FALSE"> FALSE</label>
+            <label><input type="radio" name="q9" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+        <div class="question" data-question="10">
+          <div class="question-text">10 Despite the sizable demand for tulips, there was negligible impact on the Dutch economy as a whole when that demand suddenly dropped.</div>
+          <div class="options">
+            <label><input type="radio" name="q10" value="TRUE"> TRUE</label>
+            <label><input type="radio" name="q10" value="FALSE"> FALSE</label>
+            <label><input type="radio" name="q10" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+
+        <h4>Questions 11–13</h4>
+        <p><strong>Instruction:</strong> Complete the sentences below. Write <strong>ONE WORD ONLY</strong> from the passage for each answer.</p>
+
+        <div style="border:1px dashed #d1d5db;padding:10px 12px;margin:8px 0;line-height:1.7">
+          <p>After their war for independence, the Dutch more heavily invested in <input type="text" name="q11" style="width:120px">.</p>
+          <p>The <input type="text" name="q12" style="width:120px"> of tulips were more eye-catching than other flowers available at the time.</p>
+          <p>When an increasing number of <input type="text" name="q13" style="width:120px"> started selling tulips in the 1630s, the prices kept skyrocketing.</p>
+        </div>
+      </div>
+
+      <!-- ===================================================== -->
+      <!-- ===================== PASSAGE 2 ===================== -->
+      <!-- ===================================================== -->
+      <div class="passage-container hidden" id="p2_passagePanel" role="region" aria-label="Reading Passage 2" style="flex:0 0 var(--p2-left, 50%);min-width:280px;max-width:85%;">
+        <h2 class="section-title">READING PASSAGE 2</h2>
+        <div class="passage-content">
+          <h3>STRESS LESS</h3>
+          <p><em>You should spend about 20 minutes on <strong>Questions 14–26</strong>, which are based on Reading Passage 2 below.</em></p>
+
+          <p><strong>A</strong><br>
+          How busy is too busy? For some it means sometimes having to have a short lunch; for others it may mean missing lunch altogether. For a few, it is not being able to take a day off once a month. Then there is a group of people for whom working every evening and weekend is normal, and feeling stressed is taken for granted. For most senior executives, workloads swing between extremely busy and frenzied. Neil Plumridge, vice-president of a management consultancy company, says that his weeks vary from a 'manageable' 45 hours to 80 hours, but average 60 hours.</p>
+
+          <p><strong>B</strong><br>
+          Three signs warn Plumridge about his workload: sleep, scheduling and family. He knows he is doing too much when he gets less than six hours' sleep for three consecutive nights, when he is constantly having to reschedule appointments, and when he misses a family birthday or anniversary. 'Then', he says, 'I know things are out of control'. Plumridge states that stress is often caused by his having unrealistic expectations of himself. 'I'll promise a client that I'll do something tomorrow, and then I'll promise another client that I'll do the same thing, when I know it's not going to happen. I could have said: "Why don't I give that to you in 48 hours?" The client wouldn't care.'</p>
+
+          <p><strong>C</strong><br>
+          Over-committing is something people experience as an individual problem. However, new research indicates that people may be designed to over-commit. A study in the JOURNAL OF EXPERIMENTAL PSYCHOLOGY shows that people always believe that they will be less busy in the future. This is a misapprehension according to the authors of the report, Gal Zauberman of the University of North Carolina and John Lynch of Duke University. 'On average, an individual will be just as busy two weeks or a month from now as he or she is today. But that is not how it appears in everyday life,' they say. 'People make commitments long in advance that they would never make if the same commitments required immediate action. They discount future time investments relatively steeply.'</p>
+
+          <p><strong>D</strong><br>
+          Being 'too busy' is highly subjective, but for any individual there are some concrete signs of stress: disturbed sleep and declining mental and physical health are the most common examples. Figures for National Workers' Compensation (insurance against injury caused by work) show that stress causes the most lost time of any workplace injury: employees suffering stress are absent from work for an average of 16.6 weeks. The effects of stress are also expensive. The Australian Government insurer reports that in 2003-2004, claims for stress-related psychological injury accounted for 7% of insurance claims, but almost 27% of the amount paid out in claim payments.</p>
+
+          <p><strong>E</strong><br>
+          Experts say the key to dealing with stress is not to focus on relief – a game of golf or a massage – but to reassess workloads. Neil Plumridge says he makes it a priority to work out what has to change: that might mean allocating extra staff to a job, allowing more time, or changing expectations. He also relies on the advice of colleagues, saying that his peers coach each other on business problems: 'Just a fresh pair of eyes over an issue can help,' he states.</p>
+
+          <p><strong>F</strong><br>
+          Executive stress is not confined to big organisations. Vanessa Stoykov has been running her own advertising agency and public relations business for seven years. Her company has grown so fast that it appeared on the BUSINESS REVIEW WEEKLY 'Fast 100' list of fastest-growing small enterprises in 2004, just after Stoykov had her first child. In 2005, revenue was projected to double to $2.4 million. She had just had her second child. With a fast-growing business and two small children, Stoykov says she has mastered the art of caring for children, typing, and talking on the phone at the same time. But, unlike many others, she appears to thrive on the mental stimulation of running her own business, despite the stress.</p>
+
+          <p><strong>G</strong><br>
+          Jan Elsner, a psychologist who specialises in executive coaching, says that doing well on a demanding workload is typical of senior executives. Some people work best with high-adrenaline periods followed by quieter times, while others thrive under sustained pressure. Elsner's practice is based on a movement known as positive psychology, a school of thought that argues that positive experiences – feeling engaged and challenged, for example – do not balance out negative experiences such as stress; instead they help people increase their resilience over time. Elsner says that many of the senior business people she coaches are increasingly relying more on regulating stress through methods such as meditation. She points to research showing that meditation can alter the biochemistry of the brain and the way that brains and bodies react to stress.</p>
+
+          <p><strong>H</strong><br>
+          Some experts believe there is too much emphasis on treating job stress as an individual problem. Tony LaMontagne, of the University of Melbourne, says that while personality traits do have some effect on stress, it is systemic stressors – qualities of job roles and organisations themselves – that have a far greater effect. His recent research shows that the major predictor of stress is the level of job control a person has. The best type of job combines challenging work with high autonomy. The worst jobs combine challenging work and low control. People with demanding jobs but little autonomy have up to four times the probability of depression and more than double the risk of heart attack.</p>
+        </div>
+      </div>
+
+      <!-- Splitter for Passage 2 -->
+      <div id="splitter-2" class="splitter hidden" aria-hidden="true" style="width:6px;cursor:col-resize;background:#e5e7eb;border-radius:4px;"></div>
+
+      <div class="questions-container hidden" id="p2_questionsPanel" role="region" aria-label="Questions 14–26" style="flex:1 1 0%;min-width:280px;">
+        <h2 class="section-title">Questions 14–26</h2>
+
+        <h4>Questions 14–18</h4>
+        <p><strong>Instruction:</strong> Look at the following statements (Questions 14-18) and the list of people below. Match each statement with the correct person, <strong>A–D</strong>. Choose the correct letter, <strong>A–D</strong>, in boxes 14–18. NB You may use any letter more than once.</p>
+        <p><em>List of People</em><br>
+          A Neil Plumridge<br>
+          B Gal Zauberman and John Lynch<br>
+          C Jan Elsner<br>
+          D Tony LaMontagne</p>
+
+        <div class="question" data-question="14">
+          <div class="question-text">14 High-level workers tend to react positively to stress.</div>
+          <div class="options">
+            <select name="q14">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option>
+            </select>
+          </div>
+        </div>
+        <div class="question" data-question="15">
+          <div class="question-text">15 Stress levels are increased by trying to please customers.</div>
+          <div class="options">
+            <select name="q15">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option>
+            </select>
+          </div>
+        </div>
+        <div class="question" data-question="16">
+          <div class="question-text">16 Support from other workers may relieve stress.</div>
+          <div class="options">
+            <select name="q16">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option>
+            </select>
+          </div>
+        </div>
+        <div class="question" data-question="17">
+          <div class="question-text">17 Lack of independence at work is often responsible for stress.</div>
+          <div class="options">
+            <select name="q17">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option>
+            </select>
+          </div>
+        </div>
+        <div class="question" data-question="18">
+          <div class="question-text">18 Workers commonly expect their workloads to lessen over time.</div>
+          <div class="options">
+            <select name="q18">
+              <option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option>
+            </select>
+          </div>
+        </div>
+
+        <h4>Questions 19–21</h4>
+        <p><strong>Instruction:</strong> Choose the correct answer.</p>
+
+        <div class="question" data-question="19">
+          <div class="question-text">19 Which of the following is NOT mentioned by Neil Plumridge as an indication that his workload is too heavy?</div>
+          <div class="options">
+            <label><input type="radio" name="q19" value="A"> A an inability to keep to his schedule</label><br>
+            <label><input type="radio" name="q19" value="B"> B inattention to family celebrations</label><br>
+            <label><input type="radio" name="q19" value="C"> C a lack of concentration on a task</label><br>
+            <label><input type="radio" name="q19" value="D"> D a period of insufficient sleep</label>
+          </div>
+        </div>
+        <div class="question" data-question="20">
+          <div class="question-text">20 Which method of lessening work stress is NOT suggested by Neil Plumridge?</div>
+          <div class="options">
+            <label><input type="radio" name="q20" value="A"> A rethinking ideas of what can be achieved</label><br>
+            <label><input type="radio" name="q20" value="B"> B extending the deadline for completing the task</label><br>
+            <label><input type="radio" name="q20" value="C"> C using more workers on a project</label><br>
+            <label><input type="radio" name="q20" value="D"> D taking more time off for sport or other recreation</label>
+          </div>
+        </div>
+        <div class="question" data-question="21">
+          <div class="question-text">21 According to Jan Elsner, meditation offers a method of</div>
+          <div class="options">
+            <label><input type="radio" name="q21" value="A"> A taking a worker's mind off his troubles.</label><br>
+            <label><input type="radio" name="q21" value="B"> B changing physical response to stress.</label><br>
+            <label><input type="radio" name="q21" value="C"> C resting more effectively.</label><br>
+            <label><input type="radio" name="q21" value="D"> D encouraging executives to take breaks.</label>
+          </div>
+        </div>
+
+        <h4>Questions 22–26</h4>
+        <p><strong>Instruction:</strong> Complete the summary below. Write <strong>NO MORE THAN TWO WORDS AND/OR A NUMBER</strong> from the passage for each answer.</p>
+
+        <div style="border:1px dashed #d1d5db;padding:10px 12px;margin:8px 0;line-height:1.7">
+          <p><strong>Stress: its effects and how to reduce it</strong></p>
+          <p>Statistics on workers' compensation show that people take more time off work due to stress than for any other <input type="text" name="q22" style="width:180px"> at work. On average, workers who take time off because of stress stay away for <input type="text" name="q23" style="width:180px">. This absence comes at a high price – while the number of insurance claims due to stress amount to only <input type="text" name="q24" style="width:180px"> of the total, they account for a much higher proportion of the cost of claims payments.</p>
+          <p>Experts believe that seeking to relieve stress through physical therapies such as sport or <input type="text" name="q25" style="width:180px"> may be less effective than simply reviewing your <input type="text" name="q26" style="width:180px">.</p>
+        </div>
+      </div>
+
+      <!-- ===================================================== -->
+      <!-- ===================== PASSAGE 3 ===================== -->
+      <!-- ===================================================== -->
+      <div class="passage-container hidden" id="p3_passagePanel" role="region" aria-label="Reading Passage 3" style="flex:0 0 var(--p3-left, 50%);min-width:280px;max-width:85%;">
+        <h2 class="section-title">READING PASSAGE 3</h2>
+        <div class="passage-content">
+          <h3>Tasmania’s Museum of Old and New Art</h3>
+          <p><em>You should spend about 20 minutes on <strong>Questions 27–40</strong>, which are based on Reading Passage 3 below.</em></p>
+
+          <p><strong>A</strong><br>
+          As an eighteen-year-old living in the small Australian island state of Tasmania, moving to the ‘mainland’ could not happen soon enough. Now, ten years later, I look forward to going home. This is probably because I’ve grown up, but also perhaps because the cultural landscape of Tasmania has matured. The latest addition to Tasmania’s cultural scene is David Walsh’s Museum of Old and New Art (MONA), a museum that has established Hobart, the capital city of Tasmania, on the global art circuit.</p>
+
+          <p><strong>B</strong><br>
+          This building is an example of how art and architecture can have an instant impact on the social and cultural reputation of a place. Andrew Bain of The Sydney Morning Herald wrote, ‘In a virtual blink, Hobart’s cultural landscape has been transformed, with art, wine, fine food and stylish accommodation becoming integral features of the city... . If Hobart’s makeover has an origin, it’s the opening of MONA–the Museum of Old and New Art.’ MONA is said to have been solely instrumental in the reinvention of Hobart as a cultural hub.</p>
+
+          <p><strong>C</strong><br>
+          MONA made the national press and international blogs before it opened. After that, Tourism Industry Council of Tasmania’s chief executive, Luke Martin, claimed that MONA was proving so popular it was underpinning the tourism industry in Tasmania. However, MONA’s effect on Hobart has broader ramifications for Tasmania’s tourism industry. As reported in Hobart’s local paper, The Mercury, there is concern about how long people are staying in Tasmania. Rather than spending a week in the state and hiring a car to experience the beauty of the Tasmanian landscape, people are making short stays in Hobart only to visit the gallery. The next challenge for the state is how to entice holiday makers to stay longer, and to venture further afield. Tasmania is more than a one-hit wonder.</p>
+
+          <p><strong>D</strong><br>
+          According to Martin, possibilities for packaging up MONA with visits to other galleries around Tasmania are being investigated. Although not directly related to these investigations, the 1891 Queen Victoria Museum and Art Gallery at Royal Park in Launceston is currently being restored to its original condition; there are also plans to extensively redevelop the Tasmanian Museum and Art Gallery in Hobart. In addition to this, there are up to twenty other existing quality galleries in the state. So there is more to see than just MONA.</p>
+
+          <p><strong>E</strong><br>
+          Although large, the building is rather nondescript, sitting heavily on the edge of the Derwent River. MONA’s ‘wow factor’ comes from the notoriety of David Walsh, the museum’s millionaire founder, and his choice of unusual artworks. The architecture has more depth of meaning and does exactly as it should: it supports the vision of the museum, essentially the vision of Walsh. It's a new building in the context of a maturing city. The dark, moody labyrinth of gallery spaces could be likened to the mind of the eccentric founder himself. Each artwork appears to be integrated into the dark materiality of the architecture–the interiors are far from light, bright and neutral, as might be seen in a more traditional gallery. The dim lighting and rough, rocky surfaces are a reminder that visitors are three levels underground.</p>
+
+          <p><strong>F</strong><br>
+          The warped, mirrored surface at the museum’s entry could be seen as the start of a journey of reflecting on one’s existence. Much of the art explores the human condition–there are uninhibited artistic descriptions of human relationships, death, and even the digestion process. Going to a gallery with such confronting artworks with your parents is an interesting experience; I was pleasantly surprised by my parents’ openness to the exhibitions. My father, who normally whisks through a gallery while my mother likes to take her time, happily spent almost five hours at MONA; the urge to linger is a common feeling here. This is because the gallery engages all of the senses, and visitors often pause to experience the effect each artwork has on them. This raises the question of who is actually visiting MONA–and it’s definitely not just the normal gallery-goers. People from all kinds of socioeconomic backgrounds are curious about what lies within the subterranean maze of MONA. Conservative minds are being opened, which is a good thing anywhere.</p>
+
+          <p><strong>G</strong><br>
+          Walsh’s antiquities collection is superb, but he knew that old coins would compete for attention against new works that are more challenging in scale and subject matter, hence the device of setting antiquities among twentieth-and twenty-first century works. For me, one of the intriguing outcomes of this strategy was an intensified feeling that the makers of the coins and antiquities were the great contemporary artists of their time.</p>
+
+          <p><strong>H</strong><br>
+          The so-called Bilbao Effect has worked its magic on Hobart because, just as Frank Gehry’s Guggenheim Museum has transformed the city of Bilbao in Spain, MONA has been a magnet for tourists in Hobart. However, the architectural ‘wow factor’ of the Guggenheim was the most famous component of that city’s transformation, whereas Fender Katsalidis’s MONA does not have the same spectacular impact as the shimmering metal surfaces of Gehry’s building. Walsh himself abhors descriptions of MONA as the Bilbao of the south, saying that Fender Katsalidis solved a problem when he designed MONA, in executing a project of this scale in an underground location. Walsh contrasts this with what he describes as the ‘architectural self-indulgence’ of Gehry when designing the Guggenheim in Bilbao. Call it the Bilbao Effect, but this phenomenon has been around for thousands of years–good public architecture forms the centrepiece of a city. This is probably true, but like the Guggenheim, MONA has initiated something very important for Tasmania, and for Hobart in particular. Now the question is how Tasmania will build on David Walsh’s input into its cultural setting.</p>
+        </div>
+      </div>
+
+      <!-- Splitter for Passage 3 -->
+      <div id="splitter-3" class="splitter hidden" aria-hidden="true" style="width:6px;cursor:col-resize;background:#e5e7eb;border-radius:4px;"></div>
+
+      <div class="questions-container hidden" id="p3_questionsPanel" role="region" aria-label="Questions 27–40" style="flex:1 1 0%;min-width:280px;">
+        <h2 class="section-title">Questions 27–40</h2>
+
+        <h4>Questions 27–32</h4>
+        <p><strong>Instruction:</strong> Choose <strong>YES</strong> if the statement agrees with the claims of the writer, choose <strong>NO</strong> if the statement contradicts the claims of the writer, or <strong>NOT GIVEN</strong> if it is impossible to say what the writer thinks about this.</p>
+
+        <div class="question" data-question="27">
+          <div class="question-text">27 The writer changed her mind about spending time in Tasmania.</div>
+          <div class="options">
+            <label><input type="radio" name="q27" value="YES"> YES</label>
+            <label><input type="radio" name="q27" value="NO"> NO</label>
+            <label><input type="radio" name="q27" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+        <div class="question" data-question="28">
+          <div class="question-text">28 Andrew Bain believes that the effect MONA had on Hobart was immediate.</div>
+          <div class="options">
+            <label><input type="radio" name="q28" value="YES"> YES</label>
+            <label><input type="radio" name="q28" value="NO"> NO</label>
+            <label><input type="radio" name="q28" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+        <div class="question" data-question="29">
+          <div class="question-text">29 Other factors have contributed as much as MONA to Hobart’s transformation.</div>
+          <div class="options">
+            <label><input type="radio" name="q29" value="YES"> YES</label>
+            <label><input type="radio" name="q29" value="NO"> NO</label>
+            <label><input type="radio" name="q29" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+        <div class="question" data-question="30">
+          <div class="question-text">30 The Tourism Industry Council of Tasmania works closely with the director of MONA.</div>
+          <div class="options">
+            <label><input type="radio" name="q30" value="YES"> YES</label>
+            <label><input type="radio" name="q30" value="NO"> NO</label>
+            <label><input type="radio" name="q30" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+        <div class="question" data-question="31">
+          <div class="question-text">31 Many local residents are writing to The Mercury expressing concern about tourists’ length of stay in Hobart.</div>
+          <div class="options">
+            <label><input type="radio" name="q31" value="YES"> YES</label>
+            <label><input type="radio" name="q31" value="NO"> NO</label>
+            <label><input type="radio" name="q31" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+        <div class="question" data-question="32">
+          <div class="question-text">32 Tourists now regard MONA as a starting point for longer trips in Tasmania.</div>
+          <div class="options">
+            <label><input type="radio" name="q32" value="YES"> YES</label>
+            <label><input type="radio" name="q32" value="NO"> NO</label>
+            <label><input type="radio" name="q32" value="NOT GIVEN"> NOT GIVEN</label>
+          </div>
+        </div>
+
+        <h4>Questions 33–37</h4>
+        <p><strong>Instruction:</strong> Choose the correct answer.</p>
+
+        <div class="question" data-question="33">
+          <div class="question-text">33 Luke Martin plans to promote tourism in Tasmania by</div>
+          <div class="options">
+            <label><input type="radio" name="q33" value="A"> A focusing more on MONA as the leading attraction.</label><br>
+            <label><input type="radio" name="q33" value="B"> B combining trips to MONA with visits to other galleries.</label><br>
+            <label><input type="radio" name="q33" value="C"> C encouraging visitors to do activities that are not connected with art galleries.</label><br>
+            <label><input type="radio" name="q33" value="D"> D improving the quality of promotional information about Tasmania’s galleries.</label>
+          </div>
+        </div>
+        <div class="question" data-question="34">
+          <div class="question-text">34 According to the writer, what is especially interesting about MONA?</div>
+          <div class="options">
+            <label><input type="radio" name="q34" value="A"> A the man who founded the gallery</label><br>
+            <label><input type="radio" name="q34" value="B"> B its location close to a river</label><br>
+            <label><input type="radio" name="q34" value="C"> C visitors’ responses to the gallery spaces</label><br>
+            <label><input type="radio" name="q34" value="D"> D the striking architecture of the building</label>
+          </div>
+        </div>
+        <div class="question" data-question="35">
+          <div class="question-text">35 Why do visitors spend a long time at the gallery?</div>
+          <div class="options">
+            <label><input type="radio" name="q35" value="A"> A There is a great number of exhibits.</label><br>
+            <label><input type="radio" name="q35" value="B"> B Visitors tend to come in family groups.</label><br>
+            <label><input type="radio" name="q35" value="C"> C Many of the works are difficult to understand.</label><br>
+            <label><input type="radio" name="q35" value="D"> D The gallery has a physical effect on visitors.</label>
+          </div>
+        </div>
+        <div class="question" data-question="36">
+          <div class="question-text">36 What does the writer say about the visitors to MONA?</div>
+          <div class="options">
+            <label><input type="radio" name="q36" value="A"> A Older people spend longer there than younger people do.</label><br>
+            <label><input type="radio" name="q36" value="B"> B A wide variety of people are interested in MONA.</label><br>
+            <label><input type="radio" name="q36" value="C"> C The majority of visitors are young people.</label><br>
+            <label><input type="radio" name="q36" value="D"> D The visitors are representative of gallery enthusiasts generally.</label>
+          </div>
+        </div>
+        <div class="question" data-question="37">
+          <div class="question-text">37 Why does the writer mention the coins at MONA?</div>
+          <div class="options">
+            <label><input type="radio" name="q37" value="A"> A to illustrate how interesting they are to visitors of modern galleries</label><br>
+            <label><input type="radio" name="q37" value="B"> B to explain why they are displayed in a separate section of the gallery</label><br>
+            <label><input type="radio" name="q37" value="C"> C to argue that Walsh's collection is among the best in the world</label><br>
+            <label><input type="radio" name="q37" value="D"> D to express admiration for the way that the exhibits are presented</label>
+          </div>
+        </div>
+
+        <h4>Questions 38–40</h4>
+        <p><strong>Instruction:</strong> Complete the summary using the list of words, <strong>A–H</strong>, below.</p>
+        <p><em>List of words:</em><br>
+          A challenge<br>
+          B pipe<br>
+          C visual<br>
+          D contribution<br>
+          E lasting<br>
+          F essential<br>
+          G ambition<br>
+          H attraction</p>
+
+        <div style="border:1px dashed #d1d5db;padding:10px 12px;margin:8px 0;line-height:1.7">
+          <p><strong>The Bilbao effect</strong></p>
+          <p>MONA has huge appeal for visitors to Hobart, just as Gehry’s Guggenheim Museum has for Bilbao. While MONA may lack the <select name="q38" style="width:100px"><option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select> effect of the Guggenheim, David Walsh explains that MONA’s architect had a different objective when designing MONA: unlike the architectural showcasing of the Guggenheim, with MONA there was a major <select name="q39" style="width:100px"><option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select> that needed to be dealt with; the gallery was set beneath the ground. In any case, both galleries have transformed their cities, just as successful public buildings have for thousands of years. It remains to be seen how the <select name="q40" style="width:100px"><option value="">Select</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select> of David Walsh will be expanded upon in Tasmania.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="progress-container">
+      <div class="progress-nav" style="gap:8px;">
+        <div id="bottomPartTabs" style="display:flex;gap:18px;flex-wrap:wrap;justify-content:center;"></div>
+        <div class="nav-buttons" style="display:flex;gap:8px;justify-content:center;padding:12px;">
+          <button class="btn btn-secondary" id="prev-btn" disabled><i class="fas fa-arrow-left"></i> Previous</button>
+          <button class="btn btn-secondary" id="next-btn">Next <i class="fas fa-arrow-right"></i></button>
+          <button class="btn btn-submit" id="submit-btn">Submit All Passages <i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== Results Modal ===================== -->
+  <div class="modal" id="results-modal" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,.35);">
+    <div class="modal-content" style="position:relative;background:#fff;border-radius:12px;padding:20px;width:min(640px,92vw);">
+      <button class="modal-close-btn" id="results-close-x" aria-label="Close results" style="position:absolute;top:8px;right:12px;background:none;border:none;font-size:28px;cursor:pointer;color:#111">&times;</button>
+      <h2>Results</h2>
+      <div class="score-display" id="score-display">0 answered</div>
+      <div class="score-breakdown" id="score-breakdown" style="margin-top:8px;"></div>
+      <div class="modal-buttons" style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;">
+        <button class="btn btn-secondary" id="close-modal-footer">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Themed Confirm Modal (Submit All) -->
+  <div class="modal" id="confirm-modal" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,.35);">
+    <div class="modal-content" style="background:#fff;border-radius:12px;padding:20px;width:min(520px,92vw);">
+      <h3 id="confirm-title" style="margin:0 0 8px 0;">Confirm Submission</h3>
+      <p id="confirm-message">Submit ALL passages (1–3) and download your answers as PDF?</p>
+      <div class="modal-buttons" style="display:flex;justify-content:flex-end;gap:8px;">
+        <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+        <button class="btn btn-submit" id="confirm-ok">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legacy highlight buttons removed (replaced by #hl-toolbar) -->
+
+  <!-- ===================== jsPDF (for answer export) ===================== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-NaWTHZK0mI8t4hbnz7+qO0LAQObJj2sQ8Tj3w2LQ8k1Y0i0mXrN4hBv3d6US+GVjV1n9q8p8bVfYz6qWzq5J0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- ===================== Main Script (logic + resizer) ===================== -->
+  <script>
+    /* ========= HELPERS ========= */
+    const el = (id) => document.getElementById(id);
+
+    /* ========= CONFIG ========= */
+    const PARTS = [
+      { id: 1, title: 'Passage 1', qStart: 1,  qEnd: 13, passagePanel: 'p1_passagePanel', questionsPanel: 'p1_questionsPanel', splitter: 'splitter-1', cssVar: '--p1-left' },
+      { id: 2, title: 'Passage 2', qStart: 14, qEnd: 26, passagePanel: 'p2_passagePanel', questionsPanel: 'p2_questionsPanel', splitter: 'splitter-2', cssVar: '--p2-left' },
+      { id: 3, title: 'Passage 3', qStart: 27, qEnd: 40, passagePanel: 'p3_passagePanel', questionsPanel: 'p3_questionsPanel', splitter: 'splitter-3', cssVar: '--p3-left' },
+    ];
+
+    /* ========= STATE ========= */
+    let currentPart = 1, currentQuestion = 1, submitted = false, seconds = 60*60, timerInterval;
+    let studentName = '';
+
+    /* ========= NAV UI ========= */
+    function activeRail(){ return document.querySelector('#numberRail-part-' + currentPart); }
+
+    function renderBottomTabs(){
+      const wrap = el('bottomPartTabs'); if(!wrap) return;
+      wrap.innerHTML = '';
+      PARTS.forEach(p=>{
+        const group = document.createElement('div');
+        Object.assign(group.style,{display:'flex',alignItems:'center',gap:'12px',flexWrap:'wrap',justifyContent:'center'});
+
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-secondary';
+        btn.style.fontWeight = (p.id===currentPart)?'900':'700';
+        btn.innerHTML = (p.id===currentPart)?`<strong>${p.title}</strong>`:p.title;
+        btn.onclick = ()=>switchPart(p.id);
+        group.appendChild(btn);
+
+        if(p.id===currentPart){
+          const rail = document.createElement('div');
+          rail.id = `numberRail-part-${p.id}`;
+          Object.assign(rail.style,{display:'flex',gap:'8px',flexWrap:'wrap',alignItems:'center'});
+
+          for(let q=p.qStart;q<=p.qEnd;q++){
+            const chip = document.createElement('div');
+            chip.textContent = q;
+            chip.dataset.question = q;
+            chip.className = 'progress-item'+(q===currentQuestion?' current':'');
+            chip.onclick = ()=>scrollToQuestion(q);
+            rail.appendChild(chip);
+          }
+          group.appendChild(rail);
+        }
+        wrap.appendChild(group);
+      });
+      updatePrevNextDisabled();
+    }
+
+    function updateCurrentQuestion(num){
+      currentQuestion = num;
+      const rail = activeRail(); if(!rail) return;
+      rail.querySelectorAll('.progress-item').forEach(it=>{
+        it.classList.toggle('current', parseInt(it.dataset.question,10)===num);
+      });
+      updatePrevNextDisabled();
+    }
+
+    function updatePrevNextDisabled(){
+      const p = PARTS[currentPart-1];
+      el('prev-btn').disabled = currentQuestion<=p.qStart;
+      el('next-btn').disabled = currentQuestion>=p.qEnd;
+    }
+
+    function togglePartVisibility(id, show){
+      const cfg = PARTS[id-1];
+      const pass = el(cfg.passagePanel), ques = el(cfg.questionsPanel), split = el(cfg.splitter);
+      [pass, ques, split].forEach(n=>{ if(!n) return; n.classList.toggle('hidden', !show); });
+    }
+
+    function switchPart(id){
+      if(currentPart===id) return;
+      PARTS.forEach(p=>togglePartVisibility(p.id, false));
+      currentPart = id;
+      const p = PARTS[id-1];
+      currentQuestion = p.qStart;
+      togglePartVisibility(id, true);
+      el('headerPassageTitle').textContent = `Passage ${id} of 3`;
+      renderBottomTabs();
+      scrollToQuestion(currentQuestion,false);
+      restoreSplit(p);
+    }
+
+    function scrollToQuestion(num, smooth=true){
+      const elq = document.querySelector(`[data-question="${num}"]`) ||
+                  document.querySelector(`input[name="q${num}"]`) ||
+                  document.querySelector(`select[name="q${num}"]`) ||
+                  document.querySelector(`input[name="q${num}_22"]`);
+      if(elq) elq.scrollIntoView({behavior:smooth?'smooth':'auto', block:'center'});
+      updateCurrentQuestion(num);
+    }
+
+    el('prev-btn').addEventListener('click', ()=>{
+      const p = PARTS[currentPart-1];
+      if(currentQuestion>p.qStart) scrollToQuestion(currentQuestion-1);
+    });
+    el('next-btn').addEventListener('click', ()=>{
+      const p = PARTS[currentPart-1];
+      if(currentQuestion<p.qEnd) scrollToQuestion(currentQuestion+1);
+    });
+
+    /* ========= ANSWERS ========= */
+    function getUserAnswer(key){
+      const radios = document.querySelectorAll(`input[name="${key}"][type="radio"]`);
+      const checks = document.querySelectorAll(`input[name="q21_22"][type="checkbox"]`);
+      const sel = document.querySelector(`select[name="${key}"]`);
+      const txt = document.querySelector(`input[name="${key}"][type="text"]`);
+      if(checks.length && (key==='q21' || key==='q22')){
+        const picked = [...checks].filter(c=>c.checked).map(c=>c.value);
+        return picked.join(', ');
+      }
+      if(radios.length){
+        const c = [...radios].find(r=>r.checked);
+        return c ? c.value : '';
+      }
+      if(sel) return sel.value || '';
+      if(txt) return (txt.value||'').trim();
+      return '';
+    }
+
+    function collectAllAnswers(){
+      const out = {};
+      for(let q=1;q<=40;q++){
+        if(q===21 || q===22){ out[`q${q}`] = getUserAnswer('q21'); continue; }
+        out[`q${q}`] = getUserAnswer(`q${q}`);
+      }
+      return out;
+    }
+
+    function markAnsweredChip(qNum){
+      const rail = activeRail(); if(!rail) return;
+      const chip = rail.querySelector(`.progress-item[data-question="${qNum}"]`);
+      if(!chip) return;
+      const val = (qNum===21||qNum===22) ? getUserAnswer('q21') : getUserAnswer(`q${qNum}`);
+      chip.classList.toggle('answered', !!val && val!=='');
+    }
+
+    function attachAnswerListeners(){
+      document.querySelectorAll('input[type="radio"]').forEach(r=>{
+        r.addEventListener('change', ()=>{
+          const m = r.name.match(/^q(\d+)$/);
+          if(m) markAnsweredChip(parseInt(m[1],10));
+        });
+      });
+      document.querySelectorAll('input[type="text"]').forEach(t=>{
+        t.addEventListener('input', ()=>{
+          const m = t.name.match(/^q(\d+)$/);
+          if(m) markAnsweredChip(parseInt(m[1],10));
+        });
+      });
+      document.querySelectorAll('select').forEach(s=>{
+        s.addEventListener('change', ()=>{
+          const m = s.name.match(/^q(\d+)$/);
+          if(m) markAnsweredChip(parseInt(m[1],10));
+        });
+      });
+      document.querySelectorAll('input[name="q21_22"]').forEach(c=>{
+        c.addEventListener('change', ()=>{ markAnsweredChip(21); markAnsweredChip(22); });
+      });
+    }
+
+    /* ========= PDF (answers only) ========= */
+    function downloadAnswersPDF(answers){
+      const { jsPDF } = window.jspdf || {};
+      if(!jsPDF){ alert('PDF library missing.'); return; }
+      const doc = new jsPDF({ unit:'pt', format:'a4' });
+
+      const left=48, top=64, line=20, bottom=780;
+      let y=top;
+
+      const sanitize = (s)=> (s||'').replace(/[\\/:*?"<>|]+/g,'').trim();
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(16);
+      doc.text('IELTSwithJurabek — Reading Test Answers', left, y); y+=22;
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(11);
+      doc.text('Candidate:', left, y);
+      doc.setFont('helvetica','normal');
+      doc.text(` ${studentName || '—'}`, left+68, y); y+=16;
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(10);
+      doc.text(`Exported: ${new Date().toLocaleString()}`, left, y); y+=18;
+
+      const secs = [
+        { t:'Passage 1 (Q1–13)', s:1, e:13 },
+        { t:'Passage 2 (Q14–26)', s:14, e:26 },
+        { t:'Passage 3 (Q27–40)', s:27, e:40 },
+      ];
+
+      secs.forEach(sec=>{
+        if(y+40>bottom){ doc.addPage(); y=top; }
+        doc.setFont('helvetica','bold'); doc.setFontSize(13);
+        doc.text(sec.t, left, y); y+=18;
+        doc.setFont('helvetica','normal'); doc.setFontSize(11);
+        for(let q=sec.s;q<=sec.e;q++){
+          const v = answers[`q${q}`] || '—';
+          if(y+16>bottom){ doc.addPage(); y=top; }
+          doc.text(`${q}. ${v}`, left, y); y+=line;
+        }
+      });
+
+      const safe = sanitize(studentName);
+      const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+      const fn = safe ? `IELTSwithJurabek_Answers_${safe}_${ts}.pdf` : `IELTSwithJurabek_Answers_${ts}.pdf`;
+      doc.save(fn);
+    }
+
+    /* ========= Themed Confirm (Promise-based) ========= */
+    function themedConfirm(message, opts={}){
+      return new Promise(resolve=>{
+        const modal = el('confirm-modal');
+        const title = el('confirm-title');
+        const text = el('confirm-message');
+        const ok = el('confirm-ok');
+        const cancel = el('confirm-cancel');
+        if(title) title.textContent = opts.title || 'Confirm Submission';
+        if(text) text.textContent = message || 'Are you sure?';
+        if(ok) ok.textContent = opts.okText || 'Submit';
+        if(cancel) cancel.textContent = opts.cancelText || 'Cancel';
+        if(modal) modal.style.display='flex';
+        const cleanup=()=>{ if(modal) modal.style.display='none'; ok?.removeEventListener('click',onOk); cancel?.removeEventListener('click',onCancel); };
+        function onOk(){ cleanup(); resolve(true); }
+        function onCancel(){ cleanup(); resolve(false); }
+        ok?.addEventListener('click', onOk, { once:true });
+        cancel?.addEventListener('click', onCancel, { once:true });
+      });
+    }
+
+    /* ========= SUBMIT ========= */
+    el('submit-btn').addEventListener('click', async ()=>{
+      if(submitted){ alert('You have already submitted.'); return; }
+      const ok = await themedConfirm('Submit ALL passages (1–3) and download your answers as PDF?', { title:'Confirm Submission', okText:'Submit', cancelText:'Cancel' });
+      if(!ok) return;
+      submitted = true; clearInterval(timerInterval);
+
+      const answers = collectAllAnswers();
+
+      document.querySelectorAll('input,select,textarea').forEach(n=>n.disabled=true);
+      el('submit-btn').disabled = true;
+
+      downloadAnswersPDF(answers);
+
+      const totalAnswered = Object.values(answers).filter(v=>!!v && v!=='').length;
+      el('score-display').textContent = `${totalAnswered} answered`;
+      el('score-breakdown').innerHTML = `<div class="score-item"><span>Thank you for completing the test.</span></div>`;
+      el('results-modal').style.display = 'flex';
+    });
+
+    // Results modal close handlers (X + footer Close)
+    document.addEventListener('click', (e)=>{
+      const t = e.target;
+      if(t && (t.id==='results-close-x' || t.id==='close-modal-footer')){
+        el('results-modal').style.display='none';
+      }
+    });
+
+    /* ========= TIMER ========= */
+    function tick(){
+      seconds--;
+      const m = Math.floor(seconds/60), s = seconds%60;
+      const t = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      const span = el('globalTimer').querySelector('span');
+      if(span) span.textContent = t;
+      if(seconds<=0){
+        clearInterval(timerInterval);
+        alert('Time is up! Submitting ALL passages.');
+        el('submit-btn').click();
+      }
+    }
+
+    /* ========= START FLOW ========= */
+    window.startTest = () => {
+      const input = el('studentName');
+      let name = input ? input.value.trim() : '';
+      if(!name){
+        name = prompt('Please enter your name to start the test:') || '';
+        name = name.trim();
+      }
+      if(!name){
+        alert('Please enter your name to start the test.');
+        input && input.focus();
+        return;
+      }
+      studentName = name;
+
+      el('startScreen').classList.add('hidden');
+      el('testContainer').classList.remove('hidden');
+
+      const headerInfo = document.querySelector('header .passage-info');
+      if(headerInfo) headerInfo.textContent = `IELTSwithJurabek — ${studentName}`;
+
+      PARTS.forEach(p=>togglePartVisibility(p.id, p.id===1));
+
+      renderBottomTabs();
+      attachAnswerListeners();
+      timerInterval = setInterval(tick, 1000);
+
+      restoreSplit(PARTS[0]);
+    };
+
+    // Enter to start + initial visibility
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const nameEl = el('studentName');
+      if(nameEl){
+        nameEl.addEventListener('keydown', (e)=>{
+          if(e.key==='Enter') startTest();
+        });
+      }
+      el('loadingScreen').classList.add('hidden');
+      el('startScreen').classList.remove('hidden');
+      initSplitters();
+      injectBaseStyles();
+    });
+
+    /* ========= HIGHLIGHT MODULE (toolbar + granular remove) ========= */
+    function injectBaseStyles(){
+      if(!document.getElementById('hl-style')){
+        const s=document.createElement('style');
+        s.id='hl-style';
+        s.textContent = `.highlight{background:yellow;padding:0 2px}
+          .hidden{display:none !important}
+          .btn{padding:8px 12px;border:none;border-radius:8px;cursor:pointer}
+          .btn-secondary{background:#e5e7eb}
+          .btn-submit{background:#2563eb;color:#fff}
+          /* Bottom progress chips (match reference) */
+          .progress-items{ display:flex; gap:8px; flex-wrap:wrap }
+          .progress-item{ width:36px; height:36px; display:flex; align-items:center; justify-content:center; border:1px solid #cbd5e0; background:#ffffff; color:#111827; border-radius:6px; font-weight:600; cursor:pointer; }
+          .progress-item.current{ outline:2px solid #2563eb; outline-offset:2px; }
+          .progress-item.answered{ background:#d1fae5; color:#065f46; }
+          .progress-item.correct{ background:#48bb78; color:#ffffff; border-color:#38a169; }
+          .progress-item.incorrect{ background:#fed7d7; color:#c53030; border-color:#feb2b2; }
+          .section-title{margin:0 0 8px 0}
+          .passage-content{line-height:1.6}
+          table th, table td { border-bottom: 1px solid #f1f1f1; }
+        `;
+        document.head.appendChild(s);
+      }
+    }
+
+    const hlToolbar = document.getElementById('hl-toolbar');
+    const hlSwatch = document.getElementById('hl-swatch');
+    const rmSwatch = document.getElementById('rm-swatch');
+    const passagePanel = document.querySelector('.passage-container');
+    const questionsPanel = document.querySelector('.questions-container');
+    let lastSelection = null, savedRange = null, currentPanel = null, clickContext = null;
+
+    function getValidSelection(){
+      const sel = window.getSelection();
+      if(!sel.rangeCount || sel.isCollapsed) return null;
+      const range = sel.getRangeAt(0);
+      function rangeIntersectsElement(r, el){
+        try{ const elRange=document.createRange(); elRange.selectNodeContents(el); const noOverlap=(r.compareBoundaryPoints(Range.END_TO_START, elRange) <= 0) || (r.compareBoundaryPoints(Range.START_TO_END, elRange) >= 0); return !noOverlap; }catch(_){ return false; }
+      }
+      const overlapPassage = passagePanel && rangeIntersectsElement(range, passagePanel);
+      const overlapQuestions = questionsPanel && rangeIntersectsElement(range, questionsPanel);
+      if(!overlapPassage && !overlapQuestions) return null;
+      currentPanel = overlapPassage ? passagePanel : questionsPanel;
+      return range;
+    }
+    function showToolbar(range){
+      try{
+        const r = (savedRange && !savedRange.collapsed) ? savedRange : (range && !range.collapsed ? range : (window.getSelection()?.rangeCount ? window.getSelection().getRangeAt(0) : null));
+        if(!r) return;
+        const rect = r.getBoundingClientRect();
+        const top = isFinite(rect.top) ? rect.top : 0;
+        const left = isFinite(rect.left) ? rect.left : 0;
+        hlToolbar.style.top = (window.scrollY + top - 42) + 'px';
+        hlToolbar.style.left = (window.scrollX + left) + 'px';
+        hlToolbar.style.display = 'flex';
+      }catch(_){ }
+    }
+    function hideToolbar(){ hlToolbar.style.display='none'; }
+    function mergeAdjacentHighlights(node){ const prev=node.previousSibling, next=node.nextSibling; if(prev && prev.nodeType===1 && prev.classList.contains('highlight')){ while(node.firstChild){ prev.appendChild(node.firstChild);} node.replaceWith(prev); node=prev;} if(next && next.nodeType===1 && next.classList.contains('highlight')){ while(next.firstChild){ node.appendChild(next.firstChild);} next.remove(); } }
+    function applyHighlightYellow(){
+      const sel=window.getSelection();
+      let range = savedRange && !savedRange.collapsed ? savedRange.cloneRange() : (lastSelection && !lastSelection.collapsed ? lastSelection.cloneRange() : null);
+      if(!range && sel && sel.rangeCount && !sel.isCollapsed){ try{ range = sel.getRangeAt(0).cloneRange(); }catch{} }
+      if(!range) return;
+      const root=(range.commonAncestorContainer && range.commonAncestorContainer.nodeType===3) ? range.commonAncestorContainer.parentNode : range.commonAncestorContainer;
+      const walker=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode(node){ if(!node.nodeValue) return NodeFilter.FILTER_REJECT; if(node.parentElement && node.parentElement.closest('span.highlight')) return NodeFilter.FILTER_REJECT; try{ if(typeof range.intersectsNode==='function'){ return range.intersectsNode(node)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT; } const nr=document.createRange(); nr.selectNodeContents(node); const noOverlap=(range.compareBoundaryPoints(Range.END_TO_START, nr)<=0)||(range.compareBoundaryPoints(Range.START_TO_END, nr)>=0); return noOverlap?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT; }catch(e){ return NodeFilter.FILTER_REJECT; } } });
+      const textNodes=[]; while(walker.nextNode()) textNodes.push(walker.currentNode);
+      if(textNodes.length===0){
+        const elemWalker=document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, { acceptNode(node){ if(node.closest && node.closest('span.highlight')) return NodeFilter.FILTER_REJECT; try{ if(typeof range.intersectsNode==='function') return range.intersectsNode(node)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT; const nr=document.createRange(); nr.selectNode(node); const noOverlap=(range.compareBoundaryPoints(Range.END_TO_START, nr)<=0)||(range.compareBoundaryPoints(Range.START_TO_END, nr)>=0); return noOverlap?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT; }catch(e){ return NodeFilter.FILTER_REJECT; } } });
+        const elems=[]; while(elemWalker.nextNode()) elems.push(elemWalker.currentNode);
+        elems.forEach(el=>{ const tnWalker=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null); while(tnWalker.nextNode()){ const node=tnWalker.currentNode; if(!node.nodeValue) continue; if(node.parentElement && node.parentElement.closest('span.highlight')) continue; const r=document.createRange(); r.selectNodeContents(node); if(range.startContainer===node) r.setStart(node, range.startOffset); if(range.endContainer===node) r.setEnd(node, range.endOffset); if(r.collapsed) continue; const span=document.createElement('span'); span.className='highlight'; try{ r.surroundContents(span);}catch(e){ const frag=r.extractContents(); span.appendChild(frag); r.insertNode(span);} mergeAdjacentHighlights(span); }});
+      } else {
+        textNodes.forEach(node=>{ let start=0, end=node.nodeValue.length; if(range.startContainer===node) start=range.startOffset; if(range.endContainer===node) end=range.endOffset; if(start>=end) return; const r=document.createRange(); r.setStart(node,start); r.setEnd(node,end); const span=document.createElement('span'); span.className='highlight'; try{ r.surroundContents(span);}catch(e){ const frag=r.extractContents(); span.appendChild(frag); r.insertNode(span);} mergeAdjacentHighlights(span); });
+      }
+      sel.removeAllRanges(); hideToolbar(); savedRange=null; clickContext=null;
+    }
+    function caretRangeFromPoint(x,y){ if(document.caretRangeFromPoint) return document.caretRangeFromPoint(x,y); const pos=document.caretPositionFromPoint? document.caretPositionFromPoint(x,y):null; if(pos){ const r=document.createRange(); r.setStart(pos.offsetNode,pos.offset); r.collapse(true); return r; } return null; }
+    function makeWordRangeAtPoint(x,y,spanEl){ const cr=caretRangeFromPoint(x,y); if(!cr) return null; let node=cr.startContainer; if(node.nodeType===1){ const tw=document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null); node=tw.nextNode(); } if(!node||node.nodeType!==3) return null; if(!spanEl.contains(node)) return null; const text=node.data||''; let off=Math.min(Math.max(cr.startOffset,0), text.length); let l=off, r=off; while(l>0 && !/\s/.test(text[l-1])) l--; while(r<text.length && !/\s/.test(text[r])) r++; if(l===r){ if(l>0) l--; else if(r<text.length) r++; } const wr=document.createRange(); wr.setStart(node,l); wr.setEnd(node,r); return wr; }
+    function removeHighlightInRange(){
+      let baseRange = savedRange && !savedRange.collapsed ? savedRange.cloneRange() : (lastSelection && !lastSelection.collapsed ? lastSelection.cloneRange() : null);
+      const sel=window.getSelection();
+      if(!baseRange){
+        const caretRange = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+        if(clickContext && clickContext.span){ const wr=makeWordRangeAtPoint(clickContext.x, clickContext.y, clickContext.span); if(wr) baseRange = wr; }
+        let anchor = baseRange ? null : (caretRange ? caretRange.startContainer : null);
+        if(anchor){
+          if(anchor.nodeType===1){ anchor = anchor.firstChild && anchor.firstChild.nodeType===3 ? anchor.firstChild : anchor; }
+          let textNode = anchor;
+          if(textNode.nodeType!==3){ const hl=(textNode.nodeType===1? textNode : (textNode.parentElement||null)); if(hl && hl.closest){ const sp=hl.closest('.highlight'); if(sp){ const walker=document.createTreeWalker(sp, NodeFilter.SHOW_TEXT, null); textNode = walker.nextNode() || textNode; } } }
+          const spanEl = (textNode.parentElement && textNode.parentElement.closest) ? textNode.parentElement.closest('.highlight') : null;
+          if(textNode && textNode.nodeType===3 && spanEl){ const t=textNode.data; const caretOffset=Math.min(Math.max(caretRange.startOffset,0), t.length); let l=caretOffset, r=caretOffset; while(l>0 && !/\s/.test(t[l-1])) l--; while(r<t.length && !/\s/.test(t[r])) r++; if(l===r){ if(l>0) l--; else if(r<t.length) r++; } baseRange=document.createRange(); baseRange.setStart(textNode,l); baseRange.setEnd(textNode,r); }
+          else { const caretEl = caretRange && caretRange.startContainer && caretRange.startContainer.nodeType===3 ? caretRange.startContainer.parentElement : caretRange && caretRange.startContainer; const span = caretEl && caretEl.closest ? caretEl.closest('.highlight') : null; if(span){ const parent=span.parentNode; while(span.firstChild) parent.insertBefore(span.firstChild, span); parent.removeChild(span); } hideToolbar(); savedRange=null; return; }
+        } else { hideToolbar(); savedRange=null; return; }
+      }
+      const highlighted=document.querySelectorAll('span.highlight'); let didChange=false;
+      highlighted.forEach(sp=>{ try{ const spRange=document.createRange(); spRange.selectNodeContents(sp); const noOverlap=(baseRange.compareBoundaryPoints(Range.END_TO_START, spRange) < 0) || (baseRange.compareBoundaryPoints(Range.START_TO_END, spRange) > 0); if(noOverlap) return; const inter=baseRange.cloneRange(); if(inter.compareBoundaryPoints(Range.START_TO_START, spRange) < 0) inter.setStart(spRange.startContainer, spRange.startOffset); if(inter.compareBoundaryPoints(Range.END_TO_END, spRange) > 0) inter.setEnd(spRange.endContainer, spRange.endOffset); const leftRange=spRange.cloneRange(); leftRange.setEnd(inter.startContainer, inter.startOffset); const rightRange=spRange.cloneRange(); rightRange.setStart(inter.endContainer, inter.endOffset); const frag=document.createDocumentFragment(); const lf=leftRange.cloneContents(); if(lf && lf.hasChildNodes()){ const lw=document.createElement('span'); lw.className='highlight'; lw.appendChild(lf); frag.appendChild(lw); } const mid=inter.cloneContents(); if(mid && mid.hasChildNodes()){ frag.appendChild(mid); } const rf=rightRange.cloneContents(); if(rf && rf.hasChildNodes()){ const rw=document.createElement('span'); rw.className='highlight'; rw.appendChild(rf); frag.appendChild(rw); } sp.replaceWith(frag); didChange=true; }catch(_){ } });
+      if(!didChange){ try{ const selRect = baseRange.getBoundingClientRect(); if(selRect){ for(const sp of document.querySelectorAll('span.highlight')){ const r=sp.getBoundingClientRect(); const overlap = !(selRect.right < r.left || selRect.left > r.right || selRect.bottom < r.top || selRect.top > r.bottom); if(overlap){ const parent=sp.parentNode; while(sp.firstChild) parent.insertBefore(sp.firstChild, sp); parent.removeChild(sp); didChange=true; } } } }catch(_){ }
+      }
+      try{ sel.removeAllRanges(); }catch(_){ } hideToolbar(); savedRange=null;
+    }
+    hlSwatch.addEventListener('mousedown', (e)=>{ e.preventDefault(); e.stopPropagation(); hlSwatch.classList.add('active'); applyHighlightYellow(); setTimeout(()=>hlSwatch.classList.remove('active'), 120); });
+    rmSwatch.addEventListener('mousedown', (e)=>{ e.preventDefault(); e.stopPropagation(); rmSwatch.classList.add('active'); removeHighlightInRange(); setTimeout(()=>rmSwatch.classList.remove('active'), 120); });
+    document.addEventListener('selectionchange', ()=>{ const range=getValidSelection(); if(range){ lastSelection=range; try{ savedRange=range.cloneRange(); }catch{ savedRange=null; } showToolbar(range); } else { lastSelection=null; } });
+    document.addEventListener('scroll', ()=>{ hideToolbar(); }, true);
+    document.addEventListener('mousedown', (e)=>{ if(hlToolbar.contains(e.target)) return; const sp = e.target && e.target.closest ? e.target.closest('.highlight') : null; clickContext=null; if(sp){ const cr=caretRangeFromPoint(e.clientX,e.clientY); if(cr){ const node = cr.startContainer.nodeType===3 ? cr.startContainer : (cr.startContainer.firstChild || cr.startContainer); const host = (node && node.nodeType===3? node.parentElement : node); if(host && host.closest && host.closest('.highlight')===sp){ clickContext = { node:(node && node.nodeType===3? node : (node && node.firstChild || node)), offset: cr.startOffset, span: sp, x: e.clientX, y: e.clientY }; } } } else { hideToolbar(); } });
+    document.addEventListener('mouseup', (e)=>{ if(hlToolbar.contains(e.target)) return; const sel=window.getSelection(); if(sel && sel.rangeCount && !sel.isCollapsed) return; if(clickContext && clickContext.span){ const y=clickContext.y, x=clickContext.x; hlToolbar.style.top=(window.scrollY + (y - 42)) + 'px'; hlToolbar.style.left=(window.scrollX + (x)) + 'px'; hlToolbar.style.display='flex'; } });
+
+    /* ========= SPLITTER (movable resizer) ========= */
+    function initSplitters(){
+      PARTS.forEach(p=>{
+        const split = el(p.splitter);
+        if(!split) return;
+        let dragging = false;
+        split.addEventListener('mousedown', (e)=>{
+          if(split.classList.contains('hidden')) return;
+          dragging = true;
+          document.body.style.cursor = 'col-resize';
+          e.preventDefault();
+        });
+        window.addEventListener('mousemove', (e)=>{
+          if(!dragging) return;
+          const cont = document.querySelector('.main-content');
+          const rect = cont.getBoundingClientRect();
+          const minPct = 20, maxPct = 80;
+          let pct = ((e.clientX - rect.left) / rect.width) * 100;
+          pct = Math.max(minPct, Math.min(maxPct, pct));
+          cont.style.setProperty(p.cssVar, pct.toFixed(1)+'%');
+          localStorage.setItem('split:'+p.cssVar, pct.toFixed(1));
+        });
+        window.addEventListener('mouseup', ()=>{
+          if(dragging){
+            dragging = false;
+            document.body.style.cursor = '';
+          }
+        });
+      });
+    }
+
+    function restoreSplit(p){
+      const cont = document.querySelector('.main-content');
+      const saved = localStorage.getItem('split:'+p.cssVar);
+      if(saved) cont.style.setProperty(p.cssVar, saved+'%');
+    }
+  </script>
+</body>
+</html>
