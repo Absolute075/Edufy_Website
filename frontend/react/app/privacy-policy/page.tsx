@@ -5,7 +5,7 @@ export default function PrivacyPolicyPage() {
         <div className="text-center mb-12 legal-hero-block">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas tracking-[0.35em] uppercase text-white mb-4">
             <span className="logo-glow mr-3">Edufy</span>
-            <span className="typing-title">Privacy Policy</span>
+            <span>Privacy Policy</span>
           </h1>
           <p className="text-gray-300">Last Updated: October 2025</p>
           <p className="text-gray-400 max-w-2xl mx-auto mt-2">
