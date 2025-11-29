@@ -918,7 +918,7 @@ export default function HomePage() {
                     </div>
                     {/* Левое фото: линия из нижнего левого угла по диагонали вниз-влево, стрелка в конце; весь текстовый блок под окончанием линии */}
                     <div
-                      className="pointer-events-none absolute right-full bottom-0"
+                      className="absolute right-full bottom-0"
                       style={{ transform: 'rotate(-18deg)', transformOrigin: '100% 100%' }}
                     >
                       <div className="flex items-center flex-row-reverse">
@@ -930,7 +930,7 @@ export default function HomePage() {
                           <div className="w-0 h-0 border-r-[7px] border-r-gray-400 border-y-[4px] border-y-transparent" />
                           {/* Весь текст под окончанием линии: начинается у стрелки и уходит наружу (влево) */}
                           <div
-                            className="absolute right-0 top-full mt-0 w-[22rem] sm:w-[24rem] md:w-[26rem] text-left origin-top z-20"
+                            className="absolute right-0 top-full mt-0 max-w-[90vw] w-[22rem] sm:w-[24rem] md:w-[26rem] text-left origin-top z-20"
                             style={{ transform: 'translateY(-30px) rotate(18deg)' }}
                           >
                             <p className="text-sm sm:text-base md:text-lg font-semibold text-white">
@@ -950,7 +950,7 @@ export default function HomePage() {
                     </div>
                     {/* Правое фото: линия из нижнего правого угла по диагонали вниз-вправо, стрелка в конце; весь текстовый блок под окончанием линии */}
                     <div
-                      className="pointer-events-none absolute left-full bottom-0"
+                      className="absolute left-full bottom-0"
                       style={{ transform: 'rotate(18deg)', transformOrigin: '0% 100%' }}
                     >
                       <div className="flex items-center">
@@ -962,7 +962,7 @@ export default function HomePage() {
                           <div className="w-0 h-0 border-l-[7px] border-l-gray-400 border-y-[4px] border-y-transparent" />
                           {/* Весь текст под окончанием линии: начинается у стрелки и уходит наружу (вправо) */}
                           <div
-                            className="absolute left-0 top-full mt-0 w-[22rem] sm:w-[24rem] md:w-[26rem] text-left origin-top z-20"
+                            className="absolute left-0 top-full mt-0 max-w-[90vw] w-[22rem] sm:w-[24rem] md:w-[26rem] text-left origin-top z-20"
                             style={{ transform: 'translateY(-30px) rotate(-18deg)' }}
                           >
                             <p className="text-sm sm:text-base md:text-lg font-semibold text-white">
