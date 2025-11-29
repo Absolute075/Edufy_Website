@@ -936,7 +936,7 @@ export default function HomePage() {
                             <p className="text-sm sm:text-base md:text-lg font-semibold text-white">
                               Asilbek — CEO &amp; Co-Founder
                             </p>
-                            <p className="mt-1 text-xs sm:text-sm md:text-base text-gray-300">
+                            <p className="mt-1 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-gray-300">
                               Asilbek is responsible for managing the finances of Edufy and guiding the project's initiatives. He focuses on planning, organizing resources, and finding small improvements that make the platform better for students. Asilbek also explores new ideas and ways to make learning more accessible, keeping the team aligned and the project moving forward step by step.
                             </p>
                           </div>
@@ -968,7 +968,7 @@ export default function HomePage() {
                             <p className="text-sm sm:text-base md:text-lg font-semibold text-white">
                               Behruz — CTO &amp; Co-Founder
                             </p>
-                            <p className="mt-1 text-xs sm:text-sm md:text-base text-gray-300">
+                            <p className="mt-1 px-3 sm:px-4 text-xs sm:text-sm md:text-base text-gray-300">
                               Behruz takes care of all technical aspects of Edufy, from building and maintaining the platform to implementing new features. He also helps with day-to-day operations to ensure everything runs smoothly. Behruz works behind the scenes to keep the platform stable, efficient, and reliable, making sure that students can focus on learning without interruptions.
                             </p>
                           </div>
