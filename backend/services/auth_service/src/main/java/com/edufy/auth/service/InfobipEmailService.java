@@ -34,7 +34,9 @@ public class InfobipEmailService {
             conn.setReadTimeout(10000);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Authorization", "App " + apiKey);
-            conn.setRequestProperty("Content-Type", "application/json");
+
+            String boundary = "----EdufyBoundary" + System.currentTimeMillis();
+            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             conn.setRequestProperty("Accept", "application/json");
             conn.setDoOutput(true);
 
@@ -43,14 +45,35 @@ public class InfobipEmailService {
                 from = "Edufy <no-reply@edufyuzbekistan.com>";
             }
 
-            String payload = "{" +
-                    "\"from\":\"" + from.replace("\"", "'") + "\"," +
-                    "\"to\":[\"" + toEmail.replace("\"", "'") + "\"]," +
-                    "\"subject\":\"Edufy password reset code\"," +
-                    "\"text\":\"Your Edufy password reset code is " + code + ". It is valid for 15 minutes.\"" +
-                    "}";
+            String CRLF = "\r\n";
+            StringBuilder body = new StringBuilder();
 
-            byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
+            body.append("--").append(boundary).append(CRLF);
+            body.append("Content-Disposition: form-data; name=\"from\"").append(CRLF);
+            body.append(CRLF);
+            body.append(from).append(CRLF);
+
+            body.append("--").append(boundary).append(CRLF);
+            body.append("Content-Disposition: form-data; name=\"to\"").append(CRLF);
+            body.append(CRLF);
+            body.append(toEmail).append(CRLF);
+
+            body.append("--").append(boundary).append(CRLF);
+            body.append("Content-Disposition: form-data; name=\"subject\"").append(CRLF);
+            body.append(CRLF);
+            body.append("Edufy password reset code").append(CRLF);
+
+            body.append("--").append(boundary).append(CRLF);
+            body.append("Content-Disposition: form-data; name=\"text\"").append(CRLF);
+            body.append(CRLF);
+            body.append("Your Edufy password reset code is ")
+                    .append(code)
+                    .append(". It is valid for 15 minutes.")
+                    .append(CRLF);
+
+            body.append("--").append(boundary).append("--").append(CRLF);
+
+            byte[] bytes = body.toString().getBytes(StandardCharsets.UTF_8);
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(bytes);
             }

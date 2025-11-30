@@ -563,15 +563,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right-side hero description */}
-          <div className="absolute right-8 sm:right-16 md:right-24 bottom-16 sm:bottom-24 max-w-md text-right z-10 hero-fade-up-delayed">
-            <h2 className="font-cormorant-main text-lg sm:text-xl md:text-2xl lg:text-3xl text-white leading-snug">
-              Prepare for International Exams with Real Practice Tests
-            </h2>
-            <p className="mt-3 text-xs sm:text-sm md:text-sm text-gray-200">
-              Edufy offers practice tests and materials for IELTS, SAT, TOEFL, and other international certificates. Learn at your own pace, practice in real exam format, and track your progress.
-            </p>
-          </div>
         </section>
 
         {/* AI Timeline Section */}
