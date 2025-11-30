@@ -5,6 +5,8 @@ import com.edufy.auth.dto.LoginRequest;
 import com.edufy.auth.dto.RefreshRequest;
 import com.edufy.auth.dto.TokenResponse;
 import com.edufy.auth.dto.AuthResponse;
+import com.edufy.auth.dto.ForgotPasswordRequest;
+import com.edufy.auth.dto.ResetPasswordRequest;
 import com.edufy.auth.dto.UpdateProfileRequest;
 import com.edufy.auth.entity.UserEntity;
 import com.edufy.auth.repository.UserRepository;
@@ -422,5 +424,25 @@ public class AuthController {
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("OK");
+    }
+
+    // Сброс пароля: отправка кода на email
+    @PostMapping("/forgot-password")
+    public ResponseEntity<AuthResponse> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        AuthResponse response = authService.forgotPassword(request);
+        if (response.getMessage().startsWith("❌")) {
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    // Сброс пароля: установка нового пароля по коду
+    @PostMapping("/reset-password")
+    public ResponseEntity<AuthResponse> resetPassword(@RequestBody ResetPasswordRequest request) {
+        AuthResponse response = authService.resetPassword(request);
+        if (response.getMessage().startsWith("❌")) {
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok(response);
     }
 }

@@ -531,7 +531,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => {
-                    window.location.href = 'https://access.edufyuzbekistan.com/login';
+                    window.location.href = 'https://access.edufyuzbekistan.com/register';
                   }}
                   className="text-black px-4 py-1.5 rounded-full bg-white hover:bg-gray-100 transition-colors shadow-sm shadow-white/30"
                 >

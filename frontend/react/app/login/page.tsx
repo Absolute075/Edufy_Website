@@ -176,7 +176,7 @@ export default function LoginPage() {
               <span>Remember me</span>
             </label>
             <a
-              href="https://access.edufyuzbekistan.com/reset_password"
+              href="/reset_password"
               className="text-[11px] text-gray-300 hover:text-white transition-colors"
             >
               Forgot password?

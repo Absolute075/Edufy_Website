@@ -18,6 +18,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final InfobipEmailService infobipEmailService;
 
     // ================== REGISTER ==================
     public AuthResponse register(RegisterRequest request) {
@@ -103,5 +104,86 @@ public class AuthService {
         String newAccessToken = jwtService.generateAccessToken(username);
         // Возвращаем новый accessToken, старый refreshToken оставляем
         return new TokenResponse(newAccessToken, request.getRefreshToken());
+    }
+
+    // ================== FORGOT PASSWORD (SEND CODE) ==================
+    public AuthResponse forgotPassword(ForgotPasswordRequest request) {
+        if (request == null || request.getEmail() == null || request.getEmail().isBlank()) {
+            return new AuthResponse("❌ Email is required");
+        }
+
+        String email = request.getEmail().trim();
+        Optional<UserEntity> userOpt = userRepository.findByEmail(email);
+
+        // Всегда возвращаем одинаковый ответ, чтобы не раскрывать, существует ли email
+        String genericOk = "✅ If this email exists, we have sent a reset code.";
+
+        if (userOpt.isEmpty()) {
+            return new AuthResponse(genericOk);
+        }
+
+        try {
+            UserEntity user = userOpt.get();
+
+            // Генерация 6-значного кода
+            int raw = (int) (Math.random() * 1_000_000);
+            String code = String.format("%06d", raw);
+
+            user.setResetCode(code);
+            user.setResetCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
+            userRepository.save(user);
+
+            infobipEmailService.sendResetCodeEmail(user.getEmail(), code);
+        } catch (Exception e) {
+            // Не раскрываем детали, только логируем на сервере
+            System.out.println("[auth_service] forgotPassword error: " + e.getClass().getSimpleName());
+        }
+
+        return new AuthResponse(genericOk);
+    }
+
+    // ================== RESET PASSWORD (BY CODE) ==================
+    public AuthResponse resetPassword(ResetPasswordRequest request) {
+        if (request == null
+                || request.getEmail() == null || request.getEmail().isBlank()
+                || request.getCode() == null || request.getCode().isBlank()
+                || request.getNewPassword() == null || request.getNewPassword().isBlank()) {
+            return new AuthResponse("❌ Email, code and new password are required");
+        }
+
+        if (request.getNewPassword().length() < 8) {
+            return new AuthResponse("❌ Password must be at least 8 characters long");
+        }
+
+        Optional<UserEntity> userOpt = userRepository.findByEmail(request.getEmail().trim());
+        if (userOpt.isEmpty()) {
+            return new AuthResponse("❌ Invalid or expired reset code");
+        }
+
+        UserEntity user = userOpt.get();
+        if (user.getResetCode() == null || user.getResetCodeExpiresAt() == null) {
+            return new AuthResponse("❌ Invalid or expired reset code");
+        }
+
+        if (!user.getResetCode().equals(request.getCode())) {
+            return new AuthResponse("❌ Invalid or expired reset code");
+        }
+
+        if (user.getResetCodeExpiresAt().isBefore(LocalDateTime.now())) {
+            return new AuthResponse("❌ Invalid or expired reset code");
+        }
+
+        try {
+            String hashed = passwordEncoder.encode(request.getNewPassword());
+            user.setPassword(hashed);
+            user.setResetCode(null);
+            user.setResetCodeExpiresAt(null);
+            userRepository.save(user);
+        } catch (Exception e) {
+            System.out.println("[auth_service] resetPassword error: " + e.getClass().getSimpleName());
+            return new AuthResponse("❌ Failed to reset password");
+        }
+
+        return new AuthResponse("✅ Password has been reset successfully");
     }
 }
