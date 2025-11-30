@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
+import Link from 'next/link';
 import Image from 'next/image';
 import heroPhoto from '../public/photos/photo_2025-11-26_22-49-48.jpg';
 import aboutPhoto from '../public/photos/de879823cdded25720a788ccc70ab3bc.jpg';
@@ -25,17 +26,17 @@ export default function HomePage() {
 
   const plusPrice =
     billingPeriod === '6months'
-      ? '$19.99'
+      ? '$19.99/UZS 234.000'
       : billingPeriod === 'yearly'
-      ? '$29.99'
-      : '$3.99';
+      ? '$29.99/UZS 354.000'
+      : '$3.99/UZS 44.000';
 
   const premiumPrice =
     billingPeriod === '6months'
-      ? '$39.99'
+      ? '$39.99/UZS 474.000'
       : billingPeriod === 'yearly'
-      ? '$59.99'
-      : '$7.99';
+      ? '$59.99/UZS 709.000'
+      : '$7.99/UZS 94.000';
 
   const exams = ['ACT', 'SAT', 'IELTS', 'TOEFL', 'AP'];
   const [activeExamIndex, setActiveExamIndex] = useState(2);
@@ -1029,7 +1030,7 @@ export default function HomePage() {
                   <span>★</span>
                 </div>
                 <span className="text-sm font-semibold text-white">Jamshid</span>
-                <span className="text-xs text-gray-400">IELTS student</span>
+                <span className="text-xs text-gray-400">IELTS learner</span>
               </div>
             </div>
 
@@ -1047,7 +1048,7 @@ export default function HomePage() {
                   <span>★</span>
                 </div>
                 <span className="text-sm font-semibold text-white">Malika</span>
-                <span className="text-xs text-gray-400">SAT &amp; IELTS candidate</span>
+                <span className="text-xs text-gray-400">IELTS learner</span>
               </div>
             </div>
 
@@ -1071,12 +1072,12 @@ export default function HomePage() {
           </div>
 
           <div className="mt-10 flex justify-center">
-            <button
-              type="button"
+            <Link
+              href="/reviews"
               className="px-8 py-2.5 rounded-full border border-white/25 bg-black/60 text-sm md:text-base text-white tracking-[0.15em] uppercase font-space hover:bg-white hover:text-gray-900 transition-colors duration-300"
             >
               View more
-            </button>
+            </Link>
           </div>
         </section>
 
@@ -1134,15 +1135,12 @@ export default function HomePage() {
                     <li>- Smart progress analytics</li>
                     <li>- Half access to special materials</li>
                   </ul>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      window.location.href = 'https://access.edufyuzbekistan.com/login';
-                    }}
-                    className="mt-4 w-full rounded-full border border-white/25 bg-black/70 px-4 py-2 text-xs font-medium text-white shadow-sm shadow-white/10 transition-all duration-300 ease-out hover:bg-white hover:text-gray-900 hover:shadow-[0_0_18px_rgba(255,255,255,0.6)] hover:-translate-y-0.5"
+                  <Link
+                    href="/payment"
+                    className="mt-4 w-full rounded-full border border-white/25 bg-black/70 px-4 py-2 text-xs font-medium text-white shadow-sm shadow-white/10 transition-all duration-300 ease-out hover:bg-white hover:text-gray-900 hover:shadow-[0_0_18px_rgba(255,255,255,0.6)] hover:-translate-y-0.5 text-center"
                   >
                     Get started
-                  </button>
+                  </Link>
                 </div>
               </div>
 
@@ -1159,15 +1157,12 @@ export default function HomePage() {
                     <li>- Full access for all materials</li>
                     <li>- Special MOCKs</li>
                   </ul>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      window.location.href = 'https://access.edufyuzbekistan.com/login';
-                    }}
-                    className="mt-4 w-full rounded-full border border-white/25 bg-black/70 px-4 py-2 text-xs font-medium text-white shadow-sm shadow-white/10 transition-all duration-300 ease-out hover:bg-white hover:text-gray-900 hover:shadow-[0_0_18px_rgba(255,255,255,0.6)] hover:-translate-y-0.5"
+                  <Link
+                    href="/payment"
+                    className="mt-4 w-full rounded-full border border-white/25 bg-black/70 px-4 py-2 text-xs font-medium text-white shadow-sm shadow-white/10 transition-all duration-300 ease-out hover:bg-white hover:text-gray-900 hover:shadow-[0_0_18px_rgba(255,255,255,0.6)] hover:-translate-y-0.5 text-center"
                   >
                     Get started
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -1361,13 +1356,14 @@ export default function HomePage() {
           </div>
 
           <div className="mt-10 flex justify-center">
-            <button
-              type="button"
+            <Link
+              href="/blog"
               className="px-8 py-2.5 rounded-full border border-white/25 bg-black/60 text-sm md:text-base text-white tracking-[0.15em] uppercase font-space hover:bg-white hover:text-gray-900 transition-colors duration-300"
             >
               View all posts
-            </button>
+            </Link>
           </div>
+
         </section>
 
         {openBlogPost && (
