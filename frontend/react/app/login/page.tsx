@@ -218,9 +218,12 @@ export default function LoginPage() {
 
         <p className="mt-5 text-xs text-gray-400 text-center">
           Don&apos;t have an account?{' '}
-          <button type="button" className="text-gray-100 underline underline-offset-2 hover:text-white transition-colors">
+          <a
+            href="/register"
+            className="text-gray-100 underline underline-offset-2 hover:text-white transition-colors"
+          >
             Sign Up
-          </button>
+          </a>
         </p>
       </div>
     </main>
