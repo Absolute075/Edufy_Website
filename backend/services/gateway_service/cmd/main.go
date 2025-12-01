@@ -204,8 +204,11 @@ func getUsdToUzsRate() (float64, time.Time, error) {
 
 	// Try to fetch a fresh rate from exchangerate.host.
 	func() {
-		url := "https://api.exchangerate.host/latest?base=USD&symbols=UZS"
-		resp, err := http.Get(url)
+		baseURL := "https://api.exchangerate.host/latest?base=USD&symbols=UZS"
+		if apiKey := os.Getenv("EXCHANGERATE_HOST_API_KEY"); apiKey != "" {
+			baseURL = baseURL + "&access_key=" + apiKey
+		}
+		resp, err := http.Get(baseURL)
 		if err != nil {
 			lastErr = fmt.Errorf("fetch rate: %w", err)
 			return
