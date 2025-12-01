@@ -43,13 +43,6 @@ func main() {
 
 	// === Support: Report bug -> Telegram ===
 	router.POST("/support/report", func(c *gin.Context) {
-		botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
-		chatID := os.Getenv("TELEGRAM_CHAT_ID")
-		if botToken == "" || chatID == "" {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "telegram not configured"})
-			return
-		}
-
 		ip := c.ClientIP()
 		ua := c.Request.UserAgent()
 
@@ -87,8 +80,33 @@ func main() {
 			return
 		}
 
+		// Default bot for general support/bug reports
+		defaultBotToken := os.Getenv("TELEGRAM_BOT_TOKEN")
+		defaultChatID := os.Getenv("TELEGRAM_CHAT_ID")
+
+		// Optional separate bot for contact form messages
+		contactBotToken := os.Getenv("TELEGRAM_CONTACT_BOT_TOKEN")
+		contactChatID := os.Getenv("TELEGRAM_CONTACT_CHAT_ID")
+
+		botToken := defaultBotToken
+		chatID := defaultChatID
+		if strings.EqualFold(category, "contact") && contactBotToken != "" && contactChatID != "" {
+			botToken = contactBotToken
+			chatID = contactChatID
+		}
+		if botToken == "" || chatID == "" {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "telegram not configured"})
+			return
+		}
+
+		header := "Edufy Dash Bug Report"
+		if strings.EqualFold(category, "contact") {
+			header = "Edufy Website Contact Form"
+		}
+
 		text := fmt.Sprintf(
-			"Edufy Dash Bug Report\n\nTitle: %s\nCategory: %s\n\nDescription:\n%s\n\nIP: %s\nUA: %s",
+			"%s\n\nTitle: %s\nCategory: %s\n\nDescription:\n%s\n\nIP: %s\nUA: %s",
+			header,
 			title,
 			category,
 			description,

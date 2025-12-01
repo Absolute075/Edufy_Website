@@ -1,10 +1,67 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePageTitle } from '../lib/usePageTitle';
 
 export default function ContactPage() {
   usePageTitle('Edufy – Contact');
+
+  const [name, setName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [contact, setContact] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'success' | 'error' | 'validation'>('idle');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
+    const trimmedMessage = message.trim();
+    const trimmedContact = contact.trim();
+    const fullName = `${name} ${lastName}`.trim();
+
+    if (!trimmedMessage || !trimmedContact) {
+      setStatus('validation');
+      setError('Please provide your contact and a message.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setStatus('idle');
+    setError(null);
+
+    try {
+      const payload = {
+        title: fullName || 'Contact form message',
+        category: 'contact',
+        description: `From: ${fullName || 'Unknown'}\nContact: ${trimmedContact}\n\nMessage:\n${trimmedMessage}`,
+      };
+
+      const res = await fetch('/support/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      setStatus('success');
+      setName('');
+      setLastName('');
+      setContact('');
+      setMessage('');
+    } catch (err) {
+      setStatus('error');
+      setError('Something went wrong. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-black text-white contact-page-wrapper">
       <div className="pt-28 pb-10">
@@ -74,7 +131,7 @@ export default function ContactPage() {
             <p className="mt-3 text-sm md:text-base text-gray-300">
               Share your question, idea or feedback with us — we will reply as soon as possible.
             </p>
-            <form className="mt-8 space-y-4">
+            <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">Name</label>
@@ -82,6 +139,8 @@ export default function ContactPage() {
                     type="text"
                     className="w-full rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/40"
                     placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 <div>
@@ -90,6 +149,8 @@ export default function ContactPage() {
                     type="text"
                     className="w-full rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/40"
                     placeholder="Your last name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                   />
                 </div>
               </div>
@@ -97,9 +158,11 @@ export default function ContactPage() {
               <div>
                 <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">Email or Telegram Username</label>
                 <input
-                  type="email"
+                  type="text"
                   className="w-full rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/40"
                   placeholder="you@example.com or @username"
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
                 />
               </div>
 
@@ -109,15 +172,25 @@ export default function ContactPage() {
                   rows={4}
                   className="w-full rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/40 resize-none"
                   placeholder="Write your message here"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full inline-flex justify-center text-sm font-medium text-black px-4 py-2.5 rounded-full bg-white hover:bg-gray-100 transition-colors"
+                className="w-full inline-flex justify-center text-sm font-medium text-black px-4 py-2.5 rounded-full bg-white hover:bg-gray-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={isSubmitting}
               >
-                Submit
+                {isSubmitting ? 'Sending...' : 'Submit'}
               </button>
+
+              {status === 'success' && (
+                <p className="text-xs text-green-400">Message sent. We will contact you soon.</p>
+              )}
+              {status !== 'success' && status !== 'idle' && error && (
+                <p className="text-xs text-red-400">{error}</p>
+              )}
             </form>
           </div>
         </div>
