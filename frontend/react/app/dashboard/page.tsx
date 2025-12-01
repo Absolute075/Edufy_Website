@@ -113,7 +113,7 @@ export default function DashboardPage() {
     <DashboardShell studentName={studentName}>
       <section className="space-y-6">
               {/* Greeting */}
-              <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-800 to-slate-900/90 p-6 shadow-lg shadow-black/40">
+              <div className="rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-6 shadow-lg shadow-black/40">
                 <h1 className="text-2xl font-semibold">
                   Welcome back, <span className="text-cyan-300">{studentName}</span>
                   <span className="ml-1">👋🏻</span>
@@ -122,7 +122,7 @@ export default function DashboardPage() {
               </div>
 
               {/* IELTS Progress */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6">
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <h2 className="text-lg font-semibold">IELTS Progress</h2>
@@ -130,13 +130,13 @@ export default function DashboardPage() {
                   </div>
                   <Link
                     href="/resources"
-                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-900"
+                    className="rounded-lg border border-neutral-700 px-3 py-1.5 text-sm text-slate-200 hover:bg-neutral-900"
                   >
                     Open course
                   </Link>
                 </div>
                 <div className="mt-4">
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-slate-900">
+                  <div className="h-3 w-full overflow-hidden rounded-full bg-neutral-900">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-sky-500 transition-all duration-700"
                       style={{ width: `${progress}%` }}
@@ -149,7 +149,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Daily Quote */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6">
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
                 <blockquote className="text-slate-100 italic">
                   <span>
                     A man who makes a mistake and does not correct it is making another mistake.
@@ -161,7 +161,7 @@ export default function DashboardPage() {
               {/* Weekly Study Time */}
               <section
                 aria-labelledby="weekly-time"
-                className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6"
+                className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6"
               >
                 <h2 id="weekly-time" className="text-lg font-semibold">
                   Weekly Study Time
@@ -195,23 +195,22 @@ export default function DashboardPage() {
                   })}
                 </div>
               </section>
-
               {/* Recent Activities */}
-              <section className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6">
+              <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
                 <h2 className="text-lg font-semibold">Recent Activities</h2>
                 <div className="mt-4 space-y-3" aria-live="polite">
                   {activities.length === 0 ? (
-                    <div className="text-sm text-slate-400">No recent activity yet</div>
+                    <div className="text-sm text-neutral-500">No recent activity yet</div>
                   ) : (
                     activities.map((a, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-950 px-3 py-3 text-sm hover:bg-slate-900/80"
+                        className="flex items-start gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-3 text-sm hover:bg-neutral-900"
                       >
                         <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-cyan-400/80" />
                         <div>
-                          <div className="font-medium text-slate-100">{a.text}</div>
-                          <div className="text-xs text-slate-400">{formatRelativeTime(a.time)}</div>
+                          <div className="font-medium text-neutral-100">{a.text}</div>
+                          <div className="text-xs text-neutral-500">{formatRelativeTime(a.time)}</div>
                         </div>
                       </div>
                     ))
@@ -220,17 +219,17 @@ export default function DashboardPage() {
               </section>
 
               {/* Study Methods */}
-              <section className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6">
+              <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
                 <h2 className="text-lg font-semibold">Study Methods</h2>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <article className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <article className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
                     <h3 className="font-medium">SQ3R</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Survey, Question, Read, Recite, Review to boost comprehension.
                     </p>
                     <Link
                       href="/methods/sq3r"
-                      className="mt-3 inline-block rounded-lg border border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-900"
+                      className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
                     >
                       Learn More
                     </Link>
@@ -242,7 +241,7 @@ export default function DashboardPage() {
                     </p>
                     <Link
                       href="/methods/pomodoro"
-                      className="mt-3 inline-block rounded-lg border border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-900"
+                      className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
                     >
                       Learn More
                     </Link>
@@ -254,7 +253,7 @@ export default function DashboardPage() {
                     </p>
                     <Link
                       href="/methods/feynman"
-                      className="mt-3 inline-block rounded-lg border border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-900"
+                      className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
                     >
                       Learn More
                     </Link>
@@ -293,7 +292,7 @@ export default function DashboardPage() {
               </section>
 
               {/* Monthly Progress by Weeks */}
-              <section className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6">
+              <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
                 <h2 className="text-lg font-semibold">Monthly Progress by Weeks</h2>
                 <div
                   className="mt-4 grid h-40 grid-cols-4 items-end gap-4 text-xs text-slate-400"
@@ -309,7 +308,7 @@ export default function DashboardPage() {
                 </div>
               </section>
 
-              <footer className="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+              <footer className="border-t border-neutral-800 py-6 text-center text-sm text-slate-500">
                 ©2025 Edufy. Keep Learning.
               </footer>
             </section>

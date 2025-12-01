@@ -7,7 +7,7 @@ export default function ResourcesPage() {
   return (
     <DashboardShell>
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex flex-col gap-2 border-b border-slate-800 pb-4">
+        <div className="flex flex-col gap-2 border-b border-neutral-800 pb-4">
           <h1 className="text-2xl font-semibold">Resources</h1>
           <p className="text-sm text-slate-400">
             IELTS sections and vocabulary materials collected for you.
@@ -15,7 +15,7 @@ export default function ResourcesPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <section className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6">
+          <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold">IELTS Resources</h2>
@@ -23,7 +23,7 @@ export default function ResourcesPage() {
               </div>
             </div>
             <div className="mt-4 space-y-3">
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-800 bg-slate-950 px-3 py-3">
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-3">
                 <div>
                   <div className="text-sm font-medium text-slate-100">Reading</div>
                   <div className="text-xs text-slate-400">
@@ -32,12 +32,12 @@ export default function ResourcesPage() {
                 </div>
                 <Link
                   href="/resources/reading"
-                  className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-900"
+                  className="rounded-lg border border-neutral-700 px-3 py-1.5 text-sm text-slate-200 hover:bg-neutral-900"
                 >
                   Open
                 </Link>
               </div>
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-800 bg-slate-950 px-3 py-3">
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-3">
                 <div>
                   <div className="text-sm font-medium text-slate-100">Listening</div>
                   <div className="text-xs text-slate-400">Audio practice, note-taking, and tips</div>

@@ -276,7 +276,10 @@ export function DashboardShell({ children, studentName }: Props) {
       {/* Main content shifted to the right of fixed sidebar */}
       <main className="ml-64 min-h-screen">
 
-          <header className="sticky top-0 z-40 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur">
+          <header
+            className="sticky top-0 z-40 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur"
+            aria-label={headerName ? `Dashboard for ${headerName}` : "Dashboard"}
+          >
             <div className="flex items-center justify-between px-4 py-3 md:px-8">
               <div className="flex items-center gap-3 md:hidden">
                 <button
@@ -285,21 +288,6 @@ export function DashboardShell({ children, studentName }: Props) {
                 >
                   <span className="block h-0.5 w-4 rounded bg-slate-200" />
                 </button>
-              </div>
-              <div className="flex flex-1 items-center justify-end gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 overflow-hidden rounded-full border border-slate-700 bg-slate-900">
-                    <img
-                      src="https://resources.edufyuzbekistan.com/storage/images/10d554ea6f330f1612526b54562c8a33.jpg"
-                      alt="User"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="hidden text-left text-xs md:block">
-                    <div className="font-semibold leading-tight">{headerName}</div>
-                    <div className="text-[11px] text-slate-400">Keep the streak going</div>
-                  </div>
-                </div>
               </div>
             </div>
           </header>

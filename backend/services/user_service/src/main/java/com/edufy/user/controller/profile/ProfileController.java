@@ -58,6 +58,9 @@ public class ProfileController {
             body.put("phone", p.getPhone());
             body.put("birthDate", p.getBirthDate());
             body.put("avatarUrl", p.getAvatarUrl());
+            body.put("certificate", p.getCertificate());
+            body.put("favorite_subject", p.getFavoriteSubject());
+            body.put("daily_hours", p.getDailyHours());
         } else {
             body.put("username", username);
         }
