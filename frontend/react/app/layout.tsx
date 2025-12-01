@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
+import { SessionExpiredProvider } from './SessionExpiredProvider';
 
 export const metadata: Metadata = {
   title: 'Edufy - Tests Prep',
@@ -31,15 +32,17 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <div className="orientation-allowed-content">{children}</div>
-        <div className="orientation-lock-overlay">
-          <div className="orientation-lock-box">
-            <p className="orientation-lock-title">Rotate your device</p>
-            <p className="orientation-lock-subtitle">
-              Edufy is designed for horizontal (landscape) mode on mobile. Please turn your phone to continue.
-            </p>
+        <SessionExpiredProvider>
+          <div className="orientation-allowed-content">{children}</div>
+          <div className="orientation-lock-overlay">
+            <div className="orientation-lock-box">
+              <p className="orientation-lock-title">Rotate your device</p>
+              <p className="orientation-lock-subtitle">
+                Edufy is designed for horizontal (landscape) mode on mobile. Please turn your phone to continue.
+              </p>
+            </div>
           </div>
-        </div>
+        </SessionExpiredProvider>
       </body>
     </html>
   );

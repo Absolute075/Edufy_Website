@@ -121,6 +121,8 @@ services:
       USER_SERVICE_URL: http://user_service:8080
       FILE_SERVICE_URL: http://file_service:8080
       GATEWAY_URL: http://gateway_service:8080
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
     depends_on:
       - auth_service
       - user_service
