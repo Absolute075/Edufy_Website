@@ -39,7 +39,7 @@ export default function ContactPage() {
         description: `From: ${fullName || 'Unknown'}\nContact: ${trimmedContact}\n\nMessage:\n${trimmedMessage}`,
       };
 
-      const res = await fetch('/support/report', {
+      const res = await fetch('https://access.edufyuzbekistan.com/support/report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
