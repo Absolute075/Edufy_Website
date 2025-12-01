@@ -96,7 +96,7 @@ export default function TermsOfServicePage() {
             property rights.
           </p>
 
-          <h2 className="text-2xl font-bold mt-8 mb-4 text-white">4. Payments and Subscriptions</h2>
+          <h2 id="payments-and-subscriptions" className="text-2xl font-bold mt-8 mb-4 text-white">4. Payments and Subscriptions</h2>
           <p className="text-gray-300 mb-6">
             4.1. Pricing – Fees for subscriptions and services are published on the platform and may be updated at any
             time. Changes do not affect already-paid periods.

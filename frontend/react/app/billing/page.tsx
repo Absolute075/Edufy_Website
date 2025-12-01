@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { usePageTitle } from "../lib/usePageTitle";
@@ -39,11 +39,27 @@ const PRICING: Record<
   },
 };
 
-function getPriceForCurrency(raw: string, currency: Currency): string {
+function parseUsdAmount(raw: string): number | null {
+  const firstPart = raw.split("/")[0];
+  const usd = firstPart.trim().replace("$", "").replace(",", ".");
+  const value = parseFloat(usd);
+  return isNaN(value) ? null : value;
+}
+
+function getPriceForCurrency(raw: string, currency: Currency, usdToUzsRate: number | null): string {
   if (currency === "USD") {
     const [usd] = raw.split("/UZS");
     return (usd ?? raw).trim();
   }
+
+  if (usdToUzsRate && usdToUzsRate > 0) {
+    const usdValue = parseUsdAmount(raw);
+    if (usdValue !== null) {
+      const uzsValue = Math.round((usdValue * usdToUzsRate) / 100) * 100;
+      return `UZS ${uzsValue.toLocaleString("uz-UZ")}`;
+    }
+  }
+
   const parts = raw.split("/UZS");
   if (parts.length < 2) return raw.trim();
   const uzsRaw = parts[1].trim();
@@ -54,25 +70,37 @@ function getOldPrice(
   plan: PlanId,
   period: BillingPeriod,
   currency: Currency,
+  usdToUzsRate: number | null,
 ): string | null {
   if (plan === "Free") return null;
 
+  let usdOld: string | null = null;
+
   if (plan === "Plus") {
     if (period === "sixMonths") {
-      return currency === "USD" ? "$23,90" : "UZS 283.499";
+      usdOld = "$23,90";
+    } else if (period === "yearly") {
+      usdOld = "$47,88";
     }
-    if (period === "yearly") {
-      return currency === "USD" ? "$47,88" : "UZS 567.948";
+  } else if (plan === "Pro") {
+    if (period === "sixMonths") {
+      usdOld = "$47,90";
+    } else if (period === "yearly") {
+      usdOld = "$97,90";
     }
-    return null;
   }
 
-  if (plan === "Pro") {
-    if (period === "sixMonths") {
-      return currency === "USD" ? "$47,90" : "UZS 569.253";
-    }
-    if (period === "yearly") {
-      return currency === "USD" ? "$97,90" : "UZS 1.161.281";
+  if (!usdOld) return null;
+
+  if (currency === "USD") {
+    return usdOld;
+  }
+
+  if (usdToUzsRate && usdToUzsRate > 0) {
+    const usdValue = parseUsdAmount(usdOld);
+    if (usdValue !== null) {
+      const uzsValue = Math.round((usdValue * usdToUzsRate) / 100) * 100;
+      return `UZS ${uzsValue.toLocaleString("uz-UZ")}`;
     }
   }
 
@@ -88,6 +116,9 @@ export default function BillingPage() {
   const [activePlan, setActivePlan] = useState<PlanId>("Plus");
   const [currency, setCurrency] = useState<Currency>("USD");
   const [autoRenewal, setAutoRenewal] = useState(true);
+  const [isAbroadModalOpen, setIsAbroadModalOpen] = useState(false);
+  const [hasCopiedCardNumber, setHasCopiedCardNumber] = useState(false);
+  const [usdToUzsRate, setUsdToUzsRate] = useState<number | null>(null);
   const [form, setForm] = useState({
     cardName: "",
     email: "",
@@ -140,10 +171,10 @@ export default function BillingPage() {
 
   const periodConfig = PRICING[billingPeriod];
   const displayFreePrice = currency === "USD" ? "$0" : "UZS 0";
-  const displayPlusPrice = getPriceForCurrency(periodConfig.plus, currency);
-  const displayProPrice = getPriceForCurrency(periodConfig.pro, currency);
-  const oldPlusPrice = getOldPrice("Plus", billingPeriod, currency);
-  const oldProPrice = getOldPrice("Pro", billingPeriod, currency);
+  const displayPlusPrice = getPriceForCurrency(periodConfig.plus, currency, usdToUzsRate);
+  const displayProPrice = getPriceForCurrency(periodConfig.pro, currency, usdToUzsRate);
+  const oldPlusPrice = getOldPrice("Plus", billingPeriod, currency, usdToUzsRate);
+  const oldProPrice = getOldPrice("Pro", billingPeriod, currency, usdToUzsRate);
   const activePeriodIndex = Math.max(
     0,
     BILLING_PERIODS.findIndex((p) => p.id === billingPeriod),
@@ -153,6 +184,29 @@ export default function BillingPage() {
     setActivePlan(plan);
     router.push("/payment");
   }
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchRate() {
+      try {
+        const res = await fetch("/pricing/rate");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && typeof data.usdToUzs === "number") {
+          setUsdToUzsRate(data.usdToUzs);
+        }
+      } catch {
+        // silently fall back to static UZS values embedded in PRICING strings
+      }
+    }
+
+    fetchRate();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <DashboardShell>
@@ -364,6 +418,21 @@ export default function BillingPage() {
             </div>
           </div>
 
+          <div className="mt-3 flex items-start justify-between gap-3 text-[11px] text-slate-400">
+            <p className="max-w-xl">
+              For users making payments from abroad (outside the Republic of Uzbekistan), payment confirmation must be
+              submitted manually to our support team. Please provide a receipt or proof of payment for verification and
+              subsequent activation of your access.
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsAbroadModalOpen(true)}
+              className="shrink-0 rounded-full border border-neutral-800 px-4 py-1.5 text-xs font-medium text-slate-100 hover:bg-neutral-900"
+            >
+              Open
+            </button>
+          </div>
+
           {/* Summary under plans */}
           <div className="mt-5 grid gap-4 text-xs text-slate-400 sm:grid-cols-3">
             <div>
@@ -458,13 +527,96 @@ export default function BillingPage() {
                   You can request a refund within 14 days of a new billing cycle, according to our refund policy.
                 </div>
               </div>
-              <button className="rounded-lg border border-neutral-700 px-3 py-1.5 text-xs text-slate-200 hover:bg-neutral-900">
+              <button
+                type="button"
+                onClick={() => router.push("/terms-of-service#payments-and-subscriptions")}
+                className="rounded-lg border border-neutral-700 px-3 py-1.5 text-xs text-slate-200 hover:bg-neutral-900"
+              >
                 Read policy
               </button>
             </div>
           </div>
         </section>
       </div>
+
+      {isAbroadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-950 p-6 shadow-xl shadow-black/60">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-base font-semibold text-slate-100">Payments from abroad</h2>
+                <p className="mt-1 text-xs text-slate-400">
+                  Use these details to complete your payment from abroad and then send the confirmation to our support
+                  team.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAbroadModalOpen(false)}
+                className="rounded-full border border-neutral-700 px-2 py-1 text-xs text-slate-300 hover:bg-neutral-900"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4 text-sm text-slate-200">
+              <div>
+                <div className="text-[11px] uppercase tracking-wide text-slate-500">Card number</div>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-sm font-medium text-slate-100">4916 9903 3725 0531</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof navigator !== "undefined" && navigator.clipboard) {
+                        navigator.clipboard.writeText("4916 9903 3725 0531");
+                      }
+                      setHasCopiedCardNumber(true);
+                      if (typeof window !== "undefined") {
+                        window.setTimeout(() => {
+                          setHasCopiedCardNumber(false);
+                        }, 3000);
+                      }
+                    }}
+                    className="rounded-full border border-neutral-700 px-2.5 py-0.5 text-[11px] font-medium text-slate-100 hover:bg-neutral-900"
+                  >
+                    {hasCopiedCardNumber ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <div className="text-[11px] uppercase tracking-wide text-slate-500">Cardholder name</div>
+                <div className="mt-1 text-sm font-medium text-slate-100">Tojiyev Asilbek</div>
+              </div>
+
+              <div className="mt-2 border-t border-neutral-800 pt-3 space-y-2">
+                <div className="text-[11px] uppercase tracking-wide text-slate-500">Contact for confirmation</div>
+                <div className="text-sm text-slate-200">
+                  Email:{" "}
+                  <a
+                    href="mailto:support@edufyuzbekistan.com"
+                    className="text-slate-100 underline underline-offset-2 hover:text-white"
+                  >
+                    support@edufyuzbekistan.com
+                  </a>
+                </div>
+                <div className="text-sm text-slate-200">
+                  Telegram:{" "}
+                  <a
+                    href="https://t.me/edufysupport"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-100 underline underline-offset-2 hover:text-white"
+                  >
+                    @edufysupport
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </DashboardShell>
   );
 }

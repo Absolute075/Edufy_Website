@@ -12,11 +12,27 @@ import { usePageTitle } from '../lib/usePageTitle';
 
 type Currency = 'USD' | 'UZS';
 
-function getPriceForCurrency(raw: string, currency: Currency): string {
+function parseUsdAmount(raw: string): number | null {
+  const firstPart = raw.split('/')[0];
+  const usd = firstPart.trim().replace('$', '').replace(',', '.');
+  const value = parseFloat(usd);
+  return Number.isNaN(value) ? null : value;
+}
+
+function getPriceForCurrency(raw: string, currency: Currency, usdToUzsRate: number | null): string {
   if (currency === 'USD') {
     const [usd] = raw.split('/UZS');
     return (usd ?? raw).trim();
   }
+
+  if (usdToUzsRate && usdToUzsRate > 0) {
+    const usdValue = parseUsdAmount(raw);
+    if (usdValue !== null) {
+      const uzsValue = Math.round((usdValue * usdToUzsRate) / 100) * 100;
+      return `UZS ${uzsValue.toLocaleString('uz-UZ')}`;
+    }
+  }
+
   const parts = raw.split('/UZS');
   if (parts.length < 2) return raw.trim();
   const uzsRaw = parts[1].trim();
@@ -26,26 +42,38 @@ function getPriceForCurrency(raw: string, currency: Currency): string {
 function getLandingOldPrice(
   plan: 'Plus' | 'Pro',
   period: 'monthly' | '6months' | 'yearly',
-  currency: Currency
+  currency: Currency,
+  usdToUzsRate: number | null
 ): string | null {
   if (period === 'monthly') return null;
 
+  let usdOld: string | null = null;
+
   if (plan === 'Plus') {
     if (period === '6months') {
-      return currency === 'USD' ? '$23,90' : 'UZS 283.499';
+      usdOld = '$23,90';
+    } else if (period === 'yearly') {
+      usdOld = '$47,88';
     }
-    if (period === 'yearly') {
-      return currency === 'USD' ? '$47,88' : 'UZS 567.948';
+  } else if (plan === 'Pro') {
+    if (period === '6months') {
+      usdOld = '$47,90';
+    } else if (period === 'yearly') {
+      usdOld = '$97,90';
     }
-    return null;
   }
 
-  if (plan === 'Pro') {
-    if (period === '6months') {
-      return currency === 'USD' ? '$47,90' : 'UZS 569.253';
-    }
-    if (period === 'yearly') {
-      return currency === 'USD' ? '$97,90' : 'UZS 1.161.281';
+  if (!usdOld) return null;
+
+  if (currency === 'USD') {
+    return usdOld;
+  }
+
+  if (usdToUzsRate && usdToUzsRate > 0) {
+    const usdValue = parseUsdAmount(usdOld);
+    if (usdValue !== null) {
+      const uzsValue = Math.round((usdValue * usdToUzsRate) / 100) * 100;
+      return `UZS ${uzsValue.toLocaleString('uz-UZ')}`;
     }
   }
 
@@ -56,6 +84,7 @@ export default function HomePage() {
   usePageTitle('Edufy – Exam Prep Platform');
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | '6months' | 'yearly'>('monthly');
   const [billingCurrency, setBillingCurrency] = useState<Currency>('USD');
+  const [usdToUzsRate, setUsdToUzsRate] = useState<number | null>(null);
   const [openBlogPost, setOpenBlogPost] = useState<string | null>(null);
   const [blogExpandRect, setBlogExpandRect] = useState<
     | {
@@ -83,10 +112,10 @@ export default function HomePage() {
       ? '$59.99/UZS 709.000'
       : '$7.99/UZS 94.000';
 
-  const displayPlusPrice = getPriceForCurrency(plusPrice, billingCurrency);
-  const displayPremiumPrice = getPriceForCurrency(premiumPrice, billingCurrency);
-  const landingOldPlusPrice = getLandingOldPrice('Plus', billingPeriod, billingCurrency);
-  const landingOldPremiumPrice = getLandingOldPrice('Pro', billingPeriod, billingCurrency);
+  const displayPlusPrice = getPriceForCurrency(plusPrice, billingCurrency, usdToUzsRate);
+  const displayPremiumPrice = getPriceForCurrency(premiumPrice, billingCurrency, usdToUzsRate);
+  const landingOldPlusPrice = getLandingOldPrice('Plus', billingPeriod, billingCurrency, usdToUzsRate);
+  const landingOldPremiumPrice = getLandingOldPrice('Pro', billingPeriod, billingCurrency, usdToUzsRate);
 
   const exams = ['ACT', 'SAT', 'IELTS', 'TOEFL', 'AP'];
   const [activeExamIndex, setActiveExamIndex] = useState(2);
@@ -104,6 +133,29 @@ export default function HomePage() {
       return prev;
     });
   };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchRate() {
+      try {
+        const res = await fetch('/pricing/rate');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && typeof data.usdToUzs === 'number') {
+          setUsdToUzsRate(data.usdToUzs);
+        }
+      } catch {
+        // fallback: keep static UZS prices encoded in strings
+      }
+    }
+
+    fetchRate();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -1131,8 +1183,8 @@ export default function HomePage() {
           </div>
 
           <div className="relative space-y-8">
-
             <div className="grid gap-6 md:grid-cols-3">
+              {/* Free plan */}
               <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/0 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.16),transparent_65%)]" />
                 <div className="relative p-6 flex flex-col gap-3">
@@ -1146,18 +1198,10 @@ export default function HomePage() {
                     <li>- Basic progress tracking</li>
                     <li>- Community access</li>
                   </ul>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      window.location.href = 'https://access.edufyuzbekistan.com/login';
-                    }}
-                    className="mt-4 w-full rounded-full border border-white/25 bg-black/70 px-4 py-2 text-xs font-medium text-white shadow-sm shadow-white/10 transition-all duration-300 ease-out hover:bg-white hover:text-gray-900 hover:shadow-[0_0_18px_rgba(255,255,255,0.6)] hover:-translate-y-0.5"
-                  >
-                    Get started
-                  </button>
                 </div>
               </div>
 
+              {/* Plus plan */}
               <div className="relative overflow-hidden rounded-3xl border border-white/25 bg-white/0 backdrop-blur-lg transition-all duration-300 hover:scale-[1.01]">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.22),transparent_65%)]" />
                 <div className="relative p-6 flex flex-col gap-3">
@@ -1179,15 +1223,10 @@ export default function HomePage() {
                     <li>- Smart progress analytics</li>
                     <li>- Half access to special materials</li>
                   </ul>
-                  <Link
-                    href="/payment"
-                    className="mt-4 w-full rounded-full border border-white/25 bg-black/70 px-4 py-2 text-xs font-medium text-white shadow-sm shadow-white/10 transition-all duration-300 ease-out hover:bg-white hover:text-gray-900 hover:shadow-[0_0_18px_rgba(255,255,255,0.6)] hover:-translate-y-0.5 text-center"
-                  >
-                    Get started
-                  </Link>
                 </div>
               </div>
 
+              {/* Premium plan */}
               <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/0 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.16),transparent_65%)]" />
                 <div className="relative p-6 flex flex-col gap-3">
@@ -1204,15 +1243,10 @@ export default function HomePage() {
                     <li>- Full access for all materials</li>
                     <li>- Special MOCKs</li>
                   </ul>
-                  <Link
-                    href="/payment"
-                    className="mt-4 w-full rounded-full border border-white/25 bg-black/70 px-4 py-2 text-xs font-medium text-white shadow-sm shadow-white/10 transition-all duration-300 ease-out hover:bg-white hover:text-gray-900 hover:shadow-[0_0_18px_rgba(255,255,255,0.6)] hover:-translate-y-0.5 text-center"
-                  >
-                    Get started
-                  </Link>
                 </div>
               </div>
             </div>
+
             <div className="flex flex-wrap gap-3 justify-start">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 backdrop-blur-md px-2 py-1 text-[11px] sm:text-xs text-gray-300 transition-colors duration-300 ease-out hover:border-white/30">
                 <span className="mr-1 hidden sm:inline text-gray-400">Billing:</span>

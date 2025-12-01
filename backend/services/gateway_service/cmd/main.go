@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
+	"time"
 
 	"gateway_service/internal/proxy"
 
@@ -20,6 +22,19 @@ type reportPayload struct {
 	Category    string `json:"category"`
 	Description string `json:"description"`
 }
+
+// Simple in-memory cache for USD -> UZS rate so we don't hit exchangerate.host on every request.
+type usdToUzsCache struct {
+	Rate      float64
+	FetchedAt time.Time
+}
+
+var (
+	usdToUzs usdToUzsCache
+	usdMu    sync.Mutex
+)
+
+const usdToUzsTTL = 24 * time.Hour
 
 func main() {
 	router := gin.Default()
@@ -148,8 +163,65 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "gateway_service running"})
 	})
 
+	// === Pricing rate: USD -> UZS ===
+	router.GET("/pricing/rate", func(c *gin.Context) {
+		rate, fetchedAt, err := getUsdToUzsRate()
+		if err != nil {
+			fmt.Println("pricing rate error:", err.Error())
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed_to_fetch_rate"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"usdToUzs":  rate,
+			"updatedAt": fetchedAt.UTC().Format(time.RFC3339),
+		})
+	})
+
 	// === Запуск сервера на порту 8080 ===
 	router.Run(":8080")
+}
+
+// getUsdToUzsRate fetches the USD->UZS rate from exchangerate.host with basic in-memory caching.
+func getUsdToUzsRate() (float64, time.Time, error) {
+	usdMu.Lock()
+	defer usdMu.Unlock()
+
+	if usdToUzs.Rate > 0 && !usdToUzs.FetchedAt.IsZero() && time.Since(usdToUzs.FetchedAt) < usdToUzsTTL {
+		return usdToUzs.Rate, usdToUzs.FetchedAt, nil
+	}
+
+	url := "https://api.exchangerate.host/latest?base=USD&symbols=UZS"
+	resp, err := http.Get(url)
+	if err != nil {
+		return 0, time.Time{}, fmt.Errorf("fetch rate: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		b, _ := io.ReadAll(resp.Body)
+		return 0, time.Time{}, fmt.Errorf("fetch rate: status=%d body=%s", resp.StatusCode, string(b))
+	}
+
+	var payload struct {
+		Success bool               `json:"success"`
+		Base    string             `json:"base"`
+		Rates   map[string]float64 `json:"rates"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+		return 0, time.Time{}, fmt.Errorf("decode rate: %w", err)
+	}
+
+	rate, ok := payload.Rates["UZS"]
+	if !ok || rate <= 0 {
+		return 0, time.Time{}, fmt.Errorf("invalid rate from exchangerate.host")
+	}
+
+	usdToUzs = usdToUzsCache{
+		Rate:      rate,
+		FetchedAt: time.Now().UTC(),
+	}
+
+	return usdToUzs.Rate, usdToUzs.FetchedAt, nil
 }
 
 func sendTelegramMessage(botToken, chatID, text string) error {
