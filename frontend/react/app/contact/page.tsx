@@ -1,6 +1,10 @@
+"use client";
+
 import Link from 'next/link';
+import { usePageTitle } from '../lib/usePageTitle';
 
 export default function ContactPage() {
+  usePageTitle('Edufy – Contact');
   return (
     <main className="min-h-screen bg-black text-white contact-page-wrapper">
       <div className="pt-28 pb-10">

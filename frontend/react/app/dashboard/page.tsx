@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePageTitle } from "../lib/usePageTitle";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 type Activity = {
@@ -69,6 +70,7 @@ function getWeeklyStudyHours(): number[] {
 }
 
 export default function DashboardPage() {
+  usePageTitle("Edufy – Dashboard");
   const [studentName, setStudentName] = useState<string>("Student");
   const [activities, setActivities] = useState<Activity[]>([]);
   const [weeklyHours, setWeeklyHours] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);

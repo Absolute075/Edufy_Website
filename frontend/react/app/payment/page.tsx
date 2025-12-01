@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { usePageTitle } from '../lib/usePageTitle';
 
 export default function PaymentPage() {
+  usePageTitle('Edufy – Payment');
   const [form, setForm] = useState({
     cardName: '',
     email: '',
@@ -180,8 +182,8 @@ export default function PaymentPage() {
                 Pay now
               </button>
               <p>
-                By using this website to make a payment, you confirm that you provide accurate and truthful payment
-                card information, including card number, expiration date, and CVC/CVV code, and agree to the{' '}
+                By using this website to make a payment, you confirm that you provide accurate and truthful payment card
+                information, including card number, expiration date, and CVC/CVV code, and agree to the{' '}
                 <a
                   href="/terms-of-service"
                   className="text-gray-300 underline underline-offset-2 hover:text-white transition-colors"

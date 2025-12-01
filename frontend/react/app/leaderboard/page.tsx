@@ -1,6 +1,7 @@
 "use client";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { usePageTitle } from "../lib/usePageTitle";
 
 const MOCK_LEADERBOARD = [
   { rank: 1, name: "Alex", country: "\uD83C\uDDF7\uD83C\uDDFA", score: 982, hours: 124 },
@@ -11,6 +12,7 @@ const MOCK_LEADERBOARD = [
 ];
 
 export default function LeaderboardPage() {
+  usePageTitle("Edufy – Leaderboard");
   return (
     <DashboardShell>
       <div className="mx-auto max-w-4xl space-y-6">

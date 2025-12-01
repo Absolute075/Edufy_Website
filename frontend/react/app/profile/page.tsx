@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, ChangeEvent } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { api } from "@/lib/api";
+import { usePageTitle } from "../lib/usePageTitle";
 
 const DEFAULT_AVATAR_URL =
   "https://resources.edufyuzbekistan.com/storage/images/10d554ea6f330f1612526b54562c8a33.jpg";
@@ -34,6 +35,7 @@ function formatDobInput(raw: string): string {
 }
 
 export default function ProfilePage() {
+  usePageTitle("Edufy – Profile");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");

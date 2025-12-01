@@ -1,10 +1,10 @@
-
-
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '../lib/usePageTitle';
 
 export default function LoginPage() {
+  usePageTitle('Edufy – Login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

@@ -8,9 +8,54 @@ import heroPhoto from '../public/photos/photo_2025-11-26_22-49-48.jpg';
 import aboutPhoto from '../public/photos/de879823cdded25720a788ccc70ab3bc.jpg';
 import founderPhoto1 from '../public/photos/photo_2025-10-30_18-03-35.jpg';
 import founderPhoto2 from '../public/photos/photo_2025-10-20_20-22-58.jpg';
+import { usePageTitle } from '../lib/usePageTitle';
+
+type Currency = 'USD' | 'UZS';
+
+function getPriceForCurrency(raw: string, currency: Currency): string {
+  if (currency === 'USD') {
+    const [usd] = raw.split('/UZS');
+    return (usd ?? raw).trim();
+  }
+  const parts = raw.split('/UZS');
+  if (parts.length < 2) return raw.trim();
+  const uzsRaw = parts[1].trim();
+  return uzsRaw.startsWith('UZS') ? uzsRaw : `UZS ${uzsRaw}`;
+}
+
+function getLandingOldPrice(
+  plan: 'Plus' | 'Pro',
+  period: 'monthly' | '6months' | 'yearly',
+  currency: Currency
+): string | null {
+  if (period === 'monthly') return null;
+
+  if (plan === 'Plus') {
+    if (period === '6months') {
+      return currency === 'USD' ? '$23,90' : 'UZS 283.499';
+    }
+    if (period === 'yearly') {
+      return currency === 'USD' ? '$47,88' : 'UZS 567.948';
+    }
+    return null;
+  }
+
+  if (plan === 'Pro') {
+    if (period === '6months') {
+      return currency === 'USD' ? '$47,90' : 'UZS 569.253';
+    }
+    if (period === 'yearly') {
+      return currency === 'USD' ? '$97,90' : 'UZS 1.161.281';
+    }
+  }
+
+  return null;
+}
 
 export default function HomePage() {
+  usePageTitle('Edufy – Exam Prep Platform');
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | '6months' | 'yearly'>('monthly');
+  const [billingCurrency, setBillingCurrency] = useState<Currency>('USD');
   const [openBlogPost, setOpenBlogPost] = useState<string | null>(null);
   const [blogExpandRect, setBlogExpandRect] = useState<
     | {
@@ -37,6 +82,11 @@ export default function HomePage() {
       : billingPeriod === 'yearly'
       ? '$59.99/UZS 709.000'
       : '$7.99/UZS 94.000';
+
+  const displayPlusPrice = getPriceForCurrency(plusPrice, billingCurrency);
+  const displayPremiumPrice = getPriceForCurrency(premiumPrice, billingCurrency);
+  const landingOldPlusPrice = getLandingOldPrice('Plus', billingPeriod, billingCurrency);
+  const landingOldPremiumPrice = getLandingOldPrice('Pro', billingPeriod, billingCurrency);
 
   const exams = ['ACT', 'SAT', 'IELTS', 'TOEFL', 'AP'];
   const [activeExamIndex, setActiveExamIndex] = useState(2);
@@ -1073,7 +1123,7 @@ export default function HomePage() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="relative mt-[10rem] py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <section id="pricing" className="relative mt-[8rem] py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
           <div className="pointer-events-none absolute inset-x-0 top-0 sm:top-2 md:top-4 flex justify-center select-none">
             <span className="text-7xl sm:text-8xl md:text-9xl font-space font-bold uppercase tracking-[0.4em] text-white drop-shadow-[0_0_55px_rgba(255,255,255,0.95)]">
               Pricing
@@ -1083,8 +1133,8 @@ export default function HomePage() {
           <div className="relative space-y-8">
 
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/5 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.22),transparent_65%)]" />
+              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/0 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.16),transparent_65%)]" />
                 <div className="relative p-6 flex flex-col gap-3">
                   <div className="text-sm font-medium text-gray-100">
                     <span className="font-bold">Free</span> Plan
@@ -1108,8 +1158,8 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-3xl border border-white/25 bg-white/8 backdrop-blur-lg transition-all duration-300 hover:scale-[1.01]">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.3),transparent_65%)]" />
+              <div className="relative overflow-hidden rounded-3xl border border-white/25 bg-white/0 backdrop-blur-lg transition-all duration-300 hover:scale-[1.01]">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.22),transparent_65%)]" />
                 <div className="relative p-6 flex flex-col gap-3">
                   <div className="inline-flex items-center gap-2 text-sm font-medium text-gray-100">
                     Plus Plan
@@ -1117,7 +1167,10 @@ export default function HomePage() {
                       Recommended
                     </span>
                   </div>
-                  <div className="text-3xl font-semibold text-white">{plusPrice}</div>
+                  {landingOldPlusPrice && (
+                    <div className="text-sm font-medium text-gray-400 line-through">{landingOldPlusPrice}</div>
+                  )}
+                  <div className="text-3xl font-semibold text-white">{displayPlusPrice}</div>
                   <p className="text-xs text-slate-500">
                     Full access to courses, smart analytics and personalized recommendations.
                   </p>
@@ -1135,11 +1188,14 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/5 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.22),transparent_65%)]" />
+              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/0 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.16),transparent_65%)]" />
                 <div className="relative p-6 flex flex-col gap-3">
                   <div className="text-sm font-medium text-gray-100">Premium Plan</div>
-                  <div className="text-3xl font-semibold text-white">{premiumPrice}</div>
+                  {landingOldPremiumPrice && (
+                    <div className="text-sm font-medium text-gray-400 line-through">{landingOldPremiumPrice}</div>
+                  )}
+                  <div className="text-3xl font-semibold text-white">{displayPremiumPrice}</div>
                   <p className="text-xs text-slate-500">
                     For students who want maximum support and intensive preparation.
                   </p>
@@ -1157,7 +1213,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-start">
+            <div className="flex flex-wrap gap-3 justify-start">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 backdrop-blur-md px-2 py-1 text-[11px] sm:text-xs text-gray-300 transition-colors duration-300 ease-out hover:border-white/30">
                 <span className="mr-1 hidden sm:inline text-gray-400">Billing:</span>
                 <div className="relative flex rounded-full bg-white/5 px-0.5 py-0.5">
@@ -1196,6 +1252,30 @@ export default function HomePage() {
                     }`}
                   >
                     Yearly
+                  </button>
+                </div>
+              </div>
+
+              <div className="inline-flex items-center gap-2 text-[11px] sm:text-xs text-gray-300">
+                <span className="mr-1 hidden sm:inline text-gray-400">Currency:</span>
+                <div className="relative flex rounded-full bg-white/5 px-0.5 py-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setBillingCurrency('USD')}
+                    className={`relative z-10 flex-1 px-3 py-1 rounded-l-full text-center transition-colors duration-300 ${
+                      billingCurrency === 'USD' ? 'bg-white text-gray-900' : 'text-gray-200 hover:text-white'
+                    }`}
+                  >
+                    USD
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBillingCurrency('UZS')}
+                    className={`relative z-10 flex-1 px-3 py-1 rounded-r-full text-center transition-colors duration-300 ${
+                      billingCurrency === 'UZS' ? 'bg-white text-gray-900' : 'text-gray-200 hover:text-white'
+                    }`}
+                  >
+                    UZS
                   </button>
                 </div>
               </div>

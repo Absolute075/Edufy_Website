@@ -1,8 +1,10 @@
 "use client";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { usePageTitle } from "../lib/usePageTitle";
 
 export default function MentorPage() {
+  usePageTitle("Edufy – Mentor AI");
   return (
     <DashboardShell>
       <div className="mx-auto max-w-3xl space-y-6">

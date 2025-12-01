@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { usePageTitle } from '../lib/usePageTitle';
 
 export default function RegisterPage() {
+  usePageTitle('Edufy – Register');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
