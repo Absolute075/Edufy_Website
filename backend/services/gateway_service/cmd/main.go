@@ -202,9 +202,9 @@ func getUsdToUzsRate() (float64, time.Time, error) {
 
 	var lastErr error
 
-	// Try to fetch a fresh rate from exchangerate.host.
+	// Try to fetch a fresh rate from exchangerate.host using the documented /live endpoint.
 	func() {
-		baseURL := "https://api.exchangerate.host/latest?base=USD&symbols=UZS"
+		baseURL := "https://api.exchangerate.host/live?source=USD&currencies=UZS"
 		if apiKey := os.Getenv("EXCHANGERATE_HOST_API_KEY"); apiKey != "" {
 			baseURL = baseURL + "&access_key=" + apiKey
 		}
@@ -222,15 +222,15 @@ func getUsdToUzsRate() (float64, time.Time, error) {
 
 		var payload struct {
 			Success bool               `json:"success"`
-			Base    string             `json:"base"`
-			Rates   map[string]float64 `json:"rates"`
+			Source  string             `json:"source"`
+			Quotes  map[string]float64 `json:"quotes"`
 		}
 		if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
 			lastErr = fmt.Errorf("decode rate: %w", err)
 			return
 		}
 
-		rate, ok := payload.Rates["UZS"]
+		rate, ok := payload.Quotes["USDUZS"]
 		if !ok || rate <= 0 {
 			lastErr = fmt.Errorf("invalid rate from exchangerate.host")
 			return
