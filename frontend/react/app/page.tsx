@@ -956,7 +956,7 @@ export default function HomePage() {
                 <div className="relative z-10 flex gap-6 sm:gap-10 justify-center flex-wrap">
                   <div className="relative founder-photo-left">
                     <div className="relative w-72 h-72 sm:w-80 sm:h-80 md:w-[26rem] md:h-[26rem] rounded-2xl overflow-hidden border border-white/40 bg-white/5 backdrop-blur-md shadow-[0_0_35px_rgba(255,255,255,0.2)]">
-                      <Image src={founderPhoto1} alt="Founder 1" fill className="object-cover" />
+                      <Image src={founderPhoto2} alt="Founder 1" fill className="object-cover" />
                     </div>
                     {/* Левое фото: линия из нижнего левого угла по диагонали вниз-влево, стрелка в конце; весь текстовый блок под окончанием линии */}
                     <div
