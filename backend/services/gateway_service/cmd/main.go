@@ -80,20 +80,9 @@ func main() {
 			return
 		}
 
-		// Default bot for general support/bug reports
-		defaultBotToken := os.Getenv("TELEGRAM_BOT_TOKEN")
-		defaultChatID := os.Getenv("TELEGRAM_CHAT_ID")
-
-		// Optional separate bot for contact form messages
-		contactBotToken := os.Getenv("TELEGRAM_CONTACT_BOT_TOKEN")
-		contactChatID := os.Getenv("TELEGRAM_CONTACT_CHAT_ID")
-
-		botToken := defaultBotToken
-		chatID := defaultChatID
-		if strings.EqualFold(category, "contact") && contactBotToken != "" && contactChatID != "" {
-			botToken = contactBotToken
-			chatID = contactChatID
-		}
+		// Single bot for all reports (bug + contact), configured via TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID
+		botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
+		chatID := os.Getenv("TELEGRAM_CHAT_ID")
 		if botToken == "" || chatID == "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "telegram not configured"})
 			return
