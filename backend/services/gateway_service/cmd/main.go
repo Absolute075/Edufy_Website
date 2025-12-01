@@ -35,8 +35,6 @@ var (
 	usdMu    sync.Mutex
 )
 
-const usdToUzsTTL = 24 * time.Hour
-
 func main() {
 	router := gin.Default()
 
@@ -179,6 +177,8 @@ func main() {
 		})
 	})
 
+	startUsdRateRefresher()
+
 	// === Запуск сервера на порту 8080 ===
 	router.Run(":8080")
 }
@@ -194,8 +194,9 @@ func getUsdToUzsRate() (float64, time.Time, error) {
 	usdMu.Lock()
 	defer usdMu.Unlock()
 
-	// If we have a fresh value in cache, return it immediately.
-	if usdToUzs.Rate > 0 && !usdToUzs.FetchedAt.IsZero() && time.Since(usdToUzs.FetchedAt) < usdToUzsTTL {
+	now := time.Now().UTC()
+	// If we have a fresh value in cache for the same calendar day in Asia/Tashkent, return it immediately.
+	if usdToUzs.Rate > 0 && !usdToUzs.FetchedAt.IsZero() && isSameTashkentDay(usdToUzs.FetchedAt, now) {
 		return usdToUzs.Rate, usdToUzs.FetchedAt, nil
 	}
 
@@ -272,6 +273,37 @@ func getUsdToUzsRate() (float64, time.Time, error) {
 	}
 
 	return 0, time.Time{}, fmt.Errorf("no usd->uzs rate available")
+}
+
+func isSameTashkentDay(a, b time.Time) bool {
+	const tashkentOffset = 5 * time.Hour
+	aAdj := a.Add(tashkentOffset)
+	bAdj := b.Add(tashkentOffset)
+	ay, am, ad := aAdj.Date()
+	by, bm, bd := bAdj.Date()
+	return ay == by && am == bm && ad == bd
+}
+
+func startUsdRateRefresher() {
+	go func() {
+		for {
+			nowUTC := time.Now().UTC()
+			const tashkentOffset = 5 * time.Hour
+			nowT := nowUTC.Add(tashkentOffset)
+			y, m, d := nowT.Date()
+			// Next calendar day start in Asia/Tashkent, converted back to UTC.
+			nextDayStartTashkent := time.Date(y, m, d+1, 0, 0, 0, 0, time.UTC)
+			nextDayStartUTC := nextDayStartTashkent.Add(-tashkentOffset)
+			sleepDur := nextDayStartUTC.Sub(nowUTC)
+			if sleepDur <= 0 {
+				sleepDur = time.Hour
+			}
+			time.Sleep(sleepDur)
+			if _, _, err := getUsdToUzsRate(); err != nil {
+				fmt.Println("daily usd->uzs refresher error:", err.Error())
+			}
+		}
+	}()
 }
 
 func sendTelegramMessage(botToken, chatID, text string) error {
