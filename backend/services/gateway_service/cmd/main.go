@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -183,45 +184,94 @@ func main() {
 }
 
 // getUsdToUzsRate fetches the USD->UZS rate from exchangerate.host with basic in-memory caching.
+// In production it also has robust fallbacks so that pricing does not break if the external API
+// is temporarily unavailable:
+//  1. Use fresh cached value if within TTL.
+//  2. Try to fetch a new rate from exchangerate.host.
+//  3. If that fails, return any cached value even if older than TTL.
+//  4. If there is no cached value, fall back to USD_TO_UZS_FALLBACK_RATE env var.
 func getUsdToUzsRate() (float64, time.Time, error) {
 	usdMu.Lock()
 	defer usdMu.Unlock()
 
+	// If we have a fresh value in cache, return it immediately.
 	if usdToUzs.Rate > 0 && !usdToUzs.FetchedAt.IsZero() && time.Since(usdToUzs.FetchedAt) < usdToUzsTTL {
 		return usdToUzs.Rate, usdToUzs.FetchedAt, nil
 	}
 
-	url := "https://api.exchangerate.host/latest?base=USD&symbols=UZS"
-	resp, err := http.Get(url)
-	if err != nil {
-		return 0, time.Time{}, fmt.Errorf("fetch rate: %w", err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		b, _ := io.ReadAll(resp.Body)
-		return 0, time.Time{}, fmt.Errorf("fetch rate: status=%d body=%s", resp.StatusCode, string(b))
+	var lastErr error
+
+	// Try to fetch a fresh rate from exchangerate.host.
+	func() {
+		url := "https://api.exchangerate.host/latest?base=USD&symbols=UZS"
+		resp, err := http.Get(url)
+		if err != nil {
+			lastErr = fmt.Errorf("fetch rate: %w", err)
+			return
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode >= 300 {
+			b, _ := io.ReadAll(resp.Body)
+			lastErr = fmt.Errorf("fetch rate: status=%d body=%s", resp.StatusCode, string(b))
+			return
+		}
+
+		var payload struct {
+			Success bool               `json:"success"`
+			Base    string             `json:"base"`
+			Rates   map[string]float64 `json:"rates"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+			lastErr = fmt.Errorf("decode rate: %w", err)
+			return
+		}
+
+		rate, ok := payload.Rates["UZS"]
+		if !ok || rate <= 0 {
+			lastErr = fmt.Errorf("invalid rate from exchangerate.host")
+			return
+		}
+
+		usdToUzs = usdToUzsCache{
+			Rate:      rate,
+			FetchedAt: time.Now().UTC(),
+		}
+		lastErr = nil
+	}()
+
+	// If we managed to fetch and cache a fresh rate, return it.
+	if lastErr == nil && usdToUzs.Rate > 0 {
+		return usdToUzs.Rate, usdToUzs.FetchedAt, nil
 	}
 
-	var payload struct {
-		Success bool               `json:"success"`
-		Base    string             `json:"base"`
-		Rates   map[string]float64 `json:"rates"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		return 0, time.Time{}, fmt.Errorf("decode rate: %w", err)
+	// Log the problem but try fallbacks instead of immediately failing.
+	if lastErr != nil {
+		fmt.Println("pricing rate: falling back after error:", lastErr.Error())
 	}
 
-	rate, ok := payload.Rates["UZS"]
-	if !ok || rate <= 0 {
-		return 0, time.Time{}, fmt.Errorf("invalid rate from exchangerate.host")
+	// Fallback 1: use any cached value even if it's older than TTL.
+	if usdToUzs.Rate > 0 && !usdToUzs.FetchedAt.IsZero() {
+		return usdToUzs.Rate, usdToUzs.FetchedAt, nil
 	}
 
-	usdToUzs = usdToUzsCache{
-		Rate:      rate,
-		FetchedAt: time.Now().UTC(),
+	// Fallback 2: use a manually configured environment variable.
+	if fallbackStr := os.Getenv("USD_TO_UZS_FALLBACK_RATE"); fallbackStr != "" {
+		if fallback, err := strconv.ParseFloat(fallbackStr, 64); err == nil && fallback > 0 {
+			now := time.Now().UTC()
+			usdToUzs = usdToUzsCache{
+				Rate:      fallback,
+				FetchedAt: now,
+			}
+			return fallback, now, nil
+		}
 	}
 
-	return usdToUzs.Rate, usdToUzs.FetchedAt, nil
+	// No live rate and no viable fallback.
+	if lastErr != nil {
+		return 0, time.Time{}, lastErr
+	}
+
+	return 0, time.Time{}, fmt.Errorf("no usd->uzs rate available")
 }
 
 func sendTelegramMessage(botToken, chatID, text string) error {
