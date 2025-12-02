@@ -16,18 +16,20 @@ function PaymentPageInner() {
   const period = periodParam || "monthly";
 
   const [form, setForm] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
   });
-  const [autoRenewal, setAutoRenewal] = useState(autoRenewalParam === "1");
+  const [autoRenewal] = useState(autoRenewalParam === "1");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isEmailValid = emailRegex.test(form.email.trim());
   const isPhoneValid = form.phone.trim().length >= 7;
-  const isFormValid = !!form.fullName.trim() && isEmailValid && isPhoneValid;
+  const isFormValid =
+    !!form.firstName.trim() && !!form.lastName.trim() && isEmailValid && isPhoneValid;
 
   const handleChange = (field: keyof typeof form) => (e: any) => {
     const value = (e.target.value as string) ?? "";
@@ -54,6 +56,7 @@ function PaymentPageInner() {
           plan: planLabel,
           period,
           autoRenewal,
+          fullName: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
           email: form.email.trim(),
           phone: form.phone.trim(),
         }),
@@ -112,25 +115,25 @@ function PaymentPageInner() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">
-                  Full name
+                  First name
                 </label>
                 <input
                   type="text"
-                  placeholder="Your full name"
-                  value={form.fullName}
-                  onChange={handleChange("fullName")}
+                  placeholder="First name"
+                  value={form.firstName}
+                  onChange={handleChange("firstName")}
                   className="w-full rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 focus:ring-0"
                 />
               </div>
               <div className="space-y-1.5">
                 <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">
-                  Email
+                  Last name
                 </label>
                 <input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={form.email}
-                  onChange={handleChange("email")}
+                  type="text"
+                  placeholder="Last name"
+                  value={form.lastName}
+                  onChange={handleChange("lastName")}
                   className="w-full rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 focus:ring-0"
                 />
               </div>
@@ -151,26 +154,15 @@ function PaymentPageInner() {
               </div>
               <div className="space-y-1.5">
                 <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">
-                  Auto renewal
+                  Email
                 </label>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-gray-400">
-                    {autoRenewal ? "Enabled" : "Disabled"}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setAutoRenewal((v) => !v)}
-                    className={`relative inline-flex h-5 w-9 items-center rounded-full border border-neutral-600 bg-neutral-900 transition-colors ${
-                      autoRenewal ? "bg-neutral-100/10" : "bg-neutral-900"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-slate-100 shadow-sm transition-transform ${
-                        autoRenewal ? "translate-x-4" : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={form.email}
+                  onChange={handleChange("email")}
+                  className="w-full rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 focus:ring-0"
+                />
               </div>
             </div>
 

@@ -115,7 +115,7 @@ export default function BillingPage() {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
   const [activePlan, setActivePlan] = useState<PlanId>("Plus");
   const [currency, setCurrency] = useState<Currency>("USD");
-  const [autoRenewal, setAutoRenewal] = useState(true);
+  const [autoRenewal, setAutoRenewal] = useState(false);
   const [isAbroadModalOpen, setIsAbroadModalOpen] = useState(false);
   const [hasCopiedCardNumber, setHasCopiedCardNumber] = useState(false);
   const [usdToUzsRate, setUsdToUzsRate] = useState<number | null>(null);
