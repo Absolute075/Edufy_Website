@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -378,7 +377,7 @@ func handleOsonCreateInvoice(c *gin.Context) {
 		return
 	}
 
-	amountUzs := math.Round(usdPrice*rate/100) * 100
+	amountUzs := 1000.0
 
 	secret := os.Getenv("OSON_SECRET_TOKEN")
 	merchantIDStr := os.Getenv("OSON_MERCHANT_ID")
