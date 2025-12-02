@@ -365,7 +365,7 @@ func handleOsonCreateInvoice(c *gin.Context) {
 		return
 	}
 
-	usdPrice, err := getUsdPriceForPlan(in.Plan, in.Period)
+	_, err := getUsdPriceForPlan(in.Plan, in.Period)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported_plan_or_period"})
 		return
