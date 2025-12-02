@@ -19,6 +19,31 @@ services:
     networks:
       - edufy_net
 
+
+
+  admin_service:
+    build: ./services/admin_service
+    image: admin_service:latest
+    container_name: admin_service
+    ports:
+      - "8090:8080" # 8090 внешний порт docker, 8080 внутренний порт admin_service
+    environment:
+      ADMIN_SERVICE_PORT: 8080
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      AUTH_SERVICE_URL: http://auth_service:8080
+      USER_SERVICE_URL: http://user_service:8080
+      FILE_SERVICE_URL: http://file_service:8080
+      GATEWAY_URL: http://gateway_service:8080
+    depends_on:
+      - auth_service
+      - user_service
+      - gateway_service
+    restart: always
+    networks:
+      - edufy_net
+
   file_service:
     build: ./services/file_service
     image: file_service:latest
