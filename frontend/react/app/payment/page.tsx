@@ -32,7 +32,10 @@ function PaymentPageInner() {
     !!form.firstName.trim() && !!form.lastName.trim() && isEmailValid && isPhoneValid;
 
   const handleChange = (field: keyof typeof form) => (e: any) => {
-    const value = (e.target.value as string) ?? "";
+    let value = (e.target.value as string) ?? "";
+    if (field === "phone") {
+      value = value.replace(/\D/g, "");
+    }
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -146,6 +149,8 @@ function PaymentPageInner() {
                 </label>
                 <input
                   type="tel"
+                  inputMode="numeric"
+                  pattern="\d*"
                   placeholder="998901234567"
                   value={form.phone}
                   onChange={handleChange("phone")}
@@ -163,6 +168,11 @@ function PaymentPageInner() {
                   onChange={handleChange("email")}
                   className="w-full rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 focus:ring-0"
                 />
+                {form.email && !isEmailValid && (
+                  <p className="mt-1 text-[11px] text-red-400">
+                    Please enter a valid email address.
+                  </p>
+                )}
               </div>
             </div>
 
