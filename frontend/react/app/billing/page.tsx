@@ -184,7 +184,12 @@ export default function BillingPage() {
 
   function handleChoosePlan(plan: PlanId) {
     setActivePlan(plan);
-    router.push("/payment");
+    const params = new URLSearchParams({
+      plan,
+      period: billingPeriod,
+      autoRenewal: autoRenewal ? "1" : "0",
+    });
+    router.push(`/payment?${params.toString()}`);
   }
 
   useEffect(() => {
