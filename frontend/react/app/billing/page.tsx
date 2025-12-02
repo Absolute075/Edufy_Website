@@ -180,6 +180,8 @@ export default function BillingPage() {
     BILLING_PERIODS.findIndex((p) => p.id === billingPeriod),
   );
 
+  const activePlanLabel = activePlan === "Pro" ? "Premium" : activePlan;
+
   function handleChoosePlan(plan: PlanId) {
     setActivePlan(plan);
     router.push("/payment");
@@ -248,7 +250,7 @@ export default function BillingPage() {
               <div>
                 <h2 className="text-base font-semibold text-slate-100">Current plan</h2>
                 <p className="text-xs text-slate-400">
-                  You are on the <span className="font-semibold text-slate-100">{activePlan}</span> plan.
+                  You are on the <span className="font-semibold text-slate-100">{activePlanLabel}</span> plan.
                 </p>
               </div>
             </div>
@@ -352,7 +354,7 @@ export default function BillingPage() {
               </div>
             </div>
 
-            {/* Pro */}
+            {/* Premium */}
             <div
               className={`flex flex-col justify-between rounded-2xl border px-6 py-6 text-left transition hover:border-neutral-500/70 hover:bg-neutral-900 ${
                 activePlan === "Pro"
@@ -362,7 +364,7 @@ export default function BillingPage() {
             >
               <div className="space-y-2">
                 <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Pro
+                  Premium
                 </div>
                 <div className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-900 px-2.5 py-0.5 text-[11px] font-semibold text-slate-100">
                   For schools & teams

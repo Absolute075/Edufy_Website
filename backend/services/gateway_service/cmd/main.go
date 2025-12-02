@@ -2,9 +2,12 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -177,6 +180,10 @@ func main() {
 		})
 	})
 
+	// === OSON payments ===
+	router.POST("/payments/oson/invoice", handleOsonCreateInvoice)
+	router.POST("/payments/oson/notify", handleOsonNotify)
+
 	startUsdRateRefresher()
 
 	// === Запуск сервера на порту 8080 ===
@@ -307,6 +314,204 @@ func startUsdRateRefresher() {
 			}
 		}
 	}()
+}
+
+type osonCreateInvoiceInput struct {
+	Plan        string `json:"plan"`
+	Period      string `json:"period"`
+	AutoRenewal bool   `json:"autoRenewal"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+}
+
+// getUsdPriceForPlan returns the base USD price from the public pricing table
+// so that backend-created OSON invoices match what users see on the website.
+func getUsdPriceForPlan(plan, period string) (float64, error) {
+	plan = strings.ToLower(strings.TrimSpace(plan))
+	period = strings.ToLower(strings.TrimSpace(period))
+	switch plan {
+	case "plus":
+		switch period {
+		case "monthly":
+			return 3.99, nil
+		case "sixmonths", "sixmonth", "6months", "6month":
+			return 19.99, nil
+		case "yearly", "annual", "year":
+			return 29.99, nil
+		}
+	case "premium", "pro":
+		switch period {
+		case "monthly":
+			return 7.99, nil
+		case "sixmonths", "sixmonth", "6months", "6month":
+			return 39.99, nil
+		case "yearly", "annual", "year":
+			return 59.99, nil
+		}
+	}
+	return 0, fmt.Errorf("unsupported plan/period combination")
+}
+
+// handleOsonCreateInvoice accepts a minimal payload from the frontend and creates
+// an invoice in OSON Kassa, returning pay_url to the client.
+func handleOsonCreateInvoice(c *gin.Context) {
+	var in osonCreateInvoiceInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_payload"})
+		return
+	}
+
+	if strings.TrimSpace(in.Plan) == "" || strings.TrimSpace(in.Period) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "plan_and_period_required"})
+		return
+	}
+
+	usdPrice, err := getUsdPriceForPlan(in.Plan, in.Period)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported_plan_or_period"})
+		return
+	}
+
+	rate, _, err := getUsdToUzsRate()
+	if err != nil || rate <= 0 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "usd_to_uzs_rate_unavailable"})
+		return
+	}
+
+	amountUzs := math.Round(usdPrice*rate/100) * 100
+
+	secret := os.Getenv("OSON_SECRET_TOKEN")
+	merchantIDStr := os.Getenv("OSON_MERCHANT_ID")
+	if secret == "" || merchantIDStr == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "oson_not_configured"})
+		return
+	}
+
+	merchantID, err := strconv.ParseInt(merchantIDStr, 10, 64)
+	if err != nil || merchantID <= 0 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid_oson_merchant_id"})
+		return
+	}
+
+	returnURL := os.Getenv("OSON_RETURN_URL")
+	transactionID := fmt.Sprintf("edufy-%d", time.Now().UnixNano())
+
+	payload := map[string]interface{}{
+		"merchant_id":    merchantID,
+		"transaction_id": transactionID,
+		"phone":          strings.TrimSpace(in.Phone),
+		"user_account":   strings.TrimSpace(in.Email),
+		"amount":         amountUzs,
+		"currency":       "UZS",
+		"comment":        fmt.Sprintf("Edufy %s %s subscription", in.Plan, in.Period),
+		"lifetime":       30,
+		"lang":           "ru",
+	}
+	if returnURL != "" {
+		payload["return_url"] = returnURL
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "encode_oson_payload_failed"})
+		return
+	}
+
+	req, err := http.NewRequest(http.MethodPost, "https://api.oson.uz/api/invoice/create", bytes.NewReader(body))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_oson_request_failed"})
+		return
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("token", secret)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "oson_unreachable"})
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		b, _ := io.ReadAll(resp.Body)
+		c.JSON(http.StatusBadGateway, gin.H{"error": "oson_error", "status": resp.StatusCode, "body": string(b)})
+		return
+	}
+
+	var osonResp struct {
+		Status        string `json:"status"`
+		TransactionID string `json:"transaction_id"`
+		BillID        int64  `json:"bill_id"`
+		PayURL        string `json:"pay_url"`
+		ErrorCode     int    `json:"error_code"`
+		Message       string `json:"message"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&osonResp); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "decode_oson_response_failed"})
+		return
+	}
+
+	if osonResp.ErrorCode != 0 || strings.TrimSpace(osonResp.PayURL) == "" {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "oson_error", "code": osonResp.ErrorCode, "message": osonResp.Message})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"payUrl":        osonResp.PayURL,
+		"status":        osonResp.Status,
+		"transactionId": osonResp.TransactionID,
+		"billId":        osonResp.BillID,
+		"amount":        amountUzs,
+		"currency":      "UZS",
+	})
+}
+
+type osonNotificationPayload struct {
+	Status        string `json:"status"`
+	TransactionID string `json:"transaction_id"`
+	BillID        int64  `json:"bill_id"`
+	Signature     string `json:"signature"`
+}
+
+// handleOsonNotify processes payment notifications from OSON and verifies the
+// digital signature. Updating user_service/payment storage will be wired later.
+func handleOsonNotify(c *gin.Context) {
+	var n osonNotificationPayload
+	if err := c.ShouldBindJSON(&n); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_payload"})
+		return
+	}
+
+	secret := os.Getenv("OSON_SECRET_TOKEN")
+	merchantID := os.Getenv("OSON_MERCHANT_ID")
+	if secret == "" || merchantID == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "oson_not_configured"})
+		return
+	}
+
+	expected := computeOsonSignature(secret, merchantID, n.TransactionID, n.BillID, n.Status)
+	if !strings.EqualFold(expected, n.Signature) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_signature"})
+		return
+	}
+
+	fmt.Printf("OSON notify: status=%s transaction_id=%s bill_id=%d\n", n.Status, n.TransactionID, n.BillID)
+
+	// TODO: call user_service internal API to update payment status and subscription.
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}
+
+// computeOsonSignature implements the signature algorithm from OSON Kassa docs:
+// parameters = {transaction_id}:{bill_id}:{status}
+// inner = sha256( {secret_token}:{merchant_id} )
+// signature = sha256( inner:{parameters} )
+func computeOsonSignature(secretToken, merchantID, transactionID string, billID int64, status string) string {
+	parameters := fmt.Sprintf("%s:%d:%s", transactionID, billID, status)
+	innerInput := fmt.Sprintf("%s:%s", secretToken, merchantID)
+	innerHash := sha256.Sum256([]byte(innerInput))
+	innerHex := hex.EncodeToString(innerHash[:])
+	outHash := sha256.Sum256([]byte(innerHex + ":" + parameters))
+	return hex.EncodeToString(outHash[:])
 }
 
 func sendTelegramMessage(botToken, chatID, text string) error {
