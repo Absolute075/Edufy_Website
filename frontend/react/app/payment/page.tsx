@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePageTitle } from "../lib/usePageTitle";
 
-export default function PaymentPage() {
+function PaymentPageInner() {
   usePageTitle("Edufy – Payment");
 
   const searchParams = useSearchParams();
@@ -200,5 +200,21 @@ export default function PaymentPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen text-white legal-page-main">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20">
+            <p className="text-sm text-gray-300">Loading payment details...</p>
+          </div>
+        </main>
+      }
+    >
+      <PaymentPageInner />
+    </Suspense>
   );
 }
