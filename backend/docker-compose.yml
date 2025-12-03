@@ -19,6 +19,35 @@ services:
     networks:
       - edufy_net
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    networks:
+      - edufy_net
+
+  search_service:
+    build: ./services/search_service
+    image: search_service:latest
+    container_name: search_service
+    ports:
+      - "8085:8080" # 8085 external, 8080 internal
+    environment:
+      - SEARCH_SERVICE_PORT=8080
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - AUTH_SERVICE_URL=http://auth_service:8080
+      - USER_SERVICE_URL=http://user_service:8080
+    depends_on:
+      - elasticsearch
+    restart: always
+    networks:
+      - edufy_net
+
 
 
   admin_service:

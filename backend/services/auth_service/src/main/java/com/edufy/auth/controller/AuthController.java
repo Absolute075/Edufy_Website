@@ -203,6 +203,20 @@ public class AuthController {
         );
     }
 
+    @GetMapping("/internal/admin/users/all")
+    public ResponseEntity<?> internalAdminListAllUsers() {
+        List<UserEntity> users = userRepository.findAll();
+        return ResponseEntity.ok(
+                users.stream().map(u -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("username", u.getUsername());
+                    m.put("email", u.getEmail());
+                    m.put("createdAt", u.getCreatedAt());
+                    return m;
+                }).toList()
+        );
+    }
+
     // Обновление токена
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refresh(@RequestBody RefreshRequest request) {

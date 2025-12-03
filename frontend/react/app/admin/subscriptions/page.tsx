@@ -6,6 +6,8 @@ import { useAdminAuth } from '../useAdminAuth';
 type PlanOption = 'Plus' | 'Pro';
 type PeriodOption = 'monthly' | 'sixMonths' | 'yearly';
 
+type PlanFilter = 'all' | 'plus' | 'premium';
+
 type SubscriptionRow = {
   username: string;
   email: string;
@@ -27,6 +29,7 @@ export default function AdminSubscriptionsPage() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [planFilter, setPlanFilter] = useState<PlanFilter>('all');
 
   if (loading) {
     return <p className="text-sm text-gray-300">Loading admin data...</p>;
@@ -162,6 +165,15 @@ export default function AdminSubscriptionsPage() {
     });
   }
 
+  const filteredResults = searchResults.filter((row) => {
+    const planLower = (row.plan || 'free').toLowerCase();
+    if (planFilter === 'all') return true;
+    if (planFilter === 'plus') return planLower === 'plus';
+    // Treat both "pro" and "premium" plans as Premium tier
+    if (planFilter === 'premium') return planLower === 'pro' || planLower === 'premium';
+    return true;
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -244,6 +256,17 @@ export default function AdminSubscriptionsPage() {
               className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/50"
             />
           </div>
+          <div className="w-full md:w-40">
+            <select
+              value={planFilter}
+              onChange={(e) => setPlanFilter(e.target.value as PlanFilter)}
+              className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-xs text-white uppercase tracking-[0.16em] focus:outline-none focus:ring-1 focus:ring-white/50"
+            >
+              <option value="all">All plans</option>
+              <option value="plus">Plus only</option>
+              <option value="premium">Premium only</option>
+            </select>
+          </div>
           <button
             type="submit"
             disabled={searchLoading}
@@ -265,7 +288,7 @@ export default function AdminSubscriptionsPage() {
               </tr>
             </thead>
             <tbody>
-              {searchResults.length === 0 ? (
+              {filteredResults.length === 0 ? (
                 searchPerformed && !searchLoading ? (
                   <tr>
                     <td colSpan={5} className="py-3 text-gray-500">
@@ -274,7 +297,7 @@ export default function AdminSubscriptionsPage() {
                   </tr>
                 ) : null
               ) : (
-                searchResults.map((row) => (
+                filteredResults.map((row) => (
                   <tr key={row.username} className="border-b border-white/5 last:border-0">
                     <td className="py-2 pr-4 font-mono text-[11px] text-gray-100">{row.username}</td>
                     <td className="py-2 pr-4 text-gray-200">{row.email}</td>

@@ -18,6 +18,7 @@ func Load() *internal.Config {
 		UserServiceURL:    getEnv("USER_SERVICE_URL", "http://user_service:8080"),
 		GatewayServiceURL: getEnv("GATEWAY_URL", "http://gateway_service:8080"),
 		FileServiceURL:    getEnv("FILE_SERVICE_URL", "http://file_service:8080"),
+		SearchServiceURL:  getEnv("SEARCH_SERVICE_URL", "http://search_service:8080"),
 	}
 
 	return cfg

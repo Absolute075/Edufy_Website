@@ -16,4 +16,5 @@ type Config struct {
 	UserServiceURL    string
 	GatewayServiceURL string
 	FileServiceURL    string
+	SearchServiceURL  string
 }
