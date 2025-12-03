@@ -18,7 +18,7 @@ const teamSections = [
           'https://resources.edufyuzbekistan.com/storage/images/photo_2025-10-20_20-22-58.jpg',
       },
       {
-        name: 'Founder Member 3',
+        name: 'A. Doniyorbek',
         role: 'Co-Founder & CCO',
         avatarUrl: defaultAvatarUrl,
       },
