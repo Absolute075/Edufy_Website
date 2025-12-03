@@ -16,9 +16,10 @@ export default function AdminPaymentsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-[0.2em] uppercase">Payments</h1>
-        <p className="mt-2 text-sm text-gray-400">
-          Inspect OSON invoices and payments across all Edufy users.
+        <h1 className="text-2xl font-semibold">Payments</h1>
+        <p className="text-sm text-slate-400">
+          Monitor user payments and subscription renewals. This section will show manual payments and
+          subscription extensions recorded by the team.
         </p>
       </div>
 
@@ -30,8 +31,8 @@ export default function AdminPaymentsPage() {
           <span className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Coming soon</span>
         </div>
         <div className="rounded-lg border border-white/5 bg-black/40 px-4 py-6 text-sm text-gray-400">
-          Here you will see payment history with username, amount, plan, OSON status, and links to
-          invoices. We will connect this page to user_service and gateway_service.
+          Here you will see payment history with username, amount, plan, status, and links to invoices.
+          We will connect this page to user_service and gateway_service.
         </div>
       </div>
     </div>

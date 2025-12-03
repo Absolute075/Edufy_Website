@@ -9,17 +9,6 @@ type BillingPeriod = "monthly" | "sixMonths" | "yearly";
 type PlanId = "Free" | "Plus" | "Pro";
 type Currency = "USD" | "UZS";
 
-type PaymentMethodRow = {
-  id: number;
-  provider: string;
-  cardBrand: string;
-  lastDigits: string;
-  expiryMonth: number | null;
-  expiryYear: number | null;
-  isDefault: boolean;
-  createdAt: string;
-};
-
 const BILLING_PERIODS: { id: BillingPeriod; label: string }[] = [
   { id: "monthly", label: "Monthly" },
   { id: "sixMonths", label: "6 months" },
@@ -132,11 +121,6 @@ export default function BillingPage() {
   const [usdToUzsRate, setUsdToUzsRate] = useState<number | null>(null);
   const [payments, setPayments] = useState<any[]>([]);
   const [loadingPayments, setLoadingPayments] = useState(false);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodRow[]>([]);
-  const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(false);
-  const [paymentMethodsError, setPaymentMethodsError] = useState<string | null>(null);
-  const [updatingMethodId, setUpdatingMethodId] = useState<number | null>(null);
-  const [deletingMethodId, setDeletingMethodId] = useState<number | null>(null);
   const [form, setForm] = useState({
     cardName: "",
     email: "",
@@ -235,106 +219,6 @@ export default function BillingPage() {
 
   useEffect(() => {
     let cancelled = false;
-    async function fetchPaymentMethods() {
-      setLoadingPaymentMethods(true);
-      setPaymentMethodsError(null);
-      try {
-        const res = await fetch("/user/payment-methods");
-        if (!res.ok) {
-          if (res.status === 401) {
-            return;
-          }
-          if (!cancelled) {
-            setPaymentMethodsError("Failed to load payment methods");
-          }
-          return;
-        }
-        const data = await res.json();
-        if (!cancelled && Array.isArray(data)) {
-          setPaymentMethods(
-            data.map((pm: any) => ({
-              id: Number(pm.id),
-              provider: String(pm.provider ?? "OSON"),
-              cardBrand: String(pm.cardBrand ?? "").toUpperCase(),
-              lastDigits: String(pm.lastDigits ?? ""),
-              expiryMonth:
-                typeof pm.expiryMonth === "number" ? pm.expiryMonth : pm.expiryMonth ? Number(pm.expiryMonth) : null,
-              expiryYear:
-                typeof pm.expiryYear === "number" ? pm.expiryYear : pm.expiryYear ? Number(pm.expiryYear) : null,
-              isDefault: Boolean(pm.isDefault),
-              createdAt: String(pm.createdAt ?? ""),
-            })),
-          );
-        }
-      } catch {
-        if (!cancelled) {
-          setPaymentMethodsError("Network error while loading payment methods");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingPaymentMethods(false);
-        }
-      }
-    }
-
-    fetchPaymentMethods();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  function formatExpiryShort(month: number | null, year: number | null): string {
-    if (!month || !year) return "—";
-    const mm = String(month).padStart(2, "0");
-    const yy = String(year).slice(-2);
-    return `${mm} / ${yy}`;
-  }
-
-  async function handleMakeDefaultMethod(id: number) {
-    if (updatingMethodId || deletingMethodId) return;
-    setUpdatingMethodId(id);
-    setPaymentMethodsError(null);
-    try {
-      const res = await fetch(`/user/payment-methods/${id}/default`, {
-        method: "POST",
-      });
-      if (!res.ok) {
-        if (res.status !== 404) {
-          setPaymentMethodsError("Failed to update default payment method");
-        }
-        return;
-      }
-      setPaymentMethods((prev) => prev.map((pm) => ({ ...pm, isDefault: pm.id === id })));
-    } catch {
-      setPaymentMethodsError("Network error while updating payment method");
-    } finally {
-      setUpdatingMethodId(null);
-    }
-  }
-
-  async function handleDeleteMethod(id: number) {
-    if (deletingMethodId || updatingMethodId) return;
-    setDeletingMethodId(id);
-    setPaymentMethodsError(null);
-    try {
-      const res = await fetch(`/user/payment-methods/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok && res.status !== 404) {
-        setPaymentMethodsError("Failed to delete payment method");
-        return;
-      }
-      setPaymentMethods((prev) => prev.filter((pm) => pm.id !== id));
-    } catch {
-      setPaymentMethodsError("Network error while deleting payment method");
-    } finally {
-      setDeletingMethodId(null);
-    }
-  }
-
-  useEffect(() => {
-    let cancelled = false;
     async function fetchPayments() {
       setLoadingPayments(true);
       try {
@@ -367,7 +251,7 @@ export default function BillingPage() {
         <div className="flex flex-col gap-2 border-b border-neutral-800 pb-4">
           <h1 className="text-2xl font-semibold">Billing</h1>
           <p className="text-sm text-slate-400">
-            Manage your subscription, invoices, and payment methods in one place.
+            Manage your subscription and billing history in one place.
           </p>
         </div>
 
@@ -670,7 +554,8 @@ export default function BillingPage() {
                         : periodRaw === "yearly"
                         ? "Yearly"
                         : "Monthly";
-                    const provider = (p.provider || "OSON").toString();
+                    const providerRaw = (p.provider || "Manual").toString();
+                    const provider = providerRaw.toUpperCase() === "OSON" ? "Manual" : providerRaw;
                     const desc = `${planLabel ? planLabel : "Subscription"} – ${periodLabel} · ${provider}`;
                     const amount = typeof p.amount === "number" ? p.amount.toFixed(2) : p.amount;
                     const currency = (p.currency || "UZS").toString();
@@ -708,100 +593,7 @@ export default function BillingPage() {
           </div>
         </section>
 
-        {/* Payment methods */}
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <div>
-              <h2 className="text-base font-semibold text-slate-100">Payment methods</h2>
-              <p className="text-xs text-slate-400">Manage the cards used for your subscription.</p>
-            </div>
-            <button
-              type="button"
-              className="rounded-lg border border-neutral-700 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled
-            >
-              Add card
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {paymentMethodsError && (
-              <p className="text-xs text-red-400">{paymentMethodsError}</p>
-            )}
-
-            {loadingPaymentMethods && (
-              <p className="text-xs text-slate-400">Loading saved payment methods...</p>
-            )}
-
-            {!loadingPaymentMethods && paymentMethods.length === 0 && !paymentMethodsError && (
-              <p className="text-xs text-slate-500">
-                You don&apos;t have any saved payment methods yet. After you add a card via our payment
-                provider, it will appear here.
-              </p>
-            )}
-
-            {!loadingPaymentMethods &&
-              paymentMethods.map((pm) => {
-                const brand = pm.cardBrand || "CARD";
-                const brandBadge =
-                  brand === "UZCARD" ? "UZ" : brand === "HUMO" ? "HM" : brand.slice(0, 2).toUpperCase();
-                const lastDigits = pm.lastDigits ? pm.lastDigits.slice(-2) : "";
-                const masked = lastDigits ? `••${lastDigits}` : "••";
-                const expiry = formatExpiryShort(pm.expiryMonth, pm.expiryYear);
-                const isDefault = pm.isDefault;
-                const busy = updatingMethodId === pm.id || deletingMethodId === pm.id;
-
-                return (
-                  <div
-                    key={pm.id}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-900">
-                        {brandBadge}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-slate-100">
-                          {brand || "Card"} {masked}
-                        </div>
-                        <div className="text-[11px] text-slate-400">Expires {expiry}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {isDefault && (
-                        <span className="rounded-full border border-emerald-500/50 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-300">
-                          Default
-                        </span>
-                      )}
-                      {!isDefault && (
-                        <button
-                          type="button"
-                          onClick={() => handleMakeDefaultMethod(pm.id)}
-                          disabled={busy}
-                          className="rounded-full border border-neutral-700 px-3 py-1 text-[11px] text-slate-200 hover:bg-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Set default
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteMethod(pm.id)}
-                        disabled={busy}
-                        className="rounded-full border border-neutral-700 px-3 py-1 text-[11px] text-slate-300 hover:bg-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {deletingMethodId === pm.id ? "Removing..." : "Remove"}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-
-          <p className="mt-4 text-xs text-slate-500">
-            Edufy does not store your full card details. Payments are processed via secure providers that comply with
-            international security standards.
-          </p>
-        </section>
+        
 
         {/* Refund & policy */}
         <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">

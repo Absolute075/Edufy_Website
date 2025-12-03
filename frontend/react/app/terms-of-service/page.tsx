@@ -102,7 +102,7 @@ export default function TermsOfServicePage() {
             time. Changes do not affect already-paid periods.
           </p>
           <p className="text-gray-300 mb-6">
-            4.2. Payment Methods – Edufy accepts payments via integrated payment processors (e.g., Payme, Click, Oson,
+            4.2. Payment Methods – Edufy accepts payments via integrated payment processors (e.g., Payme, Click,
             Payze, Stripe, PayPal).
           </p>
           <p className="text-gray-300 mb-6">

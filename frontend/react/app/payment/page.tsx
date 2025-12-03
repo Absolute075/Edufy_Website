@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePageTitle } from "../lib/usePageTitle";
 
@@ -14,77 +14,11 @@ function PaymentPageInner() {
 
   const plan = planParam || "Plus";
   const period = periodParam || "monthly";
-
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-  });
-  const [autoRenewal] = useState(autoRenewalParam === "1");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const isEmailValid = emailRegex.test(form.email.trim());
-  const isPhoneValid = form.phone.trim().length >= 7;
-  const isFormValid =
-    !!form.firstName.trim() && !!form.lastName.trim() && isEmailValid && isPhoneValid;
-
-  const handleChange = (field: keyof typeof form) => (e: any) => {
-    let value = (e.target.value as string) ?? "";
-    if (field === "phone") {
-      value = value.replace(/\D/g, "");
-    }
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  const autoRenewal = autoRenewalParam === "1";
 
   const planLabel = plan === "Pro" ? "Premium" : plan;
   const periodLabel =
     period === "sixMonths" ? "6 months" : period === "yearly" ? "Yearly" : "Monthly";
-
-  async function handleSubmit() {
-    if (!isFormValid || submitting) return;
-
-    setSubmitting(true);
-    setError(null);
-
-    try {
-      const res = await fetch("/payments/oson/invoice", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          plan: planLabel,
-          period,
-          autoRenewal,
-          fullName: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok || typeof data.payUrl !== "string" || !data.payUrl) {
-        setError(
-          typeof data.error === "string" && data.error.length > 0
-            ? data.error
-            : "Failed to initialize payment. Please try again.",
-        );
-        return;
-      }
-
-      if (typeof window !== "undefined") {
-        window.location.href = data.payUrl as string;
-      }
-    } catch (err) {
-      setError("Network error. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   return (
     <main className="min-h-screen text-white legal-page-main">
@@ -94,8 +28,8 @@ function PaymentPageInner() {
             Payment
           </h1>
           <p className="mt-3 text-gray-300 max-w-2xl text-left">
-            Review your plan details and enter your contact information. You will be redirected to a secure OSON
-            payment page to complete the transaction.
+            Review your plan details and follow the instructions below to pay manually by bank card. After payment,
+            send the receipt to our support so we can activate your subscription.
           </p>
         </header>
         <section className="mt-10 legal-content-block grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
@@ -104,101 +38,73 @@ function PaymentPageInner() {
               Payment details
             </h2>
             <p className="text-xs sm:text-sm text-gray-400 max-w-md">
-              All payments on Edufy Uzbekistan are processed through reliable and certified payment systems that
-              comply with international security standards. Edufy Uzbekistan does not store users’ full card data
-              and does not have direct access to your payment information.
-            </p>
-            <p className="text-xs sm:text-sm text-gray-400 max-w-md">
-              Selected plan: <span className="text-gray-100 font-medium">{planLabel}</span> –{' '}
+              Selected plan: <span className="text-gray-100 font-medium">{planLabel}</span> –{" "}
               <span className="text-gray-100 font-medium">{periodLabel}</span> billing.
             </p>
+            <p className="text-xs sm:text-sm text-gray-400 max-w-md">
+              To activate your subscription, please pay the corresponding amount to the card below and send a payment
+              confirmation (screenshot or receipt) to our support team.
+            </p>
           </div>
-
-          <form className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-5">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">
-                  First name
-                </label>
-                <input
-                  type="text"
-                  placeholder="First name"
-                  value={form.firstName}
-                  onChange={handleChange("firstName")}
-                  className="w-full rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 focus:ring-0"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">
-                  Last name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Last name"
-                  value={form.lastName}
-                  onChange={handleChange("lastName")}
-                  className="w-full rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 focus:ring-0"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">
-                  Phone number
-                </label>
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  pattern="\d*"
-                  placeholder="998901234567"
-                  value={form.phone}
-                  onChange={handleChange("phone")}
-                  className="w-full rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 focus:ring-0"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={form.email}
-                  onChange={handleChange("email")}
-                  className="w-full rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 focus:ring-0"
-                />
-                {form.email && !isEmailValid && (
-                  <p className="mt-1 text-[11px] text-red-400">
-                    Please enter a valid email address.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="pt-2 flex flex-col gap-2 text-xs text-gray-500">
-              <button
-                type="button"
-                disabled={!isFormValid || submitting}
-                onClick={handleSubmit}
-                className="w-full rounded-full border border-white/25 bg-white text-gray-900 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] shadow-[0_0_18px_rgba(255,255,255,0.4)] hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {submitting ? "Redirecting to payment..." : "Pay with OSON"}
-              </button>
-              {error && <p className="text-xs text-red-400">{error}</p>}
+          <section className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-5 text-xs sm:text-sm text-gray-300">
+            <div className="space-y-2">
+              <h3 className="text-sm font-space font-semibold uppercase tracking-[0.18em] text-white">
+                Step 1. Pay by card
+              </h3>
               <p>
-                By using this website to make a payment, you confirm that you provide accurate and truthful payment card
-                information, including card number, expiration date, and CVC/CVV code, and agree to the{' '}
-                <a
-                  href="/terms-of-service"
-                  className="text-gray-300 underline underline-offset-2 hover:text-white transition-colors"
-                >
-                  terms of the selected payment service provider
-                </a>
-                .
+                Please transfer the subscription amount for your selected plan to the following card:
+              </p>
+              <div className="mt-2 border border-white/15 rounded-xl px-3 py-3 bg-black/40 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-gray-500">Card number</div>
+                  <div className="text-sm font-medium text-white">4916 9903 3725 0531</div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-400">
+                Cardholder name: <span className="text-gray-200 font-medium">Tojiyev Asilbek</span>
               </p>
             </div>
-          </form>
+
+            <div className="space-y-2">
+              <h3 className="text-sm font-space font-semibold uppercase tracking-[0.18em] text-white">
+                Step 2. Send confirmation
+              </h3>
+              <p>
+                After payment, send a screenshot or receipt together with your Edufy username to our support team so we
+                can activate your subscription:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-gray-300">
+                <li>
+                  Email: {" "}
+                  <a href="mailto:support@edufyuzbekistan.com" className="text-gray-100 underline underline-offset-2">
+                    support@edufyuzbekistan.com
+                  </a>
+                </li>
+                <li>
+                  Telegram: {" "}
+                  <a
+                    href="https://t.me/edufysupport"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-100 underline underline-offset-2"
+                  >
+                    @edufysupport
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-sm font-space font-semibold uppercase tracking-[0.18em] text-white">
+                Step 3. Activation
+              </h3>
+              <p>
+                Once we verify your payment, we will manually activate or extend your <span className="font-medium text-gray-100">{planLabel}</span>{" "}
+                subscription for the selected <span className="font-medium text-gray-100">{periodLabel}</span> period. If auto
+                renewal is enabled in your account, we will remind you before the end of the paid period.
+              </p>
+            </div>
+          </section>
         </section>
       </div>
     </main>

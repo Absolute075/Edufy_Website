@@ -22,7 +22,7 @@ public class PaymentMethod {
     private String username;
 
     @Column(nullable = false, length = 32)
-    private String provider; // e.g. OSON
+    private String provider;
 
     @Column(nullable = false, length = 128)
     private String externalToken; // token or id from payment provider

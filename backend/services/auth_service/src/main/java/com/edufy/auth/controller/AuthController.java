@@ -42,6 +42,9 @@ public class AuthController {
             return ResponseEntity.badRequest().body(response);
         }
         // Успешная регистрация — 200 OK
+        try {
+            postCreateProfile(request.getUsername());
+        } catch (Exception ignored) {}
         return ResponseEntity.ok(response);
     }
 
@@ -139,6 +142,43 @@ public class AuthController {
             }
         }
         try { System.out.println("[auth_service] login audit post failed for all bases"); } catch (Exception ignore) {}
+    }
+
+    private void postCreateProfile(String username) {
+        String payload = "{\"username\":\"" + safe(username) + "\"}";
+        String envBase = System.getenv("USER_SERVICE_URL");
+        String gatewayBase = System.getenv("GATEWAY_URL");
+        String[] bases = new String[]{
+                gatewayBase,
+                envBase,
+                "http://gateway_service:8080",
+                "http://user_service:8080",
+                "http://host.docker.internal:8083",
+                "http://localhost:8083",
+                "http://127.0.0.1:8083"
+        };
+        for (String base : bases) {
+            if (base == null || base.isBlank()) continue;
+            try {
+                java.net.URL url = new java.net.URL(base + "/user/internal/create-profile");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(4000);
+                conn.setReadTimeout(4000);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+                try (java.io.OutputStream os = conn.getOutputStream()) {
+                    os.write(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+                int code = conn.getResponseCode();
+                conn.disconnect();
+                try { System.out.println("[auth_service] create-profile post -> " + base + " code=" + code); } catch (Exception ignore) {}
+                if (code >= 200 && code < 300) return;
+            } catch (Exception e) {
+                try { System.out.println("[auth_service] create-profile post failed -> " + base + " err=" + e.getClass().getSimpleName()); } catch (Exception ignore) {}
+            }
+        }
+        try { System.out.println("[auth_service] create-profile post failed for all bases"); } catch (Exception ignore) {}
     }
 
     private String safe(String s) { return s == null ? "" : s; }

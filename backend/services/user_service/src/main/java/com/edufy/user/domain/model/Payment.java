@@ -31,7 +31,7 @@ public class Payment {
     private boolean autoRenewal;
 
     @Column(name = "provider", length = 32, nullable = false)
-    private String provider; // e.g. OSON
+    private String provider;
 
     @Column(name = "transaction_id", length = 64, unique = true)
     private String transactionId;
@@ -72,7 +72,7 @@ public class Payment {
         if (createdAt == null) createdAt = now;
         if (updatedAt == null) updatedAt = now;
         if (provider == null || provider.isBlank()) {
-            provider = "OSON";
+            provider = "MANUAL";
         }
         if (status == null || status.isBlank()) {
             status = "PENDING";
