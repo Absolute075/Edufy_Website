@@ -51,10 +51,22 @@ public class AuthController {
 
     // Логин + установка HttpOnly cookie для токенов на домен .edufyuzbekistan.com
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
-        TokenResponse tokenResponse = authService.login(request);
-        if (tokenResponse.getAccessToken() == null) {
-            return ResponseEntity.badRequest().body(tokenResponse);
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
+        TokenResponse tokenResponse;
+        try {
+            tokenResponse = authService.login(request);
+        } catch (RuntimeException e) {
+            String msg = e.getMessage();
+            if (msg == null || msg.isBlank()) {
+                msg = "Login failed";
+            }
+            return ResponseEntity.status(401).body(Map.of("message", msg));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Login failed"));
+        }
+
+        if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Login failed"));
         }
 
         // Куки для поддоменов: .edufyuzbekistan.com
