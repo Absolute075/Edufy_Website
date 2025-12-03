@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -113,4 +115,113 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 	if len(respBody) > 0 {
 		_, _ = c.Writer.Write(respBody)
 	}
+}
+
+type subscriptionSummary struct {
+	Username    string      `json:"username"`
+	Plan        string      `json:"plan"`
+	ActiveUntil interface{} `json:"activeUntil"`
+	GrantedAt   interface{} `json:"grantedAt"`
+}
+
+type userWithSubscription struct {
+	Username    string      `json:"username"`
+	Email       string      `json:"email"`
+	Plan        string      `json:"plan"`
+	GrantedAt   interface{} `json:"grantedAt,omitempty"`
+	ActiveUntil interface{} `json:"activeUntil,omitempty"`
+}
+
+func (h *AdminHandler) SearchSubscriptions(c *gin.Context) {
+	q := strings.TrimSpace(c.Query("q"))
+	if q == "" {
+		c.JSON(http.StatusOK, []userWithSubscription{})
+		return
+	}
+
+	authBase := h.cfg.AuthServiceURL
+	if authBase == "" {
+		authBase = "http://auth_service:8080"
+	}
+	authURL := authBase + "/auth/internal/admin/users/search?q=" + url.QueryEscape(q)
+	authResp, err := http.Get(authURL)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_unreachable"})
+		return
+	}
+	defer authResp.Body.Close()
+	if authResp.StatusCode != http.StatusOK {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_unexpected_status", "status": authResp.StatusCode})
+		return
+	}
+
+	var authUsers []struct {
+		Username  string      `json:"username"`
+		Email     string      `json:"email"`
+		CreatedAt interface{} `json:"createdAt"`
+	}
+	if err := json.NewDecoder(authResp.Body).Decode(&authUsers); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_decode_failed"})
+		return
+	}
+
+	userBase := h.cfg.UserServiceURL
+	if userBase == "" {
+		userBase = "http://user_service:8080"
+	}
+
+	results := make([]userWithSubscription, 0, len(authUsers))
+	for _, u := range authUsers {
+		summaryURL := userBase + "/user/internal/admin/subscriptions/summary?username=" + url.QueryEscape(u.Username)
+		resp, err := http.Get(summaryURL)
+		if err != nil {
+			results = append(results, userWithSubscription{
+				Username: u.Username,
+				Email:    u.Email,
+				Plan:     "free",
+			})
+			continue
+		}
+		func() {
+			defer resp.Body.Close()
+			if resp.StatusCode == http.StatusNotFound {
+				results = append(results, userWithSubscription{
+					Username: u.Username,
+					Email:    u.Email,
+					Plan:     "free",
+				})
+				return
+			}
+			if resp.StatusCode != http.StatusOK {
+				results = append(results, userWithSubscription{
+					Username: u.Username,
+					Email:    u.Email,
+					Plan:     "free",
+				})
+				return
+			}
+			var sub subscriptionSummary
+			if err := json.NewDecoder(resp.Body).Decode(&sub); err != nil {
+				results = append(results, userWithSubscription{
+					Username: u.Username,
+					Email:    u.Email,
+					Plan:     "free",
+				})
+				return
+			}
+			plan := sub.Plan
+			if plan == "" {
+				plan = "free"
+			}
+			results = append(results, userWithSubscription{
+				Username:    u.Username,
+				Email:       u.Email,
+				Plan:        plan,
+				GrantedAt:   sub.GrantedAt,
+				ActiveUntil: sub.ActiveUntil,
+			})
+		}()
+	}
+
+	c.JSON(http.StatusOK, results)
 }

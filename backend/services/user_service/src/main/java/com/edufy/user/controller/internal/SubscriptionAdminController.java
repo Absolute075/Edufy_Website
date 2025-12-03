@@ -5,15 +5,18 @@ import com.edufy.user.domain.repository.SubscriptionRepository;
 import com.edufy.user.domain.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user/internal")
@@ -101,5 +104,34 @@ public class SubscriptionAdminController {
                 "period", sub.getPeriod(),
                 "activeUntil", sub.getActiveUntil()
         ));
+    }
+
+    @GetMapping("/admin/subscriptions/summary")
+    public ResponseEntity<?> summary(@RequestParam("username") String username) {
+        if (username == null || username.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "username required"));
+        }
+        String trimmed = username.trim();
+
+        Optional<Subscription> subOpt = subscriptionRepository.findByUsername(trimmed);
+        if (subOpt.isPresent()) {
+            Subscription sub = subOpt.get();
+            LocalDateTime grantedAt = sub.getUpdatedAt() != null ? sub.getUpdatedAt() : sub.getCreatedAt();
+            return ResponseEntity.ok(Map.of(
+                    "username", sub.getUsername(),
+                    "plan", sub.getPlan(),
+                    "activeUntil", sub.getActiveUntil(),
+                    "grantedAt", grantedAt
+            ));
+        }
+
+        return userProfileRepository.findByUsername(trimmed)
+                .<ResponseEntity<?>>map(profile -> ResponseEntity.ok(Map.of(
+                        "username", profile.getUsername(),
+                        "plan", profile.getPlan(),
+                        "activeUntil", null,
+                        "grantedAt", profile.getCreatedAt()
+                )))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

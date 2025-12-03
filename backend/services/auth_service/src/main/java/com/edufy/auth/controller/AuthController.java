@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,8 +30,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
     private final JwtService jwtService;
+    private final AuthService authService;
     private final UserRepository userRepository;
 
     // Регистрация
@@ -182,6 +183,25 @@ public class AuthController {
     }
 
     private String safe(String s) { return s == null ? "" : s; }
+
+    @GetMapping("/internal/admin/users/search")
+    public ResponseEntity<?> internalAdminSearchUsers(@RequestParam(name = "q", required = false) String q) {
+        String query = q != null ? q.trim() : "";
+        if (query.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+        List<UserEntity> users = userRepository
+                .findTop20ByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query);
+        return ResponseEntity.ok(
+                users.stream().map(u -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("username", u.getUsername());
+                    m.put("email", u.getEmail());
+                    m.put("createdAt", u.getCreatedAt());
+                    return m;
+                }).toList()
+        );
+    }
 
     // Обновление токена
     @PostMapping("/refresh")
