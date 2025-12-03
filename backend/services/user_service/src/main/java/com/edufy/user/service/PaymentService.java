@@ -4,7 +4,6 @@ import com.edufy.user.domain.model.Payment;
 import com.edufy.user.domain.model.Subscription;
 import com.edufy.user.domain.repository.PaymentRepository;
 import com.edufy.user.domain.repository.SubscriptionRepository;
-import com.edufy.user.domain.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +19,6 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final SubscriptionRepository subscriptionRepository;
-    private final UserProfileRepository userProfileRepository;
 
     private static final ZoneId ZONE = ZoneId.of("Asia/Tashkent");
 
@@ -65,13 +63,6 @@ public class PaymentService {
         }
         sub.setActiveUntil(newUntil);
         subscriptionRepository.save(sub);
-
-        if (plan != null) {
-            userProfileRepository.findByUsername(username).ifPresent(profile -> {
-                profile.setPlan(plan.toLowerCase(Locale.ROOT));
-                userProfileRepository.save(profile);
-            });
-        }
     }
 
     public List<Payment> getPaymentsForUser(String username) {

@@ -94,12 +94,6 @@ public class SubscriptionAdminController {
         sub.setActiveUntil(newUntil);
         sub = subscriptionRepository.save(sub);
 
-        // Update profile plan if present
-        userProfileRepository.findByUsername(username).ifPresent(profile -> {
-            profile.setPlan(normalizedPlan);
-            userProfileRepository.save(profile);
-        });
-
         return ResponseEntity.ok(Map.of(
                 "username", sub.getUsername(),
                 "plan", sub.getPlan(),
@@ -130,7 +124,7 @@ public class SubscriptionAdminController {
         return userProfileRepository.findByUsername(trimmed)
                 .<ResponseEntity<?>>map(profile -> ResponseEntity.ok(Map.of(
                         "username", profile.getUsername(),
-                        "plan", profile.getPlan(),
+                        "plan", "free",
                         "activeUntil", null,
                         "grantedAt", profile.getCreatedAt()
                 )))

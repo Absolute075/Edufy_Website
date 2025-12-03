@@ -28,8 +28,7 @@ public class CreateProfileController {
         UserProfile p = profileService.getOrCreate(username);
         return ResponseEntity.ok(Map.of(
                 "id", p.getId(),
-                "username", p.getUsername(),
-                "plan", p.getPlan()
+                "username", p.getUsername()
         ));
     }
 }

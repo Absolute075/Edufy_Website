@@ -52,6 +52,14 @@ public class ProfileController {
             return ResponseEntity.status(401).body(body);
         }
 
+        // Load subscription once to determine canonical plan
+        Subscription sub = subscriptionRepository.findByUsername(username).orElse(null);
+
+        String planForResponse = "free";
+        if (sub != null && sub.getPlan() != null && !sub.getPlan().isBlank()) {
+            planForResponse = sub.getPlan();
+        }
+
         // Do NOT auto-create on GET to avoid duplicates during rename race
         UserProfile p = profileService.find(username);
         Map<String, Object> body = new LinkedHashMap<>();
@@ -61,28 +69,21 @@ public class ProfileController {
             body.put("phone", p.getPhone());
             body.put("birthDate", p.getBirthDate());
             body.put("avatarUrl", p.getAvatarUrl());
-            body.put("plan", p.getPlan());
             body.put("certificate", p.getCertificate());
             body.put("favorite_subject", p.getFavoriteSubject());
             body.put("daily_hours", p.getDailyHours());
         } else {
             body.put("username", username);
-            body.put("plan", "free");
         }
 
-        // Attach subscription summary if present and prefer its plan if profile plan is missing/free
-        Subscription sub = subscriptionRepository.findByUsername(username).orElse(null);
+        body.put("plan", planForResponse);
+
+        // Attach subscription summary if present
         if (sub != null) {
             body.put("subscriptionPlan", sub.getPlan());
             body.put("subscriptionPeriod", sub.getPeriod());
             body.put("subscriptionActiveSince", sub.getCreatedAt());
             body.put("subscriptionActiveUntil", sub.getActiveUntil());
-
-            Object currentPlan = body.get("plan");
-            String currentPlanStr = currentPlan != null ? currentPlan.toString().trim().toLowerCase() : "";
-            if (currentPlanStr.isEmpty() || "free".equals(currentPlanStr)) {
-                body.put("plan", sub.getPlan());
-            }
         }
         return ResponseEntity.ok(body);
     }
