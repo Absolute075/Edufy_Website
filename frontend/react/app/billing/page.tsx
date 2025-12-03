@@ -467,7 +467,7 @@ export default function BillingPage() {
                 <button
                   type="button"
                   onClick={() => handleChoosePlan("Pro")}
-                  className="rounded-full border border-neutral-300 px-3 py-1 text-xs text-slate-100 hover:bg-neutral-800"
+                  className="rounded-full border border-neutral-300 bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-900 shadow-lg shadow-black/40 hover:bg-neutral-200"
                 >
                   {activePlan === "Pro" ? "Extend Plan" : "Choose plan"}
                 </button>
