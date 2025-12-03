@@ -41,7 +41,8 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [certificate, setCertificate] = useState("");
+  const [certificates, setCertificates] = useState<string[]>([]);
+  const [selectedCertificate, setSelectedCertificate] = useState("");
   const [favoriteSubject, setFavoriteSubject] = useState("");
   const [dailyHours, setDailyHours] = useState("");
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,7 @@ export default function ProfilePage() {
   const initialUsernameRef = useRef<string>("");
   const initialPhoneRef = useRef<string>("");
   const initialDobRef = useRef<string>("");
-  const initialCertificateRef = useRef<string>("");
+  const initialCertificatesRef = useRef<string>("");
   const initialFavoriteSubjectRef = useRef<string>("");
   const initialDailyHoursRef = useRef<string>("");
 
@@ -92,16 +93,23 @@ export default function ProfilePage() {
               const favSubjVal = p.favorite_subject || "";
               const hoursVal = p.daily_hours || "";
 
+              const certList = certVal
+                ? (certVal as string)
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                : [];
+
               setPhone(phoneVal);
               setDob(dobVal);
               if (p.avatarUrl) setAvatarUrl(p.avatarUrl);
-              setCertificate(certVal);
+              setCertificates(certList);
               setFavoriteSubject(favSubjVal);
               setDailyHours(hoursVal);
 
               initialPhoneRef.current = phoneVal;
               initialDobRef.current = dobVal;
-              initialCertificateRef.current = certVal;
+              initialCertificatesRef.current = certList.join(", ");
               initialFavoriteSubjectRef.current = favSubjVal;
               initialDailyHoursRef.current = hoursVal;
             }
@@ -141,6 +149,26 @@ export default function ProfilePage() {
     if (avatarInputRef.current) {
       avatarInputRef.current.click();
     }
+  }
+
+  function handleCertificateSelectChange(e: ChangeEvent<HTMLSelectElement>) {
+    const val = e.target.value;
+    if (!val) return;
+
+    setError(null);
+    setSuccess(null);
+
+    if (val === "No certificate") {
+      setCertificates(["No certificate"]);
+    } else {
+      setCertificates((prev) => {
+        const withoutNone = prev.filter((c) => c !== "No certificate");
+        if (withoutNone.includes(val)) return withoutNone;
+        return [...withoutNone, val];
+      });
+    }
+
+    setSelectedCertificate("");
   }
 
   async function handleAvatarChange(e: ChangeEvent<HTMLInputElement>) {
@@ -225,7 +253,7 @@ export default function ProfilePage() {
         (dob || "") !== (initialDobRef.current || "");
 
       const hasPreferenceChanges =
-        (certificate || "") !== (initialCertificateRef.current || "") ||
+        certificates.join(", ") !== (initialCertificatesRef.current || "") ||
         (favoriteSubject || "") !== (initialFavoriteSubjectRef.current || "") ||
         (dailyHours || "") !== (initialDailyHoursRef.current || "");
 
@@ -259,7 +287,8 @@ export default function ProfilePage() {
       ok = ok && r2.ok;
 
       const prefPayload = {
-        certificate: certificate || "",
+        certificates,
+        certificate: certificates.join(", "),
         favorite_subject: favoriteSubject || "",
         daily_hours: dailyHours || "",
       };
@@ -277,7 +306,7 @@ export default function ProfilePage() {
         initialUsernameRef.current = newUsername;
         initialPhoneRef.current = newPhone;
         initialDobRef.current = dob || "";
-        initialCertificateRef.current = certificate || "";
+        initialCertificatesRef.current = certificates.join(", ");
         initialFavoriteSubjectRef.current = favoriteSubject || "";
         initialDailyHoursRef.current = dailyHours || "";
       } else {
@@ -389,55 +418,78 @@ export default function ProfilePage() {
               </label>
               <select
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
-                value={certificate}
-                onChange={(e) => setCertificate(e.target.value)}
+                value={selectedCertificate}
+                onChange={handleCertificateSelectChange}
                 disabled={loading || saving || !editMode}
               >
                 <option value="">Choose</option>
-                <option value="none">No certificate</option>
+                <option value="No certificate">No certificate</option>
                 <optgroup label="IELTS">
-                  <option value="9.0">9.0</option>
-                  <option value="8.5">8.5</option>
-                  <option value="8.0">8.0</option>
-                  <option value="7.5">7.5</option>
-                  <option value="7.0">7.0</option>
-                  <option value="6.5">6.5</option>
-                  <option value="6.0">6.0</option>
-                  <option value="5.5">5.5</option>
-                  <option value="5.0">5.0</option>
-                  <option value="4.5">4.5</option>
-                  <option value="4.0">4.0</option>
+                  <option value="IELTS: 9.0">9.0</option>
+                  <option value="IELTS: 8.5">8.5</option>
+                  <option value="IELTS: 8.0">8.0</option>
+                  <option value="IELTS: 7.5">7.5</option>
+                  <option value="IELTS: 7.0">7.0</option>
+                  <option value="IELTS: 6.5">6.5</option>
+                  <option value="IELTS: 6.0">6.0</option>
+                  <option value="IELTS: 5.5">5.5</option>
+                  <option value="IELTS: 5.0">5.0</option>
+                  <option value="IELTS: 4.5">4.5</option>
+                  <option value="IELTS: 4.0">4.0</option>
                 </optgroup>
                 <optgroup label="TOEFL iBT">
-                  <option value="118-120">118-120</option>
-                  <option value="110-117">110-117</option>
-                  <option value="95-109">95-109</option>
-                  <option value="72-94">72-94</option>
-                  <option value="42-71">42-71</option>
-                  <option value="<41">&lt;41</option>
+                  <option value="TOEFL iBT: 118-120">118-120</option>
+                  <option value="TOEFL iBT: 110-117">110-117</option>
+                  <option value="TOEFL iBT: 95-109">95-109</option>
+                  <option value="TOEFL iBT: 72-94">72-94</option>
+                  <option value="TOEFL iBT: 42-71">42-71</option>
+                  <option value="TOEFL iBT: <41">&lt;41</option>
                 </optgroup>
                 <optgroup label="SAT">
-                  <option value="1550-1600">1550-1600</option>
-                  <option value="1450-1540">1450-1540</option>
-                  <option value="1300-1440">1300-1440</option>
-                  <option value="1100-1290">1100-1290</option>
-                  <option value="<1000">&lt;1000</option>
+                  <option value="SAT: 1550-1600">1550-1600</option>
+                  <option value="SAT: 1450-1540">1450-1540</option>
+                  <option value="SAT: 1300-1440">1300-1440</option>
+                  <option value="SAT: 1100-1290">1100-1290</option>
+                  <option value="SAT: <1000">&lt;1000</option>
                 </optgroup>
                 <optgroup label="AP">
-                  <option value="5">5</option>
-                  <option value="4">4</option>
-                  <option value="3">3</option>
-                  <option value="2">2</option>
-                  <option value="1">1</option>
+                  <option value="AP: 5">5</option>
+                  <option value="AP: 4">4</option>
+                  <option value="AP: 3">3</option>
+                  <option value="AP: 2">2</option>
+                  <option value="AP: 1">1</option>
                 </optgroup>
                 <optgroup label="ACT">
-                  <option value="34-36">34-36</option>
-                  <option value="30-33">30-33</option>
-                  <option value="25-29">25-29</option>
-                  <option value="20-24">20-24</option>
-                  <option value="<20">&lt;20</option>
+                  <option value="ACT: 34-36">34-36</option>
+                  <option value="ACT: 30-33">30-33</option>
+                  <option value="ACT: 25-29">25-29</option>
+                  <option value="ACT: 20-24">20-24</option>
+                  <option value="ACT: <20">&lt;20</option>
                 </optgroup>
               </select>
+              {certificates.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                  {certificates.map((c) => (
+                    <span
+                      key={c}
+                      className="inline-flex items-center gap-1 rounded-full border border-neutral-700 bg-neutral-900 px-2 py-0.5 text-slate-200"
+                    >
+                      <span>{c}</span>
+                      {editMode && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCertificates((prev) => prev.filter((x) => x !== c))
+                          }
+                          className="text-slate-500 hover:text-slate-200"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex-1 space-y-2">
