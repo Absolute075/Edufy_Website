@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"gateway_service/internal/proxy"
+	util "gateway_service/internal/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -182,6 +183,7 @@ func main() {
 	// === OSON payments ===
 	router.POST("/payments/oson/invoice", handleOsonCreateInvoice)
 	router.POST("/payments/oson/notify", handleOsonNotify)
+	router.GET("/payments/oson/status", handleOsonStatus)
 
 	startUsdRateRefresher()
 
@@ -455,6 +457,31 @@ func handleOsonCreateInvoice(c *gin.Context) {
 		return
 	}
 
+	username, _ := util.ExtractUserAndPlan(c.GetHeader("Authorization"))
+	userServiceURL := os.Getenv("USER_SERVICE_URL")
+	if userServiceURL == "" {
+		userServiceURL = "http://user_service:8080"
+	}
+	initPayload := map[string]interface{}{
+		"username":      username,
+		"plan":          in.Plan,
+		"period":        in.Period,
+		"autoRenewal":   in.AutoRenewal,
+		"transactionId": osonResp.TransactionID,
+		"billId":        osonResp.BillID,
+		"amount":        amountUzs,
+		"currency":      "UZS",
+		"email":         strings.TrimSpace(in.Email),
+		"phone":         strings.TrimSpace(in.Phone),
+	}
+	if b, err := json.Marshal(initPayload); err == nil {
+		reqInit, err := http.NewRequest(http.MethodPost, userServiceURL+"/user/internal/payments/oson-init", bytes.NewReader(b))
+		if err == nil {
+			reqInit.Header.Set("Content-Type", "application/json")
+			_, _ = http.DefaultClient.Do(reqInit)
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"payUrl":        osonResp.PayURL,
 		"status":        osonResp.Status,
@@ -496,8 +523,92 @@ func handleOsonNotify(c *gin.Context) {
 
 	fmt.Printf("OSON notify: status=%s transaction_id=%s bill_id=%d\n", n.Status, n.TransactionID, n.BillID)
 
-	// TODO: call user_service internal API to update payment status and subscription.
+	userServiceURL := os.Getenv("USER_SERVICE_URL")
+	if userServiceURL == "" {
+		userServiceURL = "http://user_service:8080"
+	}
+	notifyPayload := map[string]interface{}{
+		"transactionId": n.TransactionID,
+		"billId":        n.BillID,
+		"status":        n.Status,
+	}
+	if b, err := json.Marshal(notifyPayload); err == nil {
+		reqNotify, err := http.NewRequest(http.MethodPost, userServiceURL+"/user/internal/payments/oson-notify", bytes.NewReader(b))
+		if err == nil {
+			reqNotify.Header.Set("Content-Type", "application/json")
+			_, _ = http.DefaultClient.Do(reqNotify)
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}
+
+func handleOsonStatus(c *gin.Context) {
+	secret := os.Getenv("OSON_SECRET_TOKEN")
+	merchantIDStr := os.Getenv("OSON_MERCHANT_ID")
+	if secret == "" || merchantIDStr == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "oson_not_configured"})
+		return
+	}
+	merchantID, err := strconv.ParseInt(merchantIDStr, 10, 64)
+	if err != nil || merchantID <= 0 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid_oson_merchant_id"})
+		return
+	}
+
+	transactionID := strings.TrimSpace(c.Query("transactionId"))
+	billIDStr := strings.TrimSpace(c.Query("billId"))
+	var billID int64
+	if billIDStr != "" {
+		if v, err := strconv.ParseInt(billIDStr, 10, 64); err == nil {
+			billID = v
+		}
+	}
+	if transactionID == "" && billID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "transactionId_or_billId_required"})
+		return
+	}
+
+	payload := map[string]interface{}{
+		"merchant_id": merchantID,
+	}
+	if transactionID != "" {
+		payload["transaction_id"] = transactionID
+	}
+	if billID != 0 {
+		payload["bill_id"] = billID
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "encode_oson_status_payload_failed"})
+		return
+	}
+	req, err := http.NewRequest(http.MethodPost, "https://api.oson.uz/api/invoice/status", bytes.NewReader(body))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_oson_status_request_failed"})
+		return
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("token", secret)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "oson_unreachable"})
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		b, _ := io.ReadAll(resp.Body)
+		c.JSON(http.StatusBadGateway, gin.H{"error": "oson_error", "status": resp.StatusCode, "body": string(b)})
+		return
+	}
+	var raw map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&raw); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "decode_oson_status_failed"})
+		return
+	}
+	c.JSON(http.StatusOK, raw)
 }
 
 // computeOsonSignature implements the signature algorithm from OSON Kassa docs:

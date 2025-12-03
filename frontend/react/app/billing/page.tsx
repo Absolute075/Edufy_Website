@@ -119,6 +119,8 @@ export default function BillingPage() {
   const [isAbroadModalOpen, setIsAbroadModalOpen] = useState(false);
   const [hasCopiedCardNumber, setHasCopiedCardNumber] = useState(false);
   const [usdToUzsRate, setUsdToUzsRate] = useState<number | null>(null);
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loadingPayments, setLoadingPayments] = useState(false);
   const [form, setForm] = useState({
     cardName: "",
     email: "",
@@ -209,6 +211,34 @@ export default function BillingPage() {
     }
 
     fetchRate();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchPayments() {
+      setLoadingPayments(true);
+      try {
+        const res = await fetch("/user/payments/history");
+        if (!res.ok) {
+          return;
+        }
+        const data = await res.json();
+        if (!cancelled && Array.isArray(data)) {
+          setPayments(data);
+        }
+      } catch {
+      } finally {
+        if (!cancelled) {
+          setLoadingPayments(false);
+        }
+      }
+    }
+
+    fetchPayments();
 
     return () => {
       cancelled = true;
@@ -491,7 +521,73 @@ export default function BillingPage() {
                   <th className="px-4 py-3">Invoice</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-800 text-sm text-slate-100" />
+              <tbody className="divide-y divide-neutral-800 text-sm text-slate-100">
+                {loadingPayments && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-4 text-xs text-slate-400">
+                      Loading payments...
+                    </td>
+                  </tr>
+                )}
+                {!loadingPayments && payments.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-4 text-xs text-slate-500">
+                      No payments yet.
+                    </td>
+                  </tr>
+                )}
+                {!loadingPayments &&
+                  payments.map((p) => {
+                    const createdAt = p.createdAt ? new Date(p.createdAt) : null;
+                    const dateStr = createdAt
+                      ? createdAt.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "2-digit",
+                        })
+                      : "-";
+                    const planLabel = (p.plan || "").toString();
+                    const periodRaw = (p.period || "monthly").toString();
+                    const periodLabel =
+                      periodRaw === "sixMonths"
+                        ? "6 months"
+                        : periodRaw === "yearly"
+                        ? "Yearly"
+                        : "Monthly";
+                    const provider = (p.provider || "OSON").toString();
+                    const desc = `${planLabel ? planLabel : "Subscription"} – ${periodLabel} · ${provider}`;
+                    const amount = typeof p.amount === "number" ? p.amount.toFixed(2) : p.amount;
+                    const currency = (p.currency || "UZS").toString();
+                    const status = (p.status || "").toString();
+                    const invoiceRef = p.transactionId || `#${p.id}`;
+
+                    return (
+                      <tr key={p.id ?? invoiceRef}>
+                        <td className="px-4 py-3 align-middle text-xs text-slate-300">{dateStr}</td>
+                        <td className="px-4 py-3 align-middle text-xs text-slate-200">{desc}</td>
+                        <td className="px-4 py-3 align-middle text-xs text-slate-200">
+                          {amount} <span className="text-slate-400">{currency}</span>
+                        </td>
+                        <td className="px-4 py-3 align-middle text-xs">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
+                              status === "PAID"
+                                ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/40"
+                                : status === "PENDING"
+                                ? "bg-amber-500/10 text-amber-300 border border-amber-500/40"
+                                : "bg-red-500/10 text-red-300 border border-red-500/40"
+                            }`}
+                          >
+                            {status || "UNKNOWN"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 align-middle text-xs text-slate-400">
+                          <span className="font-mono text-[11px]">{invoiceRef}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
             </table>
           </div>
         </section>
