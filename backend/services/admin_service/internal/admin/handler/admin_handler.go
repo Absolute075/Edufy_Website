@@ -82,11 +82,8 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		return
 	}
 
-	// Prefer going through gateway_service so the request shape matches external traffic
-	base := h.cfg.GatewayServiceURL
-	if base == "" {
-		base = h.cfg.UserServiceURL
-	}
+	// Call user_service directly inside the Docker network
+	base := h.cfg.UserServiceURL
 	if base == "" {
 		base = "http://user_service:8080"
 	}
