@@ -130,6 +130,8 @@ type userWithSubscription struct {
 	Plan        string      `json:"plan"`
 	GrantedAt   interface{} `json:"grantedAt,omitempty"`
 	ActiveUntil interface{} `json:"activeUntil,omitempty"`
+	Role        string      `json:"role,omitempty"`
+	Active      bool        `json:"active"`
 }
 
 func (h *AdminHandler) SearchSubscriptions(c *gin.Context) {
@@ -161,6 +163,8 @@ func (h *AdminHandler) SearchSubscriptions(c *gin.Context) {
 		Plan        string      `json:"plan"`
 		GrantedAt   interface{} `json:"grantedAt"`
 		ActiveUntil interface{} `json:"activeUntil"`
+		Role        string      `json:"role"`
+		Active      bool        `json:"active"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&docs); err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "search_service_decode_failed"})
@@ -179,6 +183,8 @@ func (h *AdminHandler) SearchSubscriptions(c *gin.Context) {
 			Plan:        plan,
 			GrantedAt:   d.GrantedAt,
 			ActiveUntil: d.ActiveUntil,
+			Role:        d.Role,
+			Active:      d.Active,
 		})
 	}
 

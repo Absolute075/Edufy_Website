@@ -10,6 +10,8 @@ type UserRow = {
   plan: string;
   grantedAt?: string | null;
   activeUntil?: string | null;
+  role?: string | null;
+  active?: boolean;
 };
 
 export default function AdminUsersPage() {
@@ -76,6 +78,8 @@ export default function AdminUsersPage() {
             plan: String(item.plan ?? ''),
             grantedAt: item.grantedAt ?? null,
             activeUntil: item.activeUntil ?? null,
+            role: item.role ?? null,
+            active: item.active ?? true,
           }))
         );
       } else {
@@ -140,6 +144,8 @@ export default function AdminUsersPage() {
                 <th className="py-2 pr-4">Plan</th>
                 <th className="py-2 pr-4">Granted</th>
                 <th className="py-2 pr-4">Expires</th>
+                <th className="py-2 pr-4">Role</th>
+                <th className="py-2 pr-4">Status</th>
                 <th className="py-2 pr-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -147,7 +153,7 @@ export default function AdminUsersPage() {
               {results.length === 0 ? (
                 searchPerformed && !searchLoading ? (
                   <tr>
-                    <td colSpan={6} className="py-3 text-gray-500">
+                    <td colSpan={8} className="py-3 text-gray-500">
                       No users found.
                     </td>
                   </tr>
@@ -160,6 +166,8 @@ export default function AdminUsersPage() {
                     <td className="py-2 pr-4 text-gray-200 uppercase">{row.plan || 'free'}</td>
                     <td className="py-2 pr-4 text-gray-300">{formatDateTime(row.grantedAt)}</td>
                     <td className="py-2 pr-4 text-gray-300">{formatDateTime(row.activeUntil)}</td>
+                    <td className="py-2 pr-4 text-gray-300">{(row.role || 'STUDENT').toString()}</td>
+                    <td className="py-2 pr-4 text-gray-300">{row.active === false ? 'Blocked' : 'Active'}</td>
                     <td className="py-2 pl-4 text-right">
                       <button
                         type="button"

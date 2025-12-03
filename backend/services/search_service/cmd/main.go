@@ -20,6 +20,8 @@ type userSearchDocument struct {
 	Plan        string      `json:"plan"`
 	GrantedAt   interface{} `json:"grantedAt,omitempty"`
 	ActiveUntil interface{} `json:"activeUntil,omitempty"`
+	Role        string      `json:"role,omitempty"`
+	Active      bool        `json:"active"`
 }
 
 type searchService struct {
@@ -151,6 +153,8 @@ func (s *searchService) reindexUsers(c *gin.Context) {
 	var authUsers []struct {
 		Username  string      `json:"username"`
 		Email     string      `json:"email"`
+		Role      string      `json:"role"`
+		Active    bool        `json:"active"`
 		CreatedAt interface{} `json:"createdAt"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&authUsers); err != nil {
@@ -189,6 +193,8 @@ func (s *searchService) reindexUsers(c *gin.Context) {
 				Plan:        summary.Plan,
 				GrantedAt:   summary.GrantedAt,
 				ActiveUntil: summary.ActiveUntil,
+				Role:        u.Role,
+				Active:      u.Active,
 			}
 
 			body, err := json.Marshal(doc)

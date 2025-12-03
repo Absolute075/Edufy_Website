@@ -197,6 +197,8 @@ public class AuthController {
                     Map<String, Object> m = new HashMap<>();
                     m.put("username", u.getUsername());
                     m.put("email", u.getEmail());
+                    m.put("role", u.getRole());
+                    m.put("active", u.getActive());
                     m.put("createdAt", u.getCreatedAt());
                     return m;
                 }).toList()
@@ -211,6 +213,8 @@ public class AuthController {
                     Map<String, Object> m = new HashMap<>();
                     m.put("username", u.getUsername());
                     m.put("email", u.getEmail());
+                    m.put("role", u.getRole());
+                    m.put("active", u.getActive());
                     m.put("createdAt", u.getCreatedAt());
                     return m;
                 }).toList()
