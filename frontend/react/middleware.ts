@@ -38,8 +38,21 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Apply middleware to all routes of this app (dash subdomain),
-// excluding Next.js static assets.
+// Apply middleware only to authenticated dashboard-like routes.
+// Public landing and marketing pages (/, /about, /contact, etc.) stay accessible.
 export const config = {
-  matcher: ["/(.*)"],
+  matcher: [
+    "/dashboard/:path*",
+    "/billing/:path*",
+    "/profile/:path*",
+    "/settings/:path*",
+    "/notifications/:path*",
+    "/schedule/:path*",
+    "/leaderboard/:path*",
+    "/resources/:path*",
+    "/report/:path*",
+    "/mentor/:path*",
+    "/admin/:path*",
+    "/payment/:path*",
+  ],
 };
