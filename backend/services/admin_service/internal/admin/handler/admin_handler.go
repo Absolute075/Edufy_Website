@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -96,6 +97,7 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 	}
 
 	url := base + "/user/internal/admin/subscriptions/grant"
+	log.Printf("GrantSubscription: forwarding to %s payload=%s", url, string(body))
 	httpReq, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
@@ -109,6 +111,7 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(resp.Body)
+	log.Printf("GrantSubscription: upstream status=%d body=%s", resp.StatusCode, string(respBody))
 
 	for k, v := range resp.Header {
 		if len(v) > 0 {
