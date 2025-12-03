@@ -372,13 +372,23 @@ export default function BillingPage() {
                 </ul>
               </div>
               <div className="mt-3 flex justify-end">
-                <button
-                  type="button"
-                  disabled
-                  className="rounded-full border border-neutral-700 px-3 py-1 text-xs text-slate-300 bg-neutral-900/40 cursor-default"
-                >
-                  Current plan
-                </button>
+                {activePlan === "Free" ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="rounded-full border border-neutral-700 px-3 py-1 text-xs text-slate-300 bg-neutral-900/40 cursor-default"
+                  >
+                    Current plan
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleChoosePlan("Free")}
+                    className="rounded-full border border-neutral-300 bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-900 shadow-lg shadow-black/40 hover:bg-neutral-200"
+                  >
+                    Choose plan
+                  </button>
+                )}
               </div>
             </div>
 
@@ -418,7 +428,7 @@ export default function BillingPage() {
                   onClick={() => handleChoosePlan("Plus")}
                   className="rounded-full border border-neutral-300 bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-900 shadow-lg shadow-black/40 hover:bg-neutral-200"
                 >
-                  Choose plan
+                  {activePlan === "Plus" ? "Extend Plan" : "Choose plan"}
                 </button>
               </div>
             </div>
@@ -459,7 +469,7 @@ export default function BillingPage() {
                   onClick={() => handleChoosePlan("Pro")}
                   className="rounded-full border border-neutral-300 px-3 py-1 text-xs text-slate-100 hover:bg-neutral-800"
                 >
-                  Choose plan
+                  {activePlan === "Pro" ? "Extend Plan" : "Choose plan"}
                 </button>
               </div>
             </div>
