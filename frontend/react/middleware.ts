@@ -11,6 +11,23 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   const { pathname, search } = request.nextUrl;
+  const host = request.headers.get("host") || "";
+
+  // Special handling for admin subdomain: show admin UI instead of main landing.
+  if (host === "admin.edufyuzbekistan.com") {
+    if (pathname === "/") {
+      const adminUrl = request.nextUrl.clone();
+      adminUrl.pathname = "/admin";
+      return NextResponse.redirect(adminUrl);
+    }
+    // Do not apply user dashboard auth middleware on the admin subdomain.
+    return NextResponse.next();
+  }
+
+  // Keep public landing page ("/") accessible without auth on regular domains.
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
 
   // Public routes that should remain accessible without auth
   const publicPaths = ["/login", "/register"];
@@ -47,6 +64,7 @@ export function middleware(request: NextRequest) {
 // Public landing and marketing pages (/, /about, /contact, etc.) stay accessible.
 export const config = {
   matcher: [
+    "/",
     "/dashboard/:path*",
     "/billing/:path*",
     "/profile/:path*",
