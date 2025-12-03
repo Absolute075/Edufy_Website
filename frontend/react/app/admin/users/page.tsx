@@ -22,6 +22,7 @@ export default function AdminUsersPage() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   if (loading) {
     return <p className="text-sm text-gray-300">Loading admin data...</p>;
@@ -34,6 +35,7 @@ export default function AdminUsersPage() {
   async function handleSearch(e: FormEvent) {
     e.preventDefault();
     setSearchError(null);
+    setActionError(null);
     const q = searchQuery.trim();
     if (!q) {
       setResults([]);
@@ -106,6 +108,49 @@ export default function AdminUsersPage() {
     });
   }
 
+  async function handleToggleActive(username: string, currentActive: boolean | null | undefined) {
+    setActionError(null);
+    const desired = !currentActive;
+
+    try {
+      let token: string | null = null;
+      if (typeof window !== 'undefined') {
+        try {
+          token = localStorage.getItem('admin_token');
+        } catch {
+          token = null;
+        }
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch('/admin-api/admin/users/set-active', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ username, active: desired }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = typeof (data as any).message === 'string' ? (data as any).message : 'Failed to update user status';
+        setActionError(msg);
+        return;
+      }
+
+      const newActive = typeof (data as any).active === 'boolean' ? (data as any).active : desired;
+      setResults((prev) =>
+        prev.map((row) => (row.username === username ? { ...row, active: newActive } : row))
+      );
+    } catch {
+      setActionError('Network error while updating user status');
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -135,6 +180,7 @@ export default function AdminUsersPage() {
           </button>
         </form>
         {searchError && <p className="text-xs text-red-400 mt-2">{searchError}</p>}
+        {actionError && <p className="text-xs text-red-400 mt-1">{actionError}</p>}
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-xs text-left">
             <thead>
@@ -169,13 +215,26 @@ export default function AdminUsersPage() {
                     <td className="py-2 pr-4 text-gray-300">{(row.role || 'STUDENT').toString()}</td>
                     <td className="py-2 pr-4 text-gray-300">{row.active === false ? 'Blocked' : 'Active'}</td>
                     <td className="py-2 pl-4 text-right">
-                      <button
-                        type="button"
-                        className="inline-flex items-center rounded-full border border-white/30 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90 hover:bg-white hover:text-black transition-colors"
-                        onClick={() => router.push(`/admin/subscriptions?username=${encodeURIComponent(row.username)}`)}
-                      >
-                        Manage subscription
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          className="inline-flex items-center rounded-full border border-white/30 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90 hover:bg-white hover:text-black transition-colors"
+                          onClick={() => router.push(`/admin/subscriptions?username=${encodeURIComponent(row.username)}`)}
+                        >
+                          Manage subscription
+                        </button>
+                        <button
+                          type="button"
+                          className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                            row.active === false
+                              ? 'border-emerald-400 text-emerald-300 hover:bg-emerald-300 hover:text-black'
+                              : 'border-red-400 text-red-300 hover:bg-red-300 hover:text-black'
+                          }`}
+                          onClick={() => handleToggleActive(row.username, row.active ?? true)}
+                        >
+                          {row.active === false ? 'Unblock' : 'Block'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

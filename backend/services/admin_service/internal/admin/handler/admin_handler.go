@@ -190,3 +190,57 @@ func (h *AdminHandler) SearchSubscriptions(c *gin.Context) {
 
 	c.JSON(http.StatusOK, results)
 }
+
+type setUserActiveRequest struct {
+	Username string `json:"username"`
+	Active   bool   `json:"active"`
+}
+
+// SetUserActive allows an authenticated admin to block or unblock a user account
+// by toggling the 'active' flag in auth_service.
+func (h *AdminHandler) SetUserActive(c *gin.Context) {
+	var req setUserActiveRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_payload"})
+		return
+	}
+	if strings.TrimSpace(req.Username) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username_required"})
+		return
+	}
+
+	authBase := h.cfg.AuthServiceURL
+	if authBase == "" {
+		authBase = "http://auth_service:8080"
+	}
+	body, err := json.Marshal(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "encode_request_failed"})
+		return
+	}
+
+	url := authBase + "/auth/internal/admin/users/set-active"
+	httpReq, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
+		return
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_unreachable"})
+		return
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+
+	for k, v := range resp.Header {
+		if len(v) > 0 {
+			c.Writer.Header().Set(k, v[0])
+		}
+	}
+	c.Status(resp.StatusCode)
+	if len(respBody) > 0 {
+		_, _ = c.Writer.Write(respBody)
+	}
+}

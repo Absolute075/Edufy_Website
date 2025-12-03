@@ -32,4 +32,5 @@ func Register(r *gin.Engine, cfg *config.Config, h *handler.AdminHandler) {
 	adminAPI.GET("/info", h.AdminInfo)
 	adminAPI.POST("/subscriptions/grant", h.GrantSubscription)
 	adminAPI.GET("/subscriptions/search", h.SearchSubscriptions)
+	adminAPI.POST("/users/set-active", h.SetUserActive)
 }
