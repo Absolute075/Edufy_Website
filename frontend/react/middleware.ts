@@ -5,6 +5,11 @@ import type { NextRequest } from "next/server";
 // Unauthenticated users (no accessToken cookie) are redirected to /login.
 
 export function middleware(request: NextRequest) {
+  // In local development we don't want to force redirects to /login.
+  // Only enforce auth redirects in production builds.
+  if (process.env.NODE_ENV !== "production") {
+    return NextResponse.next();
+  }
   const { pathname, search } = request.nextUrl;
 
   // Public routes that should remain accessible without auth

@@ -115,7 +115,6 @@ export default function BillingPage() {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
   const [activePlan, setActivePlan] = useState<PlanId>("Plus");
   const [currency, setCurrency] = useState<Currency>("USD");
-  const [autoRenewal, setAutoRenewal] = useState(false);
   const [isAbroadModalOpen, setIsAbroadModalOpen] = useState(false);
   const [hasCopiedCardNumber, setHasCopiedCardNumber] = useState(false);
   const [usdToUzsRate, setUsdToUzsRate] = useState<number | null>(null);
@@ -186,12 +185,15 @@ export default function BillingPage() {
 
   function handleChoosePlan(plan: PlanId) {
     setActivePlan(plan);
-    const params = new URLSearchParams({
-      plan,
-      period: billingPeriod,
-      autoRenewal: autoRenewal ? "1" : "0",
-    });
-    router.push(`/payment?${params.toString()}`);
+    if (typeof window !== "undefined") {
+      try {
+        const payload = { plan, period: billingPeriod };
+        window.localStorage.setItem("edufy-selected-plan", JSON.stringify(payload));
+      } catch {
+        // ignore storage errors
+      }
+    }
+    router.push("/payment");
   }
 
   useEffect(() => {
@@ -340,10 +342,10 @@ export default function BillingPage() {
               <div className="mt-3 flex justify-end">
                 <button
                   type="button"
-                  onClick={() => handleChoosePlan("Free")}
-                  className="rounded-full border border-neutral-700 px-3 py-1 text-xs text-slate-200 hover:bg-neutral-900"
+                  disabled
+                  className="rounded-full border border-neutral-700 px-3 py-1 text-xs text-slate-300 bg-neutral-900/40 cursor-default"
                 >
-                  Choose plan
+                  Current plan
                 </button>
               </div>
             </div>
@@ -471,7 +473,7 @@ export default function BillingPage() {
           </div>
 
           {/* Summary under plans */}
-          <div className="mt-5 grid gap-4 text-xs text-slate-400 sm:grid-cols-3">
+          <div className="mt-5 grid gap-4 text-xs text-slate-400 sm:grid-cols-2">
             <div>
               <div className="uppercase tracking-wide text-[10px] text-slate-500">Active since</div>
               <div className="mt-1 text-sm font-medium text-slate-200">Aug 12, 2025</div>
@@ -479,25 +481,6 @@ export default function BillingPage() {
             <div>
               <div className="uppercase tracking-wide text-[10px] text-slate-500">Renews on</div>
               <div className="mt-1 text-sm font-medium text-slate-200">Sep 12, 2025</div>
-            </div>
-            <div className="flex items-center justify-between gap-3 sm:justify-start">
-              <div>
-                <div className="uppercase tracking-wide text-[10px] text-slate-500">Auto renewal</div>
-                <div className="mt-1 text-sm font-medium text-slate-200">{autoRenewal ? "On" : "Off"}</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAutoRenewal((v) => !v)}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full border border-neutral-600 bg-neutral-900 transition-colors ${
-                  autoRenewal ? "bg-neutral-100/10" : "bg-neutral-900"
-                }`}
-              >
-                <span
-                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-slate-100 shadow-sm transition-transform ${
-                    autoRenewal ? "translate-x-4" : "translate-x-1"
-                  }`}
-                />
-              </button>
             </div>
           </div>
         </section>

@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"net/http"
 	"time"
 
@@ -55,4 +58,59 @@ func (h *AdminHandler) AdminInfo(c *gin.Context) {
 		"admin":  username,
 		"status": "ok",
 	})
+}
+
+type grantSubscriptionRequest struct {
+	Username string `json:"username"`
+	Plan     string `json:"plan"`
+	Period   string `json:"period"`
+}
+
+// GrantSubscription allows an authenticated admin to grant or extend a user subscription
+// by forwarding the request to user_service internal admin endpoint.
+func (h *AdminHandler) GrantSubscription(c *gin.Context) {
+	var req grantSubscriptionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+	if req.Username == "" || req.Plan == "" || req.Period == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username, plan and period are required"})
+		return
+	}
+
+	userBase := h.cfg.UserServiceURL
+	if userBase == "" {
+		userBase = "http://user_service:8080"
+	}
+	body, err := json.Marshal(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "encode_request_failed"})
+		return
+	}
+
+	url := userBase + "/user/internal/admin/subscriptions/grant"
+	httpReq, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
+		return
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "user_service_unreachable"})
+		return
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+
+	for k, v := range resp.Header {
+		if len(v) > 0 {
+			c.Writer.Header().Set(k, v[0])
+		}
+	}
+	c.Status(resp.StatusCode)
+	if len(respBody) > 0 {
+		_, _ = c.Writer.Write(respBody)
+	}
 }
