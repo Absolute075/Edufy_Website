@@ -624,6 +624,42 @@ func computeOsonSignature(secretToken, merchantID, transactionID string, billID 
 	return hex.EncodeToString(outHash[:])
 }
 
+func sendPaymentMethodToUserService(username, provider, externalToken, cardBrand, lastDigits string, expiryMonth, expiryYear int, makeDefault bool) {
+	userServiceURL := os.Getenv("USER_SERVICE_URL")
+	if userServiceURL == "" {
+		userServiceURL = "http://user_service:8080"
+	}
+	if strings.TrimSpace(username) == "" || strings.TrimSpace(externalToken) == "" {
+		return
+	}
+
+	payload := map[string]interface{}{
+		"username":      strings.TrimSpace(username),
+		"provider":      strings.TrimSpace(provider),
+		"externalToken": strings.TrimSpace(externalToken),
+		"cardBrand":     strings.TrimSpace(cardBrand),
+		"lastDigits":    strings.TrimSpace(lastDigits),
+		"makeDefault":   makeDefault,
+	}
+	if expiryMonth > 0 {
+		payload["expiryMonth"] = expiryMonth
+	}
+	if expiryYear > 0 {
+		payload["expiryYear"] = expiryYear
+	}
+
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return
+	}
+	req, err := http.NewRequest(http.MethodPost, userServiceURL+"/user/internal/payment-methods/oson", bytes.NewReader(b))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	_, _ = http.DefaultClient.Do(req)
+}
+
 func sendTelegramMessage(botToken, chatID, text string) error {
 	payload := map[string]string{
 		"chat_id": chatID,

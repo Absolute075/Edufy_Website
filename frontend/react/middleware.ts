@@ -52,7 +52,6 @@ export const config = {
     "/resources/:path*",
     "/report/:path*",
     "/mentor/:path*",
-    "/admin/:path*",
     "/payment/:path*",
   ],
 };
