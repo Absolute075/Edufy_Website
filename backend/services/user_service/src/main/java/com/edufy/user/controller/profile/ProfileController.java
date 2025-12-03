@@ -70,13 +70,19 @@ public class ProfileController {
             body.put("plan", "free");
         }
 
-        // Attach subscription summary if present
+        // Attach subscription summary if present and prefer its plan if profile plan is missing/free
         Subscription sub = subscriptionRepository.findByUsername(username).orElse(null);
         if (sub != null) {
             body.put("subscriptionPlan", sub.getPlan());
             body.put("subscriptionPeriod", sub.getPeriod());
             body.put("subscriptionActiveSince", sub.getCreatedAt());
             body.put("subscriptionActiveUntil", sub.getActiveUntil());
+
+            Object currentPlan = body.get("plan");
+            String currentPlanStr = currentPlan != null ? currentPlan.toString().trim().toLowerCase() : "";
+            if (currentPlanStr.isEmpty() || "free".equals(currentPlanStr)) {
+                body.put("plan", sub.getPlan());
+            }
         }
         return ResponseEntity.ok(body);
     }
