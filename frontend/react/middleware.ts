@@ -5,13 +5,15 @@ import type { NextRequest } from "next/server";
 // Unauthenticated users (no accessToken cookie) are redirected to /login.
 
 export function middleware(request: NextRequest) {
-  // In local development we don't want to force redirects to /login.
-  // Only enforce auth redirects in production builds.
-  if (process.env.NODE_ENV !== "production") {
-    return NextResponse.next();
-  }
   const { pathname, search } = request.nextUrl;
   const host = request.headers.get("host") || "";
+
+  // Only enforce auth redirects on real production domains.
+  // Keep localhost / non-edufyuzbekistan hosts free for local development and previews.
+  const isProdHost = host.endsWith("edufyuzbekistan.com");
+  if (!isProdHost) {
+    return NextResponse.next();
+  }
 
   // Special handling for admin subdomain: show admin UI instead of main landing.
   if (host === "admin.edufyuzbekistan.com") {
