@@ -18,7 +18,15 @@ type SubscriptionRow = {
 
 export default function AdminSubscriptionsPage() {
   const { loading, error } = useAdminAuth();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('username') ?? '';
+    } catch {
+      return '';
+    }
+  });
   const [plan, setPlan] = useState<PlanOption>('Plus');
   const [period, setPeriod] = useState<PeriodOption>('monthly');
   const [submitting, setSubmitting] = useState(false);
