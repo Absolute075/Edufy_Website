@@ -81,9 +81,13 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		return
 	}
 
-	userBase := h.cfg.UserServiceURL
-	if userBase == "" {
-		userBase = "http://user_service:8080"
+	// Prefer going through gateway_service so the request shape matches external traffic
+	base := h.cfg.GatewayServiceURL
+	if base == "" {
+		base = h.cfg.UserServiceURL
+	}
+	if base == "" {
+		base = "http://user_service:8080"
 	}
 	body, err := json.Marshal(req)
 	if err != nil {
@@ -91,7 +95,7 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		return
 	}
 
-	url := userBase + "/user/internal/admin/subscriptions/grant"
+	url := base + "/user/internal/admin/subscriptions/grant"
 	httpReq, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
