@@ -113,7 +113,7 @@ export default function BillingPage() {
   usePageTitle("Edufy – Billing");
   const router = useRouter();
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
-  const [activePlan, setActivePlan] = useState<PlanId>("Plus");
+  const [activePlan, setActivePlan] = useState<PlanId>("Free");
   const [currency, setCurrency] = useState<Currency>("USD");
   const [isAbroadModalOpen, setIsAbroadModalOpen] = useState(false);
   const [hasCopiedCardNumber, setHasCopiedCardNumber] = useState(false);
@@ -213,6 +213,38 @@ export default function BillingPage() {
     }
 
     fetchRate();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchCurrentPlan() {
+      try {
+        const res = await fetch("/user/profile");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled || !data) return;
+
+        const rawPlan = (data.plan || "free").toString().toLowerCase();
+        let nextPlan: PlanId;
+        if (rawPlan === "plus") {
+          nextPlan = "Plus";
+        } else if (rawPlan === "pro" || rawPlan === "premium") {
+          nextPlan = "Pro";
+        } else {
+          nextPlan = "Free";
+        }
+        setActivePlan(nextPlan);
+      } catch {
+        // ignore profile errors, fallback to default plan
+      }
+    }
+
+    fetchCurrentPlan();
 
     return () => {
       cancelled = true;

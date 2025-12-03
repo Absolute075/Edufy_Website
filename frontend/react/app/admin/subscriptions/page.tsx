@@ -3,7 +3,7 @@
 import { FormEvent, useState } from 'react';
 import { useAdminAuth } from '../useAdminAuth';
 
-type PlanOption = 'Plus' | 'Pro';
+type PlanOption = 'Plus' | 'Premium';
 type PeriodOption = 'monthly' | 'sixMonths' | 'yearly';
 
 type PlanFilter = 'all' | 'plus' | 'premium';
@@ -90,7 +90,7 @@ export default function AdminSubscriptionsPage() {
 
       const activeUntil = typeof data.activeUntil === 'string' ? data.activeUntil : undefined;
       setSuccess(
-        `Subscription updated: ${trimmedUsername} → ${plan === 'Pro' ? 'Premium' : plan} (${period})` +
+        `Subscription updated: ${trimmedUsername} → ${plan} (${period})` +
           (activeUntil ? `, active until ${activeUntil}` : '')
       );
     } catch {
@@ -141,13 +141,17 @@ export default function AdminSubscriptionsPage() {
       const data = await res.json().catch(() => []);
       if (Array.isArray(data)) {
         setSearchResults(
-          data.map((item: any) => ({
-            username: String(item.username ?? ''),
-            email: String(item.email ?? ''),
-            plan: String(item.plan ?? ''),
-            grantedAt: item.grantedAt ?? null,
-            activeUntil: item.activeUntil ?? null,
-          }))
+          data.map((item: any) => {
+            const rawPlan = String(item.plan ?? '').toLowerCase();
+            const normalizedPlan = rawPlan === 'pro' ? 'premium' : rawPlan;
+            return {
+              username: String(item.username ?? ''),
+              email: String(item.email ?? ''),
+              plan: normalizedPlan,
+              grantedAt: item.grantedAt ?? null,
+              activeUntil: item.activeUntil ?? null,
+            };
+          })
         );
       } else {
         setSearchResults([]);
@@ -216,7 +220,7 @@ export default function AdminSubscriptionsPage() {
                 className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/50"
               >
                 <option value="Plus">Plus</option>
-                <option value="Pro">Premium</option>
+                <option value="Premium">Premium</option>
               </select>
             </div>
             <div className="space-y-1.5">

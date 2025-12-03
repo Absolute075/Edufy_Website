@@ -49,7 +49,9 @@ public class SubscriptionAdminController {
         String period = body.period.trim();
 
         String planLower = planInput.toLowerCase(Locale.ROOT);
-        if (!("free".equals(planLower) || "plus".equals(planLower) || "pro".equals(planLower) || "premium".equals(planLower))) {
+        // Accept legacy "pro" input but normalize to "premium" internally.
+        String normalizedPlan = "pro".equals(planLower) ? "premium" : planLower;
+        if (!("free".equals(normalizedPlan) || "plus".equals(normalizedPlan) || "premium".equals(normalizedPlan))) {
             return ResponseEntity.badRequest().body(Map.of("message", "unsupported plan"));
         }
         if (!("monthly".equals(period) || "sixMonths".equals(period) || "yearly".equals(period))) {
@@ -61,14 +63,14 @@ public class SubscriptionAdminController {
         Subscription sub = subscriptionRepository.findByUsername(username).orElseGet(() ->
                 Subscription.builder()
                         .username(username)
-                        .plan(planLower)
+                        .plan(normalizedPlan)
                         .period(period)
                         .autoRenewal(false)
                         .activeUntil(now)
                         .build()
         );
 
-        sub.setPlan(planLower);
+        sub.setPlan(normalizedPlan);
         sub.setPeriod(period);
         sub.setAutoRenewal(false);
 
@@ -94,7 +96,7 @@ public class SubscriptionAdminController {
 
         // Update profile plan if present
         userProfileRepository.findByUsername(username).ifPresent(profile -> {
-            profile.setPlan(planLower);
+            profile.setPlan(normalizedPlan);
             userProfileRepository.save(profile);
         });
 

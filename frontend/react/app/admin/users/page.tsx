@@ -74,15 +74,19 @@ export default function AdminUsersPage() {
       const data = await res.json().catch(() => []);
       if (Array.isArray(data)) {
         setResults(
-          data.map((item: any) => ({
-            username: String(item.username ?? ''),
-            email: String(item.email ?? ''),
-            plan: String(item.plan ?? ''),
-            grantedAt: item.grantedAt ?? null,
-            activeUntil: item.activeUntil ?? null,
-            role: item.role ?? null,
-            active: item.active ?? true,
-          }))
+          data.map((item: any) => {
+            const rawPlan = String(item.plan ?? '').toLowerCase();
+            const normalizedPlan = rawPlan === 'pro' ? 'premium' : rawPlan;
+            return {
+              username: String(item.username ?? ''),
+              email: String(item.email ?? ''),
+              plan: normalizedPlan,
+              grantedAt: item.grantedAt ?? null,
+              activeUntil: item.activeUntil ?? null,
+              role: item.role ?? null,
+              active: item.active ?? true,
+            };
+          })
         );
       } else {
         setResults([]);
