@@ -81,12 +81,17 @@ public class AuthService {
         // Проверка пароля
         System.out.println("[DEBUG] Login attempt for: " + user.getEmail());
         System.out.println("[DEBUG] Password from request: " + request.getPassword());
-        System.out.println("[DEBUG] Password hash from DB: " + user.getPassword().substring(0, Math.min(60, user.getPassword().length())));
+        String dbPassword = user.getPassword();
+        if (dbPassword == null) {
+            System.out.println("[DEBUG] Password hash from DB is NULL");
+        } else {
+            System.out.println("[DEBUG] Password hash from DB: " + dbPassword.substring(0, Math.min(60, dbPassword.length())));
+        }
         System.out.println("[DEBUG] PasswordEncoder class: " + passwordEncoder.getClass().getName());
-        
-        boolean matches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        boolean matches = dbPassword != null && passwordEncoder.matches(request.getPassword(), dbPassword);
         System.out.println("[DEBUG] Password matches: " + matches);
-        
+
         if (!matches) {
             throw new RuntimeException("❌ Invalid password!");
         }

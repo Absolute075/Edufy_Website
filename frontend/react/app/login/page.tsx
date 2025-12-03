@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isEmailValid = emailRegex.test(email.trim());
@@ -47,6 +48,7 @@ export default function LoginPage() {
     e.preventDefault();
     if (!isFormValid || isSubmitting) return;
 
+    setError(null);
     setIsSubmitting(true);
     try {
       const payload = {
@@ -64,7 +66,8 @@ export default function LoginPage() {
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data.message || 'Login failed');
+        setError(data.message || 'Login failed');
+        return;
       }
 
       const go = sessionStorage.getItem('postLoginRedirect');
@@ -76,7 +79,7 @@ export default function LoginPage() {
 
       window.location.href = 'https://dash.edufyuzbekistan.com/';
     } catch (err: any) {
-      alert(err?.message || 'Login failed');
+      setError(err?.message || 'Login failed');
     } finally {
       setIsSubmitting(false);
     }
@@ -103,6 +106,11 @@ export default function LoginPage() {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {error && (
+            <div className="rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-2 text-xs text-red-100">
+              {error}
+            </div>
+          )}
           <div className="space-y-1.5">
             <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">Email</label>
             <input
