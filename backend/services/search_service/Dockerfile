@@ -8,6 +8,7 @@ RUN go mod download
 COPY . .
 
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+RUN go get ./cmd
 RUN go build -trimpath -ldflags "-s -w" -o search_service ./cmd
 
 FROM alpine:latest
