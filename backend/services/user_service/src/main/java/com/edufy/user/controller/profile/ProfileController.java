@@ -1,6 +1,8 @@
 package com.edufy.user.controller.profile;
 
 import com.edufy.user.domain.model.UserProfile;
+import com.edufy.user.domain.model.Subscription;
+import com.edufy.user.domain.repository.SubscriptionRepository;
 import com.edufy.user.security.JwtUtil;
 import com.edufy.user.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.util.Map;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final SubscriptionRepository subscriptionRepository;
 
     private String getAccessToken(HttpServletRequest request) {
         String auth = request.getHeader("Authorization");
@@ -65,6 +68,15 @@ public class ProfileController {
         } else {
             body.put("username", username);
             body.put("plan", "free");
+        }
+
+        // Attach subscription summary if present
+        Subscription sub = subscriptionRepository.findByUsername(username).orElse(null);
+        if (sub != null) {
+            body.put("subscriptionPlan", sub.getPlan());
+            body.put("subscriptionPeriod", sub.getPeriod());
+            body.put("subscriptionActiveSince", sub.getCreatedAt());
+            body.put("subscriptionActiveUntil", sub.getActiveUntil());
         }
         return ResponseEntity.ok(body);
     }

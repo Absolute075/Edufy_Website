@@ -114,6 +114,8 @@ export default function BillingPage() {
   const router = useRouter();
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
   const [activePlan, setActivePlan] = useState<PlanId>("Free");
+  const [subscriptionActiveSince, setSubscriptionActiveSince] = useState<Date | null>(null);
+  const [subscriptionActiveUntil, setSubscriptionActiveUntil] = useState<Date | null>(null);
   const [currency, setCurrency] = useState<Currency>("USD");
   const [isAbroadModalOpen, setIsAbroadModalOpen] = useState(false);
   const [hasCopiedCardNumber, setHasCopiedCardNumber] = useState(false);
@@ -183,6 +185,20 @@ export default function BillingPage() {
 
   const activePlanLabel = activePlan === "Pro" ? "Premium" : activePlan;
 
+  const dateFormatterOptions: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  };
+
+  const activeSinceLabel = subscriptionActiveSince
+    ? subscriptionActiveSince.toLocaleDateString("en-US", dateFormatterOptions)
+    : "-";
+
+  const expiresOnLabel = subscriptionActiveUntil
+    ? subscriptionActiveUntil.toLocaleDateString("en-US", dateFormatterOptions)
+    : "-";
+
   function handleChoosePlan(plan: PlanId) {
     setActivePlan(plan);
     if (typeof window !== "undefined") {
@@ -239,6 +255,30 @@ export default function BillingPage() {
           nextPlan = "Free";
         }
         setActivePlan(nextPlan);
+
+        const sinceRaw = data.subscriptionActiveSince;
+        if (sinceRaw) {
+          try {
+            const d = new Date(sinceRaw as string);
+            if (!isNaN(d.getTime())) {
+              setSubscriptionActiveSince(d);
+            }
+          } catch {
+            // ignore date parse errors
+          }
+        }
+
+        const untilRaw = data.subscriptionActiveUntil;
+        if (untilRaw) {
+          try {
+            const d = new Date(untilRaw as string);
+            if (!isNaN(d.getTime())) {
+              setSubscriptionActiveUntil(d);
+            }
+          } catch {
+            // ignore date parse errors
+          }
+        }
       } catch {
         // ignore profile errors, fallback to default plan
       }
@@ -518,11 +558,11 @@ export default function BillingPage() {
           <div className="mt-5 grid gap-4 text-xs text-slate-400 sm:grid-cols-2">
             <div>
               <div className="uppercase tracking-wide text-[10px] text-slate-500">Active since</div>
-              <div className="mt-1 text-sm font-medium text-slate-200">Aug 12, 2025</div>
+              <div className="mt-1 text-sm font-medium text-slate-200">{activeSinceLabel}</div>
             </div>
             <div>
               <div className="uppercase tracking-wide text-[10px] text-slate-500">Renews on</div>
-              <div className="mt-1 text-sm font-medium text-slate-200">Sep 12, 2025</div>
+              <div className="mt-1 text-sm font-medium text-slate-200">{expiresOnLabel}</div>
             </div>
           </div>
         </section>
