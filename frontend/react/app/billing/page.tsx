@@ -120,8 +120,6 @@ export default function BillingPage() {
   const [isAbroadModalOpen, setIsAbroadModalOpen] = useState(false);
   const [hasCopiedCardNumber, setHasCopiedCardNumber] = useState(false);
   const [usdToUzsRate, setUsdToUzsRate] = useState<number | null>(null);
-  const [payments, setPayments] = useState<any[]>([]);
-  const [loadingPayments, setLoadingPayments] = useState(false);
   const [form, setForm] = useState({
     cardName: "",
     email: "",
@@ -185,17 +183,23 @@ export default function BillingPage() {
 
   const activePlanLabel = activePlan === "Pro" ? "Premium" : activePlan;
 
+  const isFreePlan = activePlan === "Free";
+
   const dateFormatterOptions: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "short",
     day: "2-digit",
   };
 
-  const activeSinceLabel = subscriptionActiveSince
+  const activeSinceLabel = isFreePlan
+    ? "-"
+    : subscriptionActiveSince
     ? subscriptionActiveSince.toLocaleDateString("en-US", dateFormatterOptions)
     : "-";
 
-  const expiresOnLabel = subscriptionActiveUntil
+  const expiresOnLabel = isFreePlan
+    ? "-"
+    : subscriptionActiveUntil
     ? subscriptionActiveUntil.toLocaleDateString("en-US", dateFormatterOptions)
     : "-";
 
@@ -285,34 +289,6 @@ export default function BillingPage() {
     }
 
     fetchCurrentPlan();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function fetchPayments() {
-      setLoadingPayments(true);
-      try {
-        const res = await fetch("/user/payments/history");
-        if (!res.ok) {
-          return;
-        }
-        const data = await res.json();
-        if (!cancelled && Array.isArray(data)) {
-          setPayments(data);
-        }
-      } catch {
-      } finally {
-        if (!cancelled) {
-          setLoadingPayments(false);
-        }
-      }
-    }
-
-    fetchPayments();
 
     return () => {
       cancelled = true;
@@ -539,21 +515,6 @@ export default function BillingPage() {
             </div>
           </div>
 
-          <div className="mt-3 flex items-start justify-between gap-3 text-[11px] text-slate-400">
-            <p className="max-w-xl">
-              For users making payments from abroad (outside the Republic of Uzbekistan), payment confirmation must be
-              submitted manually to our support team. Please provide a receipt or proof of payment for verification and
-              subsequent activation of your access.
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsAbroadModalOpen(true)}
-              className="shrink-0 rounded-full border border-neutral-800 px-4 py-1.5 text-xs font-medium text-slate-100 hover:bg-neutral-900"
-            >
-              Open
-            </button>
-          </div>
-
           {/* Summary under plans */}
           <div className="mt-5 grid gap-4 text-xs text-slate-400 sm:grid-cols-2">
             <div>
@@ -566,99 +527,6 @@ export default function BillingPage() {
             </div>
           </div>
         </section>
-
-        {/* Billing history */}
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <div>
-              <h2 className="text-base font-semibold text-slate-100">Billing history</h2>
-              <p className="text-xs text-slate-400">Invoices and payments for your subscription.</p>
-            </div>
-          </div>
-          <div className="overflow-x-auto rounded-xl border border-neutral-800 bg-neutral-950/70">
-            <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-neutral-800 bg-neutral-950/80 text-xs uppercase tracking-wide text-slate-400">
-                <tr>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Description</th>
-                  <th className="px-4 py-3">Amount</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Invoice</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-800 text-sm text-slate-100">
-                {loadingPayments && (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-4 text-xs text-slate-400">
-                      Loading payments...
-                    </td>
-                  </tr>
-                )}
-                {!loadingPayments && payments.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-4 text-xs text-slate-500">
-                      No payments yet.
-                    </td>
-                  </tr>
-                )}
-                {!loadingPayments &&
-                  payments.map((p) => {
-                    const createdAt = p.createdAt ? new Date(p.createdAt) : null;
-                    const dateStr = createdAt
-                      ? createdAt.toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "2-digit",
-                        })
-                      : "-";
-                    const planLabel = (p.plan || "").toString();
-                    const periodRaw = (p.period || "monthly").toString();
-                    const periodLabel =
-                      periodRaw === "sixMonths"
-                        ? "6 months"
-                        : periodRaw === "yearly"
-                        ? "Yearly"
-                        : "Monthly";
-                    const providerRaw = (p.provider || "Manual").toString();
-                    const provider = providerRaw.toUpperCase() === "OSON" ? "Manual" : providerRaw;
-                    const desc = `${planLabel ? planLabel : "Subscription"} – ${periodLabel} · ${provider}`;
-                    const amount = typeof p.amount === "number" ? p.amount.toFixed(2) : p.amount;
-                    const currency = (p.currency || "UZS").toString();
-                    const status = (p.status || "").toString();
-                    const invoiceRef = p.transactionId || `#${p.id}`;
-
-                    return (
-                      <tr key={p.id ?? invoiceRef}>
-                        <td className="px-4 py-3 align-middle text-xs text-slate-300">{dateStr}</td>
-                        <td className="px-4 py-3 align-middle text-xs text-slate-200">{desc}</td>
-                        <td className="px-4 py-3 align-middle text-xs text-slate-200">
-                          {amount} <span className="text-slate-400">{currency}</span>
-                        </td>
-                        <td className="px-4 py-3 align-middle text-xs">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                              status === "PAID"
-                                ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/40"
-                                : status === "PENDING"
-                                ? "bg-amber-500/10 text-amber-300 border border-amber-500/40"
-                                : "bg-red-500/10 text-red-300 border border-red-500/40"
-                            }`}
-                          >
-                            {status || "UNKNOWN"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 align-middle text-xs text-slate-400">
-                          <span className="font-mono text-[11px]">{invoiceRef}</span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        
 
         {/* Refund & policy */}
         <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">

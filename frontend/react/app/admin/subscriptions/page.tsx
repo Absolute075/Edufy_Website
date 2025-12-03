@@ -177,6 +177,23 @@ export default function AdminSubscriptionsPage() {
     });
   }
 
+  function handleUseInForm(row: SubscriptionRow) {
+    setUsername(row.username);
+    const planLower = (row.plan || '').toString().toLowerCase();
+    if (planLower === 'plus') {
+      setPlan('Plus');
+    } else if (planLower === 'premium' || planLower === 'pro') {
+      setPlan('Premium');
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch {
+        // ignore scroll errors
+      }
+    }
+  }
+
   const filteredResults = searchResults.filter((row) => {
     const planLower = (row.plan || 'free').toLowerCase();
     if (planFilter === 'all') return true;
@@ -297,13 +314,14 @@ export default function AdminSubscriptionsPage() {
                 <th className="py-2 pr-4">Plan</th>
                 <th className="py-2 pr-4">Granted</th>
                 <th className="py-2 pr-4">Expires</th>
+                <th className="py-2 pr-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredResults.length === 0 ? (
                 searchPerformed && !searchLoading ? (
                   <tr>
-                    <td colSpan={5} className="py-3 text-gray-500">
+                    <td colSpan={6} className="py-3 text-gray-500">
                       No users found.
                     </td>
                   </tr>
@@ -316,6 +334,15 @@ export default function AdminSubscriptionsPage() {
                     <td className="py-2 pr-4 text-gray-200 uppercase">{row.plan || 'free'}</td>
                     <td className="py-2 pr-4 text-gray-300">{formatDateTime(row.grantedAt)}</td>
                     <td className="py-2 pr-4 text-gray-300">{formatDateTime(row.activeUntil)}</td>
+                    <td className="py-2 pl-4 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleUseInForm(row)}
+                        className="inline-flex items-center rounded-full border border-white/30 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90 hover:bg-white hover:text-black transition-colors"
+                      >
+                        Change plan
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
