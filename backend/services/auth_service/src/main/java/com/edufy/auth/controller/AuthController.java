@@ -215,6 +215,7 @@ public class AuthController {
                 users.stream().map(u -> {
                     Map<String, Object> m = new HashMap<>();
                     m.put("id", u.getId());
+                    m.put("publicId", u.getPublicId());
                     m.put("username", u.getUsername());
                     m.put("email", u.getEmail());
                     m.put("role", u.getRole());
@@ -327,8 +328,10 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("message", "User not found"));
         }
         UserEntity user = userOpt.get();
+        authService.ensurePublicId(user);
         Map<String, Object> payload = new HashMap<>();
         payload.put("id", user.getId());
+        payload.put("publicId", user.getPublicId());
         payload.put("username", user.getUsername());
         payload.put("email", user.getEmail());
         payload.put("role", user.getRole());

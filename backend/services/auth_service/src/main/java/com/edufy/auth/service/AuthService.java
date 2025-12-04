@@ -57,6 +57,7 @@ public class AuthService {
         user.setPassword(hashedPassword);
         user.setActive(true);
         user.setCreatedAt(LocalDateTime.now());
+        user.setPublicId(generateUniquePublicId());
 
         // Сохраняем пользователя с обработкой ошибок БД
         try {
@@ -190,5 +191,22 @@ public class AuthService {
         }
 
         return new AuthResponse("✅ Password has been reset successfully");
+    }
+
+    private String generateUniquePublicId() {
+        String candidate;
+        do {
+            long n = (long) (Math.random() * 1_000_000_000_000L);
+            candidate = String.format("%012d", n);
+        } while (userRepository.existsByPublicId(candidate));
+        return candidate;
+    }
+
+    public void ensurePublicId(UserEntity user) {
+        if (user == null) return;
+        String current = user.getPublicId();
+        if (current != null && !current.isBlank()) return;
+        user.setPublicId(generateUniquePublicId());
+        userRepository.save(user);
     }
 }

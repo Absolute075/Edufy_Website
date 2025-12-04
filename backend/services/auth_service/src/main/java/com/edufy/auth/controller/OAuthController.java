@@ -36,6 +36,7 @@ public class OAuthController {
     private final OAuthService oAuthService;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final com.edufy.auth.service.AuthService authService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${USER_SERVICE_URL:http://user_service:8080}")
@@ -117,6 +118,8 @@ public class OAuthController {
             u.setActive(true);
             return userRepository.save(u);
         });
+
+        authService.ensurePublicId(user);
 
         // Сгенерировать JWT
         String accessToken = jwtService.generateAccessToken(user.getUsername());

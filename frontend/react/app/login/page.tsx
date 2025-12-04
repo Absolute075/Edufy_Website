@@ -26,11 +26,11 @@ export default function LoginPage() {
         if (!res.ok || cancelled) return;
 
         const data = await res.json().catch(() => null as any);
-        const id = data && (data.id ?? null);
+        const rawId = data && (data.publicId ?? data.id ?? null);
 
         try {
-          if (typeof window !== 'undefined' && id != null) {
-            const key = String(id);
+          if (typeof window !== 'undefined' && rawId != null) {
+            const key = String(rawId).padStart(12, '0');
             window.sessionStorage.setItem('edufy.user.key', key);
             window.localStorage.setItem('edufy.user.key', key);
             (window as any).__edufyUserKey = key;
@@ -46,8 +46,9 @@ export default function LoginPage() {
           return;
         }
 
-        if (id != null) {
-          window.location.href = `https://dash.edufyuzbekistan.com/${id}/dashboard`;
+        if (rawId != null) {
+          const key = String(rawId).padStart(12, '0');
+          window.location.href = `https://dash.edufyuzbekistan.com/${key}/dashboard`;
         } else {
           window.location.href = 'https://dash.edufyuzbekistan.com/';
         }
@@ -100,10 +101,10 @@ export default function LoginPage() {
         const meRes = await fetch('/auth/me', { credentials: 'include' });
         if (meRes.ok) {
           const me = await meRes.json().catch(() => null as any);
-          const id = me && (me.id ?? null);
+          const rawId = me && (me.publicId ?? me.id ?? null);
           try {
-            if (typeof window !== 'undefined' && id != null) {
-              const key = String(id);
+            if (typeof window !== 'undefined' && rawId != null) {
+              const key = String(rawId).padStart(12, '0');
               window.sessionStorage.setItem('edufy.user.key', key);
               window.localStorage.setItem('edufy.user.key', key);
               (window as any).__edufyUserKey = key;
@@ -111,8 +112,9 @@ export default function LoginPage() {
           } catch {
             // ignore storage errors
           }
-          if (id != null) {
-            window.location.href = `https://dash.edufyuzbekistan.com/${id}/dashboard`;
+          if (rawId != null) {
+            const key = String(rawId).padStart(12, '0');
+            window.location.href = `https://dash.edufyuzbekistan.com/${key}/dashboard`;
             return;
           }
         }
