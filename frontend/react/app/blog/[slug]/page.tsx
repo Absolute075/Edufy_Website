@@ -38,7 +38,7 @@ const postsBySlug: Record<string, BlogPostData> = {
       "Don’t focus on getting every question right on your first attempt. Instead, focus on understanding why the SAT asks certain types of questions and recognizing the patterns behind them.",
     tags: ["Education", "SAT"],
     mediaType: "image",
-    mediaSrc: "/photos/photo_2025-11-21_12-56-50.jpg",
+    mediaSrc: "https://resources.edufyuzbekistan.com/storage/images/photo_2025-12-04_16-07-25.jpg",
   },
   "shadow-yourself": {
     title: "Shadow yourself",
@@ -48,7 +48,7 @@ const postsBySlug: Record<string, BlogPostData> = {
       "Record yourself speaking on any topic, then listen carefully and imitate your own pronunciation, intonation, and pacing.",
     tags: ["Skills", "Life"],
     mediaType: "image",
-    mediaSrc: "/photos/photo_2025-11-29_13-20-30.jpg",
+    mediaSrc: "https://resources.edufyuzbekistan.com/storage/images/photo_2025-12-04_16-07-17.jpg",
   },
   "launch-of-our-website": {
     title: "Launch of our Website!",
@@ -57,7 +57,7 @@ const postsBySlug: Record<string, BlogPostData> = {
     description: "This day has come...",
     tags: ["Updates", "Life"],
     mediaType: "video",
-    mediaSrc: "/videos/DNucOji5MCf_0.mp4",
+    mediaSrc: "https://resources.edufyuzbekistan.com/storage/videos/wow.mp4",
   },
 };
 

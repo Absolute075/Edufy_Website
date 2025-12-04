@@ -1434,7 +1434,7 @@ export default function HomePage() {
                 style={{ aspectRatio: '16 / 9' }}
               >
                 <video
-                  src="/videos/DNucOji5MCf_0.mp4"
+                  src="https://resources.edufyuzbekistan.com/storage/videos/wow.mp4"
                   autoPlay
                   loop
                   muted

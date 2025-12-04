@@ -59,7 +59,7 @@ const posts: BlogPost[] = [
     description: "This day has come...",
     tags: ["Updates", "Life"],
     mediaType: "video",
-    mediaSrc: "/videos/DNucOji5MCf_0.mp4",
+    mediaSrc: "https://resources.edufyuzbekistan.com/storage/videos/wow.mp4",
   },
 ];
 
