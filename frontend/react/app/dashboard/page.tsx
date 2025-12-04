@@ -125,7 +125,7 @@ export default function DashboardPage() {
               {/* Greeting */}
               <div className="rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-6 shadow-lg shadow-black/40">
                 <h1 className="text-2xl font-semibold">
-                  Welcome back, <span className="text-cyan-300">{studentName}</span>
+                  Welcome back, <span className="text-white">{studentName}</span>
                   <span className="ml-1">👋🏻</span>
                 </h1>
                 <p className="mt-1 text-slate-300">Keep going on your path to great accomplishments!</p>
@@ -171,7 +171,7 @@ export default function DashboardPage() {
               {/* Weekly Study Time */}
               <section
                 aria-labelledby="weekly-time"
-                className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6"
+                className="rounded-2xl border border-neutral-800 bg-black p-6"
               >
                 <h2 id="weekly-time" className="text-lg font-semibold">
                   Weekly Study Time
@@ -196,7 +196,7 @@ export default function DashboardPage() {
                     return (
                       <div key={day} className="flex flex-col items-center gap-2">
                         <div
-                          className="w-6 rounded-md bg-cyan-400/80"
+                          className="w-6 rounded-md bg-white"
                           style={{ height: `${height}px` }}
                         />
                         <span>{day}</span>
@@ -217,7 +217,6 @@ export default function DashboardPage() {
                         key={idx}
                         className="flex items-start gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-3 text-sm hover:bg-neutral-900"
                       >
-                        <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-cyan-400/80" />
                         <div>
                           <div className="font-medium text-neutral-100">{a.text}</div>
                           <div className="text-xs text-neutral-500">{formatRelativeTime(a.time)}</div>
@@ -302,7 +301,7 @@ export default function DashboardPage() {
               </section>
 
               {/* Monthly Progress by Weeks */}
-              <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
+              <section className="rounded-2xl border border-neutral-800 bg-black p-6">
                 <h2 className="text-lg font-semibold">Monthly Progress by Weeks</h2>
                 <div
                   className="mt-4 grid h-40 grid-cols-4 items-end gap-4 text-xs text-slate-400"
@@ -311,7 +310,7 @@ export default function DashboardPage() {
                 >
                   {[1, 2, 3, 4].map((week) => (
                     <div key={week} className="flex flex-col items-center gap-2">
-                      <div className="w-10 rounded-md bg-violet-400/80" style={{ height: "24px" }} />
+                      <div className="w-10 rounded-md bg-white" style={{ height: "24px" }} />
                       <span>{`Week ${week}`}</span>
                     </div>
                   ))}
