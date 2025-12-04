@@ -3,6 +3,7 @@ package com.edufy.auth.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "users")
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class UserEntity {
+
+    private static final ZoneId ZONE = ZoneId.of("Asia/Tashkent");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,7 +54,7 @@ public class UserEntity {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(ZONE);
     }
 
     public enum Role {

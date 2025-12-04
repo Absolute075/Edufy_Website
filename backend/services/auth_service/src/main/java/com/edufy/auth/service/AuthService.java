@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +57,7 @@ public class AuthService {
         
         user.setPassword(hashedPassword);
         user.setActive(true);
-        user.setCreatedAt(LocalDateTime.now());
+        user.setCreatedAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")));
         user.setPublicId(generateUniquePublicId());
 
         // Сохраняем пользователя с обработкой ошибок БД
@@ -136,7 +137,7 @@ public class AuthService {
             String code = String.format("%06d", raw);
 
             user.setResetCode(code);
-            user.setResetCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
+            user.setResetCodeExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")).plusMinutes(15));
             userRepository.save(user);
 
             infobipEmailService.sendResetCodeEmail(user.getEmail(), code);
@@ -175,7 +176,7 @@ public class AuthService {
             return new AuthResponse("❌ Invalid or expired reset code");
         }
 
-        if (user.getResetCodeExpiresAt().isBefore(LocalDateTime.now())) {
+        if (user.getResetCodeExpiresAt().isBefore(LocalDateTime.now(ZoneId.of("Asia/Tashkent")))) {
             return new AuthResponse("❌ Invalid or expired reset code");
         }
 

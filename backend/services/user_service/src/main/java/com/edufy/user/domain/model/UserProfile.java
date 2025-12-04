@@ -5,11 +5,13 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "user_profiles")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserProfile {
+    private static final ZoneId ZONE = ZoneId.of("Asia/Tashkent");
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -45,12 +47,13 @@ public class UserProfile {
 
     @PrePersist
     void onCreate(){
-        createdAt = LocalDateTime.now();
-        updatedAt = createdAt;
+        LocalDateTime now = LocalDateTime.now(ZONE);
+        createdAt = now;
+        updatedAt = now;
     }
 
     @PreUpdate
     void onUpdate(){
-        updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now(ZONE);
     }
 }

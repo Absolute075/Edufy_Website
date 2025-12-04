@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "subscriptions")
@@ -13,6 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Subscription {
+
+    private static final ZoneId ZONE = ZoneId.of("Asia/Tashkent");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,13 +44,13 @@ public class Subscription {
 
     @PrePersist
     void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZONE);
         if (createdAt == null) createdAt = now;
         if (updatedAt == null) updatedAt = now;
     }
 
     @PreUpdate
     void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now(ZONE);
     }
 }

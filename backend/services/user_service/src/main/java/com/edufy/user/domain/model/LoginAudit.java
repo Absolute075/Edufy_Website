@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "login_audit")
@@ -31,8 +32,10 @@ public class LoginAudit {
     @Column(name = "occurred_at", nullable = false)
     private LocalDateTime occurredAt;
 
+    private static final ZoneId ZONE = ZoneId.of("Asia/Tashkent");
+
     @PrePersist
     void onCreate(){
-        if (occurredAt == null) occurredAt = LocalDateTime.now();
+        if (occurredAt == null) occurredAt = LocalDateTime.now(ZONE);
     }
 }

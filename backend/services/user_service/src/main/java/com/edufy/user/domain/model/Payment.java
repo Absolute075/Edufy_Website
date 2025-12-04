@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "payments")
@@ -66,9 +67,11 @@ public class Payment {
     @Column(length = 32)
     private String phone;
 
+    private static final ZoneId ZONE = ZoneId.of("Asia/Tashkent");
+
     @PrePersist
     void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZONE);
         if (createdAt == null) createdAt = now;
         if (updatedAt == null) updatedAt = now;
         if (provider == null || provider.isBlank()) {
@@ -81,6 +84,6 @@ public class Payment {
 
     @PreUpdate
     void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now(ZONE);
     }
 }

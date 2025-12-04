@@ -3,11 +3,13 @@ package com.edufy.user.domain.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "weekly_stats")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class WeeklyStats {
+    private static final ZoneId ZONE = ZoneId.of("Asia/Tashkent");
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,11 +44,11 @@ public class WeeklyStats {
 
     @PrePersist
     void onCreate(){
-        updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now(ZONE);
     }
 
     @PreUpdate
     void onUpdate(){
-        updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now(ZONE);
     }
 }
