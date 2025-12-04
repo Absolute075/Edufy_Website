@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, ChangeEvent } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { api } from "@/lib/api";
 import { usePageTitle } from "../lib/usePageTitle";
+import { useUserProfile } from "../UserProfileProvider";
 
 const DEFAULT_AVATAR_URL =
   "https://resources.edufyuzbekistan.com/storage/images/10d554ea6f330f1612526b54562c8a33.jpg";
@@ -36,16 +37,23 @@ function formatDobInput(raw: string): string {
 
 export default function ProfilePage() {
   usePageTitle("Edufy – Profile");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [dob, setDob] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
-  const [certificates, setCertificates] = useState<string[]>([]);
+  const {
+    data: profileData,
+    loading: profileLoading,
+    error: profileError,
+    patch,
+    refresh,
+  } = useUserProfile();
+
+  const [username, setUsername] = useState(() => profileData?.username ?? "");
+  const [email, setEmail] = useState(() => profileData?.email ?? "");
+  const [phone, setPhone] = useState(() => profileData?.phone ?? "");
+  const [dob, setDob] = useState(() => profileData?.dobDisplay ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(() => profileData?.avatarUrl ?? "");
+  const [certificates, setCertificates] = useState<string[]>(() => profileData?.certificates ?? []);
   const [selectedCertificate, setSelectedCertificate] = useState("");
-  const [favoriteSubject, setFavoriteSubject] = useState("");
-  const [dailyHours, setDailyHours] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [favoriteSubject, setFavoriteSubject] = useState(() => profileData?.favoriteSubject ?? "");
+  const [dailyHours, setDailyHours] = useState(() => profileData?.dailyHours ?? "");
   const [saving, setSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -59,81 +67,41 @@ export default function ProfilePage() {
   const initialFavoriteSubjectRef = useRef<string>("");
   const initialDailyHoursRef = useRef<string>("");
 
+  // Stale-while-revalidate: на монтировании профиля запрашиваем актуальные данные в фоне
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadProfile() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        try {
-          const resMe = await api("/auth/me");
-          if (resMe.ok) {
-            const me = await resMe.json();
-            if (!cancelled) {
-              const u = me.username || "";
-              setUsername(u);
-              setEmail(me.email || "");
-              initialUsernameRef.current = u;
-            }
-          }
-        } catch {
-          // ignore, error handled by session modal if 401
-        }
-
-        try {
-          const resProfile = await api("/user/profile");
-          if (resProfile.ok) {
-            const p = await resProfile.json();
-            if (!cancelled) {
-              const phoneVal = p.phone || "";
-              const dobVal = isoToDisplayDob(p.birthDate as string | null | undefined);
-              const certVal = p.certificate || "";
-              const favSubjVal = p.favorite_subject || "";
-              const hoursVal = p.daily_hours || "";
-
-              const certList = certVal
-                ? (certVal as string)
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean)
-                : [];
-
-              setPhone(phoneVal);
-              setDob(dobVal);
-              if (p.avatarUrl) setAvatarUrl(p.avatarUrl);
-              setCertificates(certList);
-              setFavoriteSubject(favSubjVal);
-              setDailyHours(hoursVal);
-
-              initialPhoneRef.current = phoneVal;
-              initialDobRef.current = dobVal;
-              initialCertificatesRef.current = certList.join(", ");
-              initialFavoriteSubjectRef.current = favSubjVal;
-              initialDailyHoursRef.current = hoursVal;
-            }
-          }
-        } catch {
-          // ignore, error handled by session modal if 401
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setError("Failed to load profile");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadProfile();
-
-    return () => {
-      cancelled = true;
-    };
+    // не ждём промис, просто триггерим фоновый refetch
+    refresh().catch(() => {
+      // ошибки уже обрабатываются внутри провайдера / глобально
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!profileData) return;
+    if (editMode) return;
+
+    const phoneVal = profileData.phone || "";
+    const dobVal = profileData.dobDisplay || "";
+    const certList = profileData.certificates || [];
+    const favSubjVal = profileData.favoriteSubject || "";
+    const hoursVal = profileData.dailyHours || "";
+
+    setUsername(profileData.username || "");
+    setEmail(profileData.email || "");
+    setPhone(phoneVal);
+    setDob(dobVal);
+    setAvatarUrl(profileData.avatarUrl || "");
+    setCertificates(certList);
+    setFavoriteSubject(favSubjVal);
+    setDailyHours(hoursVal);
+
+    initialUsernameRef.current = profileData.username || "";
+    initialPhoneRef.current = phoneVal;
+    initialDobRef.current = dobVal;
+    initialCertificatesRef.current = certList.join(", ");
+    initialFavoriteSubjectRef.current = favSubjVal;
+    initialDailyHoursRef.current = hoursVal;
+  }, [profileData, editMode]);
 
   // Auto-hide success message after 3 seconds
   useEffect(() => {
@@ -145,7 +113,7 @@ export default function ProfilePage() {
   }, [success]);
 
   function handleAvatarButtonClick() {
-    if (avatarUploading || loading || saving || !editMode) return;
+    if (avatarUploading || profileLoading || saving || !editMode) return;
     if (avatarInputRef.current) {
       avatarInputRef.current.click();
     }
@@ -218,6 +186,7 @@ export default function ProfilePage() {
       const body = await res.json();
       if (body && body.avatarUrl) {
         setAvatarUrl(body.avatarUrl);
+        patch({ avatarUrl: body.avatarUrl });
         setSuccess("Avatar updated");
       } else {
         setError("Failed to upload avatar");
@@ -231,7 +200,7 @@ export default function ProfilePage() {
   }
 
   function handleStartEdit() {
-    if (loading || saving) return;
+    if (profileLoading || saving) return;
     setError(null);
     setSuccess(null);
     setEditMode(true);
@@ -309,6 +278,16 @@ export default function ProfilePage() {
         initialCertificatesRef.current = certificates.join(", ");
         initialFavoriteSubjectRef.current = favoriteSubject || "";
         initialDailyHoursRef.current = dailyHours || "";
+        patch({
+          username: newUsername || "",
+          email,
+          phone: newPhone || "",
+          dobDisplay: dob || "",
+          avatarUrl,
+          certificates: [...certificates],
+          favoriteSubject: favoriteSubject || "",
+          dailyHours: dailyHours || "",
+        });
       } else {
         setError("Failed to save changes");
       }
@@ -347,7 +326,7 @@ export default function ProfilePage() {
                   accept="image/*"
                   className="hidden"
                   onChange={handleAvatarChange}
-                  disabled={loading || saving || avatarUploading}
+                  disabled={profileLoading || saving || avatarUploading}
                 />
               </div>
               <div>
@@ -357,7 +336,7 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={handleAvatarButtonClick}
-                  disabled={loading || saving || avatarUploading}
+                  disabled={profileLoading || saving || avatarUploading}
                   className="mt-2 inline-flex items-center rounded-md border border-neutral-700 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-900 disabled:opacity-60"
                 >
                   {avatarUploading ? "Uploading..." : "Change avatar"}
@@ -376,7 +355,7 @@ export default function ProfilePage() {
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                disabled={loading || saving || !editMode}
+                disabled={profileLoading || saving || !editMode}
               />
             </div>
 
@@ -389,7 +368,7 @@ export default function ProfilePage() {
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                disabled={loading || saving || !editMode}
+                disabled={profileLoading || saving || !editMode}
               />
             </div>
 
@@ -404,7 +383,7 @@ export default function ProfilePage() {
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                 value={dob}
                 onChange={(e) => setDob(formatDobInput(e.target.value))}
-                disabled={loading || saving || !editMode}
+                disabled={profileLoading || saving || !editMode}
               />
             </div>
           </div>
@@ -420,7 +399,7 @@ export default function ProfilePage() {
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                 value={selectedCertificate}
                 onChange={handleCertificateSelectChange}
-                disabled={loading || saving || !editMode}
+                disabled={profileLoading || saving || !editMode}
               >
                 <option value="">Choose</option>
                 <option value="No certificate">No certificate</option>
@@ -502,7 +481,7 @@ export default function ProfilePage() {
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                 value={favoriteSubject}
                 onChange={(e) => setFavoriteSubject(e.target.value)}
-                disabled={loading || saving || !editMode}
+                disabled={profileLoading || saving || !editMode}
               >
                 <option value="">Choose</option>
                 <optgroup label="STEM (Science, Technology, Engineering, Mathematics)">
@@ -614,7 +593,7 @@ export default function ProfilePage() {
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                 value={dailyHours}
                 onChange={(e) => setDailyHours(e.target.value)}
-                disabled={loading || saving || !editMode}
+                disabled={profileLoading || saving || !editMode}
               >
                 <option value="">Choose</option>
                 <option value="0-1">0-1</option>
@@ -632,14 +611,16 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={handleStartEdit}
-                disabled={loading || saving}
+                disabled={profileLoading || saving}
                 className="inline-flex items-center justify-center rounded-lg border border-neutral-700 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-neutral-900 disabled:opacity-60"
               >
                 Edit
               </button>
               <div className="space-y-1 text-xs">
-                {loading && <p className="text-slate-400">Loading profile...</p>}
-                {error && <p className="text-red-400">{error}</p>}
+                {profileLoading && <p className="text-slate-400">Loading profile...</p>}
+                {(error || profileError) && (
+                  <p className="text-red-400">{error || profileError}</p>
+                )}
                 {success && <p className="text-emerald-400">{success}</p>}
               </div>
             </div>
@@ -647,7 +628,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={handleSave}
-                disabled={loading || saving}
+                disabled={profileLoading || saving}
                 className="inline-flex items-center justify-center rounded-lg border border-cyan-500 bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-cyan-500/30 transition hover:bg-cyan-400 disabled:opacity-60"
               >
                 {saving ? "Saving..." : "Save changes"}
