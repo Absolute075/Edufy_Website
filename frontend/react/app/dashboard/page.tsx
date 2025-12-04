@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { usePageTitle } from "../lib/usePageTitle";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
@@ -71,10 +72,17 @@ function getWeeklyStudyHours(): number[] {
 
 export default function DashboardPage() {
   usePageTitle("Edufy – Dashboard");
+  const pathname = usePathname() || "/";
   const [studentName, setStudentName] = useState<string>("Student");
   const [activities, setActivities] = useState<Activity[]>([]);
   const [weeklyHours, setWeeklyHours] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [progress, setProgress] = useState<number>(0);
+
+  const segments = pathname.split("/").filter(Boolean);
+  const firstSegment = segments[0] || "";
+  const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
+  const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
+  const resourcesHref = `${userPrefix}/resources`;
 
   useEffect(() => {
     setActivities(loadRecentActivities());
@@ -131,7 +139,7 @@ export default function DashboardPage() {
                     <p className="text-sm text-slate-400">Materials completed</p>
                   </div>
                   <Link
-                    href="/resources"
+                    href={resourcesHref}
                     className="rounded-lg border border-neutral-700 px-3 py-1.5 text-sm text-slate-200 hover:bg-neutral-900"
                   >
                     Open course
