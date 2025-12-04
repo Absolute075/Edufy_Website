@@ -1,9 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 export default function ResourcesPage() {
+  const pathname = usePathname() || "/";
+  const segments = pathname.split("/").filter(Boolean);
+  const firstSegment = segments[0] || "";
+  const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
+  const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
+  const baseResourcesPath = `${userPrefix}/resources`;
+  const readingHref = `${baseResourcesPath}/reading`;
+  const listeningHref = `${baseResourcesPath}/listening`;
+  const writingHref = `${baseResourcesPath}/writing`;
+  const mockHref = `${baseResourcesPath}/mock`;
   return (
     <DashboardShell>
       <div className="mx-auto max-w-5xl space-y-6">
@@ -24,7 +35,7 @@ export default function ResourcesPage() {
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Link
-                href="reading"
+                href={readingHref}
                 className="group flex flex-col justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
               >
                 <div>
@@ -39,7 +50,7 @@ export default function ResourcesPage() {
                 </span>
               </Link>
               <Link
-                href="listening"
+                href={listeningHref}
                 className="group flex flex-col justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
               >
                 <div>
@@ -54,7 +65,7 @@ export default function ResourcesPage() {
                 </span>
               </Link>
               <Link
-                href="writing"
+                href={writingHref}
                 className="group flex flex-col justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
               >
                 <div>
@@ -69,7 +80,7 @@ export default function ResourcesPage() {
                 </span>
               </Link>
               <Link
-                href="mock"
+                href={mockHref}
                 className="group flex flex-col justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
               >
                 <div>
