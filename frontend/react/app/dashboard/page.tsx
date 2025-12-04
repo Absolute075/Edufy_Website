@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePageTitle } from "../lib/usePageTitle";
+import { useUserProfile } from "../UserProfileProvider";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 type Activity = {
@@ -73,7 +74,8 @@ function getWeeklyStudyHours(): number[] {
 export default function DashboardPage() {
   usePageTitle("Edufy – Dashboard");
   const pathname = usePathname() || "/";
-  const [studentName, setStudentName] = useState<string>("Student");
+  const { data: profileData } = useUserProfile();
+  const studentName = profileData?.username || "Student";
   const [activities, setActivities] = useState<Activity[]>([]);
   const [weeklyHours, setWeeklyHours] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [progress, setProgress] = useState<number>(0);
@@ -113,7 +115,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Placeholder: later we can hydrate from /auth/me
-    setStudentName("Student");
     setProgress(0);
   }, []);
 
