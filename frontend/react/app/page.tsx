@@ -850,7 +850,7 @@ export default function HomePage() {
                         key={exam}
                         type="button"
                         onClick={() => setActiveExamIndex(index)}
-                        className={`materials-word absolute left-1/2 select-none text-6xl sm:text-7xl md:text-8xl font-space tracking-[0.4em] uppercase ${
+                        className={`materials-word absolute left-1/2 select-none text-4xl sm:text-5xl md:text-6xl font-space tracking-[0.4em] uppercase ${
                           isActive ? 'text-white font-extrabold' : 'text-white/30 font-bold'
                         }`}
                         style={{

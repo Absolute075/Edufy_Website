@@ -283,7 +283,7 @@ export function DashboardShell({ children, studentName }: Props) {
       <main className="ml-64 min-h-screen">
 
           <header
-            className="sticky top-0 z-40 border-b border-neutral-800 bg-neutral-950/90 backdrop-blur"
+            className="sticky top-0 z-40 bg-neutral-950/90 backdrop-blur"
             aria-label={headerName ? `Dashboard for ${headerName}` : "Dashboard"}
           >
             <div className="flex items-center justify-between px-4 py-3 md:px-8">

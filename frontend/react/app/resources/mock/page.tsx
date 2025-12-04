@@ -1,36 +1,59 @@
 "use client";
 
+import { useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 export default function MockTestsResourcesPage() {
+  const [accessFilter, setAccessFilter] = useState<
+    "all" | "free" | "plus" | "premium" | "completed"
+  >("all");
+
   return (
     <DashboardShell>
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="max-w-5xl space-y-6">
         <div className="flex flex-col gap-2 border-b border-neutral-800 pb-4">
           <h1 className="text-2xl font-semibold">IELTS MOCK Tests</h1>
           <p className="text-sm text-slate-400">
-            Full-length practice tests with realistic timing and section mix. Materials are being collected for you.
+            Full-length practice tests with realistic timing and section mix.
+            Materials are being collected for you.
           </p>
         </div>
 
-        <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
-          <h2 className="text-lg font-semibold">MOCK test center</h2>
-          <p className="mt-2 text-sm text-slate-400">
-            Here you will be able to take timed full-exam simulations and see your performance summary. For now, new
-            tests are being prepared.
-          </p>
-          <div className="mt-4 grid gap-3 text-sm text-slate-300">
-            <div className="rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
-              <div className="font-medium">Exam-style sessions</div>
-              <div className="text-xs text-slate-400">
-                Complete Listening, Reading and Writing in one go with built-in timers.
-              </div>
-            </div>
-            <div className="rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
-              <div className="font-medium">Performance overview</div>
-              <div className="text-xs text-slate-400">
-                Track your scores, timing and improvements across mock attempts.
-              </div>
+        <section className="pt-2">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex rounded-full bg-neutral-900/90 p-1.5 text-sm text-slate-200 shadow-sm">
+              {[
+                { key: "all", label: "All tests" },
+                { key: "free", label: "Free" },
+                { key: "plus", label: "Plus" },
+                { key: "premium", label: "Premium" },
+                { key: "completed", label: "Completed tests" },
+              ].map((item) => {
+                const isActive = accessFilter === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() =>
+                      setAccessFilter(
+                        item.key as
+                          | "all"
+                          | "free"
+                          | "plus"
+                          | "premium"
+                          | "completed"
+                      )
+                    }
+                    className={`rounded-full px-4 py-1.5 text-sm transition-all duration-300 ease-out ${
+                      isActive
+                        ? "bg-white text-slate-900 shadow-sm shadow-white/40"
+                        : "bg-transparent text-slate-200 hover:bg-neutral-800/80 hover:-translate-y-px"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
