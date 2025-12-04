@@ -280,7 +280,7 @@ export function DashboardShell({ children, studentName }: Props) {
       </aside>
 
       {/* Main content shifted to the right of fixed sidebar */}
-      <main className="ml-64 min-h-screen">
+      <main className="ml-64 min-h-screen flex flex-col">
 
           <header
             className="sticky top-0 z-40 bg-neutral-950/90 backdrop-blur"
@@ -298,7 +298,11 @@ export function DashboardShell({ children, studentName }: Props) {
             </div>
           </header>
 
-          <div className="px-4 py-6 md:px-8">{children}</div>
+          <div className="flex-1 px-4 py-6 md:px-8">{children}</div>
+
+          <footer className="border-t border-neutral-800 py-6 px-4 md:px-8 text-center text-sm text-slate-500">
+            ©2025 Edufy. Keep Learning.
+          </footer>
         </main>
     </div>
   );

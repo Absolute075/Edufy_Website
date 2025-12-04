@@ -9,13 +9,13 @@ const teamSections = [
         name: 'Asilbek',
         role: 'CEO & Co-Founder',
         avatarUrl:
-          'https://resources.edufyuzbekistan.com/storage/images/photo_2025-10-20_20-22-58.jpg',
+          'https://resources.edufyuzbekistan.com/storage/images/durov.jpg',
       },
       {
         name: 'Behruz',
         role: 'CTO & Co-Founder',
         avatarUrl:
-          'https://resources.edufyuzbekistan.com/storage/images/photo_2025-10-20_20-22-58.jpg',
+          'https://resources.edufyuzbekistan.com/storage/images/durov.jpg',
       },
       {
         name: 'A. Doniyorbek',
@@ -31,7 +31,7 @@ const teamSections = [
         name: 'Behruz',
         role: 'Software Engineer',
         avatarUrl:
-          'https://resources.edufyuzbekistan.com/storage/images/photo_2025-10-20_20-22-58.jpg',
+          'https://resources.edufyuzbekistan.com/storage/images/durov.jpg',
       },
     ],
   },
@@ -52,7 +52,7 @@ const teamSections = [
         name: 'Behruz',
         role: 'Product Designer',
         avatarUrl:
-            'https://resources.edufyuzbekistan.com/storage/images/photo_2025-10-20_20-22-58.jpg',
+            'https://resources.edufyuzbekistan.com/storage/images/durov.jpg',
       },
     ],
   },

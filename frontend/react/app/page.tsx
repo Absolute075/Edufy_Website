@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 import Link from 'next/link';
 import Image from 'next/image';
-import heroPhoto from '../public/photos/photo_2025-11-26_22-49-48.jpg';
-import aboutPhoto from '../public/photos/de879823cdded25720a788ccc70ab3bc.jpg';
-import founderPhoto1 from '../public/photos/photo_2025-10-30_18-03-35.jpg';
-import founderPhoto2 from '../public/photos/photo_2025-10-20_20-22-58.jpg';
 import { usePageTitle } from '../lib/usePageTitle';
+
+const heroPhoto = 'https://resources.edufyuzbekistan.com/storage/images/caesar.jpg';
+const aboutPhoto = 'https://resources.edufyuzbekistan.com/storage/images/caesarfocus.jpg';
+const founderPhoto1 = 'https://resources.edufyuzbekistan.com/storage/images/durov.jpg';
+const founderPhoto2 = 'https://resources.edufyuzbekistan.com/storage/images/durov.jpg';
 
 type Currency = 'USD' | 'UZS';
 

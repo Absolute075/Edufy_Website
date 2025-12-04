@@ -232,7 +232,7 @@ export default function DashboardPage() {
               <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
                 <h2 className="text-lg font-semibold">Study Methods</h2>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <article className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4">
+                  <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">SQ3R</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Survey, Question, Read, Recite, Review to boost comprehension.
@@ -244,7 +244,7 @@ export default function DashboardPage() {
                       Learn More
                     </Link>
                   </article>
-                  <article className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Pomodoro</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       25-minute focus sprints with short breaks to maintain momentum.
@@ -256,7 +256,7 @@ export default function DashboardPage() {
                       Learn More
                     </Link>
                   </article>
-                  <article className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Feynman Technique</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Explain complex ideas in simple words to expose gaps and learn deeply.
@@ -268,31 +268,31 @@ export default function DashboardPage() {
                       Learn More
                     </Link>
                   </article>
-                  <article className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Active Recall</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Turn material into questions and test yourself without notes to strengthen memory.
                     </p>
                   </article>
-                  <article className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Mind Mapping</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Visual maps that connect ideas, reveal structure and make complex topics easier to remember.
                     </p>
                   </article>
-                  <article className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Leitner System</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Flashcards in spaced boxes: hard cards appear more often, easy ones less often.
                     </p>
                   </article>
-                  <article className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Kaizen</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Small, continuous improvements every day that compound into big progress over time.
                     </p>
                   </article>
-                  <article className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Spaced Repetition</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Review information right before you forget it to move knowledge into long‑term memory.
@@ -317,10 +317,6 @@ export default function DashboardPage() {
                   ))}
                 </div>
               </section>
-
-              <footer className="border-t border-neutral-800 py-6 text-center text-sm text-slate-500">
-                ©2025 Edufy. Keep Learning.
-              </footer>
             </section>
           </DashboardShell>
   );
