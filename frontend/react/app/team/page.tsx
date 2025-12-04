@@ -9,7 +9,7 @@ const teamSections = [
         name: 'Asilbek',
         role: 'CEO & Co-Founder',
         avatarUrl:
-          'https://resources.edufyuzbekistan.com/storage/images/photo_2025-10-30_18-03-35.jpg',
+          'https://resources.edufyuzbekistan.com/storage/images/photo_2025-10-20_20-22-58.jpg',
       },
       {
         name: 'Behruz',
