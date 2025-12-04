@@ -137,13 +137,26 @@ public class OAuthController {
         clearCookie(response, "oauth_nonce");
         clearCookie(response, "oauth_remember");
 
-        // Best-effort: авто-создать профиль в user_service
+        // Best-effort: авто-создать профиль в user_service c привязкой userId
         try {
-            String url = userServiceBase + "/user/profile";
+            String base = userServiceBase;
+            if (base == null || base.isBlank()) {
+                base = "http://userservice:8080";
+            }
+            String url = base + "/user/internal/create-profile";
+
+            String safeUsername = user.getUsername() != null ? user.getUsername().replace("\"", "'") : "";
+            Long userId = user.getId();
+            String payload;
+            if (userId != null) {
+                payload = "{\"username\":\"" + safeUsername + "\",\"userId\":" + userId + "}";
+            } else {
+                payload = "{\"username\":\"" + safeUsername + "\"}";
+            }
+
             HttpHeaders h = new HttpHeaders();
             h.setContentType(MediaType.APPLICATION_JSON);
-            h.setBearerAuth(accessToken);
-            HttpEntity<String> req = new HttpEntity<>("{}", h);
+            HttpEntity<String> req = new HttpEntity<>(payload, h);
             restTemplate.exchange(url, HttpMethod.POST, req, String.class);
         } catch (Exception ignored) {}
 

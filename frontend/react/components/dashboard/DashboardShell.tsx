@@ -223,8 +223,13 @@ type Props = {
 };
 
 export function DashboardShell({ children, studentName }: Props) {
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
   const headerName = studentName || "Student";
+
+  const segments = pathname.split("/").filter(Boolean);
+  const firstSegment = segments[0] || "";
+  const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
+  const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
 
   return (
     <div className="relative min-h-screen bg-neutral-950 text-slate-100">
@@ -252,11 +257,12 @@ export function DashboardShell({ children, studentName }: Props) {
 
         <nav className="mt-4 space-y-1">
           {NAV_ITEMS.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(item.href + "/");
+            const targetHref = `${userPrefix}${item.href}`;
+            const active = pathname === targetHref || pathname.startsWith(targetHref + "/");
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={targetHref}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                   active
                     ? "bg-neutral-900/90 text-slate-50"

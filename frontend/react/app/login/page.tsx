@@ -25,13 +25,32 @@ export default function LoginPage() {
         const res = await fetch('/auth/me', { credentials: 'include' });
         if (!res.ok || cancelled) return;
 
+        const data = await res.json().catch(() => null as any);
+        const id = data && (data.id ?? null);
+
+        try {
+          if (typeof window !== 'undefined' && id != null) {
+            const key = String(id);
+            window.sessionStorage.setItem('edufy.user.key', key);
+            window.localStorage.setItem('edufy.user.key', key);
+            (window as any).__edufyUserKey = key;
+          }
+        } catch {
+          // ignore storage errors
+        }
+
         const go = sessionStorage.getItem('postLoginRedirect');
         if (go) {
           sessionStorage.removeItem('postLoginRedirect');
           window.location.href = go;
           return;
         }
-        window.location.href = 'https://dash.edufyuzbekistan.com/';
+
+        if (id != null) {
+          window.location.href = `https://dash.edufyuzbekistan.com/${id}/dashboard`;
+        } else {
+          window.location.href = 'https://dash.edufyuzbekistan.com/';
+        }
       } catch {
         // ignore
       }
@@ -75,6 +94,30 @@ export default function LoginPage() {
         sessionStorage.removeItem('postLoginRedirect');
         window.location.href = go;
         return;
+      }
+
+      try {
+        const meRes = await fetch('/auth/me', { credentials: 'include' });
+        if (meRes.ok) {
+          const me = await meRes.json().catch(() => null as any);
+          const id = me && (me.id ?? null);
+          try {
+            if (typeof window !== 'undefined' && id != null) {
+              const key = String(id);
+              window.sessionStorage.setItem('edufy.user.key', key);
+              window.localStorage.setItem('edufy.user.key', key);
+              (window as any).__edufyUserKey = key;
+            }
+          } catch {
+            // ignore storage errors
+          }
+          if (id != null) {
+            window.location.href = `https://dash.edufyuzbekistan.com/${id}/dashboard`;
+            return;
+          }
+        }
+      } catch {
+        // ignore and fallback below
       }
 
       window.location.href = 'https://dash.edufyuzbekistan.com/';

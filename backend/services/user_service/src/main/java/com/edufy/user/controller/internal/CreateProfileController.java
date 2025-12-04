@@ -17,6 +17,7 @@ public class CreateProfileController {
 
     public static class CreateProfileRequest {
         public String username;
+        public Long userId;
     }
 
     @PostMapping("/create-profile")
@@ -25,10 +26,12 @@ public class CreateProfileController {
             return ResponseEntity.badRequest().body(Map.of("message", "username required"));
         }
         String username = body.username.trim();
-        UserProfile p = profileService.getOrCreate(username);
+        Long userId = body.userId;
+        UserProfile p = profileService.getOrCreate(username, userId);
         return ResponseEntity.ok(Map.of(
                 "id", p.getId(),
-                "username", p.getUsername()
+                "username", p.getUsername(),
+                "userId", p.getUserId()
         ));
     }
 }

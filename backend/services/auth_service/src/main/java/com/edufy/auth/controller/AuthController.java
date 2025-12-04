@@ -44,7 +44,9 @@ public class AuthController {
         }
         // Успешная регистрация — 200 OK
         try {
-            postCreateProfile(request.getUsername());
+            Optional<UserEntity> userOpt = userRepository.findByUsername(request.getUsername());
+            Long userId = userOpt.map(UserEntity::getId).orElse(null);
+            postCreateProfile(request.getUsername(), userId);
         } catch (Exception ignored) {}
         return ResponseEntity.ok(response);
     }
@@ -157,8 +159,13 @@ public class AuthController {
         try { System.out.println("[auth_service] login audit post failed for all bases"); } catch (Exception ignore) {}
     }
 
-    private void postCreateProfile(String username) {
-        String payload = "{\"username\":\"" + safe(username) + "\"}";
+    private void postCreateProfile(String username, Long userId) {
+        String payload;
+        if (userId != null) {
+            payload = "{\"username\":\"" + safe(username) + "\",\"userId\":" + userId + "}";
+        } else {
+            payload = "{\"username\":\"" + safe(username) + "\"}";
+        }
         String envBase = System.getenv("USER_SERVICE_URL");
         String gatewayBase = System.getenv("GATEWAY_URL");
         String[] bases = new String[]{
@@ -207,6 +214,7 @@ public class AuthController {
         return ResponseEntity.ok(
                 users.stream().map(u -> {
                     Map<String, Object> m = new HashMap<>();
+                    m.put("id", u.getId());
                     m.put("username", u.getUsername());
                     m.put("email", u.getEmail());
                     m.put("role", u.getRole());
@@ -223,6 +231,7 @@ public class AuthController {
         return ResponseEntity.ok(
                 users.stream().map(u -> {
                     Map<String, Object> m = new HashMap<>();
+                    m.put("id", u.getId());
                     m.put("username", u.getUsername());
                     m.put("email", u.getEmail());
                     m.put("role", u.getRole());
@@ -319,6 +328,7 @@ public class AuthController {
         }
         UserEntity user = userOpt.get();
         Map<String, Object> payload = new HashMap<>();
+        payload.put("id", user.getId());
         payload.put("username", user.getUsername());
         payload.put("email", user.getEmail());
         payload.put("role", user.getRole());

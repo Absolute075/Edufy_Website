@@ -17,8 +17,24 @@ public class ProfileService {
     }
 
     public UserProfile getOrCreate(String username){
-        return repo.findByUsername(username).orElseGet(() ->
-                repo.save(UserProfile.builder().username(username).build()));
+        return getOrCreate(username, null);
+    }
+
+    public UserProfile getOrCreate(String username, Long userId){
+        return repo.findByUsername(username)
+                .map(p -> {
+                    if (p.getUserId() == null && userId != null) {
+                        p.setUserId(userId);
+                        return repo.save(p);
+                    }
+                    return p;
+                })
+                .orElseGet(() ->
+                        repo.save(UserProfile.builder()
+                                .username(username)
+                                .userId(userId)
+                                .build())
+                );
     }
 
     public UserProfile updateBasics(String username, String phone, String birthDate, String location){
