@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export interface AdminInfo {
   admin?: string;
@@ -7,7 +6,6 @@ export interface AdminInfo {
 }
 
 export function useAdminAuth() {
-  const router = useRouter();
   const [info, setInfo] = useState<AdminInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +22,9 @@ export function useAdminAuth() {
       }
 
       if (!token) {
-        router.replace('/admin/login');
+        if (!cancelled) {
+          setError('Admin auth token is missing');
+        }
         return;
       }
 
@@ -40,7 +40,7 @@ export function useAdminAuth() {
             localStorage.removeItem('admin_token');
           } catch {}
           if (!cancelled) {
-            router.replace('/admin/login');
+            setError('Admin auth required');
           }
           return;
         }
@@ -72,7 +72,7 @@ export function useAdminAuth() {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, []);
 
   return { info, loading, error };
 }

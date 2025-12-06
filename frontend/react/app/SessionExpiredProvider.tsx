@@ -1,7 +1,39 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+
+function isProtectedPath(pathname: string | null): boolean {
+  if (!pathname) return false;
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length === 0) return false; // "/"
+
+  const protectedRoots = new Set([
+    "dashboard",
+    "billing",
+    "profile",
+    "settings",
+    "notifications",
+    "schedule",
+    "leaderboard",
+    "resources",
+    "report",
+    "mentor",
+    "payment",
+  ]);
+
+  const first = segments[0];
+
+  // Маршруты вида /123/dashboard/...
+  if (/^\d+$/.test(first)) {
+    const second = segments[1];
+    if (!second) return false;
+    return protectedRoots.has(second);
+  }
+
+  return protectedRoots.has(first);
+}
 
 type Props = {
   children: ReactNode;
@@ -9,19 +41,35 @@ type Props = {
 
 export function SessionExpiredProvider({ children }: Props) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  const handler = useCallback(() => {
+    setOpen(true);
+  }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const w = window as any;
-    const handler = () => {
-      setOpen(true);
-    };
+
+    const protectedPath = isProtectedPath(pathname);
+
+    // На публичных страницах не регистрируем обработчик и закрываем модалку
+    if (!protectedPath) {
+      if (w.__onSessionExpired === handler) {
+        delete w.__onSessionExpired;
+      }
+      setOpen(false);
+      return;
+    }
+
     w.__onSessionExpired = handler;
+
     return () => {
       if (w.__onSessionExpired === handler) {
         delete w.__onSessionExpired;
       }
     };
-  }, []);
+  }, [pathname, handler]);
 
   return (
     <>
