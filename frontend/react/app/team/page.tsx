@@ -1,5 +1,5 @@
 const defaultAvatarUrl =
-  'https://resources.edufyuzbekistan.com/storage/images/10d554ea6f330f1612526b54562c8a33.jpg';
+  'https://resources.edufyuzbekistan.com/storage/images/stockuser.jpg';
 
 const teamSections = [
   {

@@ -7,7 +7,7 @@ import { usePageTitle } from "../lib/usePageTitle";
 import { useUserProfile } from "../UserProfileProvider";
 
 const DEFAULT_AVATAR_URL =
-  "https://resources.edufyuzbekistan.com/storage/images/10d554ea6f330f1612526b54562c8a33.jpg";
+  "https://resources.edufyuzbekistan.com/storage/images/stockuser.jpg";
 
 function isoToDisplayDob(value: string | null | undefined): string {
   if (!value) return "";
