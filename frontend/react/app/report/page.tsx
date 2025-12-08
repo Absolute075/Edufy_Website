@@ -109,7 +109,7 @@ export default function ReportPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Short summary of the problem"
-                  className="mt-1 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                  className="mt-1 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-white focus:outline-none"
                 />
               </div>
 
@@ -120,7 +120,7 @@ export default function ReportPage() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                  className="mt-1 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 focus:border-white focus:outline-none"
                 >
                   <option value="bug">Bug / Wrong behaviour</option>
                   <option value="ui">UI / Layout issue</option>
@@ -140,7 +140,7 @@ export default function ReportPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
                 placeholder="Steps to reproduce, what you expected to happen, and what actually happened."
-                className="mt-1 w-full resize-none rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                className="mt-1 w-full resize-none rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-white focus:outline-none"
               />
             </div>
 
