@@ -1364,7 +1364,7 @@ export default function HomePage() {
                 style={{ aspectRatio: '16 / 9' }}
               >
                 <Image
-                  src="/photos/photo_2025-11-21_12-56-50.jpg"
+                  src="https://resources.edufyuzbekistan.com/storage/images/photo_2025-12-04_16-07-17.jpg"
                   alt="Student skills practice"
                   fill
                   className="object-cover"
@@ -1399,7 +1399,7 @@ export default function HomePage() {
                 style={{ aspectRatio: '16 / 9' }}
               >
                 <Image
-                  src="/photos/photo_2025-11-29_13-20-30.jpg"
+                  src="https://resources.edufyuzbekistan.com/storage/images/photo_2025-12-04_16-07-25.jpg"
                   alt="Shadow yourself practice"
                   fill
                   className="object-cover"
