@@ -5,7 +5,7 @@ services:
     image: postgres:16
     container_name: db
     environment:
-      POSTGRES_DB: edufy_auth
+      POSTGRES_DB: edufy
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: star4536446
       TZ: Asia/Tashkent
@@ -118,7 +118,7 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_REDIRECT_URI: https://access.edufyuzbekistan.com/auth/oauth/google/callback
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/edufy_auth
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/edufy
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: star4536446
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -144,7 +144,7 @@ services:
       ports:
         - "8083:8080" #8083 внешний порт docker, внутренний порт Spring Boot
       environment:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/edufy_users
+        SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/edufy
         SPRING_DATASOURCE_USERNAME: admin
         SPRING_DATASOURCE_PASSWORD: star4536446
         SPRING_JPA_HIBERNATE_DDL_AUTO: update
