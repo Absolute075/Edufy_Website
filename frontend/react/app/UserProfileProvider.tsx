@@ -128,7 +128,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Первый загрузочный запрос
     load();
-  }, [load]);
+  }, []);
 
   const patch = useCallback((partial: Partial<UserProfileData>) => {
     setData((prev) => {
