@@ -192,8 +192,28 @@ services:
     networks:
       - edufy_net
 
+  dockmon:
+    image: darthnorse/dockmon:latest
+    container_name: dockmon
+    restart: unless-stopped
+    ports:
+      - "8001:443" # 8001 внешний порт docker, 443 внутренний порт DockMon (HTTPS)
+    environment:
+      - TZ=Asia/Tashkent
+    volumes:
+      - dockmon_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:443/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - edufy_net
+
 volumes:
   edufy_db_data:
+  dockmon_data:
 
 networks:
   edufy_net:
