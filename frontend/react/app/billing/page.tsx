@@ -221,7 +221,7 @@ export default function BillingPage() {
 
     async function fetchRate() {
       try {
-        const res = await fetch("/pricing/rate");
+        const res = await fetch("https://dash.edufyuzbekistan.com/pricing/rate");
         if (!res.ok) return;
         const data = await res.json();
         if (!cancelled && typeof data.usdToUzs === "number") {
