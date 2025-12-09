@@ -161,8 +161,7 @@ services:
       restart: always
       volumes:
         - /var/www/Edufy_Website/storage/avatars:/var/www/Edufy_Website/storage/avatars
-        # Mount read-only SSH key for SFTP
-        - /root/.ssh/storage_id_rsa:/app/ssh/id_rsa:ro
+        - /root/.ssh/storage_id_rsa/id_rsa:/app/ssh/id_rsa:ro
       networks:
         edufy_net:
           aliases:
