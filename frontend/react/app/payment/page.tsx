@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { usePageTitle } from "../lib/usePageTitle";
 
 type SelectedPlan = {
@@ -44,7 +44,7 @@ function PaymentPageInner() {
     }
   };
 
-  let selectedPlanLine: JSX.Element | null = null;
+  let selectedPlanLine: ReactNode = null;
   if (selectedPlan && selectedPlan.plan !== "Free") {
     const planLabel = selectedPlan.plan === "Pro" ? "Premium" : selectedPlan.plan;
     const periodLabel =
