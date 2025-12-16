@@ -66,32 +66,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const blogPages: MetadataRoute.Sitemap = [
-    {
-      url: 'https://edufyuzbekistan.com/blog',
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    },
-    {
-      url: 'https://edufyuzbekistan.com/blog/understand-define-deal',
-      lastModified: now,
-      changeFrequency: 'yearly',
-      priority: 0.45,
-    },
-    {
-      url: 'https://edufyuzbekistan.com/blog/shadow-yourself',
-      lastModified: now,
-      changeFrequency: 'yearly',
-      priority: 0.45,
-    },
-    {
-      url: 'https://edufyuzbekistan.com/blog/launch-of-our-website',
-      lastModified: now,
-      changeFrequency: 'yearly',
-      priority: 0.45,
-    },
-  ];
-
-  return [...staticPages, ...blogPages];
+  return staticPages;
 }
