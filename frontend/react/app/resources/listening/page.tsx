@@ -5,7 +5,7 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 export default function ListeningResourcesPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState<"real" | "cambridge" | "full">("real");
+  const [typeFilter, setTypeFilter] = useState<"real" | "cambridge">("real");
   const [partFilter, setPartFilter] = useState<
     "all" | "1" | "2" | "3" | "4"
   >("all");
@@ -54,11 +54,7 @@ export default function ListeningResourcesPage() {
                       className="flex w-full items-center justify-between rounded-2xl border border-neutral-700 bg-neutral-950/90 px-3 py-2.5 text-sm text-slate-100 shadow-sm transition-all duration-200 ease-out hover:border-white/60 focus:outline-none focus:ring-1 focus:ring-white/40 focus:border-white"
                     >
                       <span>
-                        {typeFilter === "real"
-                          ? "Real Exam"
-                          : typeFilter === "cambridge"
-                          ? "Cambridge"
-                          : "Full test"}
+                        {typeFilter === "real" ? "Real Exam" : "Cambridge"}
                       </span>
                       <span className="ml-2 text-xs text-slate-500">▼</span>
                     </button>
@@ -67,7 +63,6 @@ export default function ListeningResourcesPage() {
                         {[
                           { value: "real", label: "Real Exam" },
                           { value: "cambridge", label: "Cambridge" },
-                          { value: "full", label: "Full test" },
                         ].map((opt) => {
                           const isActive = typeFilter === opt.value;
                           return (
@@ -76,7 +71,7 @@ export default function ListeningResourcesPage() {
                               type="button"
                               onClick={() => {
                                 setTypeFilter(
-                                  opt.value as "real" | "cambridge" | "full"
+                                  opt.value as "real" | "cambridge"
                                 );
                                 setTypeOpen(false);
                               }}

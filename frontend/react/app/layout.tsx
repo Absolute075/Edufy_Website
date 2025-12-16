@@ -5,8 +5,24 @@ import { SessionExpiredProvider } from './SessionExpiredProvider';
 import { UserProfileProvider } from './UserProfileProvider';
 
 export const metadata: Metadata = {
-  title: 'Edufy - Tests Prep',
-  description: 'Edufy learning platform',
+  metadataBase: new URL('https://edufyuzbekistan.com'),
+  title: {
+    default: 'Edufy Uzbekistan - Exam Prep Platform',
+    template: '%s - Edufy Uzbekistan',
+  },
+  description: 'Edufy Uzbekistan - exam preparation platform with practice tests, analytics, and learning resources.',
+  openGraph: {
+    type: 'website',
+    url: 'https://edufyuzbekistan.com/',
+    siteName: 'Edufy Uzbekistan',
+    title: 'Edufy Uzbekistan - Exam Prep Platform',
+    description: 'Exam preparation platform with practice tests, analytics, and learning resources.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Edufy Uzbekistan - Exam Prep Platform',
+    description: 'Exam preparation platform with practice tests, analytics, and learning resources.',
+  },
 };
 
 export default function RootLayout({
