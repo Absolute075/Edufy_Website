@@ -18,6 +18,7 @@ services:
     restart: always
     networks:
       - edufy_net
+
   admin_service:
     build: ./services/admin_service
     image: admin_service:latest
@@ -176,9 +177,28 @@ services:
     networks:
       - edufy_net
 
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      - TZ=Asia/Tashkent
+      - N8N_HOST=n8n.edufyuzbekistan.com
+      - N8N_PROTOCOL=https
+      - N8N_PORT=5678
+      - WEBHOOK_URL=https://n8n.edufyuzbekistan.com/
+      - N8N_EDITOR_BASE_URL=https://n8n.edufyuzbekistan.com/
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - edufy_net
+
 volumes:
   edufy_db_data:
   dockmon_data:
+  n8n_data:
 
 networks:
   edufy_net:
