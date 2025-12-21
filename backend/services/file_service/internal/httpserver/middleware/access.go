@@ -1,24 +1,25 @@
 package middleware
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
+	"edufy/file_service/internal/config"
 	"edufy/file_service/internal/materials"
+
 	"github.com/gin-gonic/gin"
 )
 
 type AccessMiddleware struct {
 	svc materials.Service
-	mu  sync.Mutex
-	// counters[key(user, day)] = count
-	counters map[string]int
+	cfg config.Config
+	hc  *http.Client
 }
 
-func NewAccessMiddleware(s materials.Service) gin.HandlerFunc {
-	m := &AccessMiddleware{svc: s, counters: map[string]int{}}
+func NewAccessMiddleware(cfg config.Config, s materials.Service) gin.HandlerFunc {
+	m := &AccessMiddleware{svc: s, cfg: cfg, hc: &http.Client{Timeout: 5 * time.Second}}
 	return m.handle
 }
 
@@ -30,56 +31,117 @@ func (m *AccessMiddleware) handle(c *gin.Context) {
 		return
 	}
 
-	// We don't hard-block by plan; enforce daily quotas instead
-	userPlan := planFromRequest(c)
-	username := usernameFromRequest(c)
-	if username == "" {
-		// If username is unknown, treat as free and anonymous bucket
-		username = "anonymous"
+	// Require login on any materials access
+	accessToken := accessTokenFromRequest(c.Request)
+	if accessToken == "" {
+		c.Redirect(http.StatusFound, m.cfg.LoginRedirectURL)
+		c.Abort()
+		return
 	}
-	// Determine daily limit by plan
-	limit := planDailyLimit(userPlan)
-	if limit > 0 {
-		// Use Asia/Tashkent (UTC+5) day boundary
-		now := time.Now().UTC().Add(5 * time.Hour)
-		dayKey := now.Format("2006-01-02")
-		key := username + "|" + dayKey
-		m.mu.Lock()
-		count := m.counters[key]
-		if count >= limit {
-			m.mu.Unlock()
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Daily limit reached for your plan"})
+
+	userPlan, ok := m.fetchUserPlan(accessToken)
+	if !ok {
+		c.Redirect(http.StatusFound, m.cfg.LoginRedirectURL)
+		c.Abort()
+		return
+	}
+
+	// If this is a tokenized material request, enforce plan against requiredPlan
+	category := strings.TrimSpace(c.Param("category"))
+	token := strings.TrimSpace(c.Param("token"))
+	if token != "" {
+		var rel string
+		var item *materials.ManifestItem
+		var found bool
+		if category != "" {
+			rel, item, found = m.svc.ResolveToken(category, token)
+		} else {
+			rel, item, found = m.svc.ResolveTokenAny(token)
+		}
+		if !found || item == nil || !item.Active {
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
-		m.counters[key] = count + 1
-		m.mu.Unlock()
+		required := strings.ToLower(strings.TrimSpace(item.RequiredPlan))
+		if required == "" {
+			required = "free"
+		}
+		if !planAllows(userPlan, required) {
+			c.Redirect(http.StatusFound, m.cfg.UpgradeRedirectURL)
+			c.Abort()
+			return
+		}
+		c.Set("material_rel", rel)
+		c.Set("material_required_plan", required)
+		c.Set("material_user_plan", userPlan)
 	}
+
 	c.Next()
 }
 
-func planFromRequest(c *gin.Context) string {
-	// 1) Prefer explicit header from gateway
-	if v := c.GetHeader("X-User-Plan"); v != "" {
-		return strings.ToLower(strings.TrimSpace(v))
+func accessTokenFromRequest(r *http.Request) string {
+	auth := r.Header.Get("Authorization")
+	if strings.HasPrefix(strings.ToLower(auth), "bearer ") {
+		v := strings.TrimSpace(auth[len("Bearer "):])
+		if v != "" {
+			return v
+		}
 	}
-	// 2) Fallback: treat as free until JWT parsing is implemented here
-	return "free"
-}
-
-func usernameFromRequest(c *gin.Context) string {
-	if v := c.GetHeader("X-User-Name"); v != "" {
-		return v
+	if c, err := r.Cookie("accessToken"); err == nil {
+		if c.Value != "" {
+			return c.Value
+		}
 	}
 	return ""
 }
 
-func planDailyLimit(plan string) int {
-	switch strings.ToLower(plan) {
-	case "admin", "pro":
-		return 0 // unlimited
+func (m *AccessMiddleware) fetchUserPlan(accessToken string) (string, bool) {
+	base := strings.TrimRight(m.cfg.UserServiceURL, "/")
+	if base == "" {
+		return "", false
+	}
+	req, err := http.NewRequest(http.MethodGet, base+"/user/profile", nil)
+	if err != nil {
+		return "", false
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	resp, err := m.hc.Do(req)
+	if err != nil {
+		return "", false
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", false
+	}
+	var payload struct {
+		Plan string `json:"plan"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+		return "", false
+	}
+	plan := strings.ToLower(strings.TrimSpace(payload.Plan))
+	if plan == "" {
+		plan = "free"
+	}
+	return plan, true
+}
+
+func planAllows(userPlan, requiredPlan string) bool {
+	return planRank(userPlan) >= planRank(requiredPlan)
+}
+
+func planRank(plan string) int {
+	p := strings.ToLower(strings.TrimSpace(plan))
+	switch p {
+	case "admin":
+		return 100
+	case "premium", "pro":
+		return 2
 	case "plus":
-		return 35
-	default: // free and unknown
-		return 20
+		return 1
+	case "free", "":
+		return 0
+	default:
+		return 0
 	}
 }

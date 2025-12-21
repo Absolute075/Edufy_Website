@@ -101,10 +101,10 @@ export default function ReadingResourcesPage() {
                         {partFilter === "all"
                           ? "All parts"
                           : partFilter === "1"
-                          ? "Part 1"
+                          ? "Passage 1"
                           : partFilter === "2"
-                          ? "Part 2"
-                          : "Part 3"}
+                          ? "Passage 2"
+                          : "Passage 3"}
                       </span>
                       <span className="ml-2 text-xs text-slate-500">▼</span>
                     </button>
@@ -112,9 +112,9 @@ export default function ReadingResourcesPage() {
                       <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-2xl bg-neutral-950/95 shadow-lg">
                         {[
                           { value: "all", label: "All parts" },
-                          { value: "1", label: "Part 1" },
-                          { value: "2", label: "Part 2" },
-                          { value: "3", label: "Part 3" },
+                          { value: "1", label: "Passage 1" },
+                          { value: "2", label: "Passage 2" },
+                          { value: "3", label: "Passage 3" },
                         ].map((opt) => {
                           const isActive = partFilter === opt.value;
                           return (

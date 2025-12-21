@@ -54,6 +54,22 @@ func ServiceProxy(target string, basePath string) gin.HandlerFunc {
 	}
 }
 
+func ensureAuthorizationFromCookie(c *gin.Context) string {
+	if c == nil || c.Request == nil {
+		return ""
+	}
+	if existing := c.Request.Header.Get("Authorization"); existing != "" {
+		return existing
+	}
+	cookie, err := c.Request.Cookie("accessToken")
+	if err != nil || cookie == nil || strings.TrimSpace(cookie.Value) == "" {
+		return ""
+	}
+	auth := "Bearer " + strings.TrimSpace(cookie.Value)
+	c.Request.Header.Set("Authorization", auth)
+	return auth
+}
+
 // ServiceProxyWithUserHeaders аналог ServiceProxy, но дополнительно выставляет X-User-Name и X-User-Plan из JWT
 func ServiceProxyWithUserHeaders(target string, basePath string) gin.HandlerFunc {
 	targetURL, err := url.Parse(target)
@@ -65,8 +81,13 @@ func ServiceProxyWithUserHeaders(target string, basePath string) gin.HandlerFunc
 
 		c.Request.URL.Path = basePath + c.Param("path")
 
+		authHeader := ensureAuthorizationFromCookie(c)
+		if authHeader == "" {
+			authHeader = c.Request.Header.Get("Authorization")
+		}
+
 		// Extract from Authorization
-		user, plan := extractUserAndPlan(c.Request.Header.Get("Authorization"))
+		user, plan := extractUserAndPlan(authHeader)
 		if user != "" {
 			c.Request.Header.Set("X-User-Name", user)
 		}

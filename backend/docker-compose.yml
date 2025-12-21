@@ -49,11 +49,14 @@ services:
     image: file_service:latest
     container_name: file_service
     ports:
-      - "8084:8080" # 8084 внешний порт docker, 8080 внутренний порт Spring Boot
+      - "8084:8080" # 8084 внешний порт docker, 8080 внутренний порт
     environment:
       - PORT=8080
       - USER_SERVICE_URL=http://userservice:8080
       - RESOURCES_BASE=https://resources.edufyuzbekistan.com
+      - LOGIN_REDIRECT_URL=https://access.edufyuzbekistan.com/login
+      - UPGRADE_REDIRECT_URL=https://edufyuzbekistan.com/pricing
+      - MATERIAL_TOKEN_SECRET=edufy_material_token_secret
       - MATERIALS_DIR=/materials
       - AUTOSCAN_SECONDS=5
       - DEFAULT_REQUIRED_PLAN=free
@@ -74,6 +77,7 @@ services:
     restart: always
     networks:
       - edufy_net
+
 
   auth_service:
     build: ./services/auth_service

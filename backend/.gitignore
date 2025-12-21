@@ -23,7 +23,6 @@ config.yaml
 config.json
 
 # --- Build output ---
-file_service
 /build/
 /dist/
 

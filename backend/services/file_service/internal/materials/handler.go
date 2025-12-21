@@ -1,8 +1,9 @@
 package materials
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -17,6 +18,6 @@ func (h *Handler) Manifest(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "manifest error"})
 		return
 	}
-	c.Header("Cache-Control", "public, max-age=300")
+	c.Header("Cache-Control", "private, no-store")
 	c.JSON(http.StatusOK, m)
 }

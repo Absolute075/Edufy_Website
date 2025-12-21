@@ -10,7 +10,10 @@ type Config struct {
 	PublicDir            string
 	ManifestRelPath      string
 	MaterialsDir         string
+	UserServiceURL       string
 	ResourcesBase        string
+	LoginRedirectURL     string
+	UpgradeRedirectURL   string
 	OverridesPath        string
 	AutoScanSeconds      int
 	AdminReindexToken    string
@@ -22,6 +25,7 @@ type Config struct {
 	PlanDefaultMock      string
 	LinkSigningSecret    string
 	LinkTTLSeconds       int
+	MaterialTokenSecret  string
 }
 
 func Load() Config {
@@ -30,19 +34,26 @@ func Load() Config {
 	// materials/manifest.json inside PublicDir
 	man := getenv("MANIFEST_PATH", "materials/manifest.json")
 	materialsDir := getenv("MATERIALS_DIR", "")
+	userServiceURL := getenv("USER_SERVICE_URL", "http://userservice:8080")
 	resourcesBase := getenv("RESOURCES_BASE", "")
+	loginRedirect := getenv("LOGIN_REDIRECT_URL", "https://access.edufyuzbekistan.com/login")
+	upgradeRedirect := getenv("UPGRADE_REDIRECT_URL", "https://edufyuzbekistan.com/pricing")
 	overrides := getenv("OVERRIDES_PATH", "")
 	scanSec := getinti("AUTOSCAN_SECONDS", 5)
 	adminToken := getenv("REINDEX_ADMIN_TOKEN", "")
 	defPlan := getenv("DEFAULT_REQUIRED_PLAN", "free")
 	linkSecret := getenv("LINK_SIGNING_SECRET", "")
 	linkTTL := getinti("LINK_TTL_SECONDS", 120)
+	tokenSecret := getenv("MATERIAL_TOKEN_SECRET", "edufy_material_token_secret")
 	return Config{
 		Port:                 port,
 		PublicDir:            pub,
 		ManifestRelPath:      man,
 		MaterialsDir:         materialsDir,
+		UserServiceURL:       userServiceURL,
 		ResourcesBase:        resourcesBase,
+		LoginRedirectURL:     loginRedirect,
+		UpgradeRedirectURL:   upgradeRedirect,
 		OverridesPath:        overrides,
 		AutoScanSeconds:      scanSec,
 		AdminReindexToken:    adminToken,
@@ -54,6 +65,7 @@ func Load() Config {
 		PlanDefaultMock:      getenv("PLAN_DEFAULT_MOCK", ""),
 		LinkSigningSecret:    linkSecret,
 		LinkTTLSeconds:       linkTTL,
+		MaterialTokenSecret:  tokenSecret,
 	}
 }
 

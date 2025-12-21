@@ -1,6 +1,9 @@
 package materials
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io/fs"
@@ -17,16 +20,27 @@ import (
 type Service interface {
 	GetManifest() (*Manifest, error)
 	Reindex() error
+	ResolveToken(category, token string) (string, *ManifestItem, bool)
+	ResolveTokenAny(token string) (string, *ManifestItem, bool)
+	FindByID(id string) (*ManifestItem, bool)
 }
 
 type service struct {
-	mu       sync.RWMutex
-	manifest *Manifest
-	cfg      config.Config
+	mu         sync.RWMutex
+	manifest   *Manifest
+	tokenIndex map[string]tokenTarget
+	tokenAny   map[string]tokenTarget
+	idIndex    map[string]ManifestItem
+	cfg        config.Config
+}
+
+type tokenTarget struct {
+	Rel  string
+	Item ManifestItem
 }
 
 func NewServiceWithConfig(cfg config.Config) Service {
-	s := &service{cfg: cfg}
+	s := &service{cfg: cfg, tokenIndex: map[string]tokenTarget{}, tokenAny: map[string]tokenTarget{}, idIndex: map[string]ManifestItem{}}
 	// initial index (best-effort)
 	_ = s.Reindex()
 	return s
@@ -101,18 +115,21 @@ func (s *service) Reindex() error {
 		if !isKnownCategory(cat) {
 			return nil
 		}
-		// id is rel without extension, with forward slashes
-		noext := strings.TrimSuffix(rel, filepath.Ext(rel))
-		id := filepath.ToSlash(noext)
-		url := fmt.Sprintf("%s/materials/%s", base, filepath.ToSlash(rel))
-		items = append(items, ManifestItem{
+		id := filepath.ToSlash(rel)
+		token, ok := materialToken(s.cfg.MaterialTokenSecret, id)
+		if !ok {
+			return nil
+		}
+		url := fmt.Sprintf("%s/materials/t/%s", base, token)
+		item := ManifestItem{
 			ID:           id,
 			Title:        defaultTitleFromID(id),
 			Category:     strings.ToLower(cat),
 			RequiredPlan: defaultPlan(cat),
 			Active:       true,
 			URL:          url,
-		})
+		}
+		items = append(items, item)
 		return nil
 	})
 
@@ -124,13 +141,85 @@ func (s *service) Reindex() error {
 	// Sort by id for stability
 	sort.Slice(items, func(i, j int) bool { return items[i].ID < items[j].ID })
 
+	// Build indexes after overrides to ensure RequiredPlan/Active are authoritative
+	tokenIndex := map[string]tokenTarget{}
+	tokenAny := map[string]tokenTarget{}
+	conflicts := map[string]bool{}
+	idIndex := map[string]ManifestItem{}
+	for i := range items {
+		it := items[i]
+		idIndex[it.ID] = it
+		token, ok := materialToken(s.cfg.MaterialTokenSecret, it.ID)
+		if !ok {
+			continue
+		}
+		cat := strings.ToLower(strings.TrimSpace(it.Category))
+		if cat == "" {
+			parts := strings.Split(it.ID, "/")
+			if len(parts) > 0 {
+				cat = strings.ToLower(parts[0])
+			}
+		}
+		if cat != "" {
+			tokenIndex[tokenKey(cat, token)] = tokenTarget{Rel: it.ID, Item: it}
+		}
+		if conflicts[token] {
+			continue
+		}
+		if prev, exists := tokenAny[token]; exists {
+			if prev.Rel != it.ID {
+				delete(tokenAny, token)
+				conflicts[token] = true
+			}
+			continue
+		}
+		tokenAny[token] = tokenTarget{Rel: it.ID, Item: it}
+	}
+
 	s.mu.Lock()
 	s.manifest = &Manifest{
 		Version: time.Now().UTC().Format(time.RFC3339),
 		Items:   items,
 	}
+	s.tokenIndex = tokenIndex
+	s.tokenAny = tokenAny
+	s.idIndex = idIndex
 	s.mu.Unlock()
 	return nil
+}
+
+func (s *service) ResolveToken(category, token string) (string, *ManifestItem, bool) {
+	key := tokenKey(strings.ToLower(category), token)
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	t, ok := s.tokenIndex[key]
+	if !ok {
+		return "", nil, false
+	}
+	copy := t.Item
+	return t.Rel, &copy, true
+}
+
+func (s *service) ResolveTokenAny(token string) (string, *ManifestItem, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	t, ok := s.tokenAny[token]
+	if !ok {
+		return "", nil, false
+	}
+	copy := t.Item
+	return t.Rel, &copy, true
+}
+
+func (s *service) FindByID(id string) (*ManifestItem, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	it, ok := s.idIndex[id]
+	if !ok {
+		return nil, false
+	}
+	copy := it
+	return &copy, true
 }
 
 func isKnownCategory(s string) bool {
@@ -146,11 +235,32 @@ func defaultTitleFromID(id string) string {
 	// Take last segment and replace dashes with spaces, capitalize first letter
 	segs := strings.Split(id, "/")
 	last := segs[len(segs)-1]
+	if ext := filepath.Ext(last); ext != "" {
+		last = strings.TrimSuffix(last, ext)
+	}
 	t := strings.ReplaceAll(last, "-", " ")
 	if t == "" {
 		return id
 	}
 	return strings.ToUpper(t[:1]) + t[1:]
+}
+
+func tokenKey(category, token string) string {
+	return category + ":" + token
+}
+
+func materialToken(secret, rel string) (string, bool) {
+	sec := strings.TrimSpace(secret)
+	if sec == "" {
+		return "", false
+	}
+	mac := hmac.New(sha256.New, []byte(sec))
+	_, _ = mac.Write([]byte(rel))
+	sum := mac.Sum(nil)
+	n := binary.BigEndian.Uint64(sum[:8])
+	const mod uint64 = 10000000000000000
+	v := n % mod
+	return fmt.Sprintf("%016d", v), true
 }
 
 func applyOverrides(items *[]ManifestItem, path string) {

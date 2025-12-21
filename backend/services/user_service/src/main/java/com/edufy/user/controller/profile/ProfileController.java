@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -57,7 +59,11 @@ public class ProfileController {
 
         String planForResponse = "free";
         if (sub != null && sub.getPlan() != null && !sub.getPlan().isBlank()) {
-            planForResponse = sub.getPlan();
+            // Treat expired subscription as free
+            LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Tashkent"));
+            if (sub.getActiveUntil() == null || sub.getActiveUntil().isAfter(now)) {
+                planForResponse = sub.getPlan();
+            }
         }
 
         // Do NOT auto-create on GET to avoid duplicates during rename race
