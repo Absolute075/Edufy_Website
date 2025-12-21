@@ -165,6 +165,20 @@ public class OAuthController {
 
         String target = readCookie(request, "oauth_target");
         if (!StringUtils.hasText(target)) target = DASH_URL;
+
+        String publicId = user.getPublicId();
+        if (StringUtils.hasText(publicId)) {
+            String dashBase = DASH_URL;
+            String dashBaseNoSlash = dashBase.endsWith("/") ? dashBase.substring(0, dashBase.length() - 1) : dashBase;
+            String dashDashboard = (dashBase.endsWith("/") ? dashBase : (dashBase + "/")) + publicId + "/dashboard";
+
+            if (target.contains("{publicId}")) {
+                target = target.replace("{publicId}", publicId);
+            } else if (target.equals(dashBase) || target.equals(dashBaseNoSlash)
+                    || target.startsWith(dashBase + "?") || target.startsWith(dashBaseNoSlash + "?")) {
+                target = dashDashboard;
+            }
+        }
         clearCookie(response, "oauth_target");
 
         return ResponseEntity.status(302).location(URI.create(target)).build();
