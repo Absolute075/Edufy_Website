@@ -147,7 +147,7 @@ export default function LoginPage() {
               className="rounded-2xl"
             />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-center">Yooo, welcome back!</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-center">Welcome!</h1>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
