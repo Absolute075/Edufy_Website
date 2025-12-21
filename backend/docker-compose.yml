@@ -70,7 +70,7 @@ services:
       .env
     volumes:
       - ./services/file_service/public:/app/public:ro
-      - /materials:/materials:ro
+      - /var/www/Edufy_Website/materials:/materials:ro
     restart: always
     networks:
       - edufy_net
@@ -116,8 +116,9 @@ services:
         SPRING_DATASOURCE_PASSWORD: star4536446
         SPRING_JPA_HIBERNATE_DDL_AUTO: update
         SERVER_PORT: 8080
+        EDUFY_RESOURCES_BASE: "https://resources.edufyuzbekistan.com"
         # SFTP to VPS Storage
-        STORAGE_SFTP_HOST: "109.199.119.214"
+        STORAGE_SFTP_HOST: ""
         STORAGE_SFTP_PORT: "22"
         STORAGE_SFTP_USER: "root"
         STORAGE_SFTP_KEY_PATH: "/app/ssh/id_rsa"
@@ -127,7 +128,7 @@ services:
         - db
       restart: always
       volumes:
-        - /var/www/Edufy_Website/storage/avatars:/var/www/Edufy_Website/storage/avatars
+        - /var/www/Edufy_Website/storage:/var/www/Edufy_Website/storage
         - /home/edufy/.ssh/id_rsa:/app/ssh/id_rsa:ro
       networks:
         edufy_net:

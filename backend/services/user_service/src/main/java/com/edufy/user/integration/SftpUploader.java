@@ -3,7 +3,6 @@ package com.edufy.user.integration;
 import lombok.extern.slf4j.Slf4j;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.IOUtils;
-import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
@@ -14,7 +13,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
-import java.util.concurrent.TimeUnit;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 @Slf4j
 @Component
@@ -39,6 +40,24 @@ public class SftpUploader {
     private String destDir;
 
     public void upload(InputStream in, String remoteFileName) throws IOException {
+        if (host == null || host.isBlank()) {
+            String targetDir = normalize(destDir);
+            if (targetDir.isBlank()) {
+                throw new IOException("Local storage destination directory is empty");
+            }
+            Path dir = Path.of(targetDir);
+            Files.createDirectories(dir);
+            Path target = dir.resolve(remoteFileName);
+            Path tmp = dir.resolve(remoteFileName + ".tmp-" + System.nanoTime());
+
+            try (InputStream input = in) {
+                Files.copy(input, tmp, StandardCopyOption.REPLACE_EXISTING);
+            }
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            log.info("Stored file locally at {}", target);
+            return;
+        }
+
         SSHClient ssh = new SSHClient();
         // WARNING: PromiscuousVerifier disables host key verification; consider configuring known_hosts in prod
         ssh.addHostKeyVerifier(new PromiscuousVerifier());
@@ -57,7 +76,10 @@ public class SftpUploader {
                 String remotePath = targetDir + "/" + remoteFileName;
                 log.info("SFTP: ensuring dir {}", targetDir);
                 sftp.mkdirs(targetDir);
-                byte[] data = IOUtils.readFully(in).toByteArray();
+                byte[] data;
+                try (InputStream input = in) {
+                    data = IOUtils.readFully(input).toByteArray();
+                }
                 InMemorySourceFile src = new InMemorySourceFile() {
                     @Override
                     public String getName() { return remoteFileName; }

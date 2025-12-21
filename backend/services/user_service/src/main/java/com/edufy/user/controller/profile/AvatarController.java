@@ -4,6 +4,7 @@ import com.edufy.user.integration.SftpUploader;
 import com.edufy.user.security.JwtUtil;
 import com.edufy.user.service.ProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -24,7 +25,8 @@ public class AvatarController {
     private final ProfileService profileService;
     private final SftpUploader sftpUploader;
 
-    private static final String RESOURCES_BASE = "https://resources.edufyuzbekistan.com/avatars";
+    @Value("${EDUFY_RESOURCES_BASE:https://resources.edufyuzbekistan.com}")
+    private String resourcesBase;
 
     private String getAccessToken(HttpServletRequest request) {
         if (request.getCookies() == null) return null;
@@ -63,9 +65,16 @@ public class AvatarController {
             return ResponseEntity.internalServerError().body(Map.of("message", "Upload failed"));
         }
 
-        String avatarUrl = RESOURCES_BASE + "/" + filename;
+        String avatarUrl = normalizeBase(resourcesBase) + "/storage/avatars/" + filename;
         profileService.updateAvatarUrl(username, avatarUrl);
         return ResponseEntity.ok(Map.of("message", "Avatar uploaded", "avatarUrl", avatarUrl));
+    }
+
+    private String normalizeBase(String base) {
+        if (base == null) return "";
+        String trimmed = base.trim();
+        if (trimmed.endsWith("/")) return trimmed.substring(0, trimmed.length() - 1);
+        return trimmed;
     }
 
     private String guessExtension(String originalName, String contentType) {
