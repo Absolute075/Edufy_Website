@@ -55,20 +55,30 @@ export default function ReadingResourcesPage() {
     const isMedium = rank >= 2;
     const isHard = rank >= 3;
 
+    const label = itemDifficulty.toUpperCase();
+    const labelColor =
+      rank === 1 ? "text-emerald-400" : rank === 2 ? "text-yellow-300" : "text-red-400";
+
     return (
-      <div className="inline-flex items-center gap-3">
-        <div className={`inline-flex items-center gap-1.5 ${isEasy ? "" : "opacity-35"}`}>
-          <span className="h-1.5 w-6 rounded-full bg-emerald-500" />
-          <span className="text-[11px] font-semibold tracking-wide text-emerald-400">EASY</span>
+      <div className="inline-flex items-center gap-2">
+        <div className="inline-flex items-end gap-1">
+          <span
+            className={`w-1.5 rounded-sm ${
+              isEasy ? "bg-emerald-500" : "bg-neutral-700/70"
+            } h-2.5`}
+          />
+          <span
+            className={`w-1.5 rounded-sm ${
+              isMedium ? "bg-yellow-400" : "bg-neutral-700/70"
+            } h-4`}
+          />
+          <span
+            className={`w-1.5 rounded-sm ${
+              isHard ? "bg-red-500" : "bg-neutral-700/70"
+            } h-6`}
+          />
         </div>
-        <div className={`inline-flex items-center gap-1.5 ${isMedium ? "" : "opacity-35"}`}>
-          <span className="h-1.5 w-9 rounded-full bg-yellow-400" />
-          <span className="text-[11px] font-semibold tracking-wide text-yellow-300">MEDIUM</span>
-        </div>
-        <div className={`inline-flex items-center gap-1.5 ${isHard ? "" : "opacity-35"}`}>
-          <span className="h-1.5 w-12 rounded-full bg-red-500" />
-          <span className="text-[11px] font-semibold tracking-wide text-red-400">HARD</span>
-        </div>
+        <span className={`text-[11px] font-semibold tracking-wide ${labelColor}`}>{label}</span>
       </div>
     );
   }
