@@ -3,9 +3,12 @@ export type ResourceCategory = "reading" | "listening" | "writing" | "mock";
 
 export type ResourceDifficulty = "easy" | "medium" | "hard";
 
+export type ResourceExamType = "real" | "cambridge";
+
 export type ResourceRule = {
   requiredPlan: UserPlan;
   title: string;
+  examType: ResourceExamType;
   part: 1 | 2 | 3;
   difficulty: ResourceDifficulty;
   minutes: number;
@@ -17,6 +20,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
     "345897": {
       requiredPlan: "free",
       title: "The Role of Mothers in the Origins of Music",
+      examType: "real",
       part: 2,
       difficulty: "medium",
       minutes: 20,

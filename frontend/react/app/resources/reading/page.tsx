@@ -14,7 +14,7 @@ export default function ReadingResourcesPage() {
   const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState<"real" | "cambridge">("real");
+  const [typeFilter, setTypeFilter] = useState<"all" | "real" | "cambridge">("all");
   const [partFilter, setPartFilter] = useState<"all" | "1" | "2" | "3">("all");
   const [accessFilter, setAccessFilter] = useState<
     "all" | "free" | "plus" | "premium" | "completed"
@@ -41,13 +41,15 @@ export default function ReadingResourcesPage() {
         if (!hay.includes(q)) return false;
       }
 
+      if (typeFilter !== "all" && item.examType !== typeFilter) return false;
+
       if (partFilter !== "all" && String(item.part) !== partFilter) return false;
 
       if (accessFilter !== "all" && item.requiredPlan !== accessFilter) return false;
 
       return true;
     });
-  }, [accessFilter, items, partFilter, searchQuery]);
+  }, [accessFilter, items, partFilter, searchQuery, typeFilter]);
 
   function renderDifficulty(itemDifficulty: "easy" | "medium" | "hard") {
     const rank = itemDifficulty === "easy" ? 1 : itemDifficulty === "medium" ? 2 : 3;
@@ -175,13 +177,14 @@ export default function ReadingResourcesPage() {
                       className="flex w-full items-center justify-between rounded-2xl border border-neutral-700 bg-neutral-950/90 px-3 py-2.5 text-sm text-slate-100 shadow-sm transition-all duration-200 ease-out hover:border-white/60 focus:outline-none focus:ring-1 focus:ring-white/40 focus:border-white"
                     >
                       <span>
-                        {typeFilter === "real" ? "Real Exam" : "Cambridge"}
+                        {typeFilter === "all" ? "All" : typeFilter === "real" ? "Real Exam" : "Cambridge"}
                       </span>
                       <span className="ml-2 text-xs text-slate-500">▼</span>
                     </button>
                     {typeOpen && (
                       <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-2xl bg-neutral-950/95 shadow-lg">
                         {[
+                          { value: "all", label: "All" },
                           { value: "real", label: "Real Exam" },
                           { value: "cambridge", label: "Cambridge" },
                         ].map((opt) => {
@@ -191,9 +194,7 @@ export default function ReadingResourcesPage() {
                               key={opt.value}
                               type="button"
                               onClick={() => {
-                                setTypeFilter(
-                                  opt.value as "real" | "cambridge"
-                                );
+                                setTypeFilter(opt.value as "all" | "real" | "cambridge");
                                 setTypeOpen(false);
                               }}
                               className={`w-full px-3 py-2 text-left text-sm transition-colors ${
