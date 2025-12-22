@@ -52,31 +52,41 @@ export default function ReadingResourcesPage() {
   }, [accessFilter, items, partFilter, searchQuery, typeFilter]);
 
   function renderDifficulty(itemDifficulty: "easy" | "medium" | "hard") {
-    const rank = itemDifficulty === "easy" ? 1 : itemDifficulty === "medium" ? 2 : 3;
-    const isEasy = rank >= 1;
-    const isMedium = rank >= 2;
-    const isHard = rank >= 3;
+    const activeCount = itemDifficulty === "easy" ? 1 : itemDifficulty === "medium" ? 2 : 3;
+    const isEasy = activeCount >= 1;
+    const isMedium = activeCount >= 2;
+    const isHard = activeCount >= 3;
 
     const label = itemDifficulty.toUpperCase();
+    const activeBg =
+      itemDifficulty === "easy"
+        ? "bg-emerald-500"
+        : itemDifficulty === "medium"
+          ? "bg-yellow-400"
+          : "bg-red-500";
     const labelColor =
-      rank === 1 ? "text-emerald-400" : rank === 2 ? "text-yellow-300" : "text-red-400";
+      itemDifficulty === "easy"
+        ? "text-emerald-400"
+        : itemDifficulty === "medium"
+          ? "text-yellow-300"
+          : "text-red-400";
 
     return (
       <div className="inline-flex items-center gap-2">
         <div className="inline-flex items-end gap-1">
           <span
             className={`w-1.5 rounded-sm ${
-              isEasy ? "bg-emerald-500" : "bg-neutral-700/70"
+              isEasy ? activeBg : "bg-neutral-700/70"
             } h-2.5`}
           />
           <span
             className={`w-1.5 rounded-sm ${
-              isMedium ? "bg-yellow-400" : "bg-neutral-700/70"
+              isMedium ? activeBg : "bg-neutral-700/70"
             } h-4`}
           />
           <span
             className={`w-1.5 rounded-sm ${
-              isHard ? "bg-red-500" : "bg-neutral-700/70"
+              isHard ? activeBg : "bg-neutral-700/70"
             } h-6`}
           />
         </div>
