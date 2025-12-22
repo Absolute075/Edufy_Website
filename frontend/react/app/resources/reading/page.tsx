@@ -320,7 +320,7 @@ export default function ReadingResourcesPage() {
                       <div className="truncate text-base font-semibold text-slate-100">
                         {item.title}
                       </div>
-                      <div className="mt-0.5 text-xs text-slate-500">Part {item.part}</div>
+                      <div className="mt-0.5 text-xs text-slate-500">Passage {item.part}</div>
                       <div className="mt-3 flex flex-wrap items-center gap-3">
                         {renderDifficulty(item.difficulty)}
                         <span className="text-slate-600">|</span>
