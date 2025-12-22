@@ -214,7 +214,7 @@ export default function ReadingResourcesPage() {
 
                 <div className="w-full sm:w-40">
                   <label className="mb-1 block text-xs font-medium text-slate-400">
-                    Parts
+                    Passages
                   </label>
                   <div className="relative">
                     <button
@@ -224,7 +224,7 @@ export default function ReadingResourcesPage() {
                     >
                       <span>
                         {partFilter === "all"
-                          ? "All parts"
+                          ? "All passages"
                           : partFilter === "1"
                           ? "Passage 1"
                           : partFilter === "2"
@@ -236,7 +236,7 @@ export default function ReadingResourcesPage() {
                     {partOpen && (
                       <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-2xl bg-neutral-950/95 shadow-lg">
                         {[
-                          { value: "all", label: "All parts" },
+                          { value: "all", label: "All passages" },
                           { value: "1", label: "Passage 1" },
                           { value: "2", label: "Passage 2" },
                           { value: "3", label: "Passage 3" },
