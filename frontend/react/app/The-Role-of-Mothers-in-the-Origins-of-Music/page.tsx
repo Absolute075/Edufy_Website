@@ -3,6 +3,7 @@
 import Head from "next/head";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { markTestCompleted } from "@/lib/completedTests";
 
 const correctAnswers = {
   q14: "viii",
@@ -30,6 +31,15 @@ export default function ReadingPassage2Page() {
   const firstSegment = segments[0] || "";
   const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
   const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
+
+  const readingId = useMemo(() => {
+    const idx = segments.indexOf("resources");
+    if (idx !== -1 && segments[idx + 1] === "reading") {
+      const maybeId = segments[idx + 2];
+      if (maybeId) return maybeId;
+    }
+    return "345897";
+  }, [segments]);
 
   const [timeLeft, setTimeLeft] = useState(20 * 60);
   const [submitted, setSubmitted] = useState(false);
@@ -550,6 +560,8 @@ export default function ReadingPassage2Page() {
     setScore(s);
     setSubmitted(true);
     setIsResultsOpen(true);
+
+    markTestCompleted("reading", readingId);
   };
 
   const deleteNote = (id: number) => {

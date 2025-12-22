@@ -1,17 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { resourcesRegistry } from "@/lib/resourcesRegistry";
+import { clearTestCompleted, getCompletedTestIds } from "@/lib/completedTests";
 
 export default function ReadingResourcesPage() {
+  const router = useRouter();
   const pathname = usePathname() || "/";
   const segments = pathname.split("/").filter(Boolean);
   const firstSegment = segments[0] || "";
   const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
   const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
+
+  const [completedIds, setCompletedIds] = useState<Set<string>>(() => new Set());
 
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "real" | "cambridge">("all");
@@ -21,6 +25,24 @@ export default function ReadingResourcesPage() {
   >("all");
   const [typeOpen, setTypeOpen] = useState(false);
   const [partOpen, setPartOpen] = useState(false);
+
+  useEffect(() => {
+    const sync = () => setCompletedIds(new Set(getCompletedTestIds("reading")));
+    sync();
+
+    window.addEventListener("focus", sync);
+    window.addEventListener("storage", sync);
+    const onVisibility = () => {
+      if (!document.hidden) sync();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.removeEventListener("focus", sync);
+      window.removeEventListener("storage", sync);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
 
   const items = useMemo(() => {
     return Object.entries(resourcesRegistry.reading)
@@ -32,10 +54,11 @@ export default function ReadingResourcesPage() {
   }, []);
 
   const filteredItems = useMemo(() => {
-    if (accessFilter === "completed") return [];
     const q = searchQuery.trim().toLowerCase();
 
     return items.filter((item) => {
+      const isCompleted = completedIds.has(item.id);
+
       if (q) {
         const hay = `${item.title} ${item.id}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -45,11 +68,15 @@ export default function ReadingResourcesPage() {
 
       if (partFilter !== "all" && String(item.part) !== partFilter) return false;
 
-      if (accessFilter !== "all" && item.requiredPlan !== accessFilter) return false;
+      if (accessFilter === "completed") {
+        if (!isCompleted) return false;
+      } else {
+        if (accessFilter !== "all" && item.requiredPlan !== accessFilter) return false;
+      }
 
       return true;
     });
-  }, [accessFilter, items, partFilter, searchQuery, typeFilter]);
+  }, [accessFilter, completedIds, items, partFilter, searchQuery, typeFilter]);
 
   function renderDifficulty(itemDifficulty: "easy" | "medium" | "hard") {
     const activeCount = itemDifficulty === "easy" ? 1 : itemDifficulty === "medium" ? 2 : 3;
@@ -320,6 +347,7 @@ export default function ReadingResourcesPage() {
           <div className="mt-6 space-y-3">
             {filteredItems.map((item) => {
               const href = `${userPrefix}/resources/reading/${item.id}`;
+              const isCompleted = completedIds.has(item.id);
               return (
                 <Link
                   key={item.id}
@@ -347,9 +375,29 @@ export default function ReadingResourcesPage() {
                       </div>
                     </div>
 
-                    <div className="mt-1 inline-flex items-center self-start rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-300 md:self-center">
-                      {item.requiredPlan}
-                    </div>
+                    {accessFilter === "completed" && isCompleted ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          clearTestCompleted("reading", item.id);
+                          setCompletedIds((prev) => {
+                            const next = new Set(prev);
+                            next.delete(item.id);
+                            return next;
+                          });
+                          router.push(href);
+                        }}
+                        className="mt-1 inline-flex items-center self-start rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-100 transition-colors hover:border-white/60 hover:bg-neutral-900 md:self-center"
+                      >
+                        Re-Do test
+                      </button>
+                    ) : (
+                      <div className="mt-1 inline-flex items-center self-start rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-300 md:self-center">
+                        {item.requiredPlan}
+                      </div>
+                    )}
                   </div>
                 </Link>
               );
