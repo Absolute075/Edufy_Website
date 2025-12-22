@@ -9,6 +9,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/:userId(\\d+)/resources/:path*',
+        destination: '/resources/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

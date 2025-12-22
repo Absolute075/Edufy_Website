@@ -1,0 +1,46 @@
+export type UserPlan = "free" | "plus" | "premium";
+export type ResourceCategory = "reading" | "listening" | "writing" | "mock";
+
+export type ResourceDifficulty = "easy" | "medium" | "hard";
+
+export type ResourceRule = {
+  requiredPlan: UserPlan;
+  title: string;
+  part: 1 | 2 | 3;
+  difficulty: ResourceDifficulty;
+  minutes: number;
+  questions: number;
+};
+
+export const resourcesRegistry: Record<ResourceCategory, Record<string, ResourceRule>> = {
+  reading: {
+    "345897": {
+      requiredPlan: "free",
+      title: "The Role of Mothers in the Origins of Music",
+      part: 2,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 12,
+    },
+  },
+  listening: {},
+  writing: {},
+  mock: {},
+};
+
+export function normalizePlan(value: unknown): UserPlan {
+  const v = String(value ?? "").toLowerCase();
+  if (v === "premium" || v === "pro") return "premium";
+  if (v === "plus") return "plus";
+  return "free";
+}
+
+export function planRank(plan: UserPlan): number {
+  if (plan === "premium") return 2;
+  if (plan === "plus") return 1;
+  return 0;
+}
+
+export function isPlanSufficient(userPlan: UserPlan, requiredPlan: UserPlan): boolean {
+  return planRank(userPlan) >= planRank(requiredPlan);
+}

@@ -1,9 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useMemo, useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { resourcesRegistry } from "@/lib/resourcesRegistry";
 
 export default function ReadingResourcesPage() {
+  const pathname = usePathname() || "/";
+  const segments = pathname.split("/").filter(Boolean);
+  const firstSegment = segments[0] || "";
+  const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
+  const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"real" | "cambridge">("real");
   const [partFilter, setPartFilter] = useState<"all" | "1" | "2" | "3">("all");
@@ -12,6 +21,111 @@ export default function ReadingResourcesPage() {
   >("all");
   const [typeOpen, setTypeOpen] = useState(false);
   const [partOpen, setPartOpen] = useState(false);
+
+  const items = useMemo(() => {
+    return Object.entries(resourcesRegistry.reading)
+      .map(([id, rule]) => ({ id, ...rule }))
+      .sort((a, b) => {
+        if (a.part !== b.part) return a.part - b.part;
+        return a.title.localeCompare(b.title);
+      });
+  }, []);
+
+  const filteredItems = useMemo(() => {
+    if (accessFilter === "completed") return [];
+    const q = searchQuery.trim().toLowerCase();
+
+    return items.filter((item) => {
+      if (q) {
+        const hay = `${item.title} ${item.id}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+
+      if (partFilter !== "all" && String(item.part) !== partFilter) return false;
+
+      if (accessFilter !== "all" && item.requiredPlan !== accessFilter) return false;
+
+      return true;
+    });
+  }, [accessFilter, items, partFilter, searchQuery]);
+
+  function renderDifficulty(itemDifficulty: "easy" | "medium" | "hard") {
+    const rank = itemDifficulty === "easy" ? 1 : itemDifficulty === "medium" ? 2 : 3;
+    const isEasy = rank >= 1;
+    const isMedium = rank >= 2;
+    const isHard = rank >= 3;
+
+    return (
+      <div className="inline-flex items-center gap-3">
+        <div className={`inline-flex items-center gap-1.5 ${isEasy ? "" : "opacity-35"}`}>
+          <span className="h-1.5 w-6 rounded-full bg-emerald-500" />
+          <span className="text-[11px] font-semibold tracking-wide text-emerald-400">EASY</span>
+        </div>
+        <div className={`inline-flex items-center gap-1.5 ${isMedium ? "" : "opacity-35"}`}>
+          <span className="h-1.5 w-9 rounded-full bg-yellow-400" />
+          <span className="text-[11px] font-semibold tracking-wide text-yellow-300">MEDIUM</span>
+        </div>
+        <div className={`inline-flex items-center gap-1.5 ${isHard ? "" : "opacity-35"}`}>
+          <span className="h-1.5 w-12 rounded-full bg-red-500" />
+          <span className="text-[11px] font-semibold tracking-wide text-red-400">HARD</span>
+        </div>
+      </div>
+    );
+  }
+
+  function ClockIcon() {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-4 w-4 text-slate-400"
+      >
+        <path
+          d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
+        <path
+          d="M12 6V12L16 14"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  function QuestionsIcon() {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-4 w-4 text-slate-400"
+      >
+        <path
+          d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9.5 9a2.5 2.5 0 1 1 3.8 2.15c-.83.5-1.3 1.03-1.3 1.85v.5"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M12 17h.01"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
 
   return (
     <DashboardShell>
@@ -180,6 +294,51 @@ export default function ReadingResourcesPage() {
                 );
               })}
             </div>
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {filteredItems.map((item) => {
+              const href = `${userPrefix}/resources/reading/${item.id}`;
+              return (
+                <Link
+                  key={item.id}
+                  href={href}
+                  className="block rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4 transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
+                >
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="min-w-0">
+                      <div className="truncate text-base font-semibold text-slate-100">
+                        {item.title}
+                      </div>
+                      <div className="mt-0.5 text-xs text-slate-500">Part {item.part}</div>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        {renderDifficulty(item.difficulty)}
+                        <span className="text-slate-600">|</span>
+                        <span className="inline-flex items-center gap-2 text-xs text-slate-300">
+                          <ClockIcon />
+                          {item.minutes} minutes
+                        </span>
+                        <span className="text-slate-600">|</span>
+                        <span className="inline-flex items-center gap-2 text-xs text-slate-300">
+                          <QuestionsIcon />
+                          {item.questions} questions
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-1 inline-flex items-center self-start rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-300 md:self-center">
+                      {item.requiredPlan}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+
+            {filteredItems.length === 0 && (
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 px-5 py-6 text-sm text-slate-400">
+                No materials found.
+              </div>
+            )}
           </div>
         </section>
       </div>
