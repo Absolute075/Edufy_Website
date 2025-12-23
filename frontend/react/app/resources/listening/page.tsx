@@ -92,7 +92,7 @@ export default function ListeningResourcesPage() {
 
                 <div className="w-full sm:w-40">
                   <label className="mb-1 block text-xs font-medium text-slate-400">
-                    Parts
+                    Sections
                   </label>
                   <div className="relative">
                     <button
