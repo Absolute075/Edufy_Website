@@ -612,7 +612,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={handleStartEdit}
                 disabled={profileLoading || saving}
-                className="inline-flex items-center justify-center rounded-lg border border-neutral-700 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-neutral-900 disabled:opacity-60"
+                className="boton-elegante"
               >
                 Edit
               </button>
@@ -629,14 +629,144 @@ export default function ProfilePage() {
                 type="button"
                 onClick={handleSave}
                 disabled={profileLoading || saving}
-                className="inline-flex items-center justify-center rounded-lg border border-cyan-500 bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-cyan-500/30 transition hover:bg-cyan-400 disabled:opacity-60"
+                className="profile-save-btn"
               >
-                {saving ? "Saving..." : "Save changes"}
+                <div className="svg-wrapper-1">
+                  <div className="svg-wrapper">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="22"
+                      height="22"
+                      className="icon"
+                    >
+                      <path d="M22,15.04C22,17.23 20.24,19 18.07,19H5.93C3.76,19 2,17.23 2,15.04C2,13.07 3.43,11.44 5.31,11.14C5.28,11 5.27,10.86 5.27,10.71C5.27,9.33 6.38,8.2 7.76,8.2C8.37,8.2 8.94,8.43 9.37,8.8C10.14,7.05 11.13,5.44 13.91,5.44C17.28,5.44 18.87,8.06 18.87,10.83C18.87,10.94 18.87,11.06 18.86,11.17C20.65,11.54 22,13.13 22,15.04Z" />
+                    </svg>
+                  </div>
+                </div>
+                <span>{saving ? "Saving..." : "Save"}</span>
               </button>
             )}
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .profile-save-btn {
+          font-family: inherit;
+          font-size: 16px;
+          background: #212121;
+          color: white;
+          fill: rgb(155, 153, 153);
+          padding: 0.45em 0.75em;
+          padding-left: 0.7em;
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          border: none;
+          border-radius: 11px;
+          font-weight: 1000;
+        }
+
+        .profile-save-btn span {
+          display: block;
+          margin-left: 0.2em;
+          transition: all 0.3s ease-in-out;
+        }
+
+        .profile-save-btn svg {
+          display: block;
+          transform-origin: center center;
+          transition: transform 0.3s ease-in-out;
+        }
+
+        .profile-save-btn:hover {
+          background: #000;
+        }
+
+        .profile-save-btn:hover .svg-wrapper {
+          transform: scale(1.25);
+          transition: 0.5s linear;
+        }
+
+        .profile-save-btn:hover svg {
+          transform: translateX(1.2em) scale(1.1);
+          fill: #fff;
+        }
+
+        .profile-save-btn:hover span {
+          opacity: 0;
+          transition: 0.5s linear;
+        }
+
+        .profile-save-btn:active {
+          transform: scale(0.95);
+        }
+
+        .profile-save-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .profile-save-btn:disabled:hover {
+          background: #212121;
+        }
+
+        .profile-save-btn:disabled:hover .svg-wrapper {
+          transform: none;
+          transition: none;
+        }
+
+        .profile-save-btn:disabled:hover svg {
+          transform: none;
+          fill: rgb(155, 153, 153);
+        }
+
+        .profile-save-btn:disabled:hover span {
+          opacity: 1;
+          transition: none;
+        }
+
+        .boton-elegante {
+          padding: 0.45em 0.9em;
+          border: 1px solid #2c2c2c;
+          background-color: #1a1a1a;
+          color: #ffffff;
+          font-size: 16px;
+          cursor: pointer;
+          border-radius: 999px;
+          transition: all 0.4s ease;
+          outline: none;
+          position: relative;
+          overflow: hidden;
+          font-weight: bold;
+        }
+
+        .boton-elegante::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0) 70%
+          );
+          transform: scale(0);
+          transition: transform 0.5s ease;
+        }
+
+        .boton-elegante:hover::after {
+          transform: scale(4);
+        }
+
+        .boton-elegante:hover {
+          border-color: #666666;
+          background: #292929;
+        }
+      `}</style>
     </DashboardShell>
   );
 }
