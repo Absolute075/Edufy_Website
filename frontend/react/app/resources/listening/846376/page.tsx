@@ -662,18 +662,36 @@ export default function ListeningTest846376Page() {
   }, [audioBaseUrl, listeningId]);
 
   const checkAudioExists = async (url: string) => {
-    try {
-      const head = await fetch(url, { method: "HEAD" });
-      if (head.ok) return true;
+    return await new Promise<boolean>((resolve) => {
+      try {
+        const probe = new Audio();
+        probe.preload = "metadata";
+        probe.src = url;
 
-      const get = await fetch(url, {
-        method: "GET",
-        headers: { Range: "bytes=0-0" },
-      });
-      return get.ok;
-    } catch {
-      return false;
-    }
+        let done = false;
+        const finish = (ok: boolean) => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          probe.removeEventListener("loadedmetadata", onOk);
+          probe.removeEventListener("canplay", onOk);
+          probe.removeEventListener("error", onErr);
+          resolve(ok);
+        };
+
+        const onOk = () => finish(true);
+        const onErr = () => finish(false);
+
+        probe.addEventListener("loadedmetadata", onOk);
+        probe.addEventListener("canplay", onOk);
+        probe.addEventListener("error", onErr);
+
+        const timer = window.setTimeout(() => finish(false), 4500);
+        probe.load();
+      } catch {
+        resolve(false);
+      }
+    });
   };
 
   useEffect(() => {
