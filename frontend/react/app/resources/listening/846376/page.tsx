@@ -722,6 +722,10 @@ export default function ListeningTest846376Page() {
   useEffect(() => {
     if (!hasStarted) return;
     if (availableAudioSources.length === 0) return;
+ 
+    const audioEl = audioRef.current;
+    if (!audioEl) return;
+    if (audioEl.src) return;
 
     setCurrentAudioIndex(0);
     startAudioAtIndex(0);
@@ -3249,6 +3253,26 @@ export default function ListeningTest846376Page() {
                 setHasStarted(true);
                 setIsRunning(true);
                 setTimeLeft(30 * 60);
+
+                const audioEl = audioRef.current;
+                if (!audioEl) return;
+
+                const firstUrl =
+                  availableAudioSources[0] ?? (audioDir ? `${audioDir}/section1.mp3` : "");
+                if (!firstUrl) return;
+
+                setCurrentAudioIndex(0);
+                setCurrentSection(1);
+
+                audioEl.src = firstUrl;
+                try {
+                  audioEl.load();
+                  audioEl.play().catch(() => {
+                    // ignore autoplay errors
+                  });
+                } catch {
+                  // ignore
+                }
               }}
             >
               Play
