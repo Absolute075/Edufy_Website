@@ -9,7 +9,7 @@ export type ResourceRule = {
   requiredPlan: UserPlan;
   title: string;
   examType: ResourceExamType;
-  part: 1 | 2 | 3;
+  part: 1 | 2 | 3 | 4;
   difficulty: ResourceDifficulty;
   minutes: number;
   questions: number;
@@ -27,7 +27,17 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       questions: 12,
     },
   },
-  listening: {},
+  listening: {
+    "846376": {
+      requiredPlan: "free",
+      title: "IELTS Listening Full Test",
+      examType: "real",
+      part: 4,
+      difficulty: "medium",
+      minutes: 30,
+      questions: 40,
+    },
+  },
   writing: {},
   mock: {},
 };
