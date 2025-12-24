@@ -3131,12 +3131,6 @@ export default function ListeningTest846376Page() {
                 </button>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-                <button type="button" className="fancy-button fancy-button-sm" onClick={resetTest}>
-                  Try Again
-                </button>
-              </div>
-
               <div className="results-hero">
                 <div className="complete-badge" aria-hidden="true">
                   <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
@@ -3205,6 +3199,10 @@ export default function ListeningTest846376Page() {
               </div>
 
               <div className="nav-row">
+                <button type="button" className="nav-btn" onClick={resetTest}>
+                  <i className="fa-solid fa-rotate-right" aria-hidden="true" />
+                  <span>Try Again</span>
+                </button>
                 <button type="button" className="nav-btn" onClick={() => router.push(dashboardHref)}>
                   <i className="fa-solid fa-house" aria-hidden="true" />
                   <span>Back to Dashboard</span>
