@@ -720,27 +720,27 @@ export default function ReadingPassage2Page() {
         }
 
         .passage-card::-webkit-scrollbar,
-        .questions-card::-webkit-scrollbar {
+        .questions-card::-webkit-scrollbar,
+        .results-scroll::-webkit-scrollbar {
           width: 8px;
         }
 
         .passage-card::-webkit-scrollbar-track,
-        .questions-card::-webkit-scrollbar-track {
+        .questions-card::-webkit-scrollbar-track,
+        .results-scroll::-webkit-scrollbar-track {
           background: transparent;
         }
 
         .passage-card::-webkit-scrollbar-thumb,
-        .questions-card::-webkit-scrollbar-thumb {
+        .questions-card::-webkit-scrollbar-thumb,
+        .results-scroll::-webkit-scrollbar-thumb {
           background-color: var(--scrollbar-thumb);
           border-radius: 4px;
         }
 
-        .passage-card {
-          scrollbar-width: thin;
-          scrollbar-color: var(--scrollbar-thumb) transparent;
-        }
-
-        .questions-card {
+        .passage-card,
+        .questions-card,
+        .results-scroll {
           scrollbar-width: thin;
           scrollbar-color: var(--scrollbar-thumb) transparent;
         }
