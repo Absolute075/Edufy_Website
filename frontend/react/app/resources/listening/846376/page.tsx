@@ -84,8 +84,11 @@ export default function ListeningTest846376Page() {
   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
+  const [isTimeUpOpen, setIsTimeUpOpen] = useState(false);
   const [copiedSupportKey, setCopiedSupportKey] = useState<"visa" | "uzcard" | null>(null);
   const supportCopyTimeoutRef = useRef<{ visa: number | null; uzcard: number | null }>({ visa: null, uzcard: null });
+  const timeUpTimeoutRef = useRef<number | null>(null);
+  const timeUpTriggeredRef = useRef(false);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -127,6 +130,8 @@ export default function ListeningTest846376Page() {
       const t = supportCopyTimeoutRef.current;
       if (t.visa !== null) window.clearTimeout(t.visa);
       if (t.uzcard !== null) window.clearTimeout(t.uzcard);
+
+      if (timeUpTimeoutRef.current !== null) window.clearTimeout(timeUpTimeoutRef.current);
     };
   }, []);
 
@@ -649,6 +654,23 @@ export default function ListeningTest846376Page() {
     setPlayerSection(currentSection);
   };
 
+  useEffect(() => {
+    if (timeLeft !== 0) return;
+    if (submitted) return;
+    if (timeUpTriggeredRef.current) return;
+
+    timeUpTriggeredRef.current = true;
+    setIsSubmitConfirmOpen(false);
+    setIsTimeUpOpen(true);
+
+    if (timeUpTimeoutRef.current !== null) window.clearTimeout(timeUpTimeoutRef.current);
+    timeUpTimeoutRef.current = window.setTimeout(() => {
+      submitTest();
+      setIsTimeUpOpen(false);
+      timeUpTimeoutRef.current = null;
+    }, 900);
+  }, [timeLeft, submitted, submitTest]);
+
   const resetTest = () => {
     const audioEl = audioRef.current;
     try {
@@ -660,6 +682,13 @@ export default function ListeningTest846376Page() {
     } catch {
       // ignore
     }
+
+    if (timeUpTimeoutRef.current !== null) {
+      window.clearTimeout(timeUpTimeoutRef.current);
+      timeUpTimeoutRef.current = null;
+    }
+    timeUpTriggeredRef.current = false;
+    setIsTimeUpOpen(false);
 
     if (questionsRef.current) {
       const spans = Array.from(questionsRef.current.querySelectorAll('span[data-hl="1"]')) as HTMLElement[];
@@ -1541,6 +1570,43 @@ export default function ListeningTest846376Page() {
         .results-overlay {
           background: rgba(0, 0, 0, 0.55);
           z-index: 400;
+        }
+
+        .timeup-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.65);
+          z-index: 650;
+        }
+
+        .timeup-modal {
+          position: fixed;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 420px;
+          max-width: calc(100vw - 32px);
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: 18px;
+          box-shadow: var(--shadow-menu);
+          z-index: 651;
+          padding: 18px 16px;
+          text-align: center;
+        }
+
+        .timeup-title {
+          font-weight: 900;
+          font-size: 16px;
+          color: var(--text);
+          letter-spacing: 0.2px;
+          margin-bottom: 8px;
+        }
+
+        .timeup-subtitle {
+          font-weight: 800;
+          font-size: 13px;
+          color: var(--muted);
         }
 
         .results-modal {
@@ -3336,6 +3402,16 @@ export default function ListeningTest846376Page() {
                 Yes
               </button>
             </div>
+          </div>
+        </>
+      ) : null}
+
+      {isTimeUpOpen ? (
+        <>
+          <div className="timeup-overlay" />
+          <div className="timeup-modal" role="dialog" aria-modal="true">
+            <div className="timeup-title">Time is up</div>
+            <div className="timeup-subtitle">Submitting your answers</div>
           </div>
         </>
       ) : null}
