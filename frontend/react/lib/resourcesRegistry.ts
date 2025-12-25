@@ -26,6 +26,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 12,
     },
+    "497356": {
+      requiredPlan: "free",
+      title: "Global Warming in New Zealand",
+      examType: "real",
+      part: 3,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 14,
+    },
     "976485": {
       requiredPlan: "free",
       title: "The tuatara – past and future",
