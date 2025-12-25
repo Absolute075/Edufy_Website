@@ -60,9 +60,9 @@ export default function RootLayout({
               <div className="orientation-lock-box">
                 <p className="orientation-lock-title">Hi there!</p>
                 <p className="orientation-lock-subtitle">
-                  Adaptation to phone is developing,
+                  Adaptation for phones is developing, try on PC to have better experience.
                   <br />
-                  We are sincerely apologize for inconvenience
+                  We are sincerely apologize for inconvenience!
                 </p>
               </div>
             </div>
