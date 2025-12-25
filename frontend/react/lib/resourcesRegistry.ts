@@ -33,7 +33,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       part: 3,
       difficulty: "medium",
       minutes: 20,
-      questions: 12,
+      questions: 14,
     },
   },
   listening: {
