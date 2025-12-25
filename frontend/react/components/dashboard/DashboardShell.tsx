@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type NavItem = {
   href: string;
@@ -226,13 +226,138 @@ export function DashboardShell({ children, studentName }: Props) {
   const pathname = usePathname() || "/";
   const headerName = studentName || "Student";
 
+  const [showPageLoader, setShowPageLoader] = useState(false);
+  const loaderTimersRef = useRef<{ show?: number; hide?: number; cap?: number }>({});
+
   const segments = pathname.split("/").filter(Boolean);
   const firstSegment = segments[0] || "";
   const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
   const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
 
+  const isTestPage = (() => {
+    const idx = segments.indexOf("resources");
+    if (idx === -1) return false;
+    const category = segments[idx + 1] || "";
+    const maybeId = segments[idx + 2] || "";
+    const isTestCategory =
+      category === "reading" ||
+      category === "listening" ||
+      category === "writing" ||
+      category === "mock";
+    if (!isTestCategory) return false;
+    return Boolean(maybeId);
+  })();
+
+  useEffect(() => {
+    if (isTestPage) {
+      setShowPageLoader(false);
+      return;
+    }
+
+    const t = loaderTimersRef.current;
+    if (t.show) window.clearTimeout(t.show);
+    if (t.hide) window.clearTimeout(t.hide);
+    if (t.cap) window.clearTimeout(t.cap);
+    setShowPageLoader(false);
+
+    t.show = window.setTimeout(() => {
+      setShowPageLoader(true);
+    }, 200);
+
+    t.hide = window.setTimeout(() => {
+      setShowPageLoader(false);
+    }, 1200);
+
+    t.cap = window.setTimeout(() => {
+      setShowPageLoader(false);
+    }, 2000);
+
+    return () => {
+      const next = loaderTimersRef.current;
+      if (next.show) window.clearTimeout(next.show);
+      if (next.hide) window.clearTimeout(next.hide);
+      if (next.cap) window.clearTimeout(next.cap);
+    };
+  }, [pathname, isTestPage]);
+
   return (
     <div className="relative min-h-screen bg-neutral-950 text-slate-100">
+      <style jsx global>{`
+        @keyframes loader_5191 {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        .edufy-inline-loader {
+          position: relative;
+          width: 54px;
+          height: 54px;
+        }
+
+        .edufy-inline-loader .square {
+          background: #ddd;
+          width: 10px;
+          height: 10px;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-top: -5px;
+          margin-left: -5px;
+          border-radius: 2px;
+        }
+
+        .edufy-inline-loader #sq1 {
+          margin-top: -25px;
+          margin-left: -25px;
+          animation: loader_5191 675ms ease-in-out 0s infinite alternate;
+        }
+
+        .edufy-inline-loader #sq2 {
+          margin-top: -25px;
+          animation: loader_5191 675ms ease-in-out 75ms infinite alternate;
+        }
+
+        .edufy-inline-loader #sq3 {
+          margin-top: -25px;
+          margin-left: 15px;
+          animation: loader_5191 675ms ease-in-out 150ms infinite;
+        }
+
+        .edufy-inline-loader #sq4 {
+          margin-left: -25px;
+          animation: loader_5191 675ms ease-in-out 225ms infinite;
+        }
+
+        .edufy-inline-loader #sq5 {
+          animation: loader_5191 675ms ease-in-out 300ms infinite;
+        }
+
+        .edufy-inline-loader #sq6 {
+          margin-left: 15px;
+          animation: loader_5191 675ms ease-in-out 375ms infinite;
+        }
+
+        .edufy-inline-loader #sq7 {
+          margin-top: 15px;
+          margin-left: -25px;
+          animation: loader_5191 675ms ease-in-out 450ms infinite;
+        }
+
+        .edufy-inline-loader #sq8 {
+          margin-top: 15px;
+          animation: loader_5191 675ms ease-in-out 525ms infinite;
+        }
+
+        .edufy-inline-loader #sq9 {
+          margin-top: 15px;
+          margin-left: 15px;
+          animation: loader_5191 675ms ease-in-out 600ms infinite;
+        }
+      `}</style>
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/90 via-black to-black" />
         <div className="particle absolute h-1 w-1 rounded-full bg-cyan-400/70 shadow-[0_0_25px_rgba(34,211,238,0.8)]" style={{ top: "20%", left: "10%" }} />
@@ -298,7 +423,27 @@ export function DashboardShell({ children, studentName }: Props) {
             </div>
           </header>
 
-          <div className="flex-1 px-4 py-6 md:px-8">{children}</div>
+          <div className="relative flex-1 px-4 py-6 md:px-8">
+            {showPageLoader ? (
+              <div className="pointer-events-none absolute inset-0 z-30 flex items-start justify-center">
+                <div className="mt-6 rounded-2xl border border-neutral-800 bg-neutral-950/80 px-6 py-5 shadow-lg shadow-black/40">
+                  <div className="edufy-inline-loader" aria-hidden="true">
+                    <div className="square" id="sq1" />
+                    <div className="square" id="sq2" />
+                    <div className="square" id="sq3" />
+                    <div className="square" id="sq4" />
+                    <div className="square" id="sq5" />
+                    <div className="square" id="sq6" />
+                    <div className="square" id="sq7" />
+                    <div className="square" id="sq8" />
+                    <div className="square" id="sq9" />
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {children}
+          </div>
 
           <footer className="border-t border-neutral-800 py-6 px-4 md:px-8 text-center text-sm text-slate-500">
             ©2025 Edufy. Keep Learning.

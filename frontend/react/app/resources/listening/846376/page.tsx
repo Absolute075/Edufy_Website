@@ -104,6 +104,9 @@ export default function ListeningTest846376Page() {
   const [playerIsPlaying, setPlayerIsPlaying] = useState(false);
   const [playerTime, setPlayerTime] = useState(0);
   const [playerDuration, setPlayerDuration] = useState(0);
+  const [playerIsSeeking, setPlayerIsSeeking] = useState(false);
+  const [playerSeekValue, setPlayerSeekValue] = useState(0);
+  const [playerIsBuffering, setPlayerIsBuffering] = useState(false);
 
   const questionsRef = useRef<HTMLDivElement | null>(null);
   const selectionRangeRef = useRef<Range | null>(null);
@@ -703,12 +706,12 @@ export default function ListeningTest846376Page() {
         return;
       }
 
+      const urls = [1, 2, 3, 4].map((i) => `${audioDir}/section${i}.mp3`);
+      const results = await Promise.all(urls.map((u) => checkAudioExists(u)));
       const found: string[] = [];
-      for (let i = 1; i <= 4; i++) {
-        const url = `${audioDir}/section${i}.mp3`;
-        const ok = await checkAudioExists(url);
-        if (!ok) break;
-        found.push(url);
+      for (let i = 0; i < urls.length; i++) {
+        if (!results[i]) break;
+        found.push(urls[i]);
       }
 
       if (!cancelled) setAvailableAudioSources(found);
@@ -811,17 +814,25 @@ export default function ListeningTest846376Page() {
       setPlayerDuration(d);
     };
     const onTime = () => {
+      if (playerIsSeeking) return;
       setPlayerTime(audioEl.currentTime || 0);
     };
     const onPlay = () => setPlayerIsPlaying(true);
     const onPause = () => setPlayerIsPlaying(false);
     const onEnded = () => setPlayerIsPlaying(false);
+    const onWaiting = () => setPlayerIsBuffering(true);
+    const onCanPlay = () => setPlayerIsBuffering(false);
+    const onPlaying = () => setPlayerIsBuffering(false);
 
     audioEl.addEventListener("loadedmetadata", onLoaded);
+    audioEl.addEventListener("durationchange", onLoaded);
     audioEl.addEventListener("timeupdate", onTime);
     audioEl.addEventListener("play", onPlay);
     audioEl.addEventListener("pause", onPause);
     audioEl.addEventListener("ended", onEnded);
+    audioEl.addEventListener("waiting", onWaiting);
+    audioEl.addEventListener("canplay", onCanPlay);
+    audioEl.addEventListener("playing", onPlaying);
 
     onLoaded();
     onTime();
@@ -829,12 +840,16 @@ export default function ListeningTest846376Page() {
 
     return () => {
       audioEl.removeEventListener("loadedmetadata", onLoaded);
+      audioEl.removeEventListener("durationchange", onLoaded);
       audioEl.removeEventListener("timeupdate", onTime);
       audioEl.removeEventListener("play", onPlay);
       audioEl.removeEventListener("pause", onPause);
       audioEl.removeEventListener("ended", onEnded);
+      audioEl.removeEventListener("waiting", onWaiting);
+      audioEl.removeEventListener("canplay", onCanPlay);
+      audioEl.removeEventListener("playing", onPlaying);
     };
-  }, [audioRef]);
+  }, [audioRef, playerIsSeeking]);
 
   useEffect(() => {
     if (!submitted) return;
@@ -2269,24 +2284,46 @@ export default function ListeningTest846376Page() {
                 type="range"
                 min={0}
                 max={playerDuration || 0}
-                value={Math.min(playerTime, playerDuration || 0)}
+                value={
+                  playerIsSeeking
+                    ? playerSeekValue
+                    : Math.min(playerTime, playerDuration || 0)
+                }
                 step={0.1}
+                onPointerDown={() => {
+                  const v = Math.min(playerTime, playerDuration || 0);
+                  setPlayerIsSeeking(true);
+                  setPlayerSeekValue(v);
+                }}
                 onChange={(e) => {
-                  const audioEl = audioRef.current;
-                  if (!audioEl) return;
                   const v = Number(e.target.value);
                   if (!Number.isFinite(v)) return;
+                  setPlayerSeekValue(v);
+                  setPlayerTime(v);
+                }}
+                onPointerUp={() => {
+                  const audioEl = audioRef.current;
+                  if (!audioEl) {
+                    setPlayerIsSeeking(false);
+                    return;
+                  }
                   try {
-                    audioEl.currentTime = v;
+                    audioEl.currentTime = playerSeekValue;
                   } catch {
                     // ignore
                   }
+                  setPlayerIsSeeking(false);
                 }}
               />
               <div className="audio-time-row">
-                <span>{formatAudioTime(playerTime)}</span>
+                <span>{formatAudioTime(playerIsSeeking ? playerSeekValue : playerTime)}</span>
                 <span>{formatAudioTime(playerDuration)}</span>
               </div>
+              {playerIsBuffering ? (
+                <div style={{ marginTop: 6, fontSize: 12, color: "var(--muted)", fontWeight: 700 }}>
+                  Loading audio…
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -3233,6 +3270,7 @@ export default function ListeningTest846376Page() {
       <audio
         ref={audioRef}
         onEnded={submitted ? undefined : handleAudioEnded}
+        preload="auto"
         style={{ display: "none" }}
       />
 
