@@ -83,6 +83,11 @@ export default function ListeningTest846376Page() {
   const [score, setScore] = useState<number | null>(null);
   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
   const [isResultsOpen, setIsResultsOpen] = useState(false);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
+  const [copiedSupportKey, setCopiedSupportKey] = useState<"visa" | "uzcard" | null>(null);
+  const supportCopyTimeoutRef = useRef<{ visa: number | null; uzcard: number | null }>({ visa: null, uzcard: null });
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
@@ -116,6 +121,14 @@ export default function ListeningTest846376Page() {
     left: number;
     text: string;
   }>({ open: false, top: 0, left: 0, text: "" });
+
+  useEffect(() => {
+    return () => {
+      const t = supportCopyTimeoutRef.current;
+      if (t.visa !== null) window.clearTimeout(t.visa);
+      if (t.uzcard !== null) window.clearTimeout(t.uzcard);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -249,9 +262,42 @@ export default function ListeningTest846376Page() {
 
   const totalQuestions = progressNumbers.length;
   const scoreLabel = `${score ?? 0}/${totalQuestions}`;
+  const feedbackHasWord = /\S+/.test(feedbackText.trim());
   const dashboardHref = `${userPrefix}/dashboard`;
   const listeningTestsHref = `${userPrefix}/resources/listening`;
   const reviewHref = pathname;
+
+  const copySupportCard = async (key: "visa" | "uzcard", rawNumber: string) => {
+    const number = rawNumber.trim();
+    if (!number) return;
+
+    try {
+      await navigator.clipboard.writeText(number);
+    } catch {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = number;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        ta.style.top = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {
+        return;
+      }
+    }
+
+    setCopiedSupportKey(key);
+    const prev = supportCopyTimeoutRef.current[key];
+    if (prev !== null) window.clearTimeout(prev);
+    supportCopyTimeoutRef.current[key] = window.setTimeout(() => {
+      setCopiedSupportKey((cur) => (cur === key ? null : cur));
+      supportCopyTimeoutRef.current[key] = null;
+    }, 2000);
+  };
 
   const normalizeText = (v: string) => v.replace(/\s+/g, " ").trim();
   const normalizeWord = (v: string) => normalizeText(v).toLowerCase();
@@ -1661,6 +1707,75 @@ export default function ListeningTest846376Page() {
           background: var(--card);
         }
 
+        .support-btn {
+          width: 100%;
+          margin-top: 14px;
+          padding: 10px 12px;
+          border-radius: 14px;
+          font-weight: 900;
+          border: 1px solid var(--border);
+          background: var(--subtle);
+          color: var(--text);
+          cursor: pointer;
+          transition: background-color 160ms ease, transform 160ms ease;
+        }
+
+        .support-btn:hover {
+          background: var(--hover);
+        }
+
+        .support-btn:active {
+          transform: translateY(1px);
+        }
+
+        .support-btn:focus-visible {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.25);
+        }
+
+        .feedback-box {
+          margin-top: 14px;
+          border: 1px solid var(--border);
+          background: var(--subtle);
+          border-radius: 14px;
+          padding: 12px;
+        }
+
+        .feedback-input {
+          width: 100%;
+          min-height: 90px;
+          resize: vertical;
+          padding: 10px 12px;
+          border-radius: 12px;
+          border: 1px solid var(--border);
+          background: var(--card);
+          color: var(--text);
+          outline: none;
+        }
+
+        .feedback-actions {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 10px;
+          gap: 10px;
+          align-items: center;
+        }
+
+        .feedback-submit {
+          padding: 9px 12px;
+          border-radius: 12px;
+          border: 1px solid var(--border);
+          background: var(--card);
+          color: var(--text);
+          cursor: pointer;
+          font-weight: 900;
+        }
+
+        .feedback-submit:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
         .nav-row {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1706,6 +1821,80 @@ export default function ListeningTest846376Page() {
         .nav-btn i {
           font-size: 13px;
           line-height: 1;
+        }
+
+        .support-modal {
+          position: fixed;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 520px;
+          max-width: calc(100vw - 32px);
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: 18px;
+          box-shadow: var(--shadow-menu);
+          z-index: 501;
+          padding: 16px;
+        }
+
+        .support-card {
+          border-radius: 16px;
+          padding: 14px;
+          background: var(--subtle);
+          border: 1px solid var(--border);
+          margin-bottom: 12px;
+        }
+
+        .support-card-num {
+          font-size: 16px;
+          font-weight: 900;
+          letter-spacing: 1px;
+          color: var(--text);
+        }
+
+        .support-thanks {
+          margin-top: 10px;
+          text-align: center;
+          font-size: 13px;
+          font-weight: 800;
+          color: var(--muted);
+        }
+
+        .support-card-name {
+          margin-top: 10px;
+          font-size: 12px;
+          color: var(--muted);
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+        }
+
+        .support-card-actions {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          justify-content: flex-end;
+        }
+
+        .support-copy-btn {
+          border: 1px solid var(--border);
+          background: var(--card);
+          color: var(--text);
+          border-radius: 10px;
+          padding: 6px 10px;
+          font-size: 12px;
+          font-weight: 900;
+          cursor: pointer;
+        }
+
+        .support-copy-btn:hover {
+          background: var(--hover);
+        }
+
+        .support-copy-btn:focus-visible {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.25);
         }
 
         .notes-overlay {
@@ -3151,6 +3340,73 @@ export default function ListeningTest846376Page() {
         </>
       ) : null}
 
+      {isSupportOpen ? (
+        <>
+          <div
+            className="results-overlay"
+            style={{ zIndex: 500 }}
+            onClick={() => setIsSupportOpen(false)}
+          />
+          <div className="support-modal" role="dialog" aria-modal="true">
+            <div className="results-top" style={{ marginBottom: 10 }}>
+              <div style={{ fontWeight: 900, fontSize: 14 }}>Support Our Project</div>
+              <button
+                type="button"
+                className="results-close"
+                onClick={() => setIsSupportOpen(false)}
+                aria-label="Close support"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="support-card">
+              <div className="support-card-num">4023 0601 0538 4175</div>
+              <div className="support-card-name">
+                <div>
+                  Cardholder: <strong style={{ color: "var(--text)" }}>Saparov Anvar</strong>
+                </div>
+                <div className="support-card-actions">
+                  <div>
+                    <strong style={{ color: "var(--text)" }}>VISA</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className="support-copy-btn"
+                    onClick={() => copySupportCard("visa", "4023 0601 0538 4175")}
+                  >
+                    {copiedSupportKey === "visa" ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="support-card">
+              <div className="support-card-num">8600 1402 8071 0535</div>
+              <div className="support-card-name">
+                <div>
+                  Cardholder: <strong style={{ color: "var(--text)" }}>Saparov Anvar</strong>
+                </div>
+                <div className="support-card-actions">
+                  <div>
+                    <strong style={{ color: "var(--text)" }}>UzCard</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className="support-copy-btn"
+                    onClick={() => copySupportCard("uzcard", "8600 1402 8071 0535")}
+                  >
+                    {copiedSupportKey === "uzcard" ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="support-thanks">Thanks for your support ❤</div>
+          </div>
+        </>
+      ) : null}
+
       {isResultsOpen ? (
         <>
           <div className="results-overlay" onClick={() => setIsResultsOpen(false)} />
@@ -3233,6 +3489,50 @@ export default function ListeningTest846376Page() {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              <button
+                type="button"
+                className="support-btn"
+                onClick={() => {
+                  setIsSupportOpen(true);
+                  setFeedbackSubmitted(false);
+                }}
+              >
+                Support Our Project
+              </button>
+
+              <div className="feedback-box">
+                <div className="section-title" style={{ marginTop: 0 }}>
+                  Leave Your Feedback
+                </div>
+                <textarea
+                  className="feedback-input"
+                  value={feedbackText}
+                  onChange={(e) => {
+                    setFeedbackText(e.target.value);
+                    setFeedbackSubmitted(false);
+                  }}
+                  placeholder="Write your feedback..."
+                />
+                <div className="feedback-actions">
+                  {feedbackSubmitted ? (
+                    <div style={{ color: "var(--muted)", fontSize: 12, fontWeight: 700 }}>
+                      Thanks for your feedback!
+                    </div>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="feedback-submit"
+                    disabled={!feedbackHasWord}
+                    onClick={() => {
+                      if (!feedbackHasWord) return;
+                      setFeedbackSubmitted(true);
+                    }}
+                  >
+                    Submit Feedback
+                  </button>
+                </div>
               </div>
 
               <div className="nav-row">

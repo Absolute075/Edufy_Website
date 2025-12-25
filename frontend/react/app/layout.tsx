@@ -58,9 +58,11 @@ export default function RootLayout({
             <div className="orientation-allowed-content">{children}</div>
             <div className="orientation-lock-overlay">
               <div className="orientation-lock-box">
-                <p className="orientation-lock-title">Rotate your device</p>
+                <p className="orientation-lock-title">Hi there!</p>
                 <p className="orientation-lock-subtitle">
-                  Edufy is designed for horizontal (landscape) mode on mobile. Please turn your phone to continue.
+                  Adaptation to phone is developing,
+                  <br />
+                  We are sincerely apologize for inconvenience
                 </p>
               </div>
             </div>
