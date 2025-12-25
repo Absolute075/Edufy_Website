@@ -916,21 +916,78 @@ export default function ReadingPassage2Page() {
           box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.25);
         }
 
-        .submit-button {
+        .submit-button:not(.fancy-button) {
           transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
           will-change: transform;
         }
 
-        .submit-button:hover:not(:disabled) {
+        .submit-button:not(.fancy-button):hover:not(:disabled) {
           transform: translateY(-1px);
           box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
           filter: brightness(1.03);
         }
 
-        .submit-button:active:not(:disabled) {
+        .submit-button:not(.fancy-button):active:not(:disabled) {
           transform: translateY(0);
           box-shadow: 0 5px 12px rgba(0, 0, 0, 0.14);
           filter: brightness(1.01);
+        }
+
+        .fancy-button {
+          padding: 1.15em 2.6em;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 2.2px;
+          font-weight: 900;
+          color: #000;
+          background-color: #fff;
+          border: none;
+          border-radius: 45px;
+          box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease 0s;
+          cursor: pointer;
+          outline: none;
+          white-space: nowrap;
+        }
+
+        .fancy-button:hover {
+          background-color: #23c483;
+          box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+          color: #fff;
+          transform: translateY(-7px);
+        }
+
+        .fancy-button:active {
+          transform: translateY(-1px);
+        }
+
+        .fancy-button:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .fancy-button:disabled:hover {
+          background-color: #fff;
+          box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+          color: #000;
+          transform: none;
+        }
+
+        .fancy-button.fancy-button-sm {
+          padding: 1.05em 2.1em;
+        }
+
+        .submit-button.fancy-button.fancy-button-sm {
+          padding: 0.95em 1.9em;
+          font-size: 10px;
+          letter-spacing: 2px;
+        }
+
+        @media (max-width: 520px) {
+          .fancy-button.fancy-button-sm {
+            width: 100%;
+          }
         }
 
         .notes-overlay {
@@ -3025,78 +3082,76 @@ export default function ReadingPassage2Page() {
           style={{
             marginTop: 0,
             paddingTop: 4,
-            position: "relative",
             minHeight: 40,
             display: "flex",
-            justifyContent: "center",
             alignItems: "center",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "center", gap: 4 }}>
-            {progressNumbers.map((num) => (
-              (() => {
-                const key = `q${num}`;
-                const answered =
-                  (num >= 14 && num <= 18 && Boolean((headingSelections as Record<string, string>)[key])) ||
-                  (num >= 20 && num <= 22 && Boolean((fillSelections as Record<string, string>)[key]?.trim())) ||
-                  (num >= 23 && num <= 26 && Boolean((summarySelections as Record<string, string>)[key]));
+          <div style={{ width: "100%", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <div
+              style={{
+                flex: 1,
+                minWidth: 0,
+                display: "flex",
+                justifyContent: "center",
+                gap: 4,
+                overflowX: "auto",
+                overflowY: "hidden",
+                paddingBottom: 1,
+              }}
+            >
+              {progressNumbers.map((num) =>
+                (() => {
+                  const key = `q${num}`;
+                  const answered =
+                    (num >= 14 && num <= 18 && Boolean((headingSelections as Record<string, string>)[key])) ||
+                    (num >= 20 && num <= 22 && Boolean((fillSelections as Record<string, string>)[key]?.trim())) ||
+                    (num >= 23 && num <= 26 && Boolean((summarySelections as Record<string, string>)[key]));
 
-                return (
-              <div
-                key={num}
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 6,
-                  border: answered ? "1px solid rgba(72, 187, 120, 0.65)" : "1px solid var(--border)",
-                  backgroundColor: answered ? "rgba(72, 187, 120, 0.18)" : "var(--chip-bg)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: answered ? "var(--text)" : "var(--chip-text)",
-                  transform: answered ? "translateY(-1px)" : "translateY(0)",
-                  boxShadow: answered ? "0 8px 14px rgba(72, 187, 120, 0.18)" : "none",
-                  transition: "transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease",
-                }}
-              >
-                {num}
-              </div>
-                );
-              })()
-            ))}
+                  return (
+                    <div
+                      key={num}
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: 6,
+                        border: answered ? "1px solid rgba(72, 187, 120, 0.65)" : "1px solid var(--border)",
+                        backgroundColor: answered ? "rgba(72, 187, 120, 0.18)" : "var(--chip-bg)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: answered ? "var(--text)" : "var(--chip-text)",
+                        transform: answered ? "translateY(-1px)" : "translateY(0)",
+                        boxShadow: answered ? "0 8px 14px rgba(72, 187, 120, 0.18)" : "none",
+                        transition:
+                          "transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease",
+                      }}
+                    >
+                      {num}
+                    </div>
+                  );
+                })()
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (submitted) setIsResultsOpen(true);
+                else setIsSubmitConfirmOpen(true);
+              }}
+              disabled={false}
+              className="submit-button fancy-button fancy-button-sm"
+              style={{ flex: "0 0 auto" }}
+            >
+              {submitted ? "View Results" : "Submit"}
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (submitted) setIsResultsOpen(true);
-              else setIsSubmitConfirmOpen(true);
-            }}
-            disabled={false}
-            className="submit-button"
-            style={{
-              position: "absolute",
-              right: 0,
-              top: 4,
-              padding: "9px 16px",
-              backgroundColor: "var(--submit-bg)",
-              color: "#fff",
-              border: "none",
-              borderRadius: 7,
-              cursor: "pointer",
-              fontWeight: 700,
-              fontSize: 15,
-              transition: "transform 120ms ease, box-shadow 150ms ease, background-color 150ms ease",
-              boxShadow: submitted ? "none" : "0 10px 18px rgba(72, 187, 120, 0.22)",
-            }}
-          >
-            {submitted ? "View Results" : "Submit"}
-          </button>
         </div>
       </div>
     </div>
   );
- }
+}
 
