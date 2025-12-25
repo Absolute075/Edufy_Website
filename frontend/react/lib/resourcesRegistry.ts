@@ -26,6 +26,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 12,
     },
+    "976485": {
+      requiredPlan: "free",
+      title: "The tuatara – past and future",
+      examType: "real",
+      part: 3,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 12,
+    },
   },
   listening: {
     "846376": {
