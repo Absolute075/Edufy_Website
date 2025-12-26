@@ -44,6 +44,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "465798": {
+          requiredPlan: "free",
+          title: "The New Zealand writer Margaret Mahy",
+          examType: "real",
+          part: 3,
+          difficulty: "hard",
+          minutes: 20,
+          questions: 14,
+    },
     "976485": {
       requiredPlan: "free",
       title: "The tuatara – past and future",
