@@ -51,7 +51,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
        part: 2,
        difficulty: "medium",
        minutes: 20,
-       questions: 14,
+       questions: 13,
     },
     "465798": {
           requiredPlan: "free",
@@ -60,7 +60,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
           part: 3,
           difficulty: "hard",
           minutes: 20,
-          questions: 13,
+          questions: 14,
     },
     "976485": {
       requiredPlan: "free",
