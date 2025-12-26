@@ -27,7 +27,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       questions: 12,
     },
     "183692": {
-      requiredPlan: "premium",
+      requiredPlan: "free",
       title: "Thinking for themselves: Some insights into animal intelligence",
       examType: "real",
       part: 3,
