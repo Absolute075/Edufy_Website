@@ -44,6 +44,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "168723": {
+       requiredPlan: "free",
+       title: "A New Look for Talbot Park",
+       examType: "real",
+       part: 2,
+       difficulty: "medium",
+       minutes: 20,
+       questions: 14,
+    },
     "465798": {
           requiredPlan: "free",
           title: "The New Zealand writer Margaret Mahy",
@@ -51,7 +60,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
           part: 3,
           difficulty: "hard",
           minutes: 20,
-          questions: 14,
+          questions: 13,
     },
     "976485": {
       requiredPlan: "free",
