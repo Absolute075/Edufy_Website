@@ -26,6 +26,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 12,
     },
+    "183692": {
+      requiredPlan: "premium",
+      title: "Thinking for themselves: Some insights into animal intelligence",
+      examType: "real",
+      part: 3,
+      difficulty: "hard",
+      minutes: 20,
+      questions: 14,
+    },
     "497356": {
       requiredPlan: "free",
       title: "Global Warming in New Zealand",
