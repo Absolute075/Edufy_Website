@@ -71,6 +71,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "932569": {
+          requiredPlan: "free",
+          title: "The ability to communicate using language",
+          examType: "real",
+          part: 3,
+          difficulty: "hard",
+          minutes: 20,
+          questions: 14,
+    },
   },
   listening: {
     "846376": {
