@@ -2416,7 +2416,11 @@ export default function ReadingPassage2Page() {
                   <select
                     name="q14"
                     value={headingSelections.q14}
-                    onChange={(e) => setHeadingSelections((s) => ({ ...s, q14: e.target.value }))}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      setHeadingSelections((s) => ({ ...s, q14: e.target.value }));
+                    }}
                     style={{ display: "none" }}
                   >
                     <option value="" disabled>
@@ -2439,9 +2443,11 @@ export default function ReadingPassage2Page() {
                       className="rounded-dropdown-trigger"
                       aria-haspopup="listbox"
                       aria-expanded={openHeadingDropdown === "q14"}
-                      onClick={() =>
-                        setOpenHeadingDropdown((v) => (v === "q14" ? null : "q14"))
-                      }
+                      disabled={submitted}
+                      onClick={() => {
+                        if (submitted) return;
+                        setOpenHeadingDropdown((v) => (v === "q14" ? null : "q14"));
+                      }}
                     >
                       <span>{headingSelections.q14 ? headingSelections.q14 : "Select an option"}</span>
                       <span style={{ color: "#718096", fontSize: 12 }}>▼</span>
@@ -2467,7 +2473,9 @@ export default function ReadingPassage2Page() {
                           key={val}
                           type="button"
                           className="rounded-dropdown-item"
+                          disabled={submitted}
                           onClick={() => {
+                            if (submitted) return;
                             setHeadingSelections((s) => ({ ...s, q14: val }));
                             setOpenHeadingDropdown(null);
                           }}
@@ -2484,7 +2492,11 @@ export default function ReadingPassage2Page() {
                   <select
                     name="q15"
                     value={headingSelections.q15}
-                    onChange={(e) => setHeadingSelections((s) => ({ ...s, q15: e.target.value }))}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      setHeadingSelections((s) => ({ ...s, q15: e.target.value }));
+                    }}
                     style={{ display: "none" }}
                   >
                     <option value="" disabled>
@@ -2507,9 +2519,11 @@ export default function ReadingPassage2Page() {
                       className="rounded-dropdown-trigger"
                       aria-haspopup="listbox"
                       aria-expanded={openHeadingDropdown === "q15"}
-                      onClick={() =>
-                        setOpenHeadingDropdown((v) => (v === "q15" ? null : "q15"))
-                      }
+                      disabled={submitted}
+                      onClick={() => {
+                        if (submitted) return;
+                        setOpenHeadingDropdown((v) => (v === "q15" ? null : "q15"));
+                      }}
                     >
                       <span>{headingSelections.q15 ? headingSelections.q15 : "Select an option"}</span>
                       <span style={{ color: "#718096", fontSize: 12 }}>▼</span>
@@ -2535,7 +2549,9 @@ export default function ReadingPassage2Page() {
                           key={val}
                           type="button"
                           className="rounded-dropdown-item"
+                          disabled={submitted}
                           onClick={() => {
+                            if (submitted) return;
                             setHeadingSelections((s) => ({ ...s, q15: val }));
                             setOpenHeadingDropdown(null);
                           }}
@@ -2552,7 +2568,11 @@ export default function ReadingPassage2Page() {
                   <select
                     name="q16"
                     value={headingSelections.q16}
-                    onChange={(e) => setHeadingSelections((s) => ({ ...s, q16: e.target.value }))}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      setHeadingSelections((s) => ({ ...s, q16: e.target.value }));
+                    }}
                     style={{ display: "none" }}
                   >
                     <option value="" disabled>
@@ -2575,9 +2595,11 @@ export default function ReadingPassage2Page() {
                       className="rounded-dropdown-trigger"
                       aria-haspopup="listbox"
                       aria-expanded={openHeadingDropdown === "q16"}
-                      onClick={() =>
-                        setOpenHeadingDropdown((v) => (v === "q16" ? null : "q16"))
-                      }
+                      disabled={submitted}
+                      onClick={() => {
+                        if (submitted) return;
+                        setOpenHeadingDropdown((v) => (v === "q16" ? null : "q16"));
+                      }}
                     >
                       <span>{headingSelections.q16 ? headingSelections.q16 : "Select an option"}</span>
                       <span style={{ color: "#718096", fontSize: 12 }}>▼</span>
@@ -2603,7 +2625,9 @@ export default function ReadingPassage2Page() {
                           key={val}
                           type="button"
                           className="rounded-dropdown-item"
+                          disabled={submitted}
                           onClick={() => {
+                            if (submitted) return;
                             setHeadingSelections((s) => ({ ...s, q16: val }));
                             setOpenHeadingDropdown(null);
                           }}
@@ -2620,7 +2644,11 @@ export default function ReadingPassage2Page() {
                   <select
                     name="q17"
                     value={headingSelections.q17}
-                    onChange={(e) => setHeadingSelections((s) => ({ ...s, q17: e.target.value }))}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      setHeadingSelections((s) => ({ ...s, q17: e.target.value }));
+                    }}
                     style={{ display: "none" }}
                   >
                     <option value="" disabled>
@@ -2643,9 +2671,11 @@ export default function ReadingPassage2Page() {
                       className="rounded-dropdown-trigger"
                       aria-haspopup="listbox"
                       aria-expanded={openHeadingDropdown === "q17"}
-                      onClick={() =>
-                        setOpenHeadingDropdown((v) => (v === "q17" ? null : "q17"))
-                      }
+                      disabled={submitted}
+                      onClick={() => {
+                        if (submitted) return;
+                        setOpenHeadingDropdown((v) => (v === "q17" ? null : "q17"));
+                      }}
                     >
                       <span>{headingSelections.q17 ? headingSelections.q17 : "Select an option"}</span>
                       <span style={{ color: "#718096", fontSize: 12 }}>▼</span>
@@ -2671,7 +2701,9 @@ export default function ReadingPassage2Page() {
                           key={val}
                           type="button"
                           className="rounded-dropdown-item"
+                          disabled={submitted}
                           onClick={() => {
+                            if (submitted) return;
                             setHeadingSelections((s) => ({ ...s, q17: val }));
                             setOpenHeadingDropdown(null);
                           }}
@@ -2688,7 +2720,11 @@ export default function ReadingPassage2Page() {
                   <select
                     name="q18"
                     value={headingSelections.q18}
-                    onChange={(e) => setHeadingSelections((s) => ({ ...s, q18: e.target.value }))}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      setHeadingSelections((s) => ({ ...s, q18: e.target.value }));
+                    }}
                     style={{ display: "none" }}
                   >
                     <option value="" disabled>
@@ -2711,9 +2747,11 @@ export default function ReadingPassage2Page() {
                       className="rounded-dropdown-trigger"
                       aria-haspopup="listbox"
                       aria-expanded={openHeadingDropdown === "q18"}
-                      onClick={() =>
-                        setOpenHeadingDropdown((v) => (v === "q18" ? null : "q18"))
-                      }
+                      disabled={submitted}
+                      onClick={() => {
+                        if (submitted) return;
+                        setOpenHeadingDropdown((v) => (v === "q18" ? null : "q18"));
+                      }}
                     >
                       <span>{headingSelections.q18 ? headingSelections.q18 : "Select an option"}</span>
                       <span style={{ color: "#718096", fontSize: 12 }}>▼</span>
@@ -2739,7 +2777,9 @@ export default function ReadingPassage2Page() {
                           key={val}
                           type="button"
                           className="rounded-dropdown-item"
+                          disabled={submitted}
                           onClick={() => {
+                            if (submitted) return;
                             setHeadingSelections((s) => ({ ...s, q18: val }));
                             setOpenHeadingDropdown(null);
                           }}
@@ -2768,7 +2808,11 @@ export default function ReadingPassage2Page() {
                       placeholder="Answer"
                       className="q20-22-input"
                       value={fillSelections.q20}
-                      onChange={(e) => setFillSelections((s) => ({ ...s, q20: e.target.value }))}
+                      disabled={submitted}
+                      onChange={(e) => {
+                        if (submitted) return;
+                        setFillSelections((s) => ({ ...s, q20: e.target.value }));
+                      }}
                     />
                   </div>
                 </div>
@@ -2782,7 +2826,11 @@ export default function ReadingPassage2Page() {
                       placeholder="Answer"
                       className="q20-22-input"
                       value={fillSelections.q21}
-                      onChange={(e) => setFillSelections((s) => ({ ...s, q21: e.target.value }))}
+                      disabled={submitted}
+                      onChange={(e) => {
+                        if (submitted) return;
+                        setFillSelections((s) => ({ ...s, q21: e.target.value }));
+                      }}
                     />
                   </div>
                 </div>
@@ -2796,7 +2844,11 @@ export default function ReadingPassage2Page() {
                       placeholder="Answer"
                       className="q20-22-input"
                       value={fillSelections.q22}
-                      onChange={(e) => setFillSelections((s) => ({ ...s, q22: e.target.value }))}
+                      disabled={submitted}
+                      onChange={(e) => {
+                        if (submitted) return;
+                        setFillSelections((s) => ({ ...s, q22: e.target.value }));
+                      }}
                     />
                   </div>
                 </div>
@@ -2820,7 +2872,11 @@ export default function ReadingPassage2Page() {
                   <select
                     name="q23"
                     value={summarySelections.q23}
-                    onChange={(e) => setSummarySelections((s) => ({ ...s, q23: e.target.value }))}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      setSummarySelections((s) => ({ ...s, q23: e.target.value }));
+                    }}
                     style={{ display: "none" }}
                   >
                     <option value="" disabled>
@@ -2841,7 +2897,11 @@ export default function ReadingPassage2Page() {
                       className="rounded-dropdown-trigger"
                       aria-haspopup="listbox"
                       aria-expanded={openHeadingDropdown === "q23"}
-                      onClick={() => setOpenHeadingDropdown((v) => (v === "q23" ? null : "q23"))}
+                      disabled={submitted}
+                      onClick={() => {
+                        if (submitted) return;
+                        setOpenHeadingDropdown((v) => (v === "q23" ? null : "q23"));
+                      }}
                     >
                       <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {summarySelections.q23 ? summaryWordLabel(summarySelections.q23) : "Select an option"}
@@ -2859,7 +2919,9 @@ export default function ReadingPassage2Page() {
                           key={o.value}
                           type="button"
                           className="rounded-dropdown-item"
+                          disabled={submitted}
                           onClick={() => {
+                            if (submitted) return;
                             setSummarySelections((s) => ({ ...s, q23: o.value }));
                             setOpenHeadingDropdown(null);
                           }}
@@ -2874,7 +2936,11 @@ export default function ReadingPassage2Page() {
                   <select
                     name="q24"
                     value={summarySelections.q24}
-                    onChange={(e) => setSummarySelections((s) => ({ ...s, q24: e.target.value }))}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      setSummarySelections((s) => ({ ...s, q24: e.target.value }));
+                    }}
                     style={{ display: "none" }}
                   >
                     <option value="" disabled>
@@ -2895,7 +2961,11 @@ export default function ReadingPassage2Page() {
                       className="rounded-dropdown-trigger"
                       aria-haspopup="listbox"
                       aria-expanded={openHeadingDropdown === "q24"}
-                      onClick={() => setOpenHeadingDropdown((v) => (v === "q24" ? null : "q24"))}
+                      disabled={submitted}
+                      onClick={() => {
+                        if (submitted) return;
+                        setOpenHeadingDropdown((v) => (v === "q24" ? null : "q24"));
+                      }}
                     >
                       <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {summarySelections.q24 ? summaryWordLabel(summarySelections.q24) : "Select an option"}
@@ -2913,7 +2983,9 @@ export default function ReadingPassage2Page() {
                           key={o.value}
                           type="button"
                           className="rounded-dropdown-item"
+                          disabled={submitted}
                           onClick={() => {
+                            if (submitted) return;
                             setSummarySelections((s) => ({ ...s, q24: o.value }));
                             setOpenHeadingDropdown(null);
                           }}
@@ -2929,7 +3001,11 @@ export default function ReadingPassage2Page() {
                   <select
                     name="q25"
                     value={summarySelections.q25}
-                    onChange={(e) => setSummarySelections((s) => ({ ...s, q25: e.target.value }))}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      setSummarySelections((s) => ({ ...s, q25: e.target.value }));
+                    }}
                     style={{ display: "none" }}
                   >
                     <option value="" disabled>
@@ -2950,7 +3026,11 @@ export default function ReadingPassage2Page() {
                       className="rounded-dropdown-trigger"
                       aria-haspopup="listbox"
                       aria-expanded={openHeadingDropdown === "q25"}
-                      onClick={() => setOpenHeadingDropdown((v) => (v === "q25" ? null : "q25"))}
+                      disabled={submitted}
+                      onClick={() => {
+                        if (submitted) return;
+                        setOpenHeadingDropdown((v) => (v === "q25" ? null : "q25"));
+                      }}
                     >
                       <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {summarySelections.q25 ? summaryWordLabel(summarySelections.q25) : "Select an option"}
@@ -2968,7 +3048,9 @@ export default function ReadingPassage2Page() {
                           key={o.value}
                           type="button"
                           className="rounded-dropdown-item"
+                          disabled={submitted}
                           onClick={() => {
+                            if (submitted) return;
                             setSummarySelections((s) => ({ ...s, q25: o.value }));
                             setOpenHeadingDropdown(null);
                           }}
@@ -2983,7 +3065,11 @@ export default function ReadingPassage2Page() {
                   <select
                     name="q26"
                     value={summarySelections.q26}
-                    onChange={(e) => setSummarySelections((s) => ({ ...s, q26: e.target.value }))}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      setSummarySelections((s) => ({ ...s, q26: e.target.value }));
+                    }}
                     style={{ display: "none" }}
                   >
                     <option value="" disabled>
@@ -3004,7 +3090,11 @@ export default function ReadingPassage2Page() {
                       className="rounded-dropdown-trigger"
                       aria-haspopup="listbox"
                       aria-expanded={openHeadingDropdown === "q26"}
-                      onClick={() => setOpenHeadingDropdown((v) => (v === "q26" ? null : "q26"))}
+                      disabled={submitted}
+                      onClick={() => {
+                        if (submitted) return;
+                        setOpenHeadingDropdown((v) => (v === "q26" ? null : "q26"));
+                      }}
                     >
                       <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {summarySelections.q26 ? summaryWordLabel(summarySelections.q26) : "Select an option"}
@@ -3022,7 +3112,9 @@ export default function ReadingPassage2Page() {
                           key={o.value}
                           type="button"
                           className="rounded-dropdown-item"
+                          disabled={submitted}
                           onClick={() => {
+                            if (submitted) return;
                             setSummarySelections((s) => ({ ...s, q26: o.value }));
                             setOpenHeadingDropdown(null);
                           }}
