@@ -35,6 +35,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "168963": {
+      requiredPlan: "free",
+      title: "Solving the Problem of Waste Disposal",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 13,
+    },
     "497356": {
       requiredPlan: "free",
       title: "Global Warming in New Zealand",
