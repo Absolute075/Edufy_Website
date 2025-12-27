@@ -26,6 +26,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 12,
     },
+    "349653": {
+      requiredPlan: "free",
+      title: "Recording History",
+      examType: "real",
+      part: 3,
+      difficulty: "hard",
+      minutes: 20,
+      questions: 14,
+    },
     "183692": {
       requiredPlan: "free",
       title: "Thinking for themselves: Some insights into animal intelligence",

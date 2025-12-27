@@ -671,8 +671,12 @@ export default function Reading465798Page() {
                 type="radio"
                 name={String(key)}
                 value={o.value}
+                disabled={submitted}
                 checked={current === o.value}
-                onChange={() => setSelections((s) => ({ ...s, [key]: o.value }))}
+                onChange={() => {
+                  if (submitted) return;
+                  setSelections((s) => ({ ...s, [key]: o.value }));
+                }}
               />
               <span className="radio-circle" aria-hidden="true" />
               <span className="radio-text">
@@ -696,7 +700,11 @@ export default function Reading465798Page() {
           className="rounded-dropdown-trigger"
           aria-haspopup="listbox"
           aria-expanded={isOpen}
-          onClick={() => setOpenHeadingDropdown((v) => (v === key ? null : key))}
+          disabled={submitted}
+          onClick={() => {
+            if (submitted) return;
+            setOpenHeadingDropdown((v) => (v === key ? null : key));
+          }}
         >
           <span>{dropdownLabel(key, current)}</span>
           <span style={{ color: "#718096", fontSize: 12 }}>▼</span>
@@ -707,7 +715,9 @@ export default function Reading465798Page() {
               key={o.value}
               type="button"
               className="rounded-dropdown-item"
+              disabled={submitted}
               onClick={() => {
+                if (submitted) return;
                 setSelections((s) => ({ ...s, [key]: o.value }));
                 setOpenHeadingDropdown(null);
               }}

@@ -637,7 +637,11 @@ export default function Reading168963Page() {
          type="text"
          className="inline-text-input"
          value={current}
-         onChange={(e) => setSelections((s) => ({ ...s, [key]: e.target.value }))}
+         disabled={submitted}
+         onChange={(e) => {
+           if (submitted) return;
+           setSelections((s) => ({ ...s, [key]: e.target.value }));
+         }}
        />
      );
    };
@@ -656,7 +660,11 @@ export default function Reading168963Page() {
            className="rounded-dropdown-trigger"
            aria-haspopup="listbox"
            aria-expanded={isOpen}
-           onClick={() => setOpenHeadingDropdown((v) => (v === key ? null : key))}
+           disabled={submitted}
+           onClick={() => {
+             if (submitted) return;
+             setOpenHeadingDropdown((v) => (v === key ? null : key));
+           }}
          >
            <span>{dropdownLabel(key, current)}</span>
            <span style={{ color: "#718096", fontSize: 12 }}>▼</span>
@@ -671,7 +679,9 @@ export default function Reading168963Page() {
                key={o.value}
                type="button"
                className="rounded-dropdown-item"
+               disabled={submitted}
                onClick={() => {
+                 if (submitted) return;
                  setSelections((s) => ({ ...s, [key]: o.value }));
                  setOpenHeadingDropdown(null);
                }}
