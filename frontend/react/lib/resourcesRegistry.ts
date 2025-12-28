@@ -143,6 +143,16 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 25,
       questions: 16,
     },
+
+    "786169": {
+      requiredPlan: "free",
+      title: "Saturn Spectacular",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
