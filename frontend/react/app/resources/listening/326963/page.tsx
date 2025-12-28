@@ -6,46 +6,46 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { markTestCompleted } from "@/lib/completedTests";
 
 const correctAnswers: Record<number, string> = {
-  1: "southeast",
-  2: "washing machine",
-  3: "15th May",
-  4: "employer",
-  5: "675",
-  6: "translator",
-  7: "bank statement",
-  8: "Ainsworth",
-  9: "telephone",
-  10: "bus stop",
+  1: "5174XCM",
+  2: "summer",
+  3: "pump",
+  4: "bottle",
+  5: "plates",
+  6: "rubber",
+  7: "baseball",
+  8: "map",
+  9: "taupo",
+  10: "25.50",
   11: "B",
   12: "C",
-  13: "C",
+  13: "A",
   14: "C",
-  15: "A",
-  16: "A",
-  17: "C",
-  18: "B",
-  19: "A",
+  15: "H",
+  16: "F",
+  17: "G",
+  18: "D",
+  19: "E",
   20: "C",
-  21: "B",
-  22: "C",
-  23: "H",
-  24: "D",
-  25: "G",
-  26: "A",
-  27: "C",
-  28: "A",
-  29: "B",
+  21: "C",
+  22: "A",
+  23: "C",
+  24: "B",
+  25: "B",
+  26: "C",
+  27: "B",
+  28: "F",
+  29: "E",
   30: "A",
-  31: "coconut",
-  32: "stones",
-  33: "belt",
-  34: "sour",
-  35: "biscuits",
-  36: "fertiliser",
-  37: "celebration",
-  38: "harp",
-  39: "ropes",
-  40: "houses",
+  31: "fire",
+  32: "intelligent",
+  33: "varied",
+  34: "women",
+  35: "brain",
+  36: "quality",
+  37: "disease",
+  38: "personal",
+  39: "forests",
+  40: "planet",
 };
 
 const letterQuestions = new Set<number>([
@@ -61,7 +61,7 @@ function range(from: number, to: number) {
 
 const progressNumbers = range(1, 40);
 
-export default function ListeningTest846376Page() {
+export default function ListeningTest326963Page() {
   const router = useRouter();
   const pathname = usePathname() || "/";
   const segments = pathname.split("/").filter(Boolean);
@@ -75,8 +75,11 @@ export default function ListeningTest846376Page() {
       const maybeId = segments[idx + 2];
       if (maybeId) return maybeId;
     }
-    return "846376";
+    return "326963";
   }, [segments]);
+
+  const fullTestAudioUrl =
+    "https://resources.edufyuzbekistan.com/materials/listening/326963/full-listening-test-2.mp3";
 
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -777,6 +780,11 @@ export default function ListeningTest846376Page() {
     let cancelled = false;
 
     const run = async () => {
+      if (listeningId === "326963") {
+        setAvailableAudioSources([fullTestAudioUrl]);
+        return;
+      }
+
       if (!audioDir) {
         setAvailableAudioSources([]);
         return;
@@ -797,7 +805,7 @@ export default function ListeningTest846376Page() {
     return () => {
       cancelled = true;
     };
-  }, [audioDir]);
+  }, [audioDir, listeningId, fullTestAudioUrl]);
 
   const startAudioAtIndex = (index: number) => {
     const audioEl = audioRef.current;
@@ -944,7 +952,7 @@ export default function ListeningTest846376Page() {
     options: Array<{ value: string; label: string }>
   ) => {
     const selected = (answers[q] ?? "").trim();
-    const usePlainRadio = (q >= 11 && q <= 14) || (q >= 26 && q <= 30);
+    const usePlainRadio = (q >= 11 && q <= 14) || (q >= 21 && q <= 26) || (q >= 26 && q <= 30);
 
     return (
       <div className={`mcq${usePlainRadio ? " mcq-plain mcq-large-radio" : ""}`}>
@@ -969,7 +977,7 @@ export default function ListeningTest846376Page() {
     );
   };
 
-  const renderLetterDropdown = (q: number, options: string[]) => {
+  const renderLetterDropdown = (q: number, options: string[], openUp = false) => {
     const selected = (answers[q] ?? "").toUpperCase();
     const isOpen = openLetterDropdown === q;
 
@@ -991,7 +999,7 @@ export default function ListeningTest846376Page() {
         </button>
 
         <div
-          className={`rounded-dropdown-menu${isOpen ? " is-open" : ""}`}
+          className={`rounded-dropdown-menu${openUp ? " open-up" : ""}${isOpen ? " is-open" : ""}`}
           role="listbox"
           aria-hidden={!isOpen}
         >
@@ -1038,6 +1046,9 @@ export default function ListeningTest846376Page() {
         flexDirection: "column",
       }}
     >
+      <Head>
+        <title>IELTS Listening – Full Practice Test (Test 5)</title>
+      </Head>
       <style jsx global>{`
         html,
         body {
@@ -1497,6 +1508,16 @@ export default function ListeningTest846376Page() {
           transform: translateY(-6px);
           pointer-events: none;
           transition: opacity 180ms ease, transform 180ms ease;
+        }
+
+        .rounded-dropdown-menu.open-up {
+          top: auto;
+          bottom: calc(100% + 6px);
+          transform: translateY(6px);
+        }
+
+        .rounded-dropdown-menu.open-up.is-open {
+          transform: translateY(0);
         }
 
         .rounded-dropdown-menu.is-open {
@@ -2625,18 +2646,21 @@ export default function ListeningTest846376Page() {
             <div style={{ display: currentSection === 1 ? "block" : "none" }}>
               <div style={{ fontWeight: 900, marginBottom: 8 }}>SECTION 1</div>
               <div style={{ marginBottom: 10, fontWeight: 900 }}>
-                Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.
+                Write ONE WORD AND/OR A NUMBER for each answer.
               </div>
               <div style={{ fontWeight: 900, margin: "10px 0" }}>
-                Accommodation Request
-              </div>
-              <div style={{ color: "var(--text)", marginBottom: 10, lineHeight: 1.6 }}>
-                <div style={{ marginBottom: 6 }}>Name: Anna Black</div>
-                <div>Type of accommodation: house</div>
+                North Star Camping Equipment
               </div>
 
               <div className="question-line">
-                <span>Preferred location: the</span>
+                <span style={{ fontWeight: 900 }}>Customer Order</span>
+              </div>
+              <div className="question-line">
+                <span>Customer surname:</span>
+                <strong>Greenaway</strong>
+              </div>
+              <div className="question-line">
+                <span>Order reference:</span>
                 <input
                   id="q1"
                   className={inputClass(1)}
@@ -2644,10 +2668,16 @@ export default function ListeningTest846376Page() {
                   onChange={(e) => setAnswer(1, e.target.value)}
                   placeholder="1"
                 />
-                <span>of the town</span>
+              </div>
+
+              <div style={{ fontWeight: 900, margin: "18px 0 10px" }}>Ordered items</div>
+              <div className="question-line">
+                <strong>Tent</strong>
+                <span>family size, two doors</span>
               </div>
               <div className="question-line">
-                <span>Facilities required: furnished property with a</span>
+                <strong>Sleeping bags</strong>
+                <span>the</span>
                 <input
                   id="q2"
                   className={inputClass(2)}
@@ -2655,12 +2685,11 @@ export default function ListeningTest846376Page() {
                   onChange={(e) => setAnswer(2, e.target.value)}
                   placeholder="2"
                 />
+                <span>design</span>
               </div>
               <div className="question-line">
-                <span>Period of time required: one year</span>
-              </div>
-              <div className="question-line">
-                <span>Start date of rental period:</span>
+                <strong>Beds</strong>
+                <span>four mattresses, a</span>
                 <input
                   id="q3"
                   className={inputClass(3)}
@@ -2670,13 +2699,8 @@ export default function ListeningTest846376Page() {
                 />
               </div>
               <div className="question-line">
-                <span>Present address: 56, Stone Street</span>
-              </div>
-              <div className="question-line">
-                <span>Phone number: (mobile) 07942 326584</span>
-              </div>
-              <div className="question-line">
-                <span>Reference from: her</span>
+                <strong>Cooking</strong>
+                <span>a gas stove, a suitable water</span>
                 <input
                   id="q4"
                   className={inputClass(4)}
@@ -2686,19 +2710,18 @@ export default function ListeningTest846376Page() {
                 />
               </div>
               <div className="question-line">
-                <span>Maximum rent: £</span>
+                <span>a set of metal</span>
                 <input
                   id="q5"
                   className={inputClass(5)}
                   value={answers[5] ?? ""}
                   onChange={(e) => setAnswer(5, e.target.value)}
                   placeholder="5"
-                  style={{ width: 100 }}
                 />
-                <span>per month</span>
               </div>
               <div className="question-line">
-                <span>Applicant's job:</span>
+                <strong>Other items</strong>
+                <span>two torches made of</span>
                 <input
                   id="q6"
                   className={inputClass(6)}
@@ -2707,15 +2730,8 @@ export default function ListeningTest846376Page() {
                   placeholder="6"
                 />
               </div>
-
-              <div style={{ fontWeight: 900, margin: "18px 0 10px" }}>
-                Documents to be Supplied
-              </div>
               <div className="question-line">
-                <span>ID check: applicant's passport</span>
-              </div>
-              <div className="question-line">
-                <span>Credit check: a</span>
+                <span>a</span>
                 <input
                   id="q7"
                   className={inputClass(7)}
@@ -2723,13 +2739,10 @@ export default function ListeningTest846376Page() {
                   onChange={(e) => setAnswer(7, e.target.value)}
                   placeholder="7"
                 />
-              </div>
-
-              <div style={{ fontWeight: 900, margin: "18px 0 10px" }}>
-                Viewing Arrangements
+                <span>set suitable for children</span>
               </div>
               <div className="question-line">
-                <span>Address of property: 33,</span>
+                <span>a recent</span>
                 <input
                   id="q8"
                   className={inputClass(8)}
@@ -2737,13 +2750,11 @@ export default function ListeningTest846376Page() {
                   onChange={(e) => setAnswer(8, e.target.value)}
                   placeholder="8"
                 />
-                <span>Street</span>
               </div>
+
+              <div style={{ fontWeight: 900, margin: "18px 0 10px" }}>Delivery</div>
               <div className="question-line">
-                <span>Viewing day and time: Saturday 4 p.m.</span>
-              </div>
-              <div className="question-line">
-                <span>To check: Is there a</span>
+                <span>Delivery address: 56,</span>
                 <input
                   id="q9"
                   className={inputClass(9)}
@@ -2751,47 +2762,46 @@ export default function ListeningTest846376Page() {
                   onChange={(e) => setAnswer(9, e.target.value)}
                   placeholder="9"
                 />
-                <span>in the house?</span>
+                <span>Street, Bayswater</span>
               </div>
               <div className="question-line">
-                <span>Is there a</span>
+                <span>Delivery charge: $</span>
                 <input
                   id="q10"
                   className={inputClass(10)}
                   value={answers[10] ?? ""}
                   onChange={(e) => setAnswer(10, e.target.value)}
                   placeholder="10"
+                  style={{ width: 110 }}
                 />
-                <span>nearby?</span>
               </div>
             </div>
 
                 <div style={{ display: currentSection === 2 ? "block" : "none" }}>
               <div style={{ fontWeight: 900, marginBottom: 8 }}>SECTION 2</div>
                 <div style={{ marginBottom: 10, fontWeight: 900 }}>
-                  Choose the correct letter, A, B, or C.
+                  Choose the correct letter, A, B or C.
                 </div>
 
                 <div style={{ fontWeight: 900, marginTop: 10 }}>
-                  Questions 11–14 — Information for Fire Wardens
+                  Questions 11–14
                 </div>
 
                 <div className="question-line" style={{ alignItems: "flex-start" }}>
                   <div style={{ fontWeight: 800 }}>
-                    11. The company is having this meeting about fire procedures
-                    because
+                    11. All entry points along the trail
                   </div>
                 </div>
                 {renderRadio(11, [
                   {
                     value: "A",
-                    label: "A. employees did badly in the last annual fire drill.",
+                    label: "A. provide secure parking facilities for cars.",
                   },
                   {
                     value: "B",
-                    label: "B. there have been changes in the building layout.",
+                    label: "B. are within easy access from public roads.",
                   },
-                  { value: "C", label: "C. new staff have joined the company." },
+                  { value: "C", label: "C. have a regular shuttle bus service." },
                 ])}
 
                 <div
@@ -2799,13 +2809,13 @@ export default function ListeningTest846376Page() {
                   style={{ alignItems: "flex-start", marginTop: 14 }}
                 >
                   <div style={{ fontWeight: 800 }}>
-                    12. There has been a recent upgrade to
+                    12. Which facility at the trail rest stations has been added as a result of a user survey?
                   </div>
                 </div>
                 {renderRadio(12, [
-                  { value: "A", label: "A. the sprinkler system." },
-                  { value: "B", label: "B. the fire extinguishers." },
-                  { value: "C", label: "C. the alarm system." },
+                  { value: "A", label: "A. electric recharge points" },
+                  { value: "B", label: "B. picnic areas" },
+                  { value: "C", label: "C. maps and other information" },
                 ])}
 
                 <div
@@ -2813,17 +2823,13 @@ export default function ListeningTest846376Page() {
                   style={{ alignItems: "flex-start", marginTop: 14 }}
                 >
                   <div style={{ fontWeight: 800 }}>
-                    13. During the minor fire in January, some staff working in
-                    the factory
+                    13. On the Red Rock Walk, hikers are easily able to
                   </div>
                 </div>
                 {renderRadio(13, [
-                  { value: "A", label: "A. were unable to read fire notices." },
-                  { value: "B", label: "B. left fire doors open." },
-                  {
-                    value: "C",
-                    label: "C. were unwilling to start the fire alarm.",
-                  },
+                  { value: "A", label: "A. see many different plants." },
+                  { value: "B", label: "B. enjoy spectacular scenic views." },
+                  { value: "C", label: "C. identify a wide range of birds." },
                 ])}
 
                 <div
@@ -2831,31 +2837,21 @@ export default function ListeningTest846376Page() {
                   style={{ alignItems: "flex-start", marginTop: 14 }}
                 >
                   <div style={{ fontWeight: 800 }}>
-                    14. In the fire in January, the problem with office staff
-                    was that they
+                    14. What does the speaker say about the River Walk in wintertime?
                   </div>
                 </div>
                 {renderRadio(14, [
-                  {
-                    value: "A",
-                    label: "A. refused to leave personal items behind.",
-                  },
-                  {
-                    value: "B",
-                    label: "B. moved too slowly during the evacuation.",
-                  },
-                  {
-                    value: "C",
-                    label: "C. did not move far away enough from the building.",
-                  },
+                  { value: "A", label: "A. There are not many other walkers in the area." },
+                  { value: "B", label: "B. The area does not get much ice and snow." },
+                  { value: "C", label: "C. It may not be possible to use this section of the trail." },
                 ])}
 
                 <div style={{ fontWeight: 900, marginTop: 18 }}>
-                  Questions 15–20 — Comments on Aspects of Fire Safety
+                  Questions 15–20
                 </div>
                 <div style={{ color: "var(--muted)", marginTop: 6 }}>
                   <strong>
-                    Write the correct letter, A, B, or C, next to questions 15–20.
+                    Choose SIX answers from the box and write the correct letter, A–I, next to questions 15–20.
                   </strong>
                 </div>
 
@@ -2863,7 +2859,7 @@ export default function ListeningTest846376Page() {
                   className="card"
                   style={{ marginTop: 12, background: "var(--subtle)", padding: 14 }}
                 >
-                  <div style={{ fontWeight: 900, marginBottom: 6 }}>Comments</div>
+                  <div style={{ fontWeight: 900, marginBottom: 6 }}>Halfway Hostel – Facilities and Information</div>
                   <div
                     style={{
                       color: "var(--text-soft)",
@@ -2871,11 +2867,23 @@ export default function ListeningTest846376Page() {
                       lineHeight: 1.7,
                     }}
                   >
-                    <strong>A.</strong> It should be a priority for fire wardens
+                    <strong>A.</strong> only at weekends
                     <br />
-                    <strong>B.</strong> It will be dealt with by an external specialist
+                    <strong>B.</strong> voluntary donation expected
                     <br />
-                    <strong>C.</strong> It does not require attention
+                    <strong>C.</strong> not yet available
+                    <br />
+                    <strong>D.</strong> help from guests requested
+                    <br />
+                    <strong>E.</strong> provided free
+                    <br />
+                    <strong>F.</strong> advance booking required
+                    <br />
+                    <strong>G.</strong> new equipment
+                    <br />
+                    <strong>H.</strong> available on first-come-first-served basis
+                    <br />
+                    <strong>I.</strong> special rate for children
                   </div>
                 </div>
 
@@ -2884,80 +2892,20 @@ export default function ListeningTest846376Page() {
                     <span style={{ fontWeight: 800 }}>{q}.</span>
                     <span>
                       {q === 15
-                        ? "ensuring there are no obstacles in fire escape routes"
+                        ? "dormitory beds"
                         : q === 16
-                          ? "checking that fire doors are easily opened"
+                          ? "family rooms"
                           : q === 17
-                            ? "showing staff how to look after each other"
+                            ? "clothes washing"
                             : q === 18
-                              ? "training staff to use fire extinguishers correctly"
+                              ? "meals"
                               : q === 19
-                                ? "checking that staff are aware of evacuation points"
-                                : "checking that flammable liquids are properly stored"}
+                                ? "hot showers"
+                                : "bicycle rental"}
                     </span>
-                    {renderLetterDropdown(q, ["A", "B", "C"])}
-                  </div>
-                ))}
-                </div>
-
-                <div style={{ display: currentSection === 3 ? "block" : "none" }}>
-              <div style={{ fontWeight: 900, marginBottom: 8 }}>SECTION 3</div>
-                <div style={{ fontWeight: 900, marginBottom: 8 }}>
-                  Questions 21–25 — Types of Pigeon
-                </div>
-                <div style={{ color: "var(--muted)", marginBottom: 10 }}>
-                  What comments do the speakers make about each of the following types of pigeon?
-                </div>
-                <div style={{ color: "var(--muted)", marginBottom: 10 }}>
-                  Choose FIVE answers from the box and write the correct letter,
-                  A–H, next to questions 21–25.
-                </div>
-
-                <div
-                  className="card"
-                  style={{ background: "var(--subtle)", marginBottom: 12, padding: 14 }}
-                >
-                  <div style={{ fontWeight: 900, marginBottom: 6 }}>Comments</div>
-                  <div
-                    style={{
-                      color: "var(--text-soft)",
-                      fontSize: 15,
-                      lineHeight: 1.7,
-                    }}
-                  >
-                    <strong>A.</strong> eats meat
-                    <br />
-                    <strong>B.</strong> communicates with its wings
-                    <br />
-                    <strong>C.</strong> is found in a variety of locations
-                    <br />
-                    <strong>D.</strong> feeds on a particular type of plant
-                    <br />
-                    <strong>E.</strong> sings to attract a mate
-                    <br />
-                    <strong>F.</strong> is endangered
-                    <br />
-                    <strong>G.</strong> is brightly coloured
-                    <br />
-                    <strong>H.</strong> avoids the ground
-                  </div>
-                </div>
-
-                {[21, 22, 23, 24, 25].map((q) => (
-                  <div key={q} className="question-line">
-                    <span style={{ fontWeight: 800 }}>{q}.</span>
-                    <span>
-                      {q === 21
-                        ? "Australian crested pigeon"
-                        : q === 22
-                          ? "Rock pigeon"
-                          : q === 23
-                            ? "Black-banded pigeon"
-                            : q === 24
-                              ? "Galapagos pigeon"
-                              : "Nicobar pigeon"}
-                    </span>
-                    {renderLetterDropdown(q, [
+                    {renderLetterDropdown(
+                      q,
+                      [
                       "A",
                       "B",
                       "C",
@@ -2966,102 +2914,121 @@ export default function ListeningTest846376Page() {
                       "F",
                       "G",
                       "H",
-                    ])}
+                      "I",
+                      ],
+                      true
+                    )}
                   </div>
                 ))}
-
-                <div style={{ fontWeight: 900, marginTop: 18 }}>
-                  Questions 26–30 — Pigeons
-                </div>
-                <div
-                  style={{
-                    color: "var(--muted)",
-                    marginTop: 6,
-                    fontWeight: 900,
-                  }}
-                >
-                  Choose the correct letter, A, B, or C.
                 </div>
 
-                <div
-                  className="question-line"
-                  style={{ alignItems: "flex-start", marginTop: 14 }}
-                >
+                <div style={{ display: currentSection === 3 ? "block" : "none" }}>
+              <div style={{ fontWeight: 900, marginBottom: 8 }}>SECTION 3</div>
+                <div style={{ fontWeight: 900, marginBottom: 8 }}>Questions 21–26</div>
+                <div style={{ color: "var(--muted)", marginBottom: 10, fontWeight: 900 }}>
+                  Choose the correct letter, A, B or C.
+                </div>
+                <div style={{ fontWeight: 900, marginBottom: 10 }}>
+                  Shampoo Marketing Project
+                </div>
+
+                <div className="question-line" style={{ alignItems: "flex-start" }}>
+                  <div style={{ fontWeight: 800 }}>21. Janet says that over time, shampoo has become</div>
+                </div>
+                {renderRadio(21, [
+                  { value: "A", label: "A. a cheaper product." },
+                  { value: "B", label: "B. more hygienic in its effects." },
+                  { value: "C", label: "C. a different kind of commodity." },
+                ])}
+
+                <div className="question-line" style={{ alignItems: "flex-start", marginTop: 14 }}>
+                  <div style={{ fontWeight: 800 }}>22. What does Janet say about 'bad hair days'?</div>
+                </div>
+                {renderRadio(22, [
+                  { value: "A", label: "A. They really do exist." },
+                  { value: "B", label: "B. Women worry about them more than men." },
+                  { value: "C", label: "C. Their name is inaccurate." },
+                ])}
+
+                <div className="question-line" style={{ alignItems: "flex-start", marginTop: 14 }}>
+                  <div style={{ fontWeight: 800 }}>23. What do Janet and Michael say about the chemicals used in shampoos?</div>
+                </div>
+                {renderRadio(23, [
+                  { value: "A", label: "A. All shampoos contain the same chemicals." },
+                  { value: "B", label: "B. The chemicals are believed to be dangerous." },
+                  { value: "C", label: "C. The presence of the chemicals is rarely publicised." },
+                ])}
+
+                <div className="question-line" style={{ alignItems: "flex-start", marginTop: 14 }}>
                   <div style={{ fontWeight: 800 }}>
-                    26. When people feed city pigeons, it causes them to
+                    24. According to Janet, printing directly onto shampoo bottles, rather than onto labels
                   </div>
+                </div>
+                {renderRadio(24, [
+                  { value: "A", label: "A. costs more." },
+                  { value: "B", label: "B. looks less attractive." },
+                  { value: "C", label: "C. takes a lot longer." },
+                ])}
+
+                <div className="question-line" style={{ alignItems: "flex-start", marginTop: 14 }}>
+                  <div style={{ fontWeight: 800 }}>
+                    25. With regard to environmental issues, Michael and Janet want to investigate
+                  </div>
+                </div>
+                {renderRadio(25, [
+                  { value: "A", label: "A. the appearance of shampoo bottles." },
+                  { value: "B", label: "B. variations in the weight of shampoo bottles." },
+                  { value: "C", label: "C. the source of recycled plastic in shampoo bottles." },
+                ])}
+
+                <div className="question-line" style={{ alignItems: "flex-start", marginTop: 14 }}>
+                  <div style={{ fontWeight: 800 }}>26. Michael bases his own shampoo purchase decisions on his</div>
                 </div>
                 {renderRadio(26, [
-                  { value: "A", label: "A. breed more successfully." },
-                  { value: "B", label: "B. become overweight." },
-                  { value: "C", label: "C. get sick." },
+                  { value: "A", label: "A. loyalty to certain brands." },
+                  { value: "B", label: "B. desire to get value for money." },
+                  { value: "C", label: "C. willingness to try new products." },
                 ])}
 
-                <div
-                  className="question-line"
-                  style={{ alignItems: "flex-start", marginTop: 14 }}
-                >
-                  <div style={{ fontWeight: 800 }}>
-                    27. The Melbourne city council are tackling their pigeon
-                    problem by
-                  </div>
+                <div style={{ fontWeight: 900, marginTop: 18 }}>Questions 27–30</div>
+                <div style={{ color: "var(--muted)", marginTop: 6, fontWeight: 900 }}>
+                  Choose FOUR answers from the box and write the correct letter, A–G, next to questions 27–30.
                 </div>
-                {renderRadio(27, [
-                  {
-                    value: "A",
-                    label: "A. removing the pigeons from the city.",
-                  },
-                  { value: "B", label: "B. scaring away pigeons." },
-                  {
-                    value: "C",
-                    label: "C. providing homes for the pigeons.",
-                  },
-                ])}
 
-                <div
-                  className="question-line"
-                  style={{ alignItems: "flex-start", marginTop: 14 }}
-                >
-                  <div style={{ fontWeight: 800 }}>
-                    28. Jennifer and Adam agree that the second stage of the
-                    council scheme is
+                <div className="card" style={{ marginTop: 12, background: "var(--subtle)", padding: 14 }}>
+                  <div style={{ fontWeight: 900, marginBottom: 6 }}>Advertising focuses</div>
+                  <div style={{ color: "var(--text-soft)", fontSize: 15, lineHeight: 1.7 }}>
+                    <strong>A.</strong> link to relaxation
+                    <br />
+                    <strong>B.</strong> enviable lifestyle
+                    <br />
+                    <strong>C.</strong> natural ingredients
+                    <br />
+                    <strong>D.</strong> masculine image
+                    <br />
+                    <strong>E.</strong> product reliability
+                    <br />
+                    <strong>F.</strong> romantic interest
+                    <br />
+                    <strong>G.</strong> use by celebrities
                   </div>
                 </div>
-                {renderRadio(28, [
-                  { value: "A", label: "A. expensive." },
-                  { value: "B", label: "B. cruel." },
-                  { value: "C", label: "C. ineffective." },
-                ])}
 
-                <div
-                  className="question-line"
-                  style={{ alignItems: "flex-start", marginTop: 14 }}
-                >
-                  <div style={{ fontWeight: 800 }}>
-                    29. What method of pigeon control was most successful in the
-                    city of Basel?
+                {[27, 28, 29, 30].map((q) => (
+                  <div key={q} className="question-line">
+                    <span style={{ fontWeight: 800 }}>{q}.</span>
+                    <span>
+                      {q === 27
+                        ? "Zing"
+                        : q === 28
+                          ? "Splash"
+                          : q === 29
+                            ? "Just go"
+                            : "Brozene"}
+                    </span>
+                    {renderLetterDropdown(q, ["A", "B", "C", "D", "E", "F", "G"], true)}
                   </div>
-                </div>
-                {renderRadio(29, [
-                  { value: "A", label: "A. trapping the pigeons" },
-                  { value: "B", label: "B. educating the public" },
-                  { value: "C", label: "C. building nesting sites" },
-                ])}
-
-                <div
-                  className="question-line"
-                  style={{ alignItems: "flex-start", marginTop: 14 }}
-                >
-                  <div style={{ fontWeight: 800 }}>
-                    30. Adam and Jennifer decide to do some more research on how
-                    pigeons can
-                  </div>
-                </div>
-                {renderRadio(30, [
-                  { value: "A", label: "A. affect our health." },
-                  { value: "B", label: "B. damage buildings." },
-                  { value: "C", label: "C. cause local flooding." },
-                ])}
+                ))}
                 </div>
 
                 <div style={{ display: currentSection === 4 ? "block" : "none" }}>
@@ -3080,21 +3047,12 @@ export default function ListeningTest846376Page() {
                 </div>
 
                 <div style={{ fontWeight: 900, marginBottom: 10 }}>
-                  The Lontar Palm
-                </div>
-                <div className="question-line">
-                  <span>• Grows on Roti, an Indonesian island</span>
-                </div>
-                <div className="question-line">
-                  <span>• Is known as the tree of life</span>
-                </div>
-                <div className="question-line">
-                  <span>• Produces delicious juice</span>
+                  Science in the Future
                 </div>
 
+                <div style={{ fontWeight: 900, margin: "16px 0 8px" }}>Computer science</div>
                 <div className="question-line">
-                  <span>• Has a fruit resembling a</span>
-                  <strong>31</strong>
+                  <span>The invention of computers is as significant as the discovery of how to create and use</span>
                   <input
                     id="q31"
                     className={inputClass(31)}
@@ -3102,15 +3060,10 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(31, e.target.value)}
                     placeholder="31"
                   />
-                  <span>(female trees only)</span>
-                </div>
-
-                <div style={{ fontWeight: 900, margin: "16px 0 10px" }}>
-                  People climbing the trees
+                  <span>.</span>
                 </div>
                 <div className="question-line">
-                  <span>• Fix</span>
-                  <strong>32</strong>
+                  <span>Computer will be seen as being</span>
                   <input
                     id="q32"
                     className={inputClass(32)}
@@ -3118,11 +3071,12 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(32, e.target.value)}
                     placeholder="32"
                   />
-                  <span>to the tree trunks to help them climb</span>
+                  <span>.</span>
                 </div>
+
+                <div style={{ fontWeight: 900, margin: "16px 0 8px" }}>Psychology</div>
                 <div className="question-line">
-                  <span>• Keep their tools attached to a</span>
-                  <strong>33</strong>
+                  <span>Research will become much more</span>
                   <input
                     id="q33"
                     className={inputClass(33)}
@@ -3130,20 +3084,7 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(33, e.target.value)}
                     placeholder="33"
                   />
-                </div>
-                <div className="question-line">
-                  <span>• Often own particular trees</span>
-                </div>
-                <div className="question-line">
-                  <span>• Contribute to the upkeep of the communal fence</span>
-                </div>
-
-                <div style={{ fontWeight: 900, margin: "16px 0 10px" }}>
-                  Using the juice
-                </div>
-                <div className="question-line">
-                  <span>• It quickly becomes</span>
-                  <strong>34</strong>
+                  <span>, and also more practical since more</span>
                   <input
                     id="q34"
                     className={inputClass(34)}
@@ -3151,16 +3092,10 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(34, e.target.value)}
                     placeholder="34"
                   />
-                  <span>if left unprocessed</span>
+                  <span>will be working in the field.</span>
                 </div>
                 <div className="question-line">
-                  <span>
-                    • A concentrated form of it is drunk in the rainy season
-                  </span>
-                </div>
-                <div className="question-line">
-                  <span>• It can be made into sugary</span>
-                  <strong>35</strong>
+                  <span>Imaging devices will give information about the behaviour of the</span>
                   <input
                     id="q35"
                     className={inputClass(35)}
@@ -3168,20 +3103,12 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(35, e.target.value)}
                     placeholder="35"
                   />
+                  <span>.</span>
                 </div>
 
-                <div style={{ fontWeight: 900, margin: "16px 0 10px" }}>
-                  Using other parts of the tree
-                </div>
+                <div style={{ fontWeight: 900, margin: "16px 0 8px" }}>Genetics</div>
                 <div className="question-line">
-                  <span>The leaf is used:</span>
-                </div>
-                <div className="question-line">
-                  <span>• To make containers, bags, and roofing</span>
-                </div>
-                <div className="question-line">
-                  <span>• As garden</span>
-                  <strong>36</strong>
+                  <span>With increased life expectancy, it is important to consider the</span>
                   <input
                     id="q36"
                     className={inputClass(36)}
@@ -3189,10 +3116,10 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(36, e.target.value)}
                     placeholder="36"
                   />
+                  <span>of elderly people's lives.</span>
                 </div>
                 <div className="question-line">
-                  <span>• For brightly decorated hats worn at a</span>
-                  <strong>37</strong>
+                  <span>Knowledge of a person's genome will indicate whether they are likely to be affected by a</span>
                   <input
                     id="q37"
                     className={inputClass(37)}
@@ -3200,10 +3127,10 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(37, e.target.value)}
                     placeholder="37"
                   />
+                  <span>.</span>
                 </div>
                 <div className="question-line">
-                  <span>• For a musical instrument which sounds like a</span>
-                  <strong>38</strong>
+                  <span>The approach to treatment will be on an increasingly</span>
                   <input
                     id="q38"
                     className={inputClass(38)}
@@ -3211,10 +3138,15 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(38, e.target.value)}
                     placeholder="38"
                   />
+                  <span>basis.</span>
+                </div>
+
+                <div style={{ fontWeight: 900, margin: "16px 0 8px" }}>Zoology</div>
+                <div className="question-line">
+                  <span>People can explore the world via satellite.</span>
                 </div>
                 <div className="question-line">
-                  <span>The stalk is used to make</span>
-                  <strong>39</strong>
+                  <span>For example, it is possible to see the effects of the destruction of</span>
                   <input
                     id="q39"
                     className={inputClass(39)}
@@ -3222,10 +3154,10 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(39, e.target.value)}
                     placeholder="39"
                   />
+                  <span>in East Africa.</span>
                 </div>
                 <div className="question-line">
-                  <span>The trunk is used in the construction of</span>
-                  <strong>40</strong>
+                  <span>Such increased awareness should enable us to do more to look after the</span>
                   <input
                     id="q40"
                     className={inputClass(40)}
@@ -3233,6 +3165,7 @@ export default function ListeningTest846376Page() {
                     onChange={(e) => setAnswer(40, e.target.value)}
                     placeholder="40"
                   />
+                  <span>.</span>
                 </div>
               </div>
             </div>
@@ -3713,7 +3646,9 @@ export default function ListeningTest846376Page() {
                 if (!audioEl) return;
 
                 const firstUrl =
-                  availableAudioSources[0] ?? (audioDir ? `${audioDir}/section1.mp3` : "");
+                  listeningId === "326963"
+                    ? fullTestAudioUrl
+                    : availableAudioSources[0] ?? (audioDir ? `${audioDir}/section1.mp3` : "");
                 if (!firstUrl) return;
 
                 setCurrentAudioIndex(0);
