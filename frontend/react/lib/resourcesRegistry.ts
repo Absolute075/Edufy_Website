@@ -153,6 +153,16 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+
+    "892183": {
+      requiredPlan: "free",
+      title: "Book Review on Musicophilia",
+      examType: "real",
+      part: 3,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 14,
+    },
   },
   listening: {
     "846376": {
