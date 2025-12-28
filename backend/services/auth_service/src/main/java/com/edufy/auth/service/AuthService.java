@@ -21,6 +21,11 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final InfobipEmailService infobipEmailService;
 
+    private String generateSixDigitCode() {
+        int raw = (int) (Math.random() * 1_000_000);
+        return String.format("%06d", raw);
+    }
+
     // ================== REGISTER ==================
     public AuthResponse register(RegisterRequest request) {
         // Базовая валидация
@@ -60,6 +65,11 @@ public class AuthService {
         user.setCreatedAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")));
         user.setPublicId(generateUniquePublicId());
 
+        user.setEmailVerified(false);
+        String code = generateSixDigitCode();
+        user.setVerificationCode(code);
+        user.setVerificationCodeExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")).plusMinutes(15));
+
         // Сохраняем пользователя с обработкой ошибок БД
         try {
             userRepository.save(user);
@@ -67,7 +77,15 @@ public class AuthService {
             return new AuthResponse("❌ Registration failed: " + e.getClass().getSimpleName());
         }
 
-        return new AuthResponse("✅ User registered successfully!");
+        try {
+            infobipEmailService.sendVerificationCodeEmail(user.getEmail(), code);
+        } catch (Exception e) {
+            try {
+                System.out.println("[auth_service] sendVerificationCodeEmail error: " + e.getClass().getSimpleName());
+            } catch (Exception ignore) {}
+        }
+
+        return new AuthResponse("✅ User registered successfully! Please verify your email.");
     }
 
     // ================== LOGIN ==================
@@ -79,6 +97,10 @@ public class AuthService {
         }
 
         UserEntity user = userOpt.get();
+
+        if (user.getEmailVerified() == null || !user.getEmailVerified()) {
+            throw new RuntimeException("❌ Please verify your email to continue!");
+        }
 
         // Проверка пароля
         System.out.println("[DEBUG] Login attempt for: " + user.getEmail());
@@ -103,6 +125,86 @@ public class AuthService {
         String refreshToken = jwtService.generateRefreshToken(user.getUsername());
 
         return new TokenResponse(accessToken, refreshToken);
+    }
+
+    public AuthResponse verifyEmail(VerifyEmailRequest request) {
+        if (request == null
+                || request.getEmail() == null || request.getEmail().isBlank()
+                || request.getCode() == null || request.getCode().isBlank()) {
+            return new AuthResponse("❌ Email and code are required");
+        }
+
+        String email = request.getEmail().trim();
+        String code = request.getCode().trim();
+
+        Optional<UserEntity> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return new AuthResponse("❌ Invalid or expired verification code");
+        }
+
+        UserEntity user = userOpt.get();
+        if (user.getEmailVerified() != null && user.getEmailVerified()) {
+            return new AuthResponse("✅ Email is already verified");
+        }
+
+        if (user.getVerificationCode() == null || user.getVerificationCodeExpiresAt() == null) {
+            return new AuthResponse("❌ Invalid or expired verification code");
+        }
+
+        if (!user.getVerificationCode().equals(code)) {
+            return new AuthResponse("❌ Invalid or expired verification code");
+        }
+
+        if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now(ZoneId.of("Asia/Tashkent")))) {
+            return new AuthResponse("❌ Invalid or expired verification code");
+        }
+
+        try {
+            user.setEmailVerified(true);
+            user.setVerificationCode(null);
+            user.setVerificationCodeExpiresAt(null);
+            userRepository.save(user);
+        } catch (Exception e) {
+            try {
+                System.out.println("[auth_service] verifyEmail save error: " + e.getClass().getSimpleName());
+            } catch (Exception ignore) {}
+            return new AuthResponse("❌ Failed to verify email");
+        }
+
+        return new AuthResponse("✅ Email verified successfully");
+    }
+
+    public AuthResponse resendVerification(ResendVerificationRequest request) {
+        if (request == null || request.getEmail() == null || request.getEmail().isBlank()) {
+            return new AuthResponse("❌ Email is required");
+        }
+
+        String email = request.getEmail().trim();
+        Optional<UserEntity> userOpt = userRepository.findByEmail(email);
+
+        String genericOk = "✅ If this email exists, we have sent a verification code.";
+        if (userOpt.isEmpty()) {
+            return new AuthResponse(genericOk);
+        }
+
+        UserEntity user = userOpt.get();
+        if (user.getEmailVerified() != null && user.getEmailVerified()) {
+            return new AuthResponse("✅ Email is already verified");
+        }
+
+        try {
+            String code = generateSixDigitCode();
+            user.setVerificationCode(code);
+            user.setVerificationCodeExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")).plusMinutes(15));
+            userRepository.save(user);
+            infobipEmailService.sendVerificationCodeEmail(user.getEmail(), code);
+        } catch (Exception e) {
+            try {
+                System.out.println("[auth_service] resendVerification error: " + e.getClass().getSimpleName());
+            } catch (Exception ignore) {}
+        }
+
+        return new AuthResponse(genericOk);
     }
 
     // ================== REFRESH TOKEN ==================

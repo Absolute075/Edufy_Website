@@ -7,6 +7,8 @@ import com.edufy.auth.dto.TokenResponse;
 import com.edufy.auth.dto.AuthResponse;
 import com.edufy.auth.dto.ForgotPasswordRequest;
 import com.edufy.auth.dto.ResetPasswordRequest;
+import com.edufy.auth.dto.VerifyEmailRequest;
+import com.edufy.auth.dto.ResendVerificationRequest;
 import com.edufy.auth.dto.UpdateProfileRequest;
 import com.edufy.auth.entity.UserEntity;
 import com.edufy.auth.repository.UserRepository;
@@ -48,6 +50,24 @@ public class AuthController {
             Long userId = userOpt.map(UserEntity::getId).orElse(null);
             postCreateProfile(request.getUsername(), userId);
         } catch (Exception ignored) {}
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<AuthResponse> verifyEmail(@RequestBody VerifyEmailRequest request) {
+        AuthResponse response = authService.verifyEmail(request);
+        if (response.getMessage().startsWith("❌")) {
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<AuthResponse> resendVerification(@RequestBody ResendVerificationRequest request) {
+        AuthResponse response = authService.resendVerification(request);
+        if (response.getMessage().startsWith("❌")) {
+            return ResponseEntity.badRequest().body(response);
+        }
         return ResponseEntity.ok(response);
     }
 

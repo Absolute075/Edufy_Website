@@ -89,63 +89,18 @@ export default function RegisterPage() {
         throw new Error(data.message || 'Registration failed');
       }
 
-      setMessage(data.message || 'Registration successful! Logging you in...');
+      setMessage(data.message || 'Registration successful! Redirecting to verification...');
       setMessageType('success');
 
       try {
-        const loginRes = await fetch('/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email.trim(), password }),
-        });
-        const loginData = await loginRes.json().catch(() => ({}));
-
-        if (!loginRes.ok || !loginData.accessToken) {
-          throw new Error(loginData.message || 'Auto-login failed');
-        }
-
-        try {
-          localStorage.setItem('accessToken', loginData.accessToken);
-          if (loginData.refreshToken) localStorage.setItem('refreshToken', loginData.refreshToken);
-          localStorage.setItem('email', email.trim());
-          if (role) localStorage.setItem('role', role);
-        } catch {
-          // ignore storage errors
-        }
-
-        try {
-          const meRes = await fetch('/auth/me', { credentials: 'include' });
-          if (meRes.ok) {
-            const me = await meRes.json().catch(() => null as any);
-            const rawId = me && (me.publicId ?? me.id ?? null);
-            try {
-              if (typeof window !== 'undefined' && rawId != null) {
-                const key = String(rawId).padStart(12, '0');
-                window.sessionStorage.setItem('edufy.user.key', key);
-                window.localStorage.setItem('edufy.user.key', key);
-                (window as any).__edufyUserKey = key;
-              }
-            } catch {
-              // ignore storage errors
-            }
-            if (rawId != null) {
-              const key = String(rawId).padStart(12, '0');
-              window.location.href = `https://dash.edufyuzbekistan.com/${key}/dashboard`;
-              return;
-            }
-          }
-        } catch {
-          // ignore and fallback below
-        }
-
-        window.location.href = 'https://dash.edufyuzbekistan.com/';
-      } catch (autoErr: any) {
-        setMessage('Registered. Please log in to continue.');
-        setMessageType('warning');
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 1200);
+        window.sessionStorage.setItem('pendingVerificationEmail', email.trim());
+      } catch {
+        // ignore
       }
+
+      setTimeout(() => {
+        window.location.href = '/verification';
+      }, 500);
     } catch (err: any) {
       setMessage(err?.message || 'Registration failed');
       setMessageType('error');
