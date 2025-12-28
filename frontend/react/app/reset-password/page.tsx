@@ -48,10 +48,8 @@ export default function ResetPasswordPage() {
         }
 
         setStep('code');
-        setMessage(
-          data.message || 'If this email exists, we have sent a 6-digit verification code to it.'
-        );
-        setMessageType('success');
+        setMessage(null);
+        setMessageType(null);
       } catch (err: any) {
         setMessage(err?.message || 'Failed to send reset code');
         setMessageType('error');
@@ -92,7 +90,7 @@ export default function ResetPasswordPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: email.trim(),
-            code: verificationCode,
+            code: verificationCode.trim(),
             newPassword,
           }),
         });

@@ -313,7 +313,7 @@ public class AuthService {
         Optional<UserEntity> userOpt = userRepository.findByEmail(email);
 
         // Всегда возвращаем одинаковый ответ, чтобы не раскрывать, существует ли email
-        String genericOk = "✅ If this email exists, we have sent a reset code.";
+        String genericOk = "✅ Reset code sent.";
 
         if (userOpt.isEmpty()) {
             return new AuthResponse(genericOk);
@@ -362,7 +362,7 @@ public class AuthService {
             return new AuthResponse("❌ Invalid or expired reset code");
         }
 
-        if (!user.getResetCode().equals(request.getCode())) {
+        if (!user.getResetCode().equals(request.getCode().trim())) {
             return new AuthResponse("❌ Invalid or expired reset code");
         }
 
@@ -375,6 +375,12 @@ public class AuthService {
             user.setPassword(hashed);
             user.setResetCode(null);
             user.setResetCodeExpiresAt(null);
+
+            // Reset code via email proves email ownership; mark as verified.
+            user.setEmailVerified(true);
+            user.setVerificationCode(null);
+            user.setVerificationCodeExpiresAt(null);
+
             userRepository.save(user);
         } catch (Exception e) {
             System.out.println("[auth_service] resetPassword error: " + e.getClass().getSimpleName());
