@@ -26,6 +26,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 12,
     },
+    "856932": {
+      requiredPlan: "free",
+      title: "The New Zealand Writer Maurice Gee",
+      examType: "real",
+      part: 3,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 14,
+    },
     "764852": {
       requiredPlan: "free",
       title: "History of the Globe Theatre",
