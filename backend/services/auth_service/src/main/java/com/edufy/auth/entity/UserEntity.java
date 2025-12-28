@@ -45,7 +45,7 @@ public class UserEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "email_verified", nullable = false)
+    @Column(name = "email_verified", nullable = false, columnDefinition = "boolean default false")
     private Boolean emailVerified = false;
 
     @Column(name = "verification_code", length = 12)

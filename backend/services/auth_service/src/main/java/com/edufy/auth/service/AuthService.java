@@ -41,7 +41,39 @@ public class AuthService {
 
         // Проверка email
         if (userRepository.existsByEmail(request.getEmail())) {
-            return new AuthResponse("❌ Email already registered!");
+            Optional<UserEntity> existingOpt = userRepository.findByEmail(request.getEmail());
+            if (existingOpt.isEmpty()) {
+                return new AuthResponse("❌ Email already registered!");
+            }
+
+            UserEntity existing = existingOpt.get();
+            if (existing.getEmailVerified() != null && existing.getEmailVerified()) {
+                return new AuthResponse("❌ Email already registered!");
+            }
+
+            try {
+                String code = generateSixDigitCode();
+                existing.setVerificationCode(code);
+                existing.setVerificationCodeExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")).plusMinutes(15));
+                existing.setEmailVerified(false);
+                userRepository.save(existing);
+
+                try {
+                    infobipEmailService.sendVerificationCodeEmail(existing.getEmail(), code);
+                } catch (Exception e) {
+                    try {
+                        System.out.println("[auth_service] sendVerificationCodeEmail error: " + e.getClass().getSimpleName());
+                    } catch (Exception ignore) {}
+                }
+            } catch (Exception e) {
+                try {
+                    System.out.println("[auth_service] register existing resend error: " + e.getClass().getName());
+                    e.printStackTrace();
+                } catch (Exception ignore) {}
+                return new AuthResponse("❌ Registration failed. Please contact support.");
+            }
+
+            return new AuthResponse("✅ Verification code sent. Please verify your email.");
         }
         // Проверка username
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -74,7 +106,17 @@ public class AuthService {
         try {
             userRepository.save(user);
         } catch (Exception e) {
-            return new AuthResponse("❌ Registration failed: " + e.getClass().getSimpleName());
+            try {
+                System.out.println("[auth_service] register save error: " + e.getClass().getName());
+                Throwable most = e;
+                while (most.getCause() != null && most.getCause() != most) {
+                    most = most.getCause();
+                }
+                System.out.println("[auth_service] register save root cause: " + most.getClass().getName());
+                System.out.println("[auth_service] register save root message: " + String.valueOf(most.getMessage()));
+                e.printStackTrace();
+            } catch (Exception ignore) {}
+            return new AuthResponse("❌ Registration failed. Please contact support.");
         }
 
         try {
