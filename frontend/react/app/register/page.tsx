@@ -89,8 +89,8 @@ export default function RegisterPage() {
         throw new Error(data.message || 'Registration failed');
       }
 
-      setMessage(data.message || 'Registration successful! Redirecting to verification...');
-      setMessageType('success');
+      setMessage(null);
+      setMessageType(null);
 
       try {
         window.sessionStorage.setItem('pendingVerificationEmail', email.trim());

@@ -71,6 +71,54 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/verify-email-login")
+    public ResponseEntity<?> verifyEmailLogin(@RequestBody VerifyEmailRequest request, HttpServletRequest httpRequest) {
+        TokenResponse tokenResponse;
+        try {
+            tokenResponse = authService.verifyEmailAndLogin(request);
+        } catch (RuntimeException e) {
+            String msg = e.getMessage();
+            if (msg == null || msg.isBlank()) msg = "Verification failed";
+            return ResponseEntity.status(400).body(Map.of("message", msg));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Verification failed"));
+        }
+
+        if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Verification failed"));
+        }
+
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenResponse.getAccessToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(".edufyuzbekistan.com")
+                .path("/")
+                .maxAge(24 * 60 * 60)
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(".edufyuzbekistan.com")
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
+
+        try {
+            String username = jwtService.extractUsername(tokenResponse.getAccessToken());
+            String clientIp = extractClientIp(httpRequest);
+            String userAgent = httpRequest.getHeader("User-Agent");
+            postLoginAudit(username, clientIp, userAgent);
+        } catch (Exception ignored) {}
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(tokenResponse);
+    }
+
     // Логин + установка HttpOnly cookie для токенов на домен .edufyuzbekistan.com
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {

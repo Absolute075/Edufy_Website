@@ -216,6 +216,52 @@ public class AuthService {
         return new AuthResponse("✅ Email verified successfully");
     }
 
+    public TokenResponse verifyEmailAndLogin(VerifyEmailRequest request) {
+        if (request == null
+                || request.getEmail() == null || request.getEmail().isBlank()
+                || request.getCode() == null || request.getCode().isBlank()) {
+            throw new RuntimeException("❌ Email and code are required");
+        }
+
+        String email = request.getEmail().trim();
+        String code = request.getCode().trim();
+
+        Optional<UserEntity> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("❌ Invalid or expired verification code");
+        }
+
+        UserEntity user = userOpt.get();
+
+        if (user.getVerificationCode() == null || user.getVerificationCodeExpiresAt() == null) {
+            throw new RuntimeException("❌ Invalid or expired verification code");
+        }
+
+        if (!user.getVerificationCode().equals(code)) {
+            throw new RuntimeException("❌ Invalid or expired verification code");
+        }
+
+        if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now(ZoneId.of("Asia/Tashkent")))) {
+            throw new RuntimeException("❌ Invalid or expired verification code");
+        }
+
+        try {
+            user.setEmailVerified(true);
+            user.setVerificationCode(null);
+            user.setVerificationCodeExpiresAt(null);
+            userRepository.save(user);
+        } catch (Exception e) {
+            try {
+                System.out.println("[auth_service] verifyEmailAndLogin save error: " + e.getClass().getSimpleName());
+            } catch (Exception ignore) {}
+            throw new RuntimeException("❌ Failed to verify email");
+        }
+
+        String accessToken = jwtService.generateAccessToken(user.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+        return new TokenResponse(accessToken, refreshToken);
+    }
+
     public AuthResponse resendVerification(ResendVerificationRequest request) {
         if (request == null || request.getEmail() == null || request.getEmail().isBlank()) {
             return new AuthResponse("❌ Email is required");
@@ -224,7 +270,7 @@ public class AuthService {
         String email = request.getEmail().trim();
         Optional<UserEntity> userOpt = userRepository.findByEmail(email);
 
-        String genericOk = "✅ If this email exists, we have sent a verification code.";
+        String genericOk = "✅ Verification code sent.";
         if (userOpt.isEmpty()) {
             return new AuthResponse(genericOk);
         }

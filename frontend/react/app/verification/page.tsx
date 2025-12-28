@@ -6,6 +6,7 @@ export default function VerificationPage() {
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resendCooldownSeconds, setResendCooldownSeconds] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"error" | "success" | null>(null);
 
@@ -18,9 +19,24 @@ export default function VerificationPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (resendCooldownSeconds <= 0) return;
+    const t = window.setInterval(() => {
+      setResendCooldownSeconds((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(t);
+  }, [resendCooldownSeconds]);
+
   const emailRegex = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/, []);
   const isEmailValid = emailRegex.test(email.trim());
   const isCodeValid = verificationCode.length === 6;
+
+  const resendLabel = useMemo(() => {
+    if (resendCooldownSeconds <= 0) return "Resend code";
+    const mm = String(Math.floor(resendCooldownSeconds / 60)).padStart(2, "0");
+    const ss = String(resendCooldownSeconds % 60).padStart(2, "0");
+    return `Resend in ${mm}:${ss}`;
+  }, [resendCooldownSeconds]);
 
   const handleVerify = async (e: any) => {
     e.preventDefault();
@@ -40,26 +56,45 @@ export default function VerificationPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch("/auth/verify-email", {
+      const res = await fetch("/auth/verify-email-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), code: verificationCode }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
+      if (!res.ok || !data?.accessToken) {
         throw new Error(data.message || "Failed to verify email");
       }
 
-      setMessage(data.message || "Email verified successfully. Redirecting to login...");
-      setMessageType("success");
       try {
         window.sessionStorage.removeItem("pendingVerificationEmail");
       } catch {
         // ignore
       }
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 1200);
+
+      try {
+        const meRes = await fetch("/auth/me", { credentials: "include" });
+        if (meRes.ok) {
+          const me = await meRes.json().catch(() => null as any);
+          const rawId = me && (me.publicId ?? me.id ?? null);
+          if (rawId != null) {
+            const key = String(rawId).padStart(12, "0");
+            try {
+              window.sessionStorage.setItem("edufy.user.key", key);
+              window.localStorage.setItem("edufy.user.key", key);
+              (window as any).__edufyUserKey = key;
+            } catch {
+              // ignore
+            }
+            window.location.href = `https://dash.edufyuzbekistan.com/${key}/dashboard`;
+            return;
+          }
+        }
+      } catch {
+        // ignore
+      }
+
+      window.location.href = "https://dash.edufyuzbekistan.com/";
     } catch (err: any) {
       setMessage(err?.message || "Failed to verify email");
       setMessageType("error");
@@ -72,7 +107,7 @@ export default function VerificationPage() {
     setMessage(null);
     setMessageType(null);
     if (!isEmailValid) {
-      setMessage("Please enter a valid email address.");
+      setMessage("Please register again to verify your email.");
       setMessageType("error");
       return;
     }
@@ -88,8 +123,9 @@ export default function VerificationPage() {
       if (!res.ok) {
         throw new Error(data.message || "Failed to resend verification code");
       }
-      setMessage(data.message || "Verification code sent.");
-      setMessageType("success");
+      setResendCooldownSeconds(120);
+      setMessage(null);
+      setMessageType(null);
     } catch (err: any) {
       setMessage(err?.message || "Failed to resend verification code");
       setMessageType("error");
@@ -123,17 +159,6 @@ export default function VerificationPage() {
 
         <form className="space-y-4" onSubmit={handleVerify}>
           <div className="space-y-1.5">
-            <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">Email</label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl bg-black/50 border border-white/15 px-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 focus:ring-0"
-            />
-          </div>
-
-          <div className="space-y-1.5">
             <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">Verification code</label>
             <input
               type="text"
@@ -157,10 +182,10 @@ export default function VerificationPage() {
           <button
             type="button"
             onClick={handleResend}
-            disabled={isSubmitting || !isEmailValid}
+            disabled={isSubmitting || !isEmailValid || resendCooldownSeconds > 0}
             className="w-full rounded-full border border-white/25 bg-transparent text-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Resend code
+            {resendLabel}
           </button>
 
           {message && <p className={`mt-2 text-sm text-center ${messageClassName}`}>{message}</p>}
