@@ -134,6 +134,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
           minutes: 20,
           questions: 14,
     },
+    "596168": {
+      requiredPlan: "free",
+      title: "Historical Impact of the California Gold Rush",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 25,
+      questions: 16,
+    },
   },
   listening: {
     "846376": {
