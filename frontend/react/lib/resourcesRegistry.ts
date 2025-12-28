@@ -26,6 +26,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 12,
     },
+    "321741": {
+      requiredPlan: "free",
+      title: "The Slow Food Organization",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 13,
+    },
     "856932": {
       requiredPlan: "free",
       title: "The New Zealand Writer Maurice Gee",
