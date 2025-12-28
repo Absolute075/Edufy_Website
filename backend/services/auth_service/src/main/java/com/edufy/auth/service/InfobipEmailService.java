@@ -2,6 +2,7 @@ package com.edufy.auth.service;
 
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -82,6 +83,14 @@ public class InfobipEmailService {
             try {
                 System.out.println("[auth_service] Infobip email status=" + status);
             } catch (Exception ignore) {}
+
+            try {
+                InputStream is = (status >= 200 && status < 300) ? conn.getInputStream() : conn.getErrorStream();
+                if (is != null) {
+                    String bodyResp = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                    System.out.println("[auth_service] Infobip email response=" + bodyResp);
+                }
+            } catch (Exception ignore) {}
             conn.disconnect();
         } catch (Exception e) {
             try {
@@ -153,6 +162,14 @@ public class InfobipEmailService {
             int status = conn.getResponseCode();
             try {
                 System.out.println("[auth_service] Infobip verification email status=" + status);
+            } catch (Exception ignore) {}
+
+            try {
+                InputStream is = (status >= 200 && status < 300) ? conn.getInputStream() : conn.getErrorStream();
+                if (is != null) {
+                    String bodyResp = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                    System.out.println("[auth_service] Infobip verification email response=" + bodyResp);
+                }
             } catch (Exception ignore) {}
             conn.disconnect();
         } catch (Exception e) {
