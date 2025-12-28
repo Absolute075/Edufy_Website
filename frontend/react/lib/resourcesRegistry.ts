@@ -26,6 +26,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 12,
     },
+    "369258": {
+      requiredPlan: "free",
+      title: "The Peopling of Patagonia",
+      examType: "real",
+      part: 3,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 14,
+    },
     "321741": {
       requiredPlan: "free",
       title: "The Slow Food Organization",
