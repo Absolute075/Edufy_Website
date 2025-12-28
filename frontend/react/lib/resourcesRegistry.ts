@@ -26,6 +26,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 12,
     },
+    "764852": {
+      requiredPlan: "free",
+      title: "History of the Globe Theatre",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 13,
+    },
     "349653": {
       requiredPlan: "free",
       title: "Recording History",
