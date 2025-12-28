@@ -19,7 +19,7 @@ export default function ReadingResourcesPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "real" | "cambridge">("all");
-  const [partFilter, setPartFilter] = useState<"all" | "1" | "2" | "3">("all");
+  const [partFilter, setPartFilter] = useState<"all" | "full" | "1" | "2" | "3" | "4">("all");
   const [accessFilter, setAccessFilter] = useState<
     "all" | "free" | "plus" | "premium" | "completed"
   >("all");
@@ -45,10 +45,16 @@ export default function ReadingResourcesPage() {
   }, []);
 
   const items = useMemo(() => {
+    const partOrder = (part: (typeof resourcesRegistry.reading)[string]["part"]) => {
+      return part === "full" ? 5 : part;
+    };
+
     return Object.entries(resourcesRegistry.reading)
       .map(([id, rule]) => ({ id, ...rule }))
       .sort((a, b) => {
-        if (a.part !== b.part) return a.part - b.part;
+        const aOrder = partOrder(a.part);
+        const bOrder = partOrder(b.part);
+        if (aOrder !== bOrder) return aOrder - bOrder;
         return a.title.localeCompare(b.title);
       });
   }, []);
@@ -66,7 +72,13 @@ export default function ReadingResourcesPage() {
 
       if (typeFilter !== "all" && item.examType !== typeFilter) return false;
 
-      if (partFilter !== "all" && String(item.part) !== partFilter) return false;
+      if (partFilter !== "all") {
+        if (partFilter === "full") {
+          if (item.part !== "full") return false;
+        } else {
+          if (String(item.part) !== partFilter) return false;
+        }
+      }
 
       if (accessFilter === "completed") {
         if (!isCompleted) return false;
