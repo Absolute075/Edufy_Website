@@ -47,16 +47,22 @@ export default function ListeningResourcesPage() {
   }, []);
 
   const items = useMemo(() => {
+    const partOrder = (part: (typeof resourcesRegistry.listening)[string]["part"]) => {
+      return part === "full" ? 5 : part;
+    };
+
     return Object.entries(resourcesRegistry.listening)
       .map(([id, rule]) => ({ id, ...rule }))
       .sort((a, b) => {
-        if (a.part !== b.part) return a.part - b.part;
+        const aOrder = partOrder(a.part);
+        const bOrder = partOrder(b.part);
+        if (aOrder !== bOrder) return aOrder - bOrder;
         return a.title.localeCompare(b.title);
       });
   }, []);
 
   const isFullListening = (item: (typeof items)[number]) => {
-    return item.part === 4 && item.questions === 40 && item.minutes === 30;
+    return item.part === "full" || (item.part === 4 && item.questions === 40 && item.minutes === 30);
   };
 
   const filteredItems = useMemo(() => {

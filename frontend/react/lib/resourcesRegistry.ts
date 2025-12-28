@@ -9,7 +9,7 @@ export type ResourceRule = {
   requiredPlan: UserPlan;
   title: string;
   examType: ResourceExamType;
-  part: 1 | 2 | 3 | 4 | full;
+  part: 1 | 2 | 3 | 4 | "full";
   difficulty: ResourceDifficulty;
   minutes: number;
   questions: number;
@@ -140,7 +140,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       requiredPlan: "free",
       title: "Listening Full Test 1",
       examType: "real",
-      part: full,
+      part: "full",
       difficulty: "medium",
       minutes: 30,
       questions: 40,
@@ -149,7 +149,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       requiredPlan: "free",
       title: "Listening Full Test 2",
       examType: "real",
-      part: full,
+      part: "full",
       difficulty: "medium",
       minutes: 30,
       questions: 40,
