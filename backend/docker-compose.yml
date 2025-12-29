@@ -37,6 +37,19 @@ services:
           - redis
           - cache_service
 
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5540:5540"
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      - cache_service
+    networks:
+      - edufy_net
+
   admin_service:
     build: ./services/admin_service
     image: admin_service:latest
@@ -304,6 +317,7 @@ volumes:
   grafana_data:
   prometheus_data:
   redis_data:
+  redisinsight_data:
   n8n_data:
 
 networks:
