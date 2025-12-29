@@ -12,7 +12,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)',
+        source: '/:path((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)',
         headers: [
           {
             key: 'Cache-Control',
