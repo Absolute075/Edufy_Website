@@ -209,6 +209,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "483129": {
+      requiredPlan: "free",
+      title: "Herding",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
