@@ -19,6 +19,21 @@ services:
     networks:
       - edufy_net
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks:
+      - edufy_net
+
   admin_service:
     build: ./services/admin_service
     image: admin_service:latest
@@ -260,6 +275,7 @@ volumes:
   dockmon_data:
   grafana_data:
   prometheus_data:
+  redis_data:
   n8n_data:
 
 networks:
