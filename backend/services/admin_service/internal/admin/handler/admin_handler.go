@@ -111,6 +111,10 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
 		return
 	}
+	// Some Tomcat configurations reject Host headers containing underscores.
+	// Docker service names often contain underscores (e.g. auth_service). We keep the URL for DNS,
+	// but sanitize the Host header to avoid Tomcat returning HTTP 400 before hitting Spring MVC.
+	lookupReq.Host = strings.ReplaceAll(lookupReq.Host, "_", "-")
 	lookupReq.Header.Set("Accept", "application/json")
 	lookupResp, err := client.Do(lookupReq)
 	if err != nil {
@@ -164,6 +168,8 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
 		return
 	}
+	// Same Host header sanitization for user_service.
+	httpReq.Host = strings.ReplaceAll(httpReq.Host, "_", "-")
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Accept", "application/json")
 	resp, err := client.Do(httpReq)
