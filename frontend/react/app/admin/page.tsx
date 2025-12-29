@@ -26,33 +26,15 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-4 flex flex-col justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-1">Users</p>
-            <p className="text-sm text-gray-200">
-              View and manage users, search, and block or unblock accounts.
-            </p>
-          </div>
-          <div className="mt-4">
-            <Link
-              href="/admin/users"
-              className="text-[11px] uppercase tracking-[0.22em] text-white/90 underline underline-offset-4 decoration-white/40 hover:text-white"
-            >
-              Open users
-            </Link>
-          </div>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-4 flex flex-col justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-1">Billing</p>
-            <p className="text-sm text-gray-200">
-              Inspect payments, invoices, and active subscriptions across users.
-            </p>
+            <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-1">Subscriptions</p>
+            <p className="text-sm text-gray-200">Inspect and manage active subscriptions across users.</p>
           </div>
           <div className="mt-4 flex gap-4">
             <Link
               href="/admin/subscriptions"
               className="text-[11px] uppercase tracking-[0.22em] text-white/90 underline underline-offset-4 decoration-white/40 hover:text-white"
             >
-              Subscriptions
+              Open subscriptions
             </Link>
           </div>
         </div>
