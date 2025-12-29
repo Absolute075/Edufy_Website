@@ -20,14 +20,29 @@ export default function AdminLoginPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: username.trim(), password }),
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(typeof data.error === 'string' ? data.error : 'Login failed');
+        const rawText = await res.text().catch(() => '');
+        const maybeJson = (() => {
+          try {
+            return JSON.parse(rawText);
+          } catch {
+            return null;
+          }
+        })();
+        const apiError =
+          maybeJson && typeof (maybeJson as any).error === 'string'
+            ? String((maybeJson as any).error)
+            : '';
+        const fallback = rawText
+          ? rawText.replace(/\s+/g, ' ').trim().slice(0, 180)
+          : `HTTP ${res.status}`;
+        setError(apiError || `Login failed (${res.status}): ${fallback}`);
         setLoading(false);
         return;
       }
@@ -63,6 +78,9 @@ export default function AdminLoginPage() {
             <input
               type="text"
               autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/50"
