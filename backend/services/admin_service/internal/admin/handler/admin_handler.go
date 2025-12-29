@@ -425,6 +425,118 @@ func (h *AdminHandler) SearchSubscriptions(c *gin.Context) {
 	c.JSON(http.StatusOK, results)
 }
 
+func (h *AdminHandler) ListPremiumSubscriptions(c *gin.Context) {
+	client := &http.Client{Timeout: 8 * time.Second}
+
+	userBase := h.cfg.UserServiceURL
+	if userBase == "" {
+		userBase = "http://user_service:8080"
+	}
+	premiumURL := userBase + "/user/internal/admin/subscriptions/premium"
+	req, err := http.NewRequest(http.MethodGet, premiumURL, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
+		return
+	}
+	req.Host = strings.ReplaceAll(req.Host, "_", "-")
+	req.Header.Set("Accept", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "user_service_unreachable"})
+		return
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		c.Status(resp.StatusCode)
+		if len(body) > 0 {
+			_, _ = c.Writer.Write(body)
+		} else {
+			c.JSON(resp.StatusCode, gin.H{"error": "request_failed"})
+		}
+		return
+	}
+
+	var subs []subscriptionSummary
+	if err := json.Unmarshal(body, &subs); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "invalid_upstream_response"})
+		return
+	}
+
+	usernames := make([]string, 0, len(subs))
+	for _, s := range subs {
+		if strings.TrimSpace(s.Username) != "" {
+			usernames = append(usernames, s.Username)
+		}
+	}
+
+	authBase := h.cfg.AuthServiceURL
+	if authBase == "" {
+		authBase = "http://auth_service:8080"
+	}
+	batchURL := authBase + "/auth/internal/admin/users/by-usernames"
+	payload, _ := json.Marshal(map[string]any{"usernames": usernames})
+	batchReq, err := http.NewRequest(http.MethodPost, batchURL, bytes.NewReader(payload))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
+		return
+	}
+	batchReq.Host = strings.ReplaceAll(batchReq.Host, "_", "-")
+	batchReq.Header.Set("Content-Type", "application/json")
+	batchReq.Header.Set("Accept", "application/json")
+	batchResp, err := client.Do(batchReq)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_unreachable"})
+		return
+	}
+	defer batchResp.Body.Close()
+	batchBody, _ := io.ReadAll(batchResp.Body)
+	if batchResp.StatusCode != http.StatusOK {
+		c.Status(batchResp.StatusCode)
+		if len(batchBody) > 0 {
+			_, _ = c.Writer.Write(batchBody)
+		} else {
+			c.JSON(batchResp.StatusCode, gin.H{"error": "request_failed"})
+		}
+		return
+	}
+
+	var users []authUser
+	if err := json.Unmarshal(batchBody, &users); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "invalid_upstream_response"})
+		return
+	}
+
+	userByUsername := make(map[string]authUser, len(users))
+	for _, u := range users {
+		userByUsername[u.Username] = u
+	}
+
+	results := make([]userWithSubscription, 0, len(subs))
+	for _, s := range subs {
+		u, ok := userByUsername[s.Username]
+		email := ""
+		role := ""
+		active := true
+		if ok {
+			email = u.Email
+			role = u.Role
+			active = u.Active
+		}
+		results = append(results, userWithSubscription{
+			Username:    s.Username,
+			Email:       email,
+			Plan:        "premium",
+			GrantedAt:   s.GrantedAt,
+			ActiveUntil: s.ActiveUntil,
+			Role:        role,
+			Active:      active,
+		})
+	}
+
+	c.JSON(http.StatusOK, results)
+}
+
 func (h *AdminHandler) SearchUsers(c *gin.Context) {
 	results, status, raw := h.buildUsersWithSubscriptions(c.Query("q"))
 	if status != http.StatusOK {

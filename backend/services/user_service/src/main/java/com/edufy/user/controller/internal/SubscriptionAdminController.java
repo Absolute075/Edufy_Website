@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Locale;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -100,6 +101,25 @@ public class SubscriptionAdminController {
                 "period", sub.getPeriod(),
                 "activeUntil", sub.getActiveUntil()
         ));
+    }
+
+    @GetMapping("/admin/subscriptions/premium")
+    public ResponseEntity<?> listPremium() {
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Tashkent"));
+        List<Subscription> subs = subscriptionRepository
+                .findTop200ByPlanIgnoreCaseAndActiveUntilAfterOrderByActiveUntilDesc("premium", now);
+
+        return ResponseEntity.ok(
+                subs.stream().map(s -> {
+                    LocalDateTime grantedAt = s.getUpdatedAt() != null ? s.getUpdatedAt() : s.getCreatedAt();
+                    return Map.of(
+                            "username", s.getUsername(),
+                            "plan", s.getPlan(),
+                            "activeUntil", s.getActiveUntil(),
+                            "grantedAt", grantedAt
+                    );
+                }).toList()
+        );
     }
 
     @PostMapping("/admin/subscriptions/revoke")

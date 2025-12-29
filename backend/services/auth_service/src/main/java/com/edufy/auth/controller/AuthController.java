@@ -321,6 +321,52 @@ public class AuthController {
         return ResponseEntity.ok(m);
     }
 
+    @PostMapping("/internal/admin/users/by-usernames")
+    public ResponseEntity<?> internalAdminUsersByUsernames(@RequestBody Map<String, Object> payload) {
+        Object raw = payload != null ? payload.get("usernames") : null;
+        if (!(raw instanceof List<?>)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "usernames required"));
+        }
+
+        List<?> list = (List<?>) raw;
+        if (list.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "usernames required"));
+        }
+
+        List<String> usernames = new java.util.ArrayList<>();
+        for (Object v : list) {
+            if (v == null) continue;
+            String s = v.toString().trim();
+            if (s.isBlank()) continue;
+            if (!usernames.contains(s)) {
+                usernames.add(s);
+            }
+            if (usernames.size() >= 500) {
+                break;
+            }
+        }
+
+        if (usernames.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "usernames required"));
+        }
+
+        List<UserEntity> users = userRepository.findByUsernameIn(usernames);
+
+        return ResponseEntity.ok(
+                users.stream().map(u -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", u.getId());
+                    m.put("publicId", u.getPublicId());
+                    m.put("username", u.getUsername());
+                    m.put("email", u.getEmail());
+                    m.put("role", u.getRole());
+                    m.put("active", u.getActive());
+                    m.put("createdAt", u.getCreatedAt());
+                    return m;
+                }).toList()
+        );
+    }
+
     @PostMapping("/internal/admin/users/set-active")
     public ResponseEntity<?> internalAdminSetUserActive(@RequestBody InternalSetActiveRequest payload) {
         if (payload == null || payload.username == null || payload.username.isBlank()) {

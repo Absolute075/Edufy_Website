@@ -33,6 +33,7 @@ export default function AdminSubscriptionsPage() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [premiumLoading, setPremiumLoading] = useState(false);
   const [premiumOnly, setPremiumOnly] = useState(false);
   const [revokeLoading, setRevokeLoading] = useState<string | null>(null);
 
@@ -164,6 +165,62 @@ export default function AdminSubscriptionsPage() {
       setSearchResults([]);
     } finally {
       setSearchLoading(false);
+    }
+  }
+
+  async function handleLoadPremium() {
+    setSearchError(null);
+    setPremiumLoading(true);
+    setSearchPerformed(true);
+    try {
+      let token: string | null = null;
+      if (typeof window !== 'undefined') {
+        try {
+          token = localStorage.getItem('admin_token');
+        } catch {
+          token = null;
+        }
+      }
+
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch('/admin-api/admin/subscriptions/premium', {
+        method: 'GET',
+        headers,
+      });
+
+      if (!res.ok) {
+        setSearchError('Failed to load premium users');
+        setSearchResults([]);
+        return;
+      }
+
+      const data = await res.json().catch(() => []);
+      if (Array.isArray(data)) {
+        setSearchResults(
+          data.map((item: any) => {
+            const rawPlan = String(item.plan ?? '').toLowerCase();
+            const normalizedPlan = !rawPlan || rawPlan === 'free' ? 'free' : 'premium';
+            return {
+              username: String(item.username ?? ''),
+              email: String(item.email ?? ''),
+              plan: normalizedPlan,
+              grantedAt: item.grantedAt ?? null,
+              activeUntil: item.activeUntil ?? null,
+            };
+          })
+        );
+      } else {
+        setSearchResults([]);
+      }
+    } catch {
+      setSearchError('Network error while loading premium users');
+      setSearchResults([]);
+    } finally {
+      setPremiumLoading(false);
     }
   }
 
@@ -339,6 +396,14 @@ export default function AdminSubscriptionsPage() {
             className="rounded-full border border-white/25 bg-white text-gray-900 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {searchLoading ? 'Searching...' : 'Search'}
+          </button>
+          <button
+            type="button"
+            onClick={handleLoadPremium}
+            disabled={premiumLoading}
+            className="rounded-full border border-white/25 bg-black/40 text-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {premiumLoading ? 'Loading...' : 'Load premium'}
           </button>
         </form>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-[11px] text-gray-400">
