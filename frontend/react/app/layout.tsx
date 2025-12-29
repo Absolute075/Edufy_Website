@@ -26,12 +26,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const host = (headers().get('host') ?? '').toLowerCase();
+  const host = ((await headers()).get('host') ?? '').toLowerCase();
   const hostname = host.split(':')[0];
   const isAdminSubdomain = hostname === 'admin.edufyuzbekistan.com';
 
