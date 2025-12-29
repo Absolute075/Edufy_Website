@@ -50,11 +50,15 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      REDIS_HOST: cache_service
+      REDIS_PORT: "6379"
+      REDIS_URL: redis://cache_service:6379
       AUTH_SERVICE_URL: http://auth_service:8080
       USER_SERVICE_URL: http://userservice:8080
       FILE_SERVICE_URL: http://file_service:8080
       GATEWAY_URL: http://gateway_service:8080
     depends_on:
+      - cache_service
       - auth_service
       - user_service
       - gateway_service
@@ -71,6 +75,9 @@ services:
     environment:
       - PORT=8080
       - USER_SERVICE_URL=http://userservice:8080
+      - REDIS_HOST=cache_service
+      - REDIS_PORT=6379
+      - REDIS_URL=redis://cache_service:6379
       - RESOURCES_BASE=https://resources.edufyuzbekistan.com
       - LOGIN_REDIRECT_URL=https://access.edufyuzbekistan.com/login
       - UPGRADE_REDIRECT_URL=https://edufyuzbekistan.com/pricing
@@ -92,6 +99,8 @@ services:
     volumes:
       - ./services/file_service/public:/app/public:ro
       - /var/www/Edufy_Website/materials:/materials:ro
+    depends_on:
+      - cache_service
     restart: always
     networks:
       - edufy_net
@@ -111,15 +120,21 @@ services:
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: star4536446
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_DATA_REDIS_HOST: cache_service
+      SPRING_DATA_REDIS_PORT: "6379"
+      REDIS_HOST: cache_service
+      REDIS_PORT: "6379"
+      REDIS_URL: redis://cache_service:6379
       INFOBIP_BASE_URL: ${INFOBIP_BASE_URL}
       INFOBIP_API_KEY: ${INFOBIP_API_KEY}
       INFOBIP_FROM_EMAIL: ${INFOBIP_FROM_EMAIL}
       USER_SERVICE_URL: "http://userservice:8080"
       SERVER_PORT: 8080
-      env_file:
-        .env
+    env_file:
+      .env
     depends_on:
       - db
+      - cache_service
     restart: always
     networks:
       - edufy_net
@@ -137,6 +152,11 @@ services:
         SPRING_DATASOURCE_USERNAME: admin
         SPRING_DATASOURCE_PASSWORD: star4536446
         SPRING_JPA_HIBERNATE_DDL_AUTO: update
+        SPRING_DATA_REDIS_HOST: cache_service
+        SPRING_DATA_REDIS_PORT: "6379"
+        REDIS_HOST: cache_service
+        REDIS_PORT: "6379"
+        REDIS_URL: redis://cache_service:6379
         SERVER_PORT: 8080
         EDUFY_RESOURCES_BASE: "https://resources.edufyuzbekistan.com"
         # SFTP to VPS Storage
@@ -148,6 +168,7 @@ services:
         STORAGE_SFTP_DEST_DIR: "/var/www/Edufy_Website/storage/avatars"
       depends_on:
         - db
+        - cache_service
       restart: always
       volumes:
         - /var/www/Edufy_Website/storage:/var/www/Edufy_Website/storage
@@ -170,6 +191,9 @@ services:
       USER_SERVICE_URL: http://userservice:8080
       FILE_SERVICE_URL: http://file_service:8080
       GATEWAY_URL: http://gateway_service:8080
+      REDIS_HOST: cache_service
+      REDIS_PORT: "6379"
+      REDIS_URL: redis://cache_service:6379
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
       USD_TO_UZS_FALLBACK_RATE: "12000"
@@ -177,6 +201,7 @@ services:
     depends_on:
       - auth_service
       - user_service
+      - cache_service
     restart: always
     networks:
       - edufy_net
