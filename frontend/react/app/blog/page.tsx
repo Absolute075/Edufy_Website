@@ -192,6 +192,7 @@ export default function BlogPage() {
                         ) : (
                           <video
                             src={post.mediaSrc}
+                            preload="metadata"
                             autoPlay
                             loop
                             muted

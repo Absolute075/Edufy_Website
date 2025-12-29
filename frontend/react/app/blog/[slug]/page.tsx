@@ -106,6 +106,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             ) : (
               <video
                 src={post.mediaSrc}
+                preload="metadata"
                 autoPlay
                 loop
                 muted

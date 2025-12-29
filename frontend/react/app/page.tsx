@@ -1399,6 +1399,7 @@ export default function HomePage() {
               >
                 <video
                   src="https://resources.edufyuzbekistan.com/storage/videos/wow.mp4"
+                  preload="metadata"
                   autoPlay
                   loop
                   muted
@@ -1629,6 +1630,7 @@ export default function HomePage() {
                   >
                     <video
                       src="/videos/DNucOji5MCf_0.mp4"
+                      preload="metadata"
                       autoPlay
                       loop
                       muted
