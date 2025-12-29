@@ -348,7 +348,14 @@ func (h *AdminHandler) searchUsersFromDB(q string) ([]authUser, int, []byte, err
 	}
 	client := &http.Client{Timeout: 5 * time.Second}
 	searchURL := authBase + "/auth/internal/admin/users/search?q=" + url.QueryEscape(q)
-	resp, err := client.Get(searchURL)
+	req, err := http.NewRequest(http.MethodGet, searchURL, nil)
+	if err != nil {
+		return nil, http.StatusBadGateway, nil, err
+	}
+	// Tomcat may reject Host headers with underscores (e.g. auth_service).
+	req.Host = strings.ReplaceAll(req.Host, "_", "-")
+	req.Header.Set("Accept", "application/json")
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, 0, nil, err
 	}
