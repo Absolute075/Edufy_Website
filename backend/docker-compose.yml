@@ -19,9 +19,9 @@ services:
     networks:
       - edufy_net
 
-  redis:
+  cache_service:
     image: redis:7-alpine
-    container_name: redis
+    container_name: cache_service
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes", "--save", "60", "1"]
     volumes:
@@ -32,7 +32,10 @@ services:
       timeout: 3s
       retries: 10
     networks:
-      - edufy_net
+      edufy_net:
+        aliases:
+          - redis
+          - cache_service
 
   admin_service:
     build: ./services/admin_service
