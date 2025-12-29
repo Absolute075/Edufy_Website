@@ -76,6 +76,7 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
 		return
 	}
+	log.Printf("GrantSubscription: incoming email=%q period=%q", strings.TrimSpace(req.Email), strings.TrimSpace(req.Period))
 	if strings.TrimSpace(req.Email) == "" || strings.TrimSpace(req.Period) == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email and period are required"})
 		return
@@ -103,6 +104,7 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 	// Resolve username by email in auth_service DB.
 	email := strings.TrimSpace(req.Email)
 	lookupURL := authBase + "/auth/internal/admin/users/by-email?email=" + url.QueryEscape(email)
+	log.Printf("GrantSubscription: auth lookup url=%s", lookupURL)
 	client := &http.Client{Timeout: 5 * time.Second}
 	lookupReq, err := http.NewRequest(http.MethodGet, lookupURL, nil)
 	if err != nil {
@@ -117,6 +119,7 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 	}
 	defer lookupResp.Body.Close()
 	lookupBody, _ := io.ReadAll(lookupResp.Body)
+	log.Printf("GrantSubscription: auth lookup status=%d body=%s", lookupResp.StatusCode, string(lookupBody))
 	if lookupResp.StatusCode != http.StatusOK {
 		c.Status(lookupResp.StatusCode)
 		if len(lookupBody) > 0 {
