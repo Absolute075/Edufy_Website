@@ -103,6 +103,25 @@ export async function middleware(request: NextRequest) {
       adminUrl.pathname = "/admin";
       return applyRobotsHeader(NextResponse.redirect(adminUrl), pathname, host);
     }
+
+    // Allow admin API calls and login page without redirect.
+    if (pathname.startsWith("/admin-api")) {
+      return applyRobotsHeader(NextResponse.next(), pathname, host);
+    }
+    if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
+      return applyRobotsHeader(NextResponse.next(), pathname, host);
+    }
+
+    // Protect admin UI routes server-side using HttpOnly cookie set by admin_service.
+    if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+      const adminToken = request.cookies.get("admin_token")?.value;
+      if (!adminToken) {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = "/admin/login";
+        return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+      }
+    }
+
     // Do not apply user dashboard auth middleware on the admin subdomain.
     return applyRobotsHeader(NextResponse.next(), pathname, host);
   }
