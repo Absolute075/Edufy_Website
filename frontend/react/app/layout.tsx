@@ -31,8 +31,9 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  const host = ((await headers()).get('host') ?? '').toLowerCase();
-  const hostname = host.split(':')[0];
+  const h = await headers();
+  const rawHost = (h.get('x-forwarded-host') ?? h.get('host') ?? '').toLowerCase();
+  const hostname = rawHost.split(',')[0].trim().split(':')[0];
   const isAdminSubdomain = hostname === 'admin.edufyuzbekistan.com';
 
   return (
