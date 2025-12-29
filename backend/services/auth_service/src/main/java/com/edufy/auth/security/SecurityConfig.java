@@ -3,6 +3,7 @@ package com.edufy.auth.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -14,8 +15,41 @@ public class SecurityConfig {
     // ================== PASSWORD ENCODER ==================
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Используем 6 раундов для совместимости с существующими паролями в БД
-        return new BCryptPasswordEncoder(6);
+        PasswordEncoder argon2id = new Argon2PasswordEncoder(
+                16,
+                64,
+                4,
+                256 * 1024,
+                4
+        );
+
+        PasswordEncoder legacyBcrypt = new BCryptPasswordEncoder(6);
+
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return argon2id.encode(rawPassword);
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                if (encodedPassword == null || encodedPassword.isBlank()) {
+                    return false;
+                }
+
+                if (encodedPassword.startsWith("$2a$")
+                        || encodedPassword.startsWith("$2b$")
+                        || encodedPassword.startsWith("$2y$")) {
+                    return legacyBcrypt.matches(rawPassword, encodedPassword);
+                }
+
+                if (encodedPassword.startsWith("$argon2")) {
+                    return argon2id.matches(rawPassword, encodedPassword);
+                }
+
+                return false;
+            }
+        };
     }
 
 

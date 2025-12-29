@@ -86,12 +86,9 @@ public class AuthService {
         user.setEmail(request.getEmail());
         // Роль: по умолчанию STUDENT, если не передана
         user.setRole(request.getRole() != null ? request.getRole() : UserEntity.Role.STUDENT);
-        
-        System.out.println("[DEBUG REGISTER] Original password: " + request.getPassword());
-        System.out.println("[DEBUG REGISTER] PasswordEncoder class: " + passwordEncoder.getClass().getName());
+
         String hashedPassword = passwordEncoder.encode(request.getPassword());
-        System.out.println("[DEBUG REGISTER] Hashed password: " + hashedPassword);
-        
+
         user.setPassword(hashedPassword);
         user.setActive(true);
         user.setCreatedAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")));
@@ -146,20 +143,29 @@ public class AuthService {
 
         // Проверка пароля
         System.out.println("[DEBUG] Login attempt for: " + user.getEmail());
-        System.out.println("[DEBUG] Password from request: " + request.getPassword());
         String dbPassword = user.getPassword();
         if (dbPassword == null) {
             System.out.println("[DEBUG] Password hash from DB is NULL");
         } else {
             System.out.println("[DEBUG] Password hash from DB: " + dbPassword.substring(0, Math.min(60, dbPassword.length())));
         }
-        System.out.println("[DEBUG] PasswordEncoder class: " + passwordEncoder.getClass().getName());
 
         boolean matches = dbPassword != null && passwordEncoder.matches(request.getPassword(), dbPassword);
         System.out.println("[DEBUG] Password matches: " + matches);
 
         if (!matches) {
             throw new RuntimeException("❌ Invalid password!");
+        }
+
+        if (dbPassword != null && (dbPassword.startsWith("$2a$") || dbPassword.startsWith("$2b$") || dbPassword.startsWith("$2y$"))) {
+            try {
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
+                userRepository.save(user);
+            } catch (Exception e) {
+                try {
+                    System.out.println("[auth_service] login password rehash error: " + e.getClass().getSimpleName());
+                } catch (Exception ignore) {}
+            }
         }
 
         // Генерация JWT
