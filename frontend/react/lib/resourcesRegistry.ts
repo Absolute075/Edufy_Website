@@ -200,6 +200,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "146963": {
+      requiredPlan: "free",
+      title: "Native Species That Become Pests",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
