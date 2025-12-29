@@ -98,7 +98,7 @@ export default function HomePage() {
       ? '$39.99/UZS 474.000'
       : billingPeriod === 'yearly'
       ? '$59.99/UZS 709.000'
-      : '$7.99/UZS 94.000';
+      : '$5.99/UZS 70.000';
 
   const displayPremiumPrice = getPriceForCurrency(premiumPrice, billingCurrency, usdToUzsRate);
   const landingOldPremiumPrice = getLandingOldPrice('Pro', billingPeriod, billingCurrency, usdToUzsRate);

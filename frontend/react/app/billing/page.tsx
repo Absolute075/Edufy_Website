@@ -21,7 +21,7 @@ const PRICING: Record<
 > = {
   monthly: {
     label: "month",
-    premium: "$7.99/UZS 94.000",
+    premium: "$5.99/UZS 70.000",
     helper: "Best if you want to test Edufy month by month.",
   },
   sixMonths: {
