@@ -173,6 +173,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "196736": {
+      requiredPlan: "free",
+      title: "Reducing the Effects of Jet Lag",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 25,
+      questions: 16,
+    },
   },
   listening: {
     "846376": {
