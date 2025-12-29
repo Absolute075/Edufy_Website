@@ -104,7 +104,13 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 	email := strings.TrimSpace(req.Email)
 	lookupURL := authBase + "/auth/internal/admin/users/by-email?email=" + url.QueryEscape(email)
 	client := &http.Client{Timeout: 5 * time.Second}
-	lookupResp, err := client.Get(lookupURL)
+	lookupReq, err := http.NewRequest(http.MethodGet, lookupURL, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
+		return
+	}
+	lookupReq.Header.Set("Accept", "application/json")
+	lookupResp, err := client.Do(lookupReq)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_unreachable"})
 		return
@@ -156,6 +162,7 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		return
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Accept", "application/json")
 	resp, err := client.Do(httpReq)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "user_service_unreachable"})
