@@ -39,7 +39,16 @@ public class AuthController {
     // Регистрация
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        AuthResponse response = authService.register(request);
+        AuthResponse response;
+        try {
+            response = authService.register(request);
+        } catch (Exception e) {
+            try {
+                System.out.println("[auth_service] /auth/register error: " + e.getClass().getName());
+                e.printStackTrace();
+            } catch (Exception ignore) {}
+            return ResponseEntity.status(500).body(new AuthResponse("❌ Registration failed"));
+        }
         if (response.getMessage().startsWith("❌")) {
             // Ошибка регистрации — вернём 400
             return ResponseEntity.badRequest().body(response);

@@ -32,7 +32,7 @@ public class UserEntity {
     @Column(nullable = true, length = 20)
     private String phone;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "text")
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -40,12 +40,14 @@ public class UserEntity {
     private Role role; // student / teacher / admin
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean active = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "email_verified", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
     private Boolean emailVerified = false;
 
     @Column(name = "verification_code", length = 12)
