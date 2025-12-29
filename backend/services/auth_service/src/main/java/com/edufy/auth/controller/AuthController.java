@@ -271,6 +271,11 @@ public class AuthController {
 
     private String safe(String s) { return s == null ? "" : s; }
 
+    public static class InternalSetActiveRequest {
+        public String username;
+        public Boolean active;
+    }
+
     @GetMapping("/internal/admin/users/search")
     public ResponseEntity<?> internalAdminSearchUsers(@RequestParam(name = "q", required = false) String q) {
         String query = q != null ? q.trim() : "";
@@ -292,6 +297,50 @@ public class AuthController {
                     return m;
                 }).toList()
         );
+    }
+
+    @GetMapping("/internal/admin/users/by-email")
+    public ResponseEntity<?> internalAdminUserByEmail(@RequestParam(name = "email") String email) {
+        String e = email != null ? email.trim() : "";
+        if (e.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "email required"));
+        }
+        Optional<UserEntity> userOpt = userRepository.findByEmail(e);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("message", "User not found"));
+        }
+        UserEntity u = userOpt.get();
+        Map<String, Object> m = new HashMap<>();
+        m.put("id", u.getId());
+        m.put("publicId", u.getPublicId());
+        m.put("username", u.getUsername());
+        m.put("email", u.getEmail());
+        m.put("role", u.getRole());
+        m.put("active", u.getActive());
+        m.put("createdAt", u.getCreatedAt());
+        return ResponseEntity.ok(m);
+    }
+
+    @PostMapping("/internal/admin/users/set-active")
+    public ResponseEntity<?> internalAdminSetUserActive(@RequestBody InternalSetActiveRequest payload) {
+        if (payload == null || payload.username == null || payload.username.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "username required"));
+        }
+        if (payload.active == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "active required"));
+        }
+        String username = payload.username.trim();
+        Optional<UserEntity> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("message", "User not found"));
+        }
+        UserEntity user = userOpt.get();
+        user.setActive(payload.active);
+        userRepository.save(user);
+        return ResponseEntity.ok(Map.of(
+                "username", user.getUsername(),
+                "active", user.getActive()
+        ));
     }
 
     @GetMapping("/internal/admin/users/all")

@@ -64,9 +64,8 @@ func (h *AdminHandler) AdminInfo(c *gin.Context) {
 }
 
 type grantSubscriptionRequest struct {
-	Username string `json:"username"`
-	Plan     string `json:"plan"`
-	Period   string `json:"period"`
+	Email  string `json:"email"`
+	Period string `json:"period"`
 }
 
 // GrantSubscription allows an authenticated admin to grant or extend a user subscription
@@ -77,8 +76,49 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
 		return
 	}
-	if req.Username == "" || req.Plan == "" || req.Period == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "username, plan and period are required"})
+	if strings.TrimSpace(req.Email) == "" || strings.TrimSpace(req.Period) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email and period are required"})
+		return
+	}
+	period := strings.TrimSpace(req.Period)
+	if period != "monthly" && period != "sixMonths" && period != "yearly" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported period"})
+		return
+	}
+
+	authBase := h.cfg.AuthServiceURL
+	if authBase == "" {
+		authBase = "http://auth_service:8080"
+	}
+
+	// Resolve username by email in auth_service DB.
+	email := strings.TrimSpace(req.Email)
+	lookupURL := authBase + "/auth/internal/admin/users/by-email?email=" + url.QueryEscape(email)
+	client := &http.Client{Timeout: 5 * time.Second}
+	lookupResp, err := client.Get(lookupURL)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_unreachable"})
+		return
+	}
+	defer lookupResp.Body.Close()
+	lookupBody, _ := io.ReadAll(lookupResp.Body)
+	if lookupResp.StatusCode != http.StatusOK {
+		c.Status(lookupResp.StatusCode)
+		if len(lookupBody) > 0 {
+			_, _ = c.Writer.Write(lookupBody)
+		} else {
+			c.JSON(lookupResp.StatusCode, gin.H{"error": "user_lookup_failed"})
+		}
+		return
+	}
+
+	var user struct {
+		Username string `json:"username"`
+		Email    string `json:"email"`
+	}
+	_ = json.Unmarshal(lookupBody, &user)
+	if strings.TrimSpace(user.Username) == "" {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_invalid_response"})
 		return
 	}
 
@@ -87,7 +127,13 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 	if base == "" {
 		base = "http://user_service:8080"
 	}
-	body, err := json.Marshal(req)
+	// Only premium can be granted via admin panel.
+	upstreamReq := map[string]any{
+		"username": user.Username,
+		"plan":     "premium",
+		"period":   period,
+	}
+	body, err := json.Marshal(upstreamReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "encode_request_failed"})
 		return
@@ -101,7 +147,7 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		return
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(httpReq)
+	resp, err := client.Do(httpReq)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "user_service_unreachable"})
 		return
@@ -138,60 +184,123 @@ type userWithSubscription struct {
 	Active      bool        `json:"active"`
 }
 
-func (h *AdminHandler) SearchSubscriptions(c *gin.Context) {
-	q := strings.TrimSpace(c.Query("q"))
-	if q == "" {
-		c.JSON(http.StatusOK, []userWithSubscription{})
-		return
-	}
+type authUser struct {
+	Username  string      `json:"username"`
+	Email     string      `json:"email"`
+	Role      string      `json:"role"`
+	Active    bool        `json:"active"`
+	CreatedAt interface{} `json:"createdAt"`
+}
 
-	searchBase := h.cfg.SearchServiceURL
-	if searchBase == "" {
-		searchBase = "http://search_service:8080"
+func (h *AdminHandler) getSubscriptionSummary(client *http.Client, username string) (subscriptionSummary, bool) {
+	base := h.cfg.UserServiceURL
+	if base == "" {
+		base = "http://user_service:8080"
 	}
-	searchURL := searchBase + "/search/users?q=" + url.QueryEscape(q)
-	resp, err := http.Get(searchURL)
+	summaryURL := base + "/user/internal/admin/subscriptions/summary?username=" + url.QueryEscape(username)
+	resp, err := client.Get(summaryURL)
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "search_service_unreachable"})
-		return
+		return subscriptionSummary{}, false
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "search_service_unexpected_status", "status": resp.StatusCode})
-		return
+		return subscriptionSummary{}, false
+	}
+	var s subscriptionSummary
+	if err := json.NewDecoder(resp.Body).Decode(&s); err != nil {
+		return subscriptionSummary{}, false
+	}
+	return s, true
+}
+
+func (h *AdminHandler) searchUsersFromDB(q string) ([]authUser, int, []byte, error) {
+	authBase := h.cfg.AuthServiceURL
+	if authBase == "" {
+		authBase = "http://auth_service:8080"
+	}
+	client := &http.Client{Timeout: 5 * time.Second}
+	searchURL := authBase + "/auth/internal/admin/users/search?q=" + url.QueryEscape(q)
+	resp, err := client.Get(searchURL)
+	if err != nil {
+		return nil, 0, nil, err
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return nil, resp.StatusCode, body, nil
+	}
+	var users []authUser
+	if err := json.Unmarshal(body, &users); err != nil {
+		return nil, http.StatusBadGateway, nil, err
+	}
+	return users, http.StatusOK, nil, nil
+}
+
+func (h *AdminHandler) buildUsersWithSubscriptions(q string) ([]userWithSubscription, int, []byte) {
+	q = strings.TrimSpace(q)
+	if q == "" {
+		return []userWithSubscription{}, http.StatusOK, nil
 	}
 
-	var docs []struct {
-		Username    string      `json:"username"`
-		Email       string      `json:"email"`
-		Plan        string      `json:"plan"`
-		GrantedAt   interface{} `json:"grantedAt"`
-		ActiveUntil interface{} `json:"activeUntil"`
-		Role        string      `json:"role"`
-		Active      bool        `json:"active"`
+	users, status, rawBody, err := h.searchUsersFromDB(q)
+	if err != nil {
+		return nil, http.StatusBadGateway, []byte(`{"error":"auth_service_unreachable"}`)
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&docs); err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "search_service_decode_failed"})
-		return
+	if status != http.StatusOK {
+		return nil, status, rawBody
 	}
 
-	results := make([]userWithSubscription, 0, len(docs))
-	for _, d := range docs {
-		plan := d.Plan
-		if plan == "" {
-			plan = "free"
+	client := &http.Client{Timeout: 5 * time.Second}
+	results := make([]userWithSubscription, 0, len(users))
+	for _, u := range users {
+		plan := "free"
+		var grantedAt interface{} = nil
+		var activeUntil interface{} = nil
+		if s, ok := h.getSubscriptionSummary(client, u.Username); ok {
+			if s.Plan != "" {
+				plan = s.Plan
+			}
+			grantedAt = s.GrantedAt
+			activeUntil = s.ActiveUntil
 		}
 		results = append(results, userWithSubscription{
-			Username:    d.Username,
-			Email:       d.Email,
+			Username:    u.Username,
+			Email:       u.Email,
 			Plan:        plan,
-			GrantedAt:   d.GrantedAt,
-			ActiveUntil: d.ActiveUntil,
-			Role:        d.Role,
-			Active:      d.Active,
+			GrantedAt:   grantedAt,
+			ActiveUntil: activeUntil,
+			Role:        u.Role,
+			Active:      u.Active,
 		})
 	}
+	return results, http.StatusOK, nil
+}
 
+func (h *AdminHandler) SearchSubscriptions(c *gin.Context) {
+	results, status, raw := h.buildUsersWithSubscriptions(c.Query("q"))
+	if status != http.StatusOK {
+		c.Status(status)
+		if len(raw) > 0 {
+			_, _ = c.Writer.Write(raw)
+		} else {
+			c.JSON(status, gin.H{"error": "request_failed"})
+		}
+		return
+	}
+	c.JSON(http.StatusOK, results)
+}
+
+func (h *AdminHandler) SearchUsers(c *gin.Context) {
+	results, status, raw := h.buildUsersWithSubscriptions(c.Query("q"))
+	if status != http.StatusOK {
+		c.Status(status)
+		if len(raw) > 0 {
+			_, _ = c.Writer.Write(raw)
+		} else {
+			c.JSON(status, gin.H{"error": "request_failed"})
+		}
+		return
+	}
 	c.JSON(http.StatusOK, results)
 }
 

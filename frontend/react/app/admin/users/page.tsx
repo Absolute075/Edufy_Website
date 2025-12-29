@@ -60,7 +60,7 @@ export default function AdminUsersPage() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const res = await fetch(`/admin-api/admin/subscriptions/search?q=${encodeURIComponent(q)}`, {
+      const res = await fetch(`/admin-api/admin/users/search?q=${encodeURIComponent(q)}`, {
         method: 'GET',
         headers,
       });
@@ -203,7 +203,7 @@ export default function AdminUsersPage() {
               {results.length === 0 ? (
                 searchPerformed && !searchLoading ? (
                   <tr>
-                    <td colSpan={8} className="py-3 text-gray-500">
+                    <td colSpan={9} className="py-3 text-gray-500">
                       No users found.
                     </td>
                   </tr>
@@ -223,7 +223,10 @@ export default function AdminUsersPage() {
                         <button
                           type="button"
                           className="inline-flex items-center rounded-full border border-white/30 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90 hover:bg-white hover:text-black transition-colors"
-                          onClick={() => router.push(`/admin/subscriptions?username=${encodeURIComponent(row.username)}`)}
+                          disabled={!row.email}
+                          onClick={() =>
+                            router.push(`/admin/subscriptions?email=${encodeURIComponent(row.email)}`)
+                          }
                         >
                           Manage subscription
                         </button>

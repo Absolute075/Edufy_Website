@@ -49,14 +49,8 @@ export default function AdminDashboardPage() {
           </div>
           <div className="mt-4 flex gap-4">
             <Link
-              href="/admin/payments"
-              className="text-[11px] uppercase tracking-[0.22em] text-white/90 underline underline-offset-4 decoration-white/40 hover:text-white"
-            >
-              Payments
-            </Link>
-            <Link
               href="/admin/subscriptions"
-              className="text-[11px] uppercase tracking-[0.22em] text-white/70 underline underline-offset-4 decoration-white/20 hover:text-white"
+              className="text-[11px] uppercase tracking-[0.22em] text-white/90 underline underline-offset-4 decoration-white/40 hover:text-white"
             >
               Subscriptions
             </Link>

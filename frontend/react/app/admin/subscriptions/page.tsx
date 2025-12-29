@@ -3,7 +3,6 @@
 import { FormEvent, useState } from 'react';
 import { useAdminAuth } from '../useAdminAuth';
 
-type PlanOption = 'Premium';
 type PeriodOption = 'monthly' | 'sixMonths' | 'yearly';
 
 type PlanFilter = 'all' | 'premium';
@@ -18,16 +17,15 @@ type SubscriptionRow = {
 
 export default function AdminSubscriptionsPage() {
   const { loading, error } = useAdminAuth();
-  const [username, setUsername] = useState(() => {
+  const [email, setEmail] = useState(() => {
     if (typeof window === 'undefined') return '';
     try {
       const params = new URLSearchParams(window.location.search);
-      return params.get('username') ?? '';
+      return params.get('email') ?? '';
     } catch {
       return '';
     }
   });
-  const [plan, setPlan] = useState<PlanOption>('Premium');
   const [period, setPeriod] = useState<PeriodOption>('monthly');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -52,9 +50,9 @@ export default function AdminSubscriptionsPage() {
     setSuccess(null);
     setActionError(null);
 
-    const trimmedUsername = username.trim();
-    if (!trimmedUsername) {
-      setActionError('Username is required');
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setActionError('Email is required');
       return;
     }
 
@@ -79,18 +77,24 @@ export default function AdminSubscriptionsPage() {
       const res = await fetch('/admin-api/admin/subscriptions/grant', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ username: trimmedUsername, plan, period }),
+        body: JSON.stringify({ email: trimmedEmail, period }),
       });
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setActionError(typeof data.message === 'string' ? data.message : 'Failed to grant subscription');
+        const msg =
+          typeof (data as any).message === 'string'
+            ? (data as any).message
+            : typeof (data as any).error === 'string'
+              ? (data as any).error
+              : 'Failed to grant subscription';
+        setActionError(msg);
         return;
       }
 
       const activeUntil = typeof data.activeUntil === 'string' ? data.activeUntil : undefined;
       setSuccess(
-        `Subscription updated: ${trimmedUsername} → ${plan} (${period})` +
+        `Subscription updated: ${trimmedEmail} → Premium (${period})` +
           (activeUntil ? `, active until ${activeUntil}` : '')
       );
     } catch {
@@ -178,8 +182,7 @@ export default function AdminSubscriptionsPage() {
   }
 
   function handleUseInForm(row: SubscriptionRow) {
-    setUsername(row.username);
-    setPlan('Premium');
+    setEmail(row.email);
     if (typeof window !== 'undefined') {
       try {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -212,25 +215,15 @@ export default function AdminSubscriptionsPage() {
         <form onSubmit={handleSubmit} className="space-y-4 text-sm">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-1.5 md:col-span-1">
-              <label className="block text-[11px] uppercase tracking-[0.18em] text-gray-400">Username</label>
+              <label className="block text-[11px] uppercase tracking-[0.18em] text-gray-400">Email</label>
               <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="student_username"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="student@email.com"
                 className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/50"
                 required
               />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-[11px] uppercase tracking-[0.18em] text-gray-400">Plan</label>
-              <select
-                value={plan}
-                onChange={(e) => setPlan(e.target.value as PlanOption)}
-                className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/50"
-              >
-                <option value="Premium">Premium</option>
-              </select>
             </div>
             <div className="space-y-1.5">
               <label className="block text-[11px] uppercase tracking-[0.18em] text-gray-400">Period</label>
@@ -329,6 +322,7 @@ export default function AdminSubscriptionsPage() {
                       <button
                         type="button"
                         onClick={() => handleUseInForm(row)}
+                        disabled={!row.email}
                         className="inline-flex items-center rounded-full border border-white/30 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90 hover:bg-white hover:text-black transition-colors"
                       >
                         Change plan
