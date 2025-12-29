@@ -147,18 +147,6 @@ export default function HomePage() {
     if (typeof window === 'undefined') return;
     const w = window as any;
 
-    // Init AOS animations
-    try {
-      if (w.AOS && !w.__aosInitialized) {
-        w.AOS.init({
-          duration: 800,
-          easing: 'ease-in-out',
-          once: true,
-        });
-        w.__aosInitialized = true;
-      }
-    } catch {}
-
     // Fun facts rotation
     const funFacts = [
       'Students who study with personalized learning plans improve their test scores by 30% on average.',
@@ -564,7 +552,24 @@ export default function HomePage() {
 
   return (
     <>
-      <Script src="https://unpkg.com/aos@2.3.1/dist/aos.js" strategy="afterInteractive" />
+      <Script
+        src="https://unpkg.com/aos@2.3.1/dist/aos.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          try {
+            const w = window as any;
+            if (!w.__aosInitialized) {
+              w.AOS?.init?.({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true,
+              });
+              w.__aosInitialized = true;
+            }
+            w.AOS?.refreshHard?.();
+          } catch {}
+        }}
+      />
       <Script
         src="https://unpkg.com/feather-icons"
         strategy="afterInteractive"
