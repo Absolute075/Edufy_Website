@@ -103,7 +103,7 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 
 	// Resolve username by email in auth_service DB.
 	email := strings.TrimSpace(req.Email)
-	lookupURL := authBase + "/auth/internal/admin/users/by-email?email=" + url.QueryEscape(email)
+	lookupURL := authBase + "/auth/internal/admin/users/by-email?email=" + email
 	log.Printf("GrantSubscription: auth lookup url=%s", lookupURL)
 	client := &http.Client{Timeout: 5 * time.Second}
 	lookupReq, err := http.NewRequest(http.MethodGet, lookupURL, nil)
