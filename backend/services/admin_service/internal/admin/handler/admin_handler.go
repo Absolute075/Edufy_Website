@@ -80,8 +80,17 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email and period are required"})
 		return
 	}
-	period := strings.TrimSpace(req.Period)
-	if period != "monthly" && period != "sixMonths" && period != "yearly" {
+	periodRaw := strings.TrimSpace(req.Period)
+	periodKey := strings.ToLower(periodRaw)
+	period := ""
+	switch periodKey {
+	case "monthly", "month", "1month", "1-month", "1_month":
+		period = "monthly"
+	case "sixmonths", "6months", "6month", "6-months", "6_months", "halfyear", "half-year", "half_year":
+		period = "sixMonths"
+	case "yearly", "year", "annual", "1year", "12months", "12-months", "12_months":
+		period = "yearly"
+	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported period"})
 		return
 	}
