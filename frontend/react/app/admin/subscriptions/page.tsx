@@ -232,9 +232,9 @@ export default function AdminSubscriptionsPage() {
                 onChange={(e) => setPeriod(e.target.value as PeriodOption)}
                 className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/50"
               >
-                <option value="monthly">Monthly</option>
+                <option value="monthly">1 month</option>
                 <option value="sixMonths">6 months</option>
-                <option value="yearly">Yearly</option>
+                <option value="yearly">1 year</option>
               </select>
             </div>
           </div>

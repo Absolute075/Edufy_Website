@@ -463,7 +463,7 @@ export default function BillingPage() {
               <div className="mt-1 text-sm font-medium text-slate-200">{activeSinceLabel}</div>
             </div>
             <div>
-              <div className="uppercase tracking-wide text-[10px] text-slate-500">Renews on</div>
+              <div className="uppercase tracking-wide text-[10px] text-slate-500">Expiry on</div>
               <div className="mt-1 text-sm font-medium text-slate-200">{expiresOnLabel}</div>
             </div>
           </div>
