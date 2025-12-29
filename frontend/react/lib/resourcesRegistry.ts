@@ -182,6 +182,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 25,
       questions: 16,
     },
+    "863456": {
+      requiredPlan: "free",
+      title: "Conscious and Unconscious Thought",
+      examType: "real",
+      part: 3,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
