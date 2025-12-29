@@ -31,6 +31,7 @@ func Register(r *gin.Engine, cfg *config.Config, h *handler.AdminHandler) {
 	adminAPI.Use(middleware.AdminAuth(cfg))
 	adminAPI.GET("/info", h.AdminInfo)
 	adminAPI.POST("/subscriptions/grant", h.GrantSubscription)
+	adminAPI.POST("/subscriptions/revoke", h.RevokeSubscription)
 	adminAPI.GET("/subscriptions/search", h.SearchSubscriptions)
 	adminAPI.GET("/users/search", h.SearchUsers)
 	adminAPI.POST("/users/set-active", h.SetUserActive)

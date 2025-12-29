@@ -32,6 +32,10 @@ public class SubscriptionAdminController {
         public String period; // monthly | sixMonths | yearly
     }
 
+    public static class RevokeSubscriptionRequest {
+        public String username;
+    }
+
     @PostMapping("/admin/subscriptions/grant")
     public ResponseEntity<?> grant(@RequestBody GrantSubscriptionRequest body) {
         if (body == null || body.username == null || body.username.isBlank()) {
@@ -88,6 +92,39 @@ public class SubscriptionAdminController {
                 break;
         }
         sub.setActiveUntil(newUntil);
+        sub = subscriptionRepository.save(sub);
+
+        return ResponseEntity.ok(Map.of(
+                "username", sub.getUsername(),
+                "plan", sub.getPlan(),
+                "period", sub.getPeriod(),
+                "activeUntil", sub.getActiveUntil()
+        ));
+    }
+
+    @PostMapping("/admin/subscriptions/revoke")
+    public ResponseEntity<?> revoke(@RequestBody RevokeSubscriptionRequest body) {
+        if (body == null || body.username == null || body.username.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "username required"));
+        }
+
+        String username = body.username.trim();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Tashkent"));
+
+        Subscription sub = subscriptionRepository.findByUsername(username).orElseGet(() ->
+                Subscription.builder()
+                        .username(username)
+                        .plan("free")
+                        .period("monthly")
+                        .autoRenewal(false)
+                        .activeUntil(now)
+                        .build()
+        );
+
+        sub.setPlan("free");
+        sub.setPeriod("monthly");
+        sub.setAutoRenewal(false);
+        sub.setActiveUntil(now);
         sub = subscriptionRepository.save(sub);
 
         return ResponseEntity.ok(Map.of(

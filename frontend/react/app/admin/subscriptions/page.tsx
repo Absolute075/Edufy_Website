@@ -5,8 +5,6 @@ import { useAdminAuth } from '../useAdminAuth';
 
 type PeriodOption = 'monthly' | 'sixMonths' | 'yearly';
 
-type PlanFilter = 'all' | 'premium';
-
 type SubscriptionRow = {
   username: string;
   email: string;
@@ -35,7 +33,8 @@ export default function AdminSubscriptionsPage() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
-  const [planFilter, setPlanFilter] = useState<PlanFilter>('all');
+  const [premiumOnly, setPremiumOnly] = useState(false);
+  const [revokeLoading, setRevokeLoading] = useState<string | null>(null);
 
   if (loading) {
     return <p className="text-sm text-gray-300">Loading admin data...</p>;
@@ -192,12 +191,76 @@ export default function AdminSubscriptionsPage() {
     }
   }
 
-  const filteredResults = searchResults.filter((row) => {
-    const planLower = (row.plan || 'free').toLowerCase();
-    if (planFilter === 'all') return true;
-    if (planFilter === 'premium') return planLower === 'premium';
-    return true;
-  });
+  async function handleRevoke(row: SubscriptionRow) {
+    const trimmedEmail = String(row.email ?? '').trim();
+    if (!trimmedEmail) {
+      setSearchError('Email is required to revoke subscription');
+      return;
+    }
+
+    setSearchError(null);
+    setRevokeLoading(trimmedEmail);
+    try {
+      let token: string | null = null;
+      if (typeof window !== 'undefined') {
+        try {
+          token = localStorage.getItem('admin_token');
+        } catch {
+          token = null;
+        }
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch('/admin-api/admin/subscriptions/revoke', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ email: trimmedEmail }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg =
+          typeof (data as any).message === 'string'
+            ? (data as any).message
+            : typeof (data as any).error === 'string'
+              ? (data as any).error
+              : 'Failed to revoke subscription';
+        setSearchError(msg);
+        return;
+      }
+
+      const activeUntil = (data as any).activeUntil ?? null;
+      setSearchResults((prev) =>
+        prev.map((item) =>
+          item.username === row.username
+            ? {
+                ...item,
+                plan: 'free',
+                activeUntil: typeof activeUntil === 'string' ? activeUntil : item.activeUntil,
+              }
+            : item
+        )
+      );
+    } catch {
+      setSearchError('Network error while revoking subscription');
+    } finally {
+      setRevokeLoading(null);
+    }
+  }
+
+  const totalCount = searchResults.length;
+  const premiumCount = searchResults.filter((row) => (row.plan || 'free').toLowerCase() === 'premium').length;
+  const freeCount = totalCount - premiumCount;
+
+  const filteredResults = premiumOnly
+    ? searchResults.filter((row) => (row.plan || 'free').toLowerCase() === 'premium')
+    : searchResults;
 
   return (
     <div className="space-y-6">
@@ -270,16 +333,6 @@ export default function AdminSubscriptionsPage() {
               className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/50"
             />
           </div>
-          <div className="w-full md:w-40">
-            <select
-              value={planFilter}
-              onChange={(e) => setPlanFilter(e.target.value as PlanFilter)}
-              className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-xs text-white uppercase tracking-[0.16em] focus:outline-none focus:ring-1 focus:ring-white/50"
-            >
-              <option value="all">All plans</option>
-              <option value="premium">Premium only</option>
-            </select>
-          </div>
           <button
             type="submit"
             disabled={searchLoading}
@@ -288,6 +341,28 @@ export default function AdminSubscriptionsPage() {
             {searchLoading ? 'Searching...' : 'Search'}
           </button>
         </form>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-[11px] text-gray-400">
+          <div>
+            {searchPerformed ? (
+              <>
+                Found: <span className="text-gray-200">{totalCount}</span> | Premium:{' '}
+                <span className="text-gray-200">{premiumCount}</span> | Free:{' '}
+                <span className="text-gray-200">{freeCount}</span>
+              </>
+            ) : (
+              <span>Search to see subscriptions.</span>
+            )}
+          </div>
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={premiumOnly}
+              onChange={(e) => setPremiumOnly(e.target.checked)}
+              className="h-4 w-4 rounded border border-white/20 bg-black/40"
+            />
+            <span className="uppercase tracking-[0.18em]">Premium only</span>
+          </label>
+        </div>
         {searchError && <p className="text-xs text-red-400 mt-2">{searchError}</p>}
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-xs text-left">
@@ -319,14 +394,26 @@ export default function AdminSubscriptionsPage() {
                     <td className="py-2 pr-4 text-gray-300">{formatDateTime(row.grantedAt)}</td>
                     <td className="py-2 pr-4 text-gray-300">{formatDateTime(row.activeUntil)}</td>
                     <td className="py-2 pl-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handleUseInForm(row)}
-                        disabled={!row.email}
-                        className="inline-flex items-center rounded-full border border-white/30 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90 hover:bg-white hover:text-black transition-colors"
-                      >
-                        Change plan
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleUseInForm(row)}
+                          disabled={!row.email}
+                          className="inline-flex items-center rounded-full border border-white/30 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90 hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Use
+                        </button>
+                        {(row.plan || 'free').toLowerCase() === 'premium' && (
+                          <button
+                            type="button"
+                            onClick={() => handleRevoke(row)}
+                            disabled={!row.email || revokeLoading === row.email}
+                            className="inline-flex items-center rounded-full border border-red-400/40 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-red-200 hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {revokeLoading === row.email ? 'Revoking...' : 'Revoke'}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))

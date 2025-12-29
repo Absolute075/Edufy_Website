@@ -68,6 +68,10 @@ type grantSubscriptionRequest struct {
 	Period string `json:"period"`
 }
 
+type revokeSubscriptionRequest struct {
+	Email string `json:"email"`
+}
+
 // GrantSubscription allows an authenticated admin to grant or extend a user subscription
 // by forwarding the request to user_service internal admin endpoint.
 func (h *AdminHandler) GrantSubscription(c *gin.Context) {
@@ -180,6 +184,105 @@ func (h *AdminHandler) GrantSubscription(c *gin.Context) {
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(resp.Body)
 	log.Printf("GrantSubscription: upstream status=%d body=%s", resp.StatusCode, string(respBody))
+
+	for k, v := range resp.Header {
+		if len(v) > 0 {
+			c.Writer.Header().Set(k, v[0])
+		}
+	}
+	c.Status(resp.StatusCode)
+	if len(respBody) > 0 {
+		_, _ = c.Writer.Write(respBody)
+	}
+}
+
+func (h *AdminHandler) RevokeSubscription(c *gin.Context) {
+	var req revokeSubscriptionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+	log.Printf("RevokeSubscription: incoming email=%q", strings.TrimSpace(req.Email))
+	if strings.TrimSpace(req.Email) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email is required"})
+		return
+	}
+
+	authBase := h.cfg.AuthServiceURL
+	if authBase == "" {
+		authBase = "http://auth_service:8080"
+	}
+
+	email := strings.TrimSpace(req.Email)
+	lookupURL := authBase + "/auth/internal/admin/users/by-email?email=" + email
+	log.Printf("RevokeSubscription: auth lookup url=%s", lookupURL)
+	client := &http.Client{Timeout: 5 * time.Second}
+	lookupReq, err := http.NewRequest(http.MethodGet, lookupURL, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
+		return
+	}
+	lookupReq.Host = strings.ReplaceAll(lookupReq.Host, "_", "-")
+	lookupReq.Header.Set("Accept", "application/json")
+	lookupResp, err := client.Do(lookupReq)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_unreachable"})
+		return
+	}
+	defer lookupResp.Body.Close()
+	lookupBody, _ := io.ReadAll(lookupResp.Body)
+	log.Printf("RevokeSubscription: auth lookup status=%d body=%s", lookupResp.StatusCode, string(lookupBody))
+	if lookupResp.StatusCode != http.StatusOK {
+		c.Status(lookupResp.StatusCode)
+		if len(lookupBody) > 0 {
+			_, _ = c.Writer.Write(lookupBody)
+		} else {
+			c.JSON(lookupResp.StatusCode, gin.H{"error": "user_lookup_failed"})
+		}
+		return
+	}
+
+	var user struct {
+		Username string `json:"username"`
+		Email    string `json:"email"`
+	}
+	_ = json.Unmarshal(lookupBody, &user)
+	if strings.TrimSpace(user.Username) == "" {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "auth_service_invalid_response"})
+		return
+	}
+
+	base := h.cfg.UserServiceURL
+	if base == "" {
+		base = "http://user_service:8080"
+	}
+	upstreamReq := map[string]any{
+		"username": user.Username,
+	}
+	body, err := json.Marshal(upstreamReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "encode_request_failed"})
+		return
+	}
+
+	url := base + "/user/internal/admin/subscriptions/revoke"
+	log.Printf("RevokeSubscription: forwarding to %s payload=%s", url, string(body))
+	httpReq, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "build_request_failed"})
+		return
+	}
+	httpReq.Host = strings.ReplaceAll(httpReq.Host, "_", "-")
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Accept", "application/json")
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "user_service_unreachable"})
+		return
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+	log.Printf("RevokeSubscription: upstream status=%d body=%s", resp.StatusCode, string(respBody))
 
 	for k, v := range resp.Header {
 		if len(v) > 0 {
