@@ -62,7 +62,8 @@ public class ProfileController {
             // Treat expired subscription as free
             LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Tashkent"));
             if (sub.getActiveUntil() == null || sub.getActiveUntil().isAfter(now)) {
-                planForResponse = sub.getPlan();
+                String raw = sub.getPlan().trim().toLowerCase();
+                planForResponse = (raw.isEmpty() || "free".equals(raw)) ? "free" : "premium";
             }
         }
 
@@ -86,7 +87,9 @@ public class ProfileController {
 
         // Attach subscription summary if present
         if (sub != null) {
-            body.put("subscriptionPlan", sub.getPlan());
+            String rawSubPlan = sub.getPlan() != null ? sub.getPlan().trim().toLowerCase() : "";
+            String normalizedSubPlan = (rawSubPlan.isEmpty() || "free".equals(rawSubPlan)) ? "free" : "premium";
+            body.put("subscriptionPlan", normalizedSubPlan);
             body.put("subscriptionPeriod", sub.getPeriod());
             body.put("subscriptionActiveSince", sub.getCreatedAt());
             body.put("subscriptionActiveUntil", sub.getActiveUntil());

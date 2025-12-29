@@ -23,7 +23,7 @@ public class Payment {
     private String username;
 
     @Column(nullable = true, length = 32)
-    private String plan; // free | plus | pro | premium
+    private String plan; // free | premium
 
     @Column(nullable = true, length = 32)
     private String period; // monthly | sixMonths | yearly

@@ -135,13 +135,9 @@ func planRank(plan string) int {
 	switch p {
 	case "admin":
 		return 100
-	case "premium", "pro":
-		return 2
-	case "plus":
-		return 1
-	case "free", "":
+	case "", "free":
 		return 0
 	default:
-		return 0
+		return 1
 	}
 }

@@ -1,7 +1,7 @@
 {
   "reading/sample1.pdf": {
-    "requiredPlan": "plus",
-    "title": "Sample Reading 1 (PLUS)"
+    "requiredPlan": "premium",
+    "title": "Sample Reading 1"
   },
   "reading/oldfile.pdf": {
     "category": "general",

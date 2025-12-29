@@ -41,7 +41,7 @@ function getPriceForCurrency(raw: string, currency: Currency, usdToUzsRate: numb
 }
 
 function getLandingOldPrice(
-  plan: 'Plus' | 'Pro',
+  plan: 'Pro',
   period: 'monthly' | '6months' | 'yearly',
   currency: Currency,
   usdToUzsRate: number | null
@@ -50,13 +50,7 @@ function getLandingOldPrice(
 
   let usdOld: string | null = null;
 
-  if (plan === 'Plus') {
-    if (period === '6months') {
-      usdOld = '$23,90';
-    } else if (period === 'yearly') {
-      usdOld = '$47,88';
-    }
-  } else if (plan === 'Pro') {
+  if (plan === 'Pro') {
     if (period === '6months') {
       usdOld = '$47,90';
     } else if (period === 'yearly') {
@@ -99,13 +93,6 @@ export default function HomePage() {
   const [blogExpanded, setBlogExpanded] = useState(false);
   const blogModalRef = useRef<HTMLDivElement | null>(null);
 
-  const plusPrice =
-    billingPeriod === '6months'
-      ? '$19.99/UZS 234.000'
-      : billingPeriod === 'yearly'
-      ? '$29.99/UZS 354.000'
-      : '$3.99/UZS 44.000';
-
   const premiumPrice =
     billingPeriod === '6months'
       ? '$39.99/UZS 474.000'
@@ -113,9 +100,7 @@ export default function HomePage() {
       ? '$59.99/UZS 709.000'
       : '$7.99/UZS 94.000';
 
-  const displayPlusPrice = getPriceForCurrency(plusPrice, billingCurrency, usdToUzsRate);
   const displayPremiumPrice = getPriceForCurrency(premiumPrice, billingCurrency, usdToUzsRate);
-  const landingOldPlusPrice = getLandingOldPrice('Plus', billingPeriod, billingCurrency, usdToUzsRate);
   const landingOldPremiumPrice = getLandingOldPrice('Pro', billingPeriod, billingCurrency, usdToUzsRate);
 
   const exams = ['ACT', 'SAT', 'IELTS', 'TOEFL', 'AP'];
@@ -1184,7 +1169,7 @@ export default function HomePage() {
           </div>
 
           <div className="relative space-y-8">
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2">
               {/* Free plan */}
               <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/0 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.16),transparent_65%)]" />
@@ -1202,31 +1187,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Plus plan */}
-              <div className="relative overflow-hidden rounded-3xl border border-white/25 bg-white/0 backdrop-blur-lg transition-all duration-300 hover:scale-[1.01]">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.22),transparent_65%)]" />
-                <div className="relative p-6 flex flex-col gap-3">
-                  <div className="inline-flex items-center gap-2 text-sm font-medium text-gray-100">
-                    Plus Plan
-                    <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-100 border border-white/30">
-                      Recommended
-                    </span>
-                  </div>
-                  {landingOldPlusPrice && (
-                    <div className="text-sm font-medium text-gray-400 line-through">{landingOldPlusPrice}</div>
-                  )}
-                  <div className="text-3xl font-semibold text-white">{displayPlusPrice}</div>
-                  <p className="text-xs text-slate-500">
-                    Full access to courses, smart analytics and personalized recommendations.
-                  </p>
-                  <ul className="mt-2 space-y-1.5 text-xs text-slate-500">
-                    <li>- Full access to basic materials</li>
-                    <li>- Smart progress analytics</li>
-                    <li>- Half access to special materials</li>
-                  </ul>
-                </div>
-              </div>
-
               {/* Premium plan */}
               <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/0 backdrop-blur-md transition-all duration-300 hover:scale-[1.01]">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,255,255,0.16),transparent_65%)]" />
@@ -1240,7 +1200,6 @@ export default function HomePage() {
                     For students who want maximum support and intensive preparation.
                   </p>
                   <ul className="mt-2 space-y-1.5 text-xs text-slate-500">
-                    <li>- Everything in Plus</li>
                     <li>- Full access for all materials</li>
                     <li>- Special MOCKs</li>
                   </ul>

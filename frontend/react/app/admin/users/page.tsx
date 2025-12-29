@@ -76,7 +76,7 @@ export default function AdminUsersPage() {
         setResults(
           data.map((item: any) => {
             const rawPlan = String(item.plan ?? '').toLowerCase();
-            const normalizedPlan = rawPlan === 'pro' ? 'premium' : rawPlan;
+            const normalizedPlan = !rawPlan || rawPlan === 'free' ? 'free' : 'premium';
             return {
               username: String(item.username ?? ''),
               email: String(item.email ?? ''),

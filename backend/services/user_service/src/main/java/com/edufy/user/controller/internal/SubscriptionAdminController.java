@@ -28,7 +28,7 @@ public class SubscriptionAdminController {
 
     public static class GrantSubscriptionRequest {
         public String username;
-        public String plan;   // Free | Plus | Pro | Premium (case-insensitive)
+        public String plan;   // Free | Premium (case-insensitive)
         public String period; // monthly | sixMonths | yearly
     }
 
@@ -49,11 +49,7 @@ public class SubscriptionAdminController {
         String period = body.period.trim();
 
         String planLower = planInput.toLowerCase(Locale.ROOT);
-        // Accept legacy "pro" input but normalize to "premium" internally.
-        String normalizedPlan = "pro".equals(planLower) ? "premium" : planLower;
-        if (!("free".equals(normalizedPlan) || "plus".equals(normalizedPlan) || "premium".equals(normalizedPlan))) {
-            return ResponseEntity.badRequest().body(Map.of("message", "unsupported plan"));
-        }
+        String normalizedPlan = "free".equals(planLower) ? "free" : "premium";
         if (!("monthly".equals(period) || "sixMonths".equals(period) || "yearly".equals(period))) {
             return ResponseEntity.badRequest().body(Map.of("message", "unsupported period"));
         }

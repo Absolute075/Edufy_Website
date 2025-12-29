@@ -8,7 +8,7 @@ export default function WritingResourcesPage() {
   const [typeFilter, setTypeFilter] = useState<"real">("real");
   const [partFilter, setPartFilter] = useState<"all" | "1" | "2">("all");
   const [accessFilter, setAccessFilter] = useState<
-    "all" | "free" | "plus" | "premium" | "completed"
+    "all" | "free" | "premium" | "completed"
   >("all");
   const [typeOpen, setTypeOpen] = useState(false);
   const [partOpen, setPartOpen] = useState(false);
@@ -143,7 +143,6 @@ export default function WritingResourcesPage() {
               {[
                 { key: "all", label: "All tests" },
                 { key: "free", label: "Free" },
-                { key: "plus", label: "Plus" },
                 { key: "premium", label: "Premium" },
                 { key: "completed", label: "Completed tests" },
               ].map((item) => {
@@ -157,7 +156,6 @@ export default function WritingResourcesPage() {
                         item.key as
                           | "all"
                           | "free"
-                          | "plus"
                           | "premium"
                           | "completed"
                       )

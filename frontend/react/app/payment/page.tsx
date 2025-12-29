@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { usePageTitle } from "../lib/usePageTitle";
 
 type SelectedPlan = {
-  plan: "Free" | "Plus" | "Pro";
+  plan: "Free" | "Premium";
   period: "monthly" | "sixMonths" | "yearly";
 };
 
@@ -21,9 +21,10 @@ function PaymentPageInner() {
       if (!raw) return;
       const parsed = JSON.parse(raw) as Partial<SelectedPlan>;
       if (!parsed.plan || !parsed.period) return;
-      if (parsed.plan !== "Free" && parsed.plan !== "Plus" && parsed.plan !== "Pro") return;
+      const rawPlan = String(parsed.plan);
+      const normalizedPlan = rawPlan === "Free" ? "Free" : "Premium";
       if (parsed.period !== "monthly" && parsed.period !== "sixMonths" && parsed.period !== "yearly") return;
-      setSelectedPlan({ plan: parsed.plan, period: parsed.period });
+      setSelectedPlan({ plan: normalizedPlan, period: parsed.period });
     } catch {
       // ignore JSON/parse errors
     }
@@ -46,7 +47,6 @@ function PaymentPageInner() {
 
   let selectedPlanLine: ReactNode = null;
   if (selectedPlan && selectedPlan.plan !== "Free") {
-    const planLabel = selectedPlan.plan === "Pro" ? "Premium" : selectedPlan.plan;
     const periodLabel =
       selectedPlan.period === "sixMonths"
         ? "6 months"
@@ -55,7 +55,7 @@ function PaymentPageInner() {
         : "Monthly";
     selectedPlanLine = (
       <p className="text-xs sm:text-sm text-gray-300 max-w-md">
-        Selected plan: <span className="text-gray-100 font-medium">{planLabel} {periodLabel}</span>
+        Selected plan: <span className="text-gray-100 font-medium">Premium {periodLabel}</span>
       </p>
     );
   }

@@ -5,7 +5,7 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 export default function MockTestsResourcesPage() {
   const [accessFilter, setAccessFilter] = useState<
-    "all" | "free" | "plus" | "premium" | "completed"
+    "all" | "free" | "premium" | "completed"
   >("all");
 
   return (
@@ -25,7 +25,6 @@ export default function MockTestsResourcesPage() {
               {[
                 { key: "all", label: "All tests" },
                 { key: "free", label: "Free" },
-                { key: "plus", label: "Plus" },
                 { key: "premium", label: "Premium" },
                 { key: "completed", label: "Completed tests" },
               ].map((item) => {
@@ -39,7 +38,6 @@ export default function MockTestsResourcesPage() {
                         item.key as
                           | "all"
                           | "free"
-                          | "plus"
                           | "premium"
                           | "completed"
                       )

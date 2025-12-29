@@ -6,7 +6,7 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { usePageTitle } from "../lib/usePageTitle";
 
 type BillingPeriod = "monthly" | "sixMonths" | "yearly";
-type PlanId = "Free" | "Plus" | "Pro";
+type PlanId = "Free" | "Premium";
 type Currency = "USD" | "UZS";
 
 const BILLING_PERIODS: { id: BillingPeriod; label: string }[] = [
@@ -17,24 +17,21 @@ const BILLING_PERIODS: { id: BillingPeriod; label: string }[] = [
 
 const PRICING: Record<
   BillingPeriod,
-  { label: string; plus: string; pro: string; helper: string }
+  { label: string; premium: string; helper: string }
 > = {
   monthly: {
     label: "month",
-    plus: "$3.99/UZS 44.000",
-    pro: "$7.99/UZS 94.000",
+    premium: "$7.99/UZS 94.000",
     helper: "Best if you want to test Edufy month by month.",
   },
   sixMonths: {
     label: "6 months",
-    plus: "$19.99/UZS 234.000",
-    pro: "$39.99/UZS 474.000",
+    premium: "$39.99/UZS 474.000",
     helper: "Save more with a 6-month commitment.",
   },
   yearly: {
     label: "year",
-    plus: "$29.99/UZS 354.000",
-    pro: "$59.99/UZS 709.000",
+    premium: "$59.99/UZS 709.000",
     helper: "Maximum savings for long-term learners.",
   },
 };
@@ -76,13 +73,7 @@ function getOldPrice(
 
   let usdOld: string | null = null;
 
-  if (plan === "Plus") {
-    if (period === "sixMonths") {
-      usdOld = "$23,90";
-    } else if (period === "yearly") {
-      usdOld = "$47,88";
-    }
-  } else if (plan === "Pro") {
+  if (plan === "Premium") {
     if (period === "sixMonths") {
       usdOld = "$47,90";
     } else if (period === "yearly") {
@@ -172,16 +163,14 @@ export default function BillingPage() {
 
   const periodConfig = PRICING[billingPeriod];
   const displayFreePrice = currency === "USD" ? "$0" : "UZS 0";
-  const displayPlusPrice = getPriceForCurrency(periodConfig.plus, currency, usdToUzsRate);
-  const displayProPrice = getPriceForCurrency(periodConfig.pro, currency, usdToUzsRate);
-  const oldPlusPrice = getOldPrice("Plus", billingPeriod, currency, usdToUzsRate);
-  const oldProPrice = getOldPrice("Pro", billingPeriod, currency, usdToUzsRate);
+  const displayPremiumPrice = getPriceForCurrency(periodConfig.premium, currency, usdToUzsRate);
+  const oldPremiumPrice = getOldPrice("Premium", billingPeriod, currency, usdToUzsRate);
   const activePeriodIndex = Math.max(
     0,
     BILLING_PERIODS.findIndex((p) => p.id === billingPeriod),
   );
 
-  const activePlanLabel = activePlan === "Pro" ? "Premium" : activePlan;
+  const activePlanLabel = activePlan;
 
   const isFreePlan = activePlan === "Free";
 
@@ -251,13 +240,7 @@ export default function BillingPage() {
 
         const rawPlan = (data.plan || "free").toString().toLowerCase();
         let nextPlan: PlanId;
-        if (rawPlan === "plus") {
-          nextPlan = "Plus";
-        } else if (rawPlan === "pro" || rawPlan === "premium") {
-          nextPlan = "Pro";
-        } else {
-          nextPlan = "Free";
-        }
+        nextPlan = !rawPlan || rawPlan === "free" ? "Free" : "Premium";
         setActivePlan(nextPlan);
 
         const sinceRaw = data.subscriptionActiveSince;
@@ -367,7 +350,7 @@ export default function BillingPage() {
             {periodConfig.helper}
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             {/* Free */}
             <div
               className={`flex flex-col justify-between rounded-2xl border px-6 py-6 text-left transition hover:border-neutral-500/80 hover:bg-neutral-900 ${
@@ -408,51 +391,10 @@ export default function BillingPage() {
               </div>
             </div>
 
-            {/* Plus */}
-            <div
-              className={`flex flex-col justify-between rounded-2xl border px-6 py-6 text-left transition hover:border-neutral-500/70 hover:bg-neutral-900 ${
-                activePlan === "Plus"
-                  ? "border-neutral-500 shadow-[0_0_25px_rgba(0,0,0,0.45)] bg-neutral-900"
-                  : "border-neutral-800 bg-neutral-950/60"
-              }`}
-            >
-              <div className="space-y-2">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Plus
-                </div>
-                <div className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-900 px-2.5 py-0.5 text-[11px] font-semibold text-slate-100">
-                  Most popular
-                </div>
-                {oldPlusPrice && (
-                  <div className="text-[16px] font-medium text-slate-500 line-through">
-                    {oldPlusPrice}
-                  </div>
-                )}
-                <div className="text-2xl font-bold text-slate-100">
-                  {displayPlusPrice}
-                  <span className="text-xs font-normal text-slate-400"> / {periodConfig.label}</span>
-                </div>
-                <ul className="space-y-1 text-sm text-slate-400">
-                  <li>- Full access to basic materials</li>
-                  <li>- Smart progress analytics</li>
-                  <li>- Half access to special materials</li>
-                </ul>
-              </div>
-              <div className="mt-3 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => handleChoosePlan("Plus")}
-                  className="rounded-full border border-neutral-300 bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-900 shadow-lg shadow-black/40 hover:bg-neutral-200"
-                >
-                  {activePlan === "Plus" ? "Extend Plan" : "Choose plan"}
-                </button>
-              </div>
-            </div>
-
             {/* Premium */}
             <div
               className={`flex flex-col justify-between rounded-2xl border px-6 py-6 text-left transition hover:border-neutral-500/70 hover:bg-neutral-900 ${
-                activePlan === "Pro"
+                activePlan === "Premium"
                   ? "border-neutral-500 shadow-[0_0_25px_rgba(0,0,0,0.45)] bg-neutral-900"
                   : "border-neutral-800 bg-neutral-950/60"
               }`}
@@ -464,17 +406,16 @@ export default function BillingPage() {
                 <div className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-900 px-2.5 py-0.5 text-[11px] font-semibold text-slate-100">
                   For schools & teams
                 </div>
-                {oldProPrice && (
+                {oldPremiumPrice && (
                   <div className="text-[16px] font-medium text-slate-500 line-through">
-                    {oldProPrice}
+                    {oldPremiumPrice}
                   </div>
                 )}
                 <div className="text-2xl font-bold text-slate-100">
-                  {displayProPrice}
+                  {displayPremiumPrice}
                   <span className="text-xs font-normal text-slate-400"> / {periodConfig.label}</span>
                 </div>
                 <ul className="space-y-1 text-sm text-slate-400">
-                  <li>- Everything in Plus</li>
                   <li>- Full access for all materials</li>
                   <li>- Special MOCKs</li>
                 </ul>
@@ -482,10 +423,10 @@ export default function BillingPage() {
               <div className="mt-3 flex justify-end">
                 <button
                   type="button"
-                  onClick={() => handleChoosePlan("Pro")}
+                  onClick={() => handleChoosePlan("Premium")}
                   className="rounded-full border border-neutral-300 bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-900 shadow-lg shadow-black/40 hover:bg-neutral-200"
                 >
-                  {activePlan === "Pro" ? "Extend Plan" : "Choose plan"}
+                  {activePlan === "Premium" ? "Extend Plan" : "Choose plan"}
                 </button>
               </div>
             </div>

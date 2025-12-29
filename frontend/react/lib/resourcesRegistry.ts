@@ -1,4 +1,4 @@
-export type UserPlan = "free" | "plus" | "premium";
+export type UserPlan = "free" | "premium";
 export type ResourceCategory = "reading" | "listening" | "writing" | "mock";
 
 export type ResourceDifficulty = "easy" | "medium" | "hard";
@@ -245,14 +245,12 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
 
 export function normalizePlan(value: unknown): UserPlan {
   const v = String(value ?? "").toLowerCase();
-  if (v === "premium" || v === "pro") return "premium";
-  if (v === "plus") return "plus";
-  return "free";
+  if (!v || v === "free") return "free";
+  return "premium";
 }
 
 export function planRank(plan: UserPlan): number {
-  if (plan === "premium") return 2;
-  if (plan === "plus") return 1;
+  if (plan === "premium") return 1;
   return 0;
 }
 

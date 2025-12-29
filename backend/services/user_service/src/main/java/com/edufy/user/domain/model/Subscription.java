@@ -25,7 +25,7 @@ public class Subscription {
     private String username;
 
     @Column(nullable = false, length = 32)
-    private String plan; // free | plus | pro | premium
+    private String plan; // free | premium
 
     @Column(nullable = false, length = 32)
     private String period; // monthly | sixMonths | yearly

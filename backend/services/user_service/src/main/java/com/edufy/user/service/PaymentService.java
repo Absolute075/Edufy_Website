@@ -31,16 +31,24 @@ public class PaymentService {
         String period = payment.getPeriod();
         boolean autoRenewal = payment.isAutoRenewal();
 
+        final String normalizedPlan;
+        if (plan != null) {
+            String raw = plan.trim().toLowerCase(Locale.ROOT);
+            normalizedPlan = (raw.isEmpty() || "free".equals(raw)) ? "free" : "premium";
+        } else {
+            normalizedPlan = null;
+        }
+
         Subscription sub = subscriptionRepository.findByUsername(username)
                 .orElseGet(() -> Subscription.builder()
                         .username(username)
-                        .plan(plan)
+                        .plan(normalizedPlan)
                         .period(period)
                         .autoRenewal(autoRenewal)
                         .activeUntil(now)
                         .build());
 
-        if (plan != null) sub.setPlan(plan);
+        if (normalizedPlan != null) sub.setPlan(normalizedPlan);
         if (period != null) sub.setPeriod(period);
         sub.setAutoRenewal(autoRenewal);
 

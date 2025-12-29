@@ -3,10 +3,10 @@
 import { FormEvent, useState } from 'react';
 import { useAdminAuth } from '../useAdminAuth';
 
-type PlanOption = 'Plus' | 'Premium';
+type PlanOption = 'Premium';
 type PeriodOption = 'monthly' | 'sixMonths' | 'yearly';
 
-type PlanFilter = 'all' | 'plus' | 'premium';
+type PlanFilter = 'all' | 'premium';
 
 type SubscriptionRow = {
   username: string;
@@ -27,7 +27,7 @@ export default function AdminSubscriptionsPage() {
       return '';
     }
   });
-  const [plan, setPlan] = useState<PlanOption>('Plus');
+  const [plan, setPlan] = useState<PlanOption>('Premium');
   const [period, setPeriod] = useState<PeriodOption>('monthly');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -143,7 +143,7 @@ export default function AdminSubscriptionsPage() {
         setSearchResults(
           data.map((item: any) => {
             const rawPlan = String(item.plan ?? '').toLowerCase();
-            const normalizedPlan = rawPlan === 'pro' ? 'premium' : rawPlan;
+            const normalizedPlan = !rawPlan || rawPlan === 'free' ? 'free' : 'premium';
             return {
               username: String(item.username ?? ''),
               email: String(item.email ?? ''),
@@ -179,12 +179,7 @@ export default function AdminSubscriptionsPage() {
 
   function handleUseInForm(row: SubscriptionRow) {
     setUsername(row.username);
-    const planLower = (row.plan || '').toString().toLowerCase();
-    if (planLower === 'plus') {
-      setPlan('Plus');
-    } else if (planLower === 'premium' || planLower === 'pro') {
-      setPlan('Premium');
-    }
+    setPlan('Premium');
     if (typeof window !== 'undefined') {
       try {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -197,9 +192,7 @@ export default function AdminSubscriptionsPage() {
   const filteredResults = searchResults.filter((row) => {
     const planLower = (row.plan || 'free').toLowerCase();
     if (planFilter === 'all') return true;
-    if (planFilter === 'plus') return planLower === 'plus';
-    // Treat both "pro" and "premium" plans as Premium tier
-    if (planFilter === 'premium') return planLower === 'pro' || planLower === 'premium';
+    if (planFilter === 'premium') return planLower === 'premium';
     return true;
   });
 
@@ -236,7 +229,6 @@ export default function AdminSubscriptionsPage() {
                 onChange={(e) => setPlan(e.target.value as PlanOption)}
                 className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/50"
               >
-                <option value="Plus">Plus</option>
                 <option value="Premium">Premium</option>
               </select>
             </div>
@@ -292,7 +284,6 @@ export default function AdminSubscriptionsPage() {
               className="w-full rounded-md bg-black/40 border border-white/15 px-3 py-2 text-xs text-white uppercase tracking-[0.16em] focus:outline-none focus:ring-1 focus:ring-white/50"
             >
               <option value="all">All plans</option>
-              <option value="plus">Plus only</option>
               <option value="premium">Premium only</option>
             </select>
           </div>

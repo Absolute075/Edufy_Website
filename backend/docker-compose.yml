@@ -61,10 +61,10 @@ services:
       - AUTOSCAN_SECONDS=5
       - DEFAULT_REQUIRED_PLAN=free
       - PLAN_DEFAULT_READING=free
-      - PLAN_DEFAULT_LISTENING=plus
-      - PLAN_DEFAULT_SPEAKING=plus
-      - PLAN_DEFAULT_WRITING=pro
-      - PLAN_DEFAULT_MOCK=pro
+      - PLAN_DEFAULT_LISTENING=premium
+      - PLAN_DEFAULT_SPEAKING=premium
+      - PLAN_DEFAULT_WRITING=premium
+      - PLAN_DEFAULT_MOCK=premium
       - OVERRIDES_PATH=/app/public/materials/overrides.json
       - REINDEX_ADMIN_TOKEN=edufy
       - LINK_TTL_SECONDS=120
