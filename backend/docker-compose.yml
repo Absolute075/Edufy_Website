@@ -182,6 +182,20 @@ services:
     networks:
       - edufy_net
 
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - edufy_net
+
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n
@@ -203,6 +217,7 @@ services:
 volumes:
   edufy_db_data:
   dockmon_data:
+  grafana_data:
   n8n_data:
 
 networks:
