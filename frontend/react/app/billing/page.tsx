@@ -404,7 +404,7 @@ export default function BillingPage() {
                   Premium
                 </div>
                 <div className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-900 px-2.5 py-0.5 text-[11px] font-semibold text-slate-100">
-                  For schools & teams
+                  Full Access
                 </div>
                 {oldPremiumPrice && (
                   <div className="text-[16px] font-medium text-slate-500 line-through">
