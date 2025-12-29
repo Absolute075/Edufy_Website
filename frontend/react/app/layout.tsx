@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { headers } from 'next/headers';
 import './globals.css';
 import { SessionExpiredProvider } from './SessionExpiredProvider';
 import { UserProfileProvider } from './UserProfileProvider';
@@ -30,6 +31,10 @@ export default function RootLayout({
 }: {
   children: ReactNode;
 }) {
+  const host = (headers().get('host') ?? '').toLowerCase();
+  const hostname = host.split(':')[0];
+  const isAdminSubdomain = hostname === 'admin.edufyuzbekistan.com';
+
   return (
     <html lang="en" className="dark">
       <head>
@@ -56,16 +61,18 @@ export default function RootLayout({
         <SessionExpiredProvider>
           <UserProfileProvider>
             <div className="orientation-allowed-content">{children}</div>
-            <div className="orientation-lock-overlay">
-              <div className="orientation-lock-box">
-                <p className="orientation-lock-title">Hi there!</p>
-                <p className="orientation-lock-subtitle">
-                  Mobile adaptation is still in development, so please try using a PC for a better experience.
-                  <br />
-                  We sincerely apologize for the inconvenience!
-                </p>
+            {isAdminSubdomain ? null : (
+              <div className="orientation-lock-overlay">
+                <div className="orientation-lock-box">
+                  <p className="orientation-lock-title">Hi there!</p>
+                  <p className="orientation-lock-subtitle">
+                    Mobile adaptation is still in development, so please try using a PC for a better experience.
+                    <br />
+                    We sincerely apologize for the inconvenience!
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </UserProfileProvider>
         </SessionExpiredProvider>
       </body>
