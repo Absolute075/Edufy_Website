@@ -381,7 +381,26 @@ export default function ReadingResourcesPage() {
                     locked ? "" : "hover:border-slate-400 hover:bg-neutral-900"
                   }`}
                 >
-                  <div className="relative z-0 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div
+                    className={`relative z-0 flex flex-col gap-3 md:flex-row md:items-center md:justify-between ${
+                      locked ? "select-none" : ""
+                    }`}
+                    onCopy={(e) => {
+                      if (!locked) return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onContextMenu={(e) => {
+                      if (!locked) return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onMouseDown={(e) => {
+                      if (!locked) return;
+                      if (e.button !== 0) return;
+                      e.preventDefault();
+                    }}
+                  >
                     <div className="min-w-0">
                       <div className="truncate text-base font-semibold text-slate-100">
                         {item.title}
