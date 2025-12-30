@@ -1,10 +1,10 @@
-export type ArticleTag = "education" | "environment" | "technology" | "health" | "magazine" | "general";
+export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "magazine" | "general";
 
 export type ArticleRule = {
   title: string;
   file: string;
   tags: ArticleTag[];
-  minutes?: number;
+  pages?: number;
   source?: string;
   description?: string;
 };
@@ -12,18 +12,25 @@ export type ArticleRule = {
 export const ARTICLES_BASE_URL = "https://resources.edufyuzbekistan.com/materials/articles";
 
 export const articlesRegistry: Record<string, ArticleRule> = {
-  "education-01": {
-    title: "Education (Sample PDF)",
-    file: "education-sample.pdf",
-    tags: ["education"],
-    minutes: 10,
-    description: "Replace this with a real PDF from /materials/articles/",
+  "lifestyle-01": {
+    title: "Japan Culture",
+    file: "lifestyle-01.pdf",
+    tags: ["lifestyle"],
+    pages: 2,
+    description: "WHAT ARE THESE BEINGS CALLED KAMI, WHAT DO THEY REPRESENT, AND WHAT DO THEY MEAN TO THE PEOPLE OF JAPAN?",
   },
-  "technology-01": {
-    title: "Technology (Sample PDF)",
-    file: "technology-sample.pdf",
-    tags: ["technology"],
-    minutes: 12,
-    description: "Replace this with a real PDF from /materials/articles/",
+  "science-01": {
+    title: "A numbers game",
+    file: "science-01.pdf",
+    tags: ["science"],
+    pages: 4,
+    description: "A long-running disagreement between physicists raises the deep question of how many numbers we need to describe reality, says Jacklin Kwan",
+  },
+  "wellbeing-01": {
+    title: "Does your diet pass the acid test?",
+    file: "wellbeing-01.pdf",
+    tags: ["wellbeing"],
+    pages: 5,
+    description: "The food we eat has a surprising effect on the body that could lead to chronic illness -but luckily there's an easy fix, finds Graham Lawton",
   },
 };

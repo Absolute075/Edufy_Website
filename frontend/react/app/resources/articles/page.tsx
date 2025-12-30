@@ -13,8 +13,10 @@ function articleUrl(file: string) {
 const TAG_LABELS: Record<ArticleTag, string> = {
   education: "Education",
   environment: "Environment",
+  science: "Science",
+  lifestyle: "Lifestyle",
   technology: "Technology",
-  health: "Health",
+  wellbeing: "Wellbeing",
   magazine: "Magazine",
   general: "General",
 };
@@ -112,9 +114,9 @@ export default function ArticlesPage() {
                           {TAG_LABELS[t]}
                         </span>
                       ))}
-                      {a.minutes ? (
+                      {a.pages ? (
                         <span className="rounded-full border border-neutral-700 bg-neutral-950 px-3 py-1 text-xs text-slate-300">
-                          ~{a.minutes} min
+                          {a.pages} pages
                         </span>
                       ) : null}
                     </div>
