@@ -428,7 +428,7 @@ export default function ReadingResourcesPage() {
                   </div>
 
                   {locked && (
-                    <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-neutral-950/0 backdrop-blur-[10px]" />
+                    <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-neutral-950/0 backdrop-blur-[6px]" />
                   )}
                 </Link>
               );
