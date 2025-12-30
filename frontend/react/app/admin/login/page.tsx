@@ -51,18 +51,12 @@ export default function AdminLoginPage() {
       if (typeof data.token === 'string' && data.token) {
         const token = String(data.token);
         try {
-          localStorage.setItem('admin_token', token);
-        } catch {
-          // ignore storage errors
-        }
-
-        try {
           const isProd = window.location.hostname.endsWith('edufyuzbekistan.com');
           const secure = window.location.protocol === 'https:';
           const domain = isProd ? '; Domain=.edufyuzbekistan.com' : '';
           const sameSite = '; SameSite=Lax';
           const securePart = secure ? '; Secure' : '';
-          document.cookie = `admin_token=${encodeURIComponent(token)}; Path=/; Max-Age=2592000${domain}${sameSite}${securePart}`;
+          document.cookie = `admin_token=${encodeURIComponent(token)}; Path=/${domain}${sameSite}${securePart}`;
         } catch {
           // ignore cookie errors
         }

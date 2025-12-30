@@ -42,9 +42,6 @@ export function useAdminAuth() {
       try {
         const cookieVal = readCookie('admin_token');
         token = cookieVal ? decodeURIComponent(cookieVal) : null;
-        if (!token) {
-          token = localStorage.getItem('admin_token');
-        }
       } catch {
         token = null;
       }
