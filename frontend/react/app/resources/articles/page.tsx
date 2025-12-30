@@ -11,10 +11,10 @@ function articleUrl(file: string) {
 }
 
 const ARTICLES_PREVIEW_BASE_URL =
-  "https://resources.edufyuzbekistan.com/materials/articles-preview";
+  "https://resources.edufyuzbekistan.com/storage/articles-preview";
 
-function articlePreviewUrl(file: string) {
-  const previewFile = file.replace(/\.pdf$/i, ".jpg");
+function articlePreviewUrl(file: string, preview?: string) {
+  const previewFile = preview ?? file.replace(/\.pdf$/i, ".jpg");
   return `${ARTICLES_PREVIEW_BASE_URL}/${previewFile}`;
 }
 
@@ -105,7 +105,7 @@ export default function ArticlesPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((a) => {
             const pdfUrl = articleUrl(a.file);
-            const previewUrl = articlePreviewUrl(a.file);
+            const previewUrl = articlePreviewUrl(a.file, a.preview);
             return (
               <article key={a.id} className="rounded-2xl border border-neutral-800 bg-black p-4">
                 <div className="flex items-start justify-between gap-4">
