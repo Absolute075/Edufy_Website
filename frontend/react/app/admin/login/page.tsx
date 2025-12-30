@@ -60,6 +60,12 @@ export default function AdminLoginPage() {
         } catch {
           // ignore cookie errors
         }
+
+        try {
+          sessionStorage.setItem('edufy.admin.allow_once', '1');
+        } catch {
+          // ignore storage errors
+        }
       }
 
       const redirect = (() => {

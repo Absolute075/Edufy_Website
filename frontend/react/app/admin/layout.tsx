@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -14,11 +15,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  function handleLogout() {
+  function getLoginHref() {
     try {
-      localStorage.removeItem('admin_token');
+      if (typeof window !== 'undefined' && window.location.hostname.startsWith('admin.')) {
+        return '/login';
+      }
     } catch {}
+    return '/admin/login';
+  }
 
+  function clearAdminTokenCookie() {
     try {
       const isProd = window.location.hostname.endsWith('edufyuzbekistan.com');
       const secure = window.location.protocol === 'https:';
@@ -27,10 +33,62 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       const securePart = secure ? '; Secure' : '';
       document.cookie = `admin_token=; Path=/; Max-Age=0${domain}${sameSite}${securePart}`;
     } catch {}
-    router.push('/admin/login');
   }
 
-  const isLoginPage = pathname === '/admin/login';
+  useEffect(() => {
+    const isLoginPage = pathname === '/admin/login' || pathname === '/login';
+    if (isLoginPage) return;
+
+    let allowOnce = false;
+    try {
+      allowOnce = sessionStorage.getItem('edufy.admin.allow_once') === '1';
+    } catch {
+      allowOnce = false;
+    }
+
+    if (allowOnce) {
+      try {
+        sessionStorage.removeItem('edufy.admin.allow_once');
+      } catch {}
+    } else {
+      try {
+        localStorage.removeItem('admin_token');
+      } catch {}
+      clearAdminTokenCookie();
+      try {
+        const redirect = window.location.pathname + window.location.search;
+        router.replace(`${getLoginHref()}?redirect=${encodeURIComponent(redirect)}`);
+      } catch {
+        router.replace(getLoginHref());
+      }
+      return;
+    }
+
+    const handler = () => {
+      try {
+        localStorage.removeItem('admin_token');
+      } catch {}
+      clearAdminTokenCookie();
+    };
+
+    window.addEventListener('pagehide', handler);
+    window.addEventListener('beforeunload', handler);
+    return () => {
+      window.removeEventListener('pagehide', handler);
+      window.removeEventListener('beforeunload', handler);
+    };
+  }, [pathname]);
+
+  function handleLogout() {
+    try {
+      localStorage.removeItem('admin_token');
+    } catch {}
+
+    clearAdminTokenCookie();
+    router.push(getLoginHref());
+  }
+
+  const isLoginPage = pathname === '/admin/login' || pathname === '/login';
 
   return (
     <div className="min-h-screen bg-black text-white">

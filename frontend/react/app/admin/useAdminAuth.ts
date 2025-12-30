@@ -12,6 +12,15 @@ export function useAdminAuth() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  function getLoginHref(): string {
+    try {
+      if (typeof window !== 'undefined' && window.location.hostname.startsWith('admin.')) {
+        return '/login';
+      }
+    } catch {}
+    return '/admin/login';
+  }
+
   function readCookie(name: string): string | null {
     if (typeof document === 'undefined') return null;
     const value = `; ${document.cookie}`;
@@ -51,7 +60,7 @@ export function useAdminAuth() {
           setError('Admin auth token is missing');
           setLoading(false);
           const redirect = window.location.pathname + window.location.search;
-          router.replace(`/admin/login?redirect=${encodeURIComponent(redirect)}`);
+          router.replace(`${getLoginHref()}?redirect=${encodeURIComponent(redirect)}`);
         }
         return;
       }
@@ -69,7 +78,7 @@ export function useAdminAuth() {
             setError('Admin auth required');
             setLoading(false);
             const redirect = window.location.pathname + window.location.search;
-            router.replace(`/admin/login?redirect=${encodeURIComponent(redirect)}`);
+            router.replace(`${getLoginHref()}?redirect=${encodeURIComponent(redirect)}`);
           }
           return;
         }
