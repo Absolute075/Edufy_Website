@@ -16,19 +16,39 @@ export async function GET(request: Request) {
     } catch {}
   }
 
-  const infoUrl = new URL('/admin-api/admin/info', request.url);
+  const requestOrigin = (() => {
+    try {
+      return new URL(request.url).origin;
+    } catch {
+      return '';
+    }
+  })();
 
-  let res: Response;
-  try {
-    res = await fetch(infoUrl, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'x-edufy-middleware': '1',
-        Accept: 'application/json',
-      },
-      cache: 'no-store',
-    });
-  } catch {
+  const candidates = [
+    process.env.ADMIN_API_ORIGIN,
+    'http://127.0.0.1:8090',
+    requestOrigin,
+  ].filter((v): v is string => Boolean(v));
+
+  let res: Response | null = null;
+  for (const base of candidates) {
+    try {
+      const infoUrl = new URL('/admin-api/admin/info', base);
+      res = await fetch(infoUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'x-edufy-middleware': '1',
+          Accept: 'application/json',
+        },
+        cache: 'no-store',
+      });
+      break;
+    } catch {
+      res = null;
+    }
+  }
+
+  if (!res) {
     return NextResponse.json({ error: 'upstream_unreachable' }, { status: 502 });
   }
 
