@@ -32,6 +32,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       const sameSite = '; SameSite=Lax';
       const securePart = secure ? '; Secure' : '';
       document.cookie = `admin_token=; Path=/; Max-Age=0${domain}${sameSite}${securePart}`;
+      document.cookie = `admin_token=; Path=/; Max-Age=0${sameSite}${securePart}`;
     } catch {}
   }
 
@@ -39,21 +40,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     const isLoginPage = pathname === '/admin/login' || pathname === '/login';
     if (isLoginPage) return;
 
-    let allowOnce = false;
+    let hasSession = false;
     try {
-      allowOnce = sessionStorage.getItem('edufy.admin.allow_once') === '1';
+      hasSession = sessionStorage.getItem('edufy.admin.session') === '1';
     } catch {
-      allowOnce = false;
+      hasSession = false;
     }
 
-    if (allowOnce) {
-      try {
-        sessionStorage.removeItem('edufy.admin.allow_once');
-      } catch {}
-    } else {
-      try {
-        localStorage.removeItem('admin_token');
-      } catch {}
+    if (!hasSession) {
       clearAdminTokenCookie();
       try {
         const redirect = window.location.pathname + window.location.search;
@@ -66,7 +60,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
     const handler = () => {
       try {
-        localStorage.removeItem('admin_token');
+        sessionStorage.removeItem('edufy.admin.session');
       } catch {}
       clearAdminTokenCookie();
     };
@@ -81,9 +75,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   function handleLogout() {
     try {
-      localStorage.removeItem('admin_token');
+      sessionStorage.removeItem('edufy.admin.session');
     } catch {}
-
     clearAdminTokenCookie();
     router.push(getLoginHref());
   }
