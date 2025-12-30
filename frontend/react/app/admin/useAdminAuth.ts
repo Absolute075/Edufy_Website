@@ -40,6 +40,7 @@ export function useAdminAuth() {
       const sameSite = '; SameSite=Lax';
       const securePart = secure ? '; Secure' : '';
       document.cookie = `admin_token=; Path=/; Max-Age=0${domain}${sameSite}${securePart}`;
+      document.cookie = `admin_token=; Path=/; Max-Age=0${sameSite}${securePart}`;
     } catch {}
   }
 
@@ -50,7 +51,13 @@ export function useAdminAuth() {
       let token: string | null = null;
       try {
         const cookieVal = readCookie('admin_token');
-        token = cookieVal ? decodeURIComponent(cookieVal) : null;
+        if (!cookieVal) {
+          token = null;
+        } else if (cookieVal.includes('%')) {
+          token = decodeURIComponent(cookieVal);
+        } else {
+          token = cookieVal;
+        }
       } catch {
         token = null;
       }
