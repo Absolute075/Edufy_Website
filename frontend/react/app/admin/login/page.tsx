@@ -49,14 +49,36 @@ export default function AdminLoginPage() {
 
       const data = await res.json();
       if (typeof data.token === 'string' && data.token) {
+        const token = String(data.token);
         try {
-          localStorage.setItem('admin_token', data.token);
+          localStorage.setItem('admin_token', token);
         } catch {
           // ignore storage errors
         }
+
+        try {
+          const isProd = window.location.hostname.endsWith('edufyuzbekistan.com');
+          const secure = window.location.protocol === 'https:';
+          const domain = isProd ? '; Domain=.edufyuzbekistan.com' : '';
+          const sameSite = '; SameSite=Lax';
+          const securePart = secure ? '; Secure' : '';
+          document.cookie = `admin_token=${encodeURIComponent(token)}; Path=/; Max-Age=2592000${domain}${sameSite}${securePart}`;
+        } catch {
+          // ignore cookie errors
+        }
       }
 
-      router.push('/admin');
+      const redirect = (() => {
+        try {
+          const url = new URL(window.location.href);
+          const raw = url.searchParams.get('redirect');
+          return raw && raw.startsWith('/') ? raw : null;
+        } catch {
+          return null;
+        }
+      })();
+
+      router.push(redirect ?? '/admin');
     } catch (err) {
       setError('Network error, please try again');
       setLoading(false);

@@ -18,6 +18,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     try {
       localStorage.removeItem('admin_token');
     } catch {}
+
+    try {
+      const isProd = window.location.hostname.endsWith('edufyuzbekistan.com');
+      const secure = window.location.protocol === 'https:';
+      const domain = isProd ? '; Domain=.edufyuzbekistan.com' : '';
+      const sameSite = '; SameSite=Lax';
+      const securePart = secure ? '; Secure' : '';
+      document.cookie = `admin_token=; Path=/; Max-Age=0${domain}${sameSite}${securePart}`;
+    } catch {}
     router.push('/admin/login');
   }
 

@@ -80,12 +80,21 @@ function parseResourceTarget(pathname: string): { userPrefix: string; category: 
   return { userPrefix, category, id };
 }
 
+function isAdminUiPath(pathname: string) {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const rawHost = request.headers.get("host") || "";
   const host = rawHost.split(":")[0]?.toLowerCase() || "";
 
   if (request.headers.get("x-edufy-middleware") === "1") {
+    return NextResponse.next();
+  }
+
+  // Skip Next.js internal and static assets early (also for admin subdomain).
+  if (shouldSkipSeoHeaders(pathname)) {
     return NextResponse.next();
   }
 
@@ -98,37 +107,66 @@ export async function middleware(request: NextRequest) {
 
   // Special handling for admin subdomain: show admin UI instead of main landing.
   if (host === "admin.edufyuzbekistan.com") {
+    // Map root and legacy /login to the admin login.
     if (pathname === "/") {
       const adminUrl = request.nextUrl.clone();
       adminUrl.pathname = "/admin";
       return applyRobotsHeader(NextResponse.redirect(adminUrl), pathname, host);
     }
+    if (pathname === "/login" || pathname.startsWith("/login/")) {
+      const adminUrl = request.nextUrl.clone();
+      adminUrl.pathname = "/admin/login";
+      return applyRobotsHeader(NextResponse.redirect(adminUrl), pathname, host);
+    }
 
-    // Allow admin API calls and login page without redirect.
+    // Allow admin API calls.
     if (pathname.startsWith("/admin-api")) {
       return applyRobotsHeader(NextResponse.next(), pathname, host);
     }
+
+    // Allow admin login page without redirect.
     if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
       return applyRobotsHeader(NextResponse.next(), pathname, host);
     }
 
-    // Protect admin UI routes server-side using HttpOnly cookie set by admin_service.
-    if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-      const adminToken = request.cookies.get("admin_token")?.value;
-      if (!adminToken) {
-        const loginUrl = request.nextUrl.clone();
-        loginUrl.pathname = "/admin/login";
-        return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
-      }
+    // For admin subdomain, support short URLs like /subscriptions => /admin/subscriptions.
+    const needsAdminPrefix = !isAdminUiPath(pathname);
+    const adminToken = request.cookies.get("admin_token")?.value;
+    if (!adminToken) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/admin/login";
+      const redirectTarget = pathname + (search || "");
+      loginUrl.searchParams.set("redirect", redirectTarget);
+      return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+    }
+
+    if (needsAdminPrefix) {
+      const rewriteUrl = request.nextUrl.clone();
+      rewriteUrl.pathname = `/admin${pathname}`;
+      return applyRobotsHeader(NextResponse.rewrite(rewriteUrl), pathname, host);
     }
 
     // Do not apply user dashboard auth middleware on the admin subdomain.
     return applyRobotsHeader(NextResponse.next(), pathname, host);
   }
 
-  // Skip Next.js internal and static assets
-  if (shouldSkipSeoHeaders(pathname)) {
-    return NextResponse.next();
+  // Protect admin UI routes on the main domain too.
+  if (isAdminUiPath(pathname)) {
+    if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
+      return applyRobotsHeader(NextResponse.next(), pathname, host);
+    }
+    if (pathname.startsWith("/admin-api")) {
+      return applyRobotsHeader(NextResponse.next(), pathname, host);
+    }
+
+    const adminToken = request.cookies.get("admin_token")?.value;
+    if (!adminToken) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/admin/login";
+      const redirectTarget = pathname + (search || "");
+      loginUrl.searchParams.set("redirect", redirectTarget);
+      return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+    }
   }
 
   if (pathname === "/The-Role-of-Mothers-in-the-Origins-of-Music") {

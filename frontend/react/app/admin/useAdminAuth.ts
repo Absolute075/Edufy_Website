@@ -12,13 +12,39 @@ export function useAdminAuth() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  function readCookie(name: string): string | null {
+    if (typeof document === 'undefined') return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length < 2) return null;
+    return parts.pop()?.split(';').shift() ?? null;
+  }
+
+  function clearAdminToken() {
+    try {
+      localStorage.removeItem('admin_token');
+    } catch {}
+    try {
+      const isProd = window.location.hostname.endsWith('edufyuzbekistan.com');
+      const secure = window.location.protocol === 'https:';
+      const domain = isProd ? '; Domain=.edufyuzbekistan.com' : '';
+      const sameSite = '; SameSite=Lax';
+      const securePart = secure ? '; Secure' : '';
+      document.cookie = `admin_token=; Path=/; Max-Age=0${domain}${sameSite}${securePart}`;
+    } catch {}
+  }
+
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       let token: string | null = null;
       try {
-        token = localStorage.getItem('admin_token');
+        const cookieVal = readCookie('admin_token');
+        token = cookieVal ? decodeURIComponent(cookieVal) : null;
+        if (!token) {
+          token = localStorage.getItem('admin_token');
+        }
       } catch {
         token = null;
       }
@@ -27,7 +53,8 @@ export function useAdminAuth() {
         if (!cancelled) {
           setError('Admin auth token is missing');
           setLoading(false);
-          router.replace('/admin/login');
+          const redirect = window.location.pathname + window.location.search;
+          router.replace(`/admin/login?redirect=${encodeURIComponent(redirect)}`);
         }
         return;
       }
@@ -40,13 +67,12 @@ export function useAdminAuth() {
         });
 
         if (res.status === 401 || res.status === 403) {
-          try {
-            localStorage.removeItem('admin_token');
-          } catch {}
+          clearAdminToken();
           if (!cancelled) {
             setError('Admin auth required');
             setLoading(false);
-            router.replace('/admin/login');
+            const redirect = window.location.pathname + window.location.search;
+            router.replace(`/admin/login?redirect=${encodeURIComponent(redirect)}`);
           }
           return;
         }

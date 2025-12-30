@@ -108,7 +108,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
        questions: 13,
     },
     "465798": {
-          requiredPlan: "free",
+          requiredPlan: "premium",
           title: "The New Zealand writer Margaret Mahy",
           examType: "real",
           part: 3,
@@ -155,7 +155,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
     },
 
     "892183": {
-      requiredPlan: "free",
+      requiredPlan: "premium",
       title: "Book Review on Musicophilia",
       examType: "real",
       part: 3,
@@ -174,7 +174,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       questions: 13,
     },
     "196736": {
-      requiredPlan: "free",
+      requiredPlan: "premium",
       title: "Reducing the Effects of Jet Lag",
       examType: "real",
       part: 2,
@@ -183,7 +183,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       questions: 16,
     },
     "863456": {
-      requiredPlan: "free",
+      requiredPlan: "premium",
       title: "Conscious and Unconscious Thought",
       examType: "real",
       part: 3,
@@ -192,7 +192,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       questions: 13,
     },
     "582943": {
-      requiredPlan: "free",
+      requiredPlan: "premium",
       title: "The Growing Industry of Background Music",
       examType: "real",
       part: 2,
