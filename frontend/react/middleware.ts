@@ -84,6 +84,22 @@ function isAdminUiPath(pathname: string) {
   return pathname === "/admin" || pathname.startsWith("/admin/");
 }
 
+function clearAdminTokenCookie(response: NextResponse, request: NextRequest) {
+  const rawHost = request.headers.get("host") || "";
+  const host = rawHost.split(":")[0]?.toLowerCase() || "";
+  const isProdHost = host.endsWith("edufyuzbekistan.com");
+  response.cookies.set({
+    name: "admin_token",
+    value: "",
+    path: "/",
+    maxAge: 0,
+    sameSite: "lax",
+    secure: request.nextUrl.protocol === "https:",
+    domain: isProdHost ? ".edufyuzbekistan.com" : undefined,
+  });
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const rawHost = request.headers.get("host") || "";
@@ -110,6 +126,14 @@ export async function middleware(request: NextRequest) {
     // Canonical URLs on admin subdomain should NOT contain /admin prefix.
     // Keep /admin as a legacy alias.
     if (pathname === "/admin") {
+      const adminToken = request.cookies.get("admin_token")?.value;
+      if (!adminToken) {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = "/login";
+        loginUrl.searchParams.set("redirect", pathname + (search || ""));
+        return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+      }
+
       const rootUrl = request.nextUrl.clone();
       rootUrl.pathname = "/";
       return applyRobotsHeader(NextResponse.redirect(rootUrl), pathname, host);
@@ -135,9 +159,6 @@ export async function middleware(request: NextRequest) {
       return applyRobotsHeader(NextResponse.next(), pathname, host);
     }
 
-    // For admin subdomain, support short URLs like /subscriptions => /admin/subscriptions.
-    // Also map / to /admin (dashboard) via rewrite.
-    const needsAdminPrefix = pathname === "/" || !isAdminUiPath(pathname);
     const adminToken = request.cookies.get("admin_token")?.value;
     if (!adminToken) {
       const loginUrl = request.nextUrl.clone();
@@ -146,6 +167,30 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set("redirect", redirectTarget);
       return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
     }
+
+    try {
+      const infoUrl = new URL("/admin-api/admin/info", request.nextUrl);
+      const res = await fetch(infoUrl, {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          "x-edufy-middleware": "1",
+        },
+        cache: "no-store",
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = "/login";
+        const redirectTarget = pathname + (search || "");
+        loginUrl.searchParams.set("redirect", redirectTarget);
+        const redirectRes = clearAdminTokenCookie(NextResponse.redirect(loginUrl), request);
+        return applyRobotsHeader(redirectRes, pathname, host);
+      }
+    } catch {
+      // If admin service is temporarily unreachable, allow the request to proceed.
+    }
+
+    const needsAdminPrefix = pathname === "/" || !isAdminUiPath(pathname);
 
     if (needsAdminPrefix) {
       const rewriteUrl = request.nextUrl.clone();
