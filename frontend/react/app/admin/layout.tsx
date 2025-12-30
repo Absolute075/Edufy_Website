@@ -1,7 +1,6 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -36,47 +35,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     } catch {}
   }
 
-  useEffect(() => {
-    const isLoginPage = pathname === '/admin/login' || pathname === '/login';
-    if (isLoginPage) return;
-
-    let hasSession = false;
-    try {
-      hasSession = sessionStorage.getItem('edufy.admin.session') === '1';
-    } catch {
-      hasSession = false;
-    }
-
-    if (!hasSession) {
-      clearAdminTokenCookie();
-      try {
-        const redirect = window.location.pathname + window.location.search;
-        router.replace(`${getLoginHref()}?redirect=${encodeURIComponent(redirect)}`);
-      } catch {
-        router.replace(getLoginHref());
-      }
-      return;
-    }
-
-    const handler = () => {
-      try {
-        sessionStorage.removeItem('edufy.admin.session');
-      } catch {}
-      clearAdminTokenCookie();
-    };
-
-    window.addEventListener('pagehide', handler);
-    window.addEventListener('beforeunload', handler);
-    return () => {
-      window.removeEventListener('pagehide', handler);
-      window.removeEventListener('beforeunload', handler);
-    };
-  }, [pathname]);
-
   function handleLogout() {
-    try {
-      sessionStorage.removeItem('edufy.admin.session');
-    } catch {}
     clearAdminTokenCookie();
     router.push(getLoginHref());
   }

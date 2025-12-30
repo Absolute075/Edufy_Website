@@ -60,15 +60,9 @@ export default function AdminLoginPage() {
           document.cookie = `admin_token=; Path=/; Max-Age=0${sameSite}${securePart}`;
 
           // Host-only session cookie (no Domain, no Max-Age).
-          document.cookie = `admin_token=${encodeURIComponent(token)}; Path=/${sameSite}${securePart}`;
+          document.cookie = `admin_token=${token}; Path=/${sameSite}${securePart}`;
         } catch {
           // ignore cookie errors
-        }
-
-        try {
-          sessionStorage.setItem('edufy.admin.session', '1');
-        } catch {
-          // ignore storage errors
         }
       }
 

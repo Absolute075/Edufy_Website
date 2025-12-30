@@ -88,15 +88,18 @@ function clearAdminTokenCookie(response: NextResponse, request: NextRequest) {
   const rawHost = request.headers.get("host") || "";
   const host = rawHost.split(":")[0]?.toLowerCase() || "";
   const isProdHost = host.endsWith("edufyuzbekistan.com");
-  response.cookies.set({
+  const base = {
     name: "admin_token",
     value: "",
     path: "/",
     maxAge: 0,
-    sameSite: "lax",
+    sameSite: "lax" as const,
     secure: request.nextUrl.protocol === "https:",
-    domain: isProdHost ? ".edufyuzbekistan.com" : undefined,
-  });
+  };
+  // Clear host-only cookie.
+  response.cookies.set(base);
+  // Clear domain cookie (legacy).
+  response.cookies.set({ ...base, domain: isProdHost ? ".edufyuzbekistan.com" : undefined });
   return response;
 }
 
@@ -159,13 +162,20 @@ export async function middleware(request: NextRequest) {
       return applyRobotsHeader(NextResponse.next(), pathname, host);
     }
 
-    const adminToken = request.cookies.get("admin_token")?.value;
+    let adminToken = request.cookies.get("admin_token")?.value;
     if (!adminToken) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/login";
       const redirectTarget = pathname + (search || "");
       loginUrl.searchParams.set("redirect", redirectTarget);
       return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+    }
+
+    // Backward-compatible: decode old encoded cookies.
+    if (adminToken.includes("%")) {
+      try {
+        adminToken = decodeURIComponent(adminToken);
+      } catch {}
     }
 
     try {
