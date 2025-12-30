@@ -453,7 +453,12 @@ export default function ReadingResourcesPage() {
                       <button
                         type="button"
                         onClick={() => router.push(href)}
-                        className="mt-1 inline-flex items-center self-start rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-100 transition-colors hover:border-white/60 hover:bg-neutral-900 md:self-center"
+                        disabled={locked}
+                        className={`mt-1 inline-flex items-center self-start rounded-full border px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide md:self-center ${
+                          locked
+                            ? "cursor-not-allowed border-neutral-800 bg-neutral-950 text-slate-500"
+                            : "border-neutral-700 bg-neutral-950 text-slate-100 transition-colors hover:border-white/60 hover:bg-neutral-900"
+                        }`}
                       >
                         Start
                       </button>
@@ -461,7 +466,7 @@ export default function ReadingResourcesPage() {
                   </div>
 
                   {locked && (
-                    <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-neutral-950/0 backdrop-blur-[4px]" />
+                    <div className="absolute inset-0 z-10 cursor-not-allowed rounded-2xl bg-neutral-950/0 backdrop-blur-[4px]" />
                   )}
                 </div>
               );
