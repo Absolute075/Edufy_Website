@@ -417,7 +417,7 @@ export default function ListeningResourcesPage() {
                   </div>
 
                   {locked && (
-                    <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-neutral-950/5 backdrop-blur-[30px] backdrop-saturate-150" />
+                    <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-neutral-950/0 backdrop-blur-[10px]" />
                   )}
                 </Link>
               );
