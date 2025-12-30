@@ -106,63 +106,51 @@ export default function ArticlesPage() {
           {filtered.map((a) => {
             const pdfUrl = articleUrl(a.file);
             const previewUrl = articlePreviewUrl(a.file, a.preview);
+            const metaParts = [
+              ...(a.tags?.length ? a.tags.map((t) => TAG_LABELS[t]) : []),
+              ...(a.pages ? [`${a.pages} pages`] : []),
+            ];
+            const meta = metaParts.join(" • ");
             return (
-              <article key={a.id} className="rounded-2xl border border-neutral-800 bg-black p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-base font-semibold text-slate-100">{a.title}</h2>
-                    {a.description ? (
-                      <p className="mt-1 text-sm text-slate-400">{a.description}</p>
-                    ) : null}
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {a.tags.map((t) => (
-                        <span
-                          key={t}
-                          className="rounded-full border border-neutral-700 bg-neutral-950 px-3 py-1 text-xs text-slate-300"
-                        >
-                          {TAG_LABELS[t]}
-                        </span>
-                      ))}
-                      {a.pages ? (
-                        <span className="rounded-full border border-neutral-700 bg-neutral-950 px-3 py-1 text-xs text-slate-300">
-                          {a.pages} pages
-                        </span>
-                      ) : null}
-                    </div>
+              <article
+                key={a.id}
+                className="relative min-h-[22rem] overflow-hidden rounded-3xl border border-neutral-800 bg-black p-10 flex flex-col gap-6"
+              >
+                {meta ? (
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400 mb-1">
+                    {meta}
                   </div>
+                ) : null}
 
-                  <a
-                    href={pdfUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center rounded-xl border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-slate-100 hover:bg-neutral-900"
-                  >
-                    Read
-                  </a>
-                </div>
-
-                <div className="mt-4 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950">
+                <div
+                  className="relative w-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950"
+                  style={{ aspectRatio: "16 / 9" }}
+                >
                   <img
                     alt={`Preview: ${a.title}`}
                     src={previewUrl}
-                    className="h-[420px] w-full object-cover"
+                    className="h-full w-full object-cover"
                     loading="lazy"
                   />
                 </div>
 
-                {a.source ? <div className="mt-3 text-xs text-slate-500">Source: {a.source}</div> : null}
+                <h2 className="text-lg md:text-xl font-semibold text-slate-100">{a.title}</h2>
+                {a.description ? <p className="text-sm text-slate-400">{a.description}</p> : null}
+
+                <div className="mt-auto flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-neutral-800">
+                  <span>{a.source ? `Source: ${a.source}` : ""}</span>
+                  <a
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] uppercase tracking-[0.2em] text-slate-200 hover:text-white"
+                  >
+                    Read
+                  </a>
+                </div>
               </article>
             );
           })}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href={resourcesHref}
-            className="inline-flex items-center rounded-xl border border-neutral-700 bg-black px-4 py-2 text-sm text-slate-100 hover:bg-neutral-900"
-          >
-            Back to Resources
-          </Link>
         </div>
       </div>
     </DashboardShell>
