@@ -10,6 +10,14 @@ function articleUrl(file: string) {
   return `${ARTICLES_BASE_URL}/${file}`;
 }
 
+const ARTICLES_PREVIEW_BASE_URL =
+  "https://resources.edufyuzbekistan.com/materials/articles-preview";
+
+function articlePreviewUrl(file: string) {
+  const previewFile = file.replace(/\.pdf$/i, ".jpg");
+  return `${ARTICLES_PREVIEW_BASE_URL}/${previewFile}`;
+}
+
 const TAG_LABELS: Record<ArticleTag, string> = {
   education: "Education",
   environment: "Environment",
@@ -94,9 +102,10 @@ export default function ArticlesPage() {
           </div>
         </section>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((a) => {
             const pdfUrl = articleUrl(a.file);
+            const previewUrl = articlePreviewUrl(a.file);
             return (
               <article key={a.id} className="rounded-2xl border border-neutral-800 bg-black p-4">
                 <div className="flex items-start justify-between gap-4">
@@ -128,15 +137,16 @@ export default function ArticlesPage() {
                     rel="noreferrer"
                     className="inline-flex items-center rounded-xl border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-slate-100 hover:bg-neutral-900"
                   >
-                    Open PDF
+                    Read
                   </a>
                 </div>
 
                 <div className="mt-4 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950">
-                  <iframe
-                    title={`Preview: ${a.title}`}
-                    src={pdfUrl}
-                    className="h-[420px] w-full"
+                  <img
+                    alt={`Preview: ${a.title}`}
+                    src={previewUrl}
+                    className="h-[420px] w-full object-cover"
+                    loading="lazy"
                   />
                 </div>
 
