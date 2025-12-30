@@ -47,9 +47,17 @@ export default function AdminLoginPage() {
         return;
       }
 
-      const data = await res.json();
-      if (typeof data.token === 'string' && data.token) {
-        const token = String(data.token);
+      const rawOkBody = await res.text().catch(() => '');
+      const data = (() => {
+        try {
+          return rawOkBody ? JSON.parse(rawOkBody) : null;
+        } catch {
+          return null;
+        }
+      })();
+
+      if (data && typeof (data as any).token === 'string' && (data as any).token) {
+        const token = String((data as any).token);
         try {
           const secure = window.location.protocol === 'https:';
           const sameSite = '; SameSite=Lax';
@@ -60,6 +68,13 @@ export default function AdminLoginPage() {
         } catch {
           // ignore cookie errors
         }
+      }
+
+      const verifyRes = await fetch('/api/admin/info', { cache: 'no-store', credentials: 'include' });
+      if (verifyRes.status === 401 || verifyRes.status === 403) {
+        setError('Login succeeded, but admin session cookie was not set. Check /admin-api/admin/login Set-Cookie / CORS.');
+        setLoading(false);
+        return;
       }
 
       const redirect = (() => {

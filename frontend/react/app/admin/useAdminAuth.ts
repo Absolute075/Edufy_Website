@@ -21,14 +21,6 @@ export function useAdminAuth() {
     return '/admin/login';
   }
 
-  function readCookie(name: string): string | null {
-    if (typeof document === 'undefined') return null;
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length < 2) return null;
-    return parts.pop()?.split(';').shift() ?? null;
-  }
-
   function clearAdminToken() {
     try {
       localStorage.removeItem('admin_token');
@@ -48,35 +40,8 @@ export function useAdminAuth() {
     let cancelled = false;
 
     async function load() {
-      let token: string | null = null;
       try {
-        const cookieVal = readCookie('admin_token');
-        if (!cookieVal) {
-          token = null;
-        } else if (cookieVal.includes('%')) {
-          token = decodeURIComponent(cookieVal);
-        } else {
-          token = cookieVal;
-        }
-      } catch {
-        token = null;
-      }
-
-      if (!token) {
-        if (!cancelled) {
-          const redirect = window.location.pathname + window.location.search;
-          router.replace(`${getLoginHref()}?redirect=${encodeURIComponent(redirect)}`);
-          setLoading(false);
-        }
-        return;
-      }
-
-      try {
-        const res = await fetch('/admin-api/admin/info', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch('/api/admin/info', { cache: 'no-store', credentials: 'include' });
 
         if (res.status === 401 || res.status === 403) {
           clearAdminToken();

@@ -117,6 +117,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Never interfere with Next.js Route Handlers under /api.
+  if (pathname === "/api" || pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
   // Only enforce auth redirects on real production domains.
   // Keep localhost / non-edufyuzbekistan hosts free for local development and previews.
   const isProdHost = host.endsWith("edufyuzbekistan.com");
