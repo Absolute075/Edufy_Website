@@ -64,10 +64,9 @@ export function useAdminAuth() {
 
       if (!token) {
         if (!cancelled) {
-          setError('Admin auth token is missing');
-          setLoading(false);
           const redirect = window.location.pathname + window.location.search;
           router.replace(`${getLoginHref()}?redirect=${encodeURIComponent(redirect)}`);
+          setLoading(false);
         }
         return;
       }

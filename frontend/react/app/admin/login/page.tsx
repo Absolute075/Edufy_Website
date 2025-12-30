@@ -55,12 +55,8 @@ export default function AdminLoginPage() {
           const sameSite = '; SameSite=Lax';
           const securePart = secure ? '; Secure' : '';
 
-          // Clear possible legacy cookies.
-          document.cookie = `admin_token=; Path=/; Max-Age=0; Domain=.edufyuzbekistan.com${sameSite}${securePart}`;
-          document.cookie = `admin_token=; Path=/; Max-Age=0${sameSite}${securePart}`;
-
           // Host-only session cookie (no Domain, no Max-Age).
-          document.cookie = `admin_token=${token}; Path=/${sameSite}${securePart}`;
+          document.cookie = `admin_token=${encodeURIComponent(token)}; Path=/${sameSite}${securePart}`;
         } catch {
           // ignore cookie errors
         }
