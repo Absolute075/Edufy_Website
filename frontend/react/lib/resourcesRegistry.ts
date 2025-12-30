@@ -210,7 +210,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       questions: 13,
     },
     "483129": {
-      requiredPlan: "free",
+      requiredPlan: "premium",
       title: "Herding",
       examType: "real",
       part: 1,

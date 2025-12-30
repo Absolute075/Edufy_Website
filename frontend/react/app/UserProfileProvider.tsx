@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { api } from "@/lib/api";
+import { normalizePlan, type UserPlan } from "@/lib/resourcesRegistry";
 
 function isoToDisplayDob(value: string | null | undefined): string {
   if (!value) return "";
@@ -20,6 +21,7 @@ export type UserProfileData = {
   certificates: string[];
   favoriteSubject: string;
   dailyHours: string;
+  plan: UserPlan;
 };
 
 export type UserProfileContextValue = {
@@ -58,6 +60,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
       let certificates = data?.certificates ?? [];
       let favoriteSubject = data?.favoriteSubject ?? "";
       let dailyHours = data?.dailyHours ?? "";
+      let plan = data?.plan ?? "free";
 
       try {
         const resMe = await api("/auth/me");
@@ -82,6 +85,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
             const certVal = p.certificate || "";
             const favSubjVal = p.favorite_subject || "";
             const hoursVal = p.daily_hours || "";
+            const planVal = normalizePlan(p.plan);
 
             const certList = certVal
               ? String(certVal)
@@ -96,6 +100,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
             certificates = certList;
             favoriteSubject = favSubjVal || favoriteSubject;
             dailyHours = hoursVal || dailyHours;
+            plan = planVal;
           }
         }
       } catch {
@@ -111,6 +116,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
         certificates: certificates || [],
         favoriteSubject: favoriteSubject || "",
         dailyHours: dailyHours || "",
+        plan: normalizePlan(plan),
       };
 
       setData(next);
@@ -132,7 +138,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
 
   const patch = useCallback((partial: Partial<UserProfileData>) => {
     setData((prev) => {
-      if (!prev) return { username: "", email: "", phone: "", dobDisplay: "", avatarUrl: "", certificates: [], favoriteSubject: "", dailyHours: "", ...partial };
+      if (!prev) return { username: "", email: "", phone: "", dobDisplay: "", avatarUrl: "", certificates: [], favoriteSubject: "", dailyHours: "", plan: "free", ...partial };
       return { ...prev, ...partial };
     });
   }, []);

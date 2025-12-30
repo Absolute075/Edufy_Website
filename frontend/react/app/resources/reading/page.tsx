@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { resourcesRegistry } from "@/lib/resourcesRegistry";
+import { isPlanSufficient, resourcesRegistry } from "@/lib/resourcesRegistry";
 import { clearTestCompleted, getCompletedTestIds } from "@/lib/completedTests";
+import { useUserProfile } from "../../UserProfileProvider";
 
 export default function ReadingResourcesPage() {
   const router = useRouter();
@@ -14,6 +15,9 @@ export default function ReadingResourcesPage() {
   const firstSegment = segments[0] || "";
   const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
   const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
+
+  const { data: profileData } = useUserProfile();
+  const userPlan = profileData?.plan ?? "free";
 
   const [completedIds, setCompletedIds] = useState<Set<string>>(() => new Set());
 
@@ -49,9 +53,16 @@ export default function ReadingResourcesPage() {
       return part === "full" ? 5 : part;
     };
 
+    const planOrder = (plan: (typeof resourcesRegistry.reading)[string]["requiredPlan"]) => {
+      return plan === "free" ? 0 : 1;
+    };
+
     return Object.entries(resourcesRegistry.reading)
       .map(([id, rule]) => ({ id, ...rule }))
       .sort((a, b) => {
+        const aPlan = planOrder(a.requiredPlan);
+        const bPlan = planOrder(b.requiredPlan);
+        if (aPlan !== bPlan) return aPlan - bPlan;
         const aOrder = partOrder(a.part);
         const bOrder = partOrder(b.part);
         if (aOrder !== bOrder) return aOrder - bOrder;
@@ -356,15 +367,25 @@ export default function ReadingResourcesPage() {
 
           <div className="mt-6 space-y-3">
             {filteredItems.map((item) => {
-              const href = `${userPrefix}/resources/reading/${item.id}`;
+              const resourceHref = `${userPrefix}/resources/reading/${item.id}`;
+              const locked = !isPlanSufficient(userPlan, item.requiredPlan);
+              const href = locked
+                ? `${userPrefix}/billing?redirect=${encodeURIComponent(resourceHref)}`
+                : resourceHref;
               const isCompleted = completedIds.has(item.id);
               return (
                 <Link
                   key={item.id}
                   href={href}
-                  className="block rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4 transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
+                  className={`block rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4 transition-colors duration-150 ${
+                    locked ? "" : "hover:border-slate-400 hover:bg-neutral-900"
+                  }`}
                 >
-                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div
+                    className={`flex flex-col gap-3 md:flex-row md:items-center md:justify-between ${
+                      locked ? "blur-[24px] opacity-30" : ""
+                    }`}
+                  >
                     <div className="min-w-0">
                       <div className="truncate text-base font-semibold text-slate-100">
                         {item.title}
