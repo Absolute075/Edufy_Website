@@ -89,13 +89,13 @@ export default function DashboardPage() {
       setWeeklyHours(getWeeklyStudyHours());
 
       const now = new Date();
-      const weeks = [3, 2, 1, 0].map((back) => {
+      const weeks = [3, 2, 1, 0].map((back, idx) => {
         const d = new Date(now);
         d.setDate(d.getDate() - back * 7);
         const { year, week } = getIsoYearWeek(d);
         const hoursArr = getWeeklyStudyHoursForIsoWeek(year, week);
         const total = Math.round(hoursArr.reduce((a, b) => a + b, 0) * 10) / 10;
-        return { label: `W${week}`, hours: total };
+        return { label: `W${idx + 1}`, hours: total };
       });
       setMonthlyWeeks(weeks);
     };
@@ -373,10 +373,10 @@ export default function DashboardPage() {
                   aria-label="Column chart of weekly performance for 4 weeks"
                 >
                   {(monthlyWeeks.length ? monthlyWeeks : [
-                    { label: "W-3", hours: 0 },
-                    { label: "W-2", hours: 0 },
-                    { label: "W-1", hours: 0 },
-                    { label: "W", hours: 0 },
+                    { label: "W1", hours: 0 },
+                    { label: "W2", hours: 0 },
+                    { label: "W3", hours: 0 },
+                    { label: "W4", hours: 0 },
                   ]).map((w) => {
                     const height = Math.max(10, (w.hours / maxMonthHours) * 144);
                     return (
