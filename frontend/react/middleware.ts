@@ -107,16 +107,12 @@ export async function middleware(request: NextRequest) {
 
   // Special handling for admin subdomain: show admin UI instead of main landing.
   if (host === "admin.edufyuzbekistan.com") {
-    // Map root and legacy /login to the admin login.
-    if (pathname === "/") {
-      const adminUrl = request.nextUrl.clone();
-      adminUrl.pathname = "/admin";
-      return applyRobotsHeader(NextResponse.redirect(adminUrl), pathname, host);
-    }
-    if (pathname === "/login" || pathname.startsWith("/login/")) {
-      const adminUrl = request.nextUrl.clone();
-      adminUrl.pathname = "/admin/login";
-      return applyRobotsHeader(NextResponse.redirect(adminUrl), pathname, host);
+    // Canonical URLs on admin subdomain should NOT contain /admin prefix.
+    // Keep /admin as a legacy alias.
+    if (pathname === "/admin") {
+      const rootUrl = request.nextUrl.clone();
+      rootUrl.pathname = "/";
+      return applyRobotsHeader(NextResponse.redirect(rootUrl), pathname, host);
     }
 
     // Allow admin API calls.
@@ -124,17 +120,28 @@ export async function middleware(request: NextRequest) {
       return applyRobotsHeader(NextResponse.next(), pathname, host);
     }
 
-    // Allow admin login page without redirect.
-    if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
+    // Admin login should be accessible via /login (canonical) and /admin/login (legacy).
+    if (
+      pathname === "/login" ||
+      pathname.startsWith("/login/") ||
+      pathname === "/admin/login" ||
+      pathname.startsWith("/admin/login/")
+    ) {
+      if (pathname === "/login" || pathname.startsWith("/login/")) {
+        const rewriteUrl = request.nextUrl.clone();
+        rewriteUrl.pathname = "/admin/login";
+        return applyRobotsHeader(NextResponse.rewrite(rewriteUrl), pathname, host);
+      }
       return applyRobotsHeader(NextResponse.next(), pathname, host);
     }
 
     // For admin subdomain, support short URLs like /subscriptions => /admin/subscriptions.
-    const needsAdminPrefix = !isAdminUiPath(pathname);
+    // Also map / to /admin (dashboard) via rewrite.
+    const needsAdminPrefix = pathname === "/" || !isAdminUiPath(pathname);
     const adminToken = request.cookies.get("admin_token")?.value;
     if (!adminToken) {
       const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/admin/login";
+      loginUrl.pathname = "/login";
       const redirectTarget = pathname + (search || "");
       loginUrl.searchParams.set("redirect", redirectTarget);
       return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
@@ -142,7 +149,7 @@ export async function middleware(request: NextRequest) {
 
     if (needsAdminPrefix) {
       const rewriteUrl = request.nextUrl.clone();
-      rewriteUrl.pathname = `/admin${pathname}`;
+      rewriteUrl.pathname = pathname === "/" ? "/admin" : `/admin${pathname}`;
       return applyRobotsHeader(NextResponse.rewrite(rewriteUrl), pathname, host);
     }
 
