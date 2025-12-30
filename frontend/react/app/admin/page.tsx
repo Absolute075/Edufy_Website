@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { useAdminAuth } from './useAdminAuth';
 import { resourcesRegistry } from '@/lib/resourcesRegistry';
+import { articlesRegistry } from '@/lib/articlesRegistry';
 
 export default function AdminDashboardPage() {
   const { info, loading, error } = useAdminAuth();
 
   const readingItems = Object.values(resourcesRegistry.reading);
   const listeningItems = Object.values(resourcesRegistry.listening);
+  const articleItems = Object.values(articlesRegistry);
 
   const countPlans = (
     items: Array<{ requiredPlan: 'free' | 'premium' }>,
@@ -24,6 +26,8 @@ export default function AdminDashboardPage() {
 
   const readingCounts = countPlans(readingItems);
   const listeningCounts = countPlans(listeningItems);
+  const magazineCount = articleItems.filter((item) => item.tags.includes('magazine')).length;
+  const articlesCount = articleItems.length - magazineCount;
 
   if (loading) {
     return <p className="text-sm text-gray-300">Loading admin dashboard...</p>;
@@ -94,6 +98,15 @@ export default function AdminDashboardPage() {
                   Total: <span className="text-gray-200">{listeningCounts.total}</span>
                   {' • '}Free: <span className="text-gray-200">{listeningCounts.free}</span>
                   {' • '}Premium: <span className="text-gray-200">{listeningCounts.premium}</span>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2">
+                <div className="text-sm text-gray-200">Magazines &amp; Articles</div>
+                <div className="mt-1 text-xs text-gray-400">
+                  Total: <span className="text-gray-200">{articleItems.length}</span>
+                  {' • '}Magazines: <span className="text-gray-200">{magazineCount}</span>
+                  {' • '}Articles: <span className="text-gray-200">{articlesCount}</span>
                 </div>
               </div>
             </div>
