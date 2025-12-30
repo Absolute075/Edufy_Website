@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -21,9 +22,22 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final InfobipEmailService infobipEmailService;
 
+    private static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Tashkent");
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     private String generateSixDigitCode() {
-        int raw = (int) (Math.random() * 1_000_000);
+        int raw = SECURE_RANDOM.nextInt(1_000_000);
         return String.format("%06d", raw);
+    }
+
+    private LocalDateTime now() {
+        return LocalDateTime.now(DEFAULT_ZONE);
+    }
+
+    private boolean shouldThrottle(LocalDateTime expiresAt, int ttlMinutes, int minIntervalSeconds) {
+        if (expiresAt == null) return false;
+        LocalDateTime sentAt = expiresAt.minusMinutes(ttlMinutes);
+        return sentAt.plusSeconds(minIntervalSeconds).isAfter(now());
     }
 
     // ================== REGISTER ==================
@@ -52,18 +66,27 @@ public class AuthService {
             }
 
             try {
-                String code = generateSixDigitCode();
-                existing.setVerificationCode(code);
-                existing.setVerificationCodeExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")).plusMinutes(15));
-                existing.setEmailVerified(false);
-                userRepository.save(existing);
+                LocalDateTime now = now();
+                String code = existing.getVerificationCode();
+                LocalDateTime expiresAt = existing.getVerificationCodeExpiresAt();
+                boolean hasValid = code != null && expiresAt != null && expiresAt.isAfter(now);
 
-                try {
-                    infobipEmailService.sendVerificationCodeEmail(existing.getEmail(), code);
-                } catch (Exception e) {
+                if (!hasValid) {
+                    code = generateSixDigitCode();
+                    existing.setVerificationCode(code);
+                    existing.setVerificationCodeExpiresAt(now.plusMinutes(15));
+                    existing.setEmailVerified(false);
+                    userRepository.save(existing);
+                }
+
+                if (!shouldThrottle(existing.getVerificationCodeExpiresAt(), 15, 60)) {
                     try {
-                        System.out.println("[auth_service] sendVerificationCodeEmail error: " + e.getClass().getSimpleName());
-                    } catch (Exception ignore) {}
+                        infobipEmailService.sendVerificationCodeEmail(existing.getEmail(), code);
+                    } catch (Exception e) {
+                        try {
+                            System.out.println("[auth_service] sendVerificationCodeEmail error: " + e.getClass().getSimpleName());
+                        } catch (Exception ignore) {}
+                    }
                 }
             } catch (Exception e) {
                 try {
@@ -97,7 +120,7 @@ public class AuthService {
         user.setEmailVerified(false);
         String code = generateSixDigitCode();
         user.setVerificationCode(code);
-        user.setVerificationCodeExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")).plusMinutes(15));
+        user.setVerificationCodeExpiresAt(now().plusMinutes(15));
 
         // Сохраняем пользователя с обработкой ошибок БД
         try {
@@ -287,11 +310,21 @@ public class AuthService {
         }
 
         try {
-            String code = generateSixDigitCode();
-            user.setVerificationCode(code);
-            user.setVerificationCodeExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")).plusMinutes(15));
-            userRepository.save(user);
-            infobipEmailService.sendVerificationCodeEmail(user.getEmail(), code);
+            LocalDateTime now = now();
+            String code = user.getVerificationCode();
+            LocalDateTime expiresAt = user.getVerificationCodeExpiresAt();
+            boolean hasValid = code != null && expiresAt != null && expiresAt.isAfter(now);
+
+            if (!hasValid) {
+                code = generateSixDigitCode();
+                user.setVerificationCode(code);
+                user.setVerificationCodeExpiresAt(now.plusMinutes(15));
+                userRepository.save(user);
+            }
+
+            if (!shouldThrottle(user.getVerificationCodeExpiresAt(), 15, 60)) {
+                infobipEmailService.sendVerificationCodeEmail(user.getEmail(), code);
+            }
         } catch (Exception e) {
             try {
                 System.out.println("[auth_service] resendVerification error: " + e.getClass().getSimpleName());
@@ -328,15 +361,21 @@ public class AuthService {
         try {
             UserEntity user = userOpt.get();
 
-            // Генерация 6-значного кода
-            int raw = (int) (Math.random() * 1_000_000);
-            String code = String.format("%06d", raw);
+            LocalDateTime now = now();
+            String code = user.getResetCode();
+            LocalDateTime expiresAt = user.getResetCodeExpiresAt();
+            boolean hasValid = code != null && expiresAt != null && expiresAt.isAfter(now);
 
-            user.setResetCode(code);
-            user.setResetCodeExpiresAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")).plusMinutes(15));
-            userRepository.save(user);
+            if (!hasValid) {
+                code = generateSixDigitCode();
+                user.setResetCode(code);
+                user.setResetCodeExpiresAt(now.plusMinutes(15));
+                userRepository.save(user);
+            }
 
-            infobipEmailService.sendResetCodeEmail(user.getEmail(), code);
+            if (!shouldThrottle(user.getResetCodeExpiresAt(), 15, 60)) {
+                infobipEmailService.sendResetCodeEmail(user.getEmail(), code);
+            }
         } catch (Exception e) {
             // Не раскрываем детали, только логируем на сервере
             System.out.println("[auth_service] forgotPassword error: " + e.getClass().getSimpleName());

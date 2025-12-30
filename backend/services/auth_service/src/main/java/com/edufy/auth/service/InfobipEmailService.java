@@ -58,24 +58,18 @@ public class InfobipEmailService {
             String CRLF = "\r\n";
             StringBuilder body = new StringBuilder();
 
-            String logoUrl = "https://resources.edufyuzbekistan.com/storage/images/favicon.png";
             String subject = "Edufy password reset code";
-            String text = "Your Edufy password reset code is " + code + ". It is valid for 15 minutes. "
-                    + "If you didn't request this, you can ignore this email.";
-            String html = "<!doctype html><html><body style=\"margin:0;padding:0;background:#0b0b10;font-family:Arial,sans-serif;color:#ffffff;\">"
-                    + "<div style=\"max-width:520px;margin:0 auto;padding:28px 18px;\">"
-                    + "<div style=\"text-align:center;margin-bottom:18px;\">"
-                    + "<img src=\"" + logoUrl + "\" width=\"72\" height=\"72\" alt=\"Edufy\" style=\"border-radius:16px;display:inline-block;\"/>"
+            String text = "Your Edufy password reset code is " + code + ". It expires in 15 minutes. "
+                    + "If you didn't request a password reset, you can ignore this email.";
+            String html = "<!doctype html><html><body style=\"margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#111827;\">"
+                    + "<div style=\"max-width:520px;margin:0 auto;padding:24px 18px;\">"
+                    + "<h2 style=\"margin:0 0 10px 0;font-size:18px;line-height:1.3;\">Reset your password</h2>"
+                    + "<p style=\"margin:0 0 16px 0;color:#374151;font-size:14px;line-height:1.5;\">Use this code to reset your Edufy password. It expires in <b>15 minutes</b>.</p>"
+                    + "<div style=\"text-align:left;margin:12px 0 16px 0;\">"
+                    + "<div style=\"display:inline-block;background:#f3f4f6;color:#111827;border:1px solid #e5e7eb;border-radius:12px;padding:12px 16px;font-size:24px;letter-spacing:6px;font-weight:700;\">" + code + "</div>"
                     + "</div>"
-                    + "<div style=\"background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:20px;\">"
-                    + "<h2 style=\"margin:0 0 8px 0;font-size:18px;line-height:1.3;\">Reset your password</h2>"
-                    + "<p style=\"margin:0 0 16px 0;color:rgba(255,255,255,0.78);font-size:14px;line-height:1.5;\">Use this code to reset your Edufy password. It expires in <b>15 minutes</b>.</p>"
-                    + "<div style=\"text-align:center;margin:14px 0 16px 0;\">"
-                    + "<div style=\"display:inline-block;background:#ffffff;color:#111827;border-radius:14px;padding:14px 18px;font-size:22px;letter-spacing:6px;font-weight:700;\">" + code + "</div>"
-                    + "</div>"
-                    + "<p style=\"margin:0;color:rgba(255,255,255,0.65);font-size:12px;line-height:1.5;\">If you didn't request a password reset, you can ignore this email.</p>"
-                    + "</div>"
-                    + "<p style=\"margin:14px 0 0 0;text-align:center;color:rgba(255,255,255,0.45);font-size:11px;\">Edufy Uzbekistan</p>"
+                    + "<p style=\"margin:0;color:#6b7280;font-size:12px;line-height:1.5;\">If you didn't request a password reset, you can ignore this email.</p>"
+                    + "<p style=\"margin:16px 0 0 0;color:#9ca3af;font-size:11px;\">Edufy Uzbekistan</p>"
                     + "</div></body></html>";
 
             body.append("--").append(boundary).append(CRLF);
@@ -160,24 +154,18 @@ public class InfobipEmailService {
             String CRLF = "\r\n";
             StringBuilder body = new StringBuilder();
 
-            String logoUrl = "https://resources.edufyuzbekistan.com/storage/images/favicon.png";
-            String subject = "Your Edufy verification code";
-            String text = "Your Edufy verification code is " + code + ". It is valid for 15 minutes. "
+            String subject = "Edufy verification code";
+            String text = "Your Edufy verification code is " + code + ". It expires in 15 minutes. "
                     + "If you didn't create an Edufy account, you can ignore this email.";
-            String html = "<!doctype html><html><body style=\"margin:0;padding:0;background:#0b0b10;font-family:Arial,sans-serif;color:#ffffff;\">"
-                    + "<div style=\"max-width:520px;margin:0 auto;padding:28px 18px;\">"
-                    + "<div style=\"text-align:center;margin-bottom:18px;\">"
-                    + "<img src=\"" + logoUrl + "\" width=\"72\" height=\"72\" alt=\"Edufy\" style=\"border-radius:16px;display:inline-block;\"/>"
+            String html = "<!doctype html><html><body style=\"margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#111827;\">"
+                    + "<div style=\"max-width:520px;margin:0 auto;padding:24px 18px;\">"
+                    + "<h2 style=\"margin:0 0 10px 0;font-size:18px;line-height:1.3;\">Verify your email</h2>"
+                    + "<p style=\"margin:0 0 16px 0;color:#374151;font-size:14px;line-height:1.5;\">Enter this code in Edufy to verify your email. It expires in <b>15 minutes</b>.</p>"
+                    + "<div style=\"text-align:left;margin:12px 0 16px 0;\">"
+                    + "<div style=\"display:inline-block;background:#f3f4f6;color:#111827;border:1px solid #e5e7eb;border-radius:12px;padding:12px 16px;font-size:24px;letter-spacing:6px;font-weight:700;\">" + code + "</div>"
                     + "</div>"
-                    + "<div style=\"background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:20px;\">"
-                    + "<h2 style=\"margin:0 0 8px 0;font-size:18px;line-height:1.3;\">Verify your email</h2>"
-                    + "<p style=\"margin:0 0 16px 0;color:rgba(255,255,255,0.78);font-size:14px;line-height:1.5;\">Enter this code in Edufy to finish creating your account. It expires in <b>15 minutes</b>.</p>"
-                    + "<div style=\"text-align:center;margin:14px 0 16px 0;\">"
-                    + "<div style=\"display:inline-block;background:#ffffff;color:#111827;border-radius:14px;padding:14px 18px;font-size:22px;letter-spacing:6px;font-weight:700;\">" + code + "</div>"
-                    + "</div>"
-                    + "<p style=\"margin:0;color:rgba(255,255,255,0.65);font-size:12px;line-height:1.5;\">If you didn't create an account, you can ignore this email.</p>"
-                    + "</div>"
-                    + "<p style=\"margin:14px 0 0 0;text-align:center;color:rgba(255,255,255,0.45);font-size:11px;\">Edufy Uzbekistan</p>"
+                    + "<p style=\"margin:0;color:#6b7280;font-size:12px;line-height:1.5;\">If you didn't create an account, you can ignore this email.</p>"
+                    + "<p style=\"margin:16px 0 0 0;color:#9ca3af;font-size:11px;\">Edufy Uzbekistan</p>"
                     + "</div></body></html>";
 
             body.append("--").append(boundary).append(CRLF);
