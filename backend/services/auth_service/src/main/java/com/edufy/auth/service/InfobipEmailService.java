@@ -153,10 +153,7 @@ public class InfobipEmailService {
             conn.setRequestProperty("Accept", "application/json");
             conn.setDoOutput(true);
 
-            String from = System.getenv("INFOBIP_FROM_EMAIL");
-            if (from == null || from.isBlank()) {
-                from = "Edufy <no-reply@edufyuzbekistan.com>";
-            }
+            String from = resolveFrom("INFOBIP_FROM_EMAIL_VERIFICATION");
 
             String CRLF = "\r\n";
             StringBuilder body = new StringBuilder();
