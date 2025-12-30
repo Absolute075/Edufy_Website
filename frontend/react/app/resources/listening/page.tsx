@@ -369,11 +369,23 @@ export default function ListeningResourcesPage() {
                   className={`relative block overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4 transition-colors duration-150 ${
                     locked ? "" : "hover:border-slate-400 hover:bg-neutral-900"
                   }`}
+                  draggable={locked ? false : undefined}
+                  onDragStart={(e) => {
+                    if (!locked) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
                 >
                   <div
                     className={`relative z-0 flex flex-col gap-3 md:flex-row md:items-center md:justify-between ${
                       locked ? "select-none" : ""
                     }`}
+                    draggable={locked ? false : undefined}
+                    onDragStart={(e) => {
+                      if (!locked) return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
                     onCopy={(e) => {
                       if (!locked) return;
                       e.preventDefault();

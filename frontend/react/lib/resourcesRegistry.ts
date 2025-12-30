@@ -227,6 +227,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 25,
       questions: 16,
     },
+    "981349": {
+      requiredPlan: "premium",
+      title: "An Architectural Revolution",
+      examType: "real",
+      part: 3,
+      difficulty: "hard",
+      minutes: 20,
+      questions: 14,
+    },
   },
   listening: {
     "846376": {
