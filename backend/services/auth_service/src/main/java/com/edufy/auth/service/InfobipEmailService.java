@@ -14,6 +14,16 @@ public class InfobipEmailService {
     private final String baseUrl;
     private final String apiKey;
 
+    private String resolveFrom(String primaryEnv) {
+        String from = System.getenv(primaryEnv);
+        if (from != null && !from.isBlank()) return from;
+
+        from = System.getenv("INFOBIP_FROM_EMAIL");
+        if (from != null && !from.isBlank()) return from;
+
+        return "Edufy <no-reply@edufyuzbekistan.com>";
+    }
+
     public InfobipEmailService() {
         String rawBaseUrl = System.getenv("INFOBIP_BASE_URL");
         if (rawBaseUrl != null && !rawBaseUrl.isBlank()) {
@@ -50,10 +60,7 @@ public class InfobipEmailService {
             conn.setRequestProperty("Accept", "application/json");
             conn.setDoOutput(true);
 
-            String from = System.getenv("INFOBIP_FROM_EMAIL");
-            if (from == null || from.isBlank()) {
-                from = "Edufy <no-reply@edufyuzbekistan.com>";
-            }
+            String from = resolveFrom("INFOBIP_FROM_EMAIL_RESET");
 
             String CRLF = "\r\n";
             StringBuilder body = new StringBuilder();
