@@ -238,7 +238,7 @@ export default function DashboardPage() {
                       Survey, Question, Read, Recite, Review to boost comprehension.
                     </p>
                     <Link
-                      href="/methods/sq3r"
+                      href={`${userPrefix}/methods/sq3r`}
                       className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
                     >
                       Learn More
@@ -250,7 +250,7 @@ export default function DashboardPage() {
                       25-minute focus sprints with short breaks to maintain momentum.
                     </p>
                     <Link
-                      href="/methods/pomodoro"
+                      href={`${userPrefix}/methods/pomodoro`}
                       className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
                     >
                       Learn More
@@ -262,7 +262,7 @@ export default function DashboardPage() {
                       Explain complex ideas in simple words to expose gaps and learn deeply.
                     </p>
                     <Link
-                      href="/methods/feynman"
+                      href={`${userPrefix}/methods/feynman`}
                       className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
                     >
                       Learn More
@@ -273,30 +273,60 @@ export default function DashboardPage() {
                     <p className="mt-1 text-sm text-slate-400">
                       Turn material into questions and test yourself without notes to strengthen memory.
                     </p>
+                    <Link
+                      href={`${userPrefix}/methods/active-recall`}
+                      className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
+                    >
+                      Learn More
+                    </Link>
                   </article>
                   <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Mind Mapping</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Visual maps that connect ideas, reveal structure and make complex topics easier to remember.
                     </p>
+                    <Link
+                      href={`${userPrefix}/methods/mind-mapping`}
+                      className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
+                    >
+                      Learn More
+                    </Link>
                   </article>
                   <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Leitner System</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Flashcards in spaced boxes: hard cards appear more often, easy ones less often.
                     </p>
+                    <Link
+                      href={`${userPrefix}/methods/leitner`}
+                      className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
+                    >
+                      Learn More
+                    </Link>
                   </article>
                   <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Kaizen</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Small, continuous improvements every day that compound into big progress over time.
                     </p>
+                    <Link
+                      href={`${userPrefix}/methods/kaizen`}
+                      className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
+                    >
+                      Learn More
+                    </Link>
                   </article>
                   <article className="rounded-2xl border border-neutral-800 bg-black p-4">
                     <h3 className="font-medium">Spaced Repetition</h3>
                     <p className="mt-1 text-sm text-slate-400">
                       Review information right before you forget it to move knowledge into long‑term memory.
                     </p>
+                    <Link
+                      href={`${userPrefix}/methods/spaced-repetition`}
+                      className="mt-3 inline-block rounded-lg border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
+                    >
+                      Learn More
+                    </Link>
                   </article>
                 </div>
               </section>
