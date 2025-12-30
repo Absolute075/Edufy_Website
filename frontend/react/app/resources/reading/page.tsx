@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
@@ -374,9 +373,8 @@ export default function ReadingResourcesPage() {
                 : resourceHref;
               const isCompleted = completedIds.has(item.id);
               return (
-                <Link
+                <div
                   key={item.id}
-                  href={href}
                   className={`relative block overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4 transition-colors duration-150 ${
                     locked ? "" : "hover:border-slate-400 hover:bg-neutral-900"
                   }`}
@@ -410,6 +408,8 @@ export default function ReadingResourcesPage() {
                     onMouseDown={(e) => {
                       if (!locked) return;
                       if (e.button !== 0) return;
+                      const target = e.target as HTMLElement;
+                      if (target.closest("button")) return;
                       e.preventDefault();
                     }}
                   >
@@ -437,8 +437,6 @@ export default function ReadingResourcesPage() {
                       <button
                         type="button"
                         onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
                           clearTestCompleted("reading", item.id);
                           setCompletedIds((prev) => {
                             const next = new Set(prev);
@@ -452,16 +450,20 @@ export default function ReadingResourcesPage() {
                         Re-Do test
                       </button>
                     ) : (
-                      <div className="mt-1 inline-flex items-center self-start rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-300 md:self-center">
-                        {item.requiredPlan}
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => router.push(href)}
+                        className="mt-1 inline-flex items-center self-start rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-100 transition-colors hover:border-white/60 hover:bg-neutral-900 md:self-center"
+                      >
+                        Start
+                      </button>
                     )}
                   </div>
 
                   {locked && (
                     <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-neutral-950/0 backdrop-blur-[4px]" />
                   )}
-                </Link>
+                </div>
               );
             })}
 
