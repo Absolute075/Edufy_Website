@@ -6,40 +6,8 @@ import { usePathname } from "next/navigation";
 import { usePageTitle } from "../lib/usePageTitle";
 import { useUserProfile } from "../UserProfileProvider";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-
-type Activity = {
-  text: string;
-  time: number;
-};
-
-function loadRecentActivities(): Activity[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const userKey =
-      (window as any).__edufyUserKey ||
-      window.sessionStorage.getItem("edufy.user.key") ||
-      window.localStorage.getItem("edufy.user.key");
-    if (!userKey) return [];
-    const key = `edufyActivities_${userKey}`;
-    const raw = window.localStorage.getItem(key) || "[]";
-    const arr = JSON.parse(raw);
-    if (!Array.isArray(arr)) return [];
-    return arr.slice(0, 3);
-  } catch {
-    return [];
-  }
-}
-
-function formatRelativeTime(ms: number): string {
-  const s = Math.floor((Date.now() - ms) / 1000);
-  if (s < 60) return `${s}s ago`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const d = Math.floor(h / 24);
-  return `${d}d ago`;
-}
+import { getCompletedTestsState } from "@/lib/completedTests";
+import { isPlanSufficient, resourcesRegistry } from "@/lib/resourcesRegistry";
 
 function getWeeklyStudyHours(): number[] {
   if (typeof window === "undefined") return [0, 0, 0, 0, 0, 0, 0];
@@ -71,14 +39,44 @@ function getWeeklyStudyHours(): number[] {
   }
 }
 
+function getIsoYearWeek(date: Date): { year: number; week: number } {
+  const tmp = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = (tmp.getUTCDay() + 6) % 7; // Mon=0
+  tmp.setUTCDate(tmp.getUTCDate() - dayNum + 3);
+  const firstThu = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 4));
+  const week =
+    1 +
+    Math.round(
+      ((Number(tmp) - Number(firstThu)) / 86400000 - 3 + ((firstThu.getUTCDay() + 6) % 7)) / 7,
+    );
+  return { year: tmp.getUTCFullYear(), week };
+}
+
+function getWeeklyStudyHoursForIsoWeek(year: number, week: number): number[] {
+  if (typeof window === "undefined") return [0, 0, 0, 0, 0, 0, 0];
+  try {
+    const KEY_PREFIX = "edufy.study.weekly.";
+    const key = `${KEY_PREFIX}${year}-${String(week).padStart(2, "0")}`;
+    const raw = window.localStorage.getItem(key) || "null";
+    const arr = JSON.parse(raw) || [0, 0, 0, 0, 0, 0, 0];
+    if (!Array.isArray(arr) || arr.length !== 7) return [0, 0, 0, 0, 0, 0, 0];
+    const mins = arr.map((x) => (typeof x === "number" ? x : 0));
+    const hours = mins.map((m) => Math.round(((m / 60) * 10) / 10));
+    return hours;
+  } catch {
+    return [0, 0, 0, 0, 0, 0, 0];
+  }
+}
+
 export default function DashboardPage() {
   usePageTitle("Edufy – Dashboard");
   const pathname = usePathname() || "/";
   const { data: profileData } = useUserProfile();
   const studentName = profileData?.username || "Student";
-  const [activities, setActivities] = useState<Activity[]>([]);
   const [weeklyHours, setWeeklyHours] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+  const [monthlyWeeks, setMonthlyWeeks] = useState<Array<{ label: string; hours: number }>>([]);
   const [progress, setProgress] = useState<number>(0);
+  const [progressLabel, setProgressLabel] = useState<string>("0/0");
 
   const segments = pathname.split("/").filter(Boolean);
   const firstSegment = segments[0] || "";
@@ -87,38 +85,92 @@ export default function DashboardPage() {
   const resourcesHref = `${userPrefix}/resources`;
 
   useEffect(() => {
-    setActivities(loadRecentActivities());
-    setWeeklyHours(getWeeklyStudyHours());
-
-    const intervalId = window.setInterval(() => {
-      setActivities(loadRecentActivities());
+    const syncStudy = () => {
       setWeeklyHours(getWeeklyStudyHours());
-    }, 5000);
+
+      const now = new Date();
+      const weeks = [3, 2, 1, 0].map((back) => {
+        const d = new Date(now);
+        d.setDate(d.getDate() - back * 7);
+        const { year, week } = getIsoYearWeek(d);
+        const hoursArr = getWeeklyStudyHoursForIsoWeek(year, week);
+        const total = Math.round(hoursArr.reduce((a, b) => a + b, 0) * 10) / 10;
+        return { label: `W${week}`, hours: total };
+      });
+      setMonthlyWeeks(weeks);
+    };
+
+    const syncProgress = () => {
+      const userPlan = profileData?.plan ?? "free";
+      const state = getCompletedTestsState();
+      const completedIds = new Set<string>();
+      (Object.values(state.reading ?? {}) as number[]).forEach(() => {});
+
+      (Object.keys(state.reading ?? {}) as string[]).forEach((id) => completedIds.add(`reading:${id}`));
+      (Object.keys(state.listening ?? {}) as string[]).forEach((id) => completedIds.add(`listening:${id}`));
+      (Object.keys(state.writing ?? {}) as string[]).forEach((id) => completedIds.add(`writing:${id}`));
+      (Object.keys(state.mock ?? {}) as string[]).forEach((id) => completedIds.add(`mock:${id}`));
+
+      const available = new Set<string>();
+      (Object.entries(resourcesRegistry.reading) as Array<[string, (typeof resourcesRegistry.reading)[string]]>).forEach(
+        ([id, rule]) => {
+          if (isPlanSufficient(userPlan, rule.requiredPlan)) available.add(`reading:${id}`);
+        },
+      );
+      (Object.entries(resourcesRegistry.listening) as Array<[string, (typeof resourcesRegistry.listening)[string]]>).forEach(
+        ([id, rule]) => {
+          if (isPlanSufficient(userPlan, rule.requiredPlan)) available.add(`listening:${id}`);
+        },
+      );
+      (Object.entries(resourcesRegistry.writing) as Array<[string, (typeof resourcesRegistry.writing)[string]]>).forEach(
+        ([id, rule]) => {
+          if (isPlanSufficient(userPlan, rule.requiredPlan)) available.add(`writing:${id}`);
+        },
+      );
+      (Object.entries(resourcesRegistry.mock) as Array<[string, (typeof resourcesRegistry.mock)[string]]>).forEach(
+        ([id, rule]) => {
+          if (isPlanSufficient(userPlan, rule.requiredPlan)) available.add(`mock:${id}`);
+        },
+      );
+
+      const total = available.size;
+      let done = 0;
+      available.forEach((k) => {
+        if (completedIds.has(k)) done++;
+      });
+
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      setProgress(pct);
+      setProgressLabel(`${done}/${total}`);
+    };
+
+    syncStudy();
+    syncProgress();
 
     const onStorage = (e: StorageEvent) => {
       if (!e.key) return;
-      if (e.key.startsWith("edufyActivities_")) {
-        setActivities(loadRecentActivities());
-      }
       if (e.key.startsWith("edufy.study.weekly.")) {
-        setWeeklyHours(getWeeklyStudyHours());
+        syncStudy();
+      }
+      if (e.key === "edufy.completedTests.v1" || e.key.startsWith("edufy.completedTests.v1.")) {
+        syncProgress();
       }
     };
 
     window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", syncProgress);
+    window.addEventListener("focus", syncStudy);
 
     return () => {
       window.removeEventListener("storage", onStorage);
-      window.clearInterval(intervalId);
+      window.removeEventListener("focus", syncProgress);
+      window.removeEventListener("focus", syncStudy);
     };
-  }, []);
-
-  useEffect(() => {
-    // Placeholder: later we can hydrate from /auth/me
-    setProgress(0);
-  }, []);
+  }, [profileData?.plan]);
 
   const maxHours = Math.max(...weeklyHours, 1);
+  const totalWeeklyHours = Math.round(weeklyHours.reduce((a, b) => a + b, 0) * 10) / 10;
+  const maxMonthHours = Math.max(...monthlyWeeks.map((w) => w.hours), 1);
 
   return (
     <DashboardShell studentName={studentName}>
@@ -155,6 +207,8 @@ export default function DashboardPage() {
                   </div>
                   <div className="mt-2 text-sm text-slate-300">
                     <span>{progress}</span>% completed
+                    <span className="text-slate-500"> · </span>
+                    <span className="text-slate-200">{progressLabel}</span>
                   </div>
                 </div>
               </div>
@@ -177,7 +231,7 @@ export default function DashboardPage() {
                 <h2 id="weekly-time" className="text-lg font-semibold">
                   Weekly Study Time
                 </h2>
-                <p className="text-sm text-slate-400">Hours per day</p>
+                <p className="text-sm text-slate-400">Hours per day · Total: {totalWeeklyHours}h</p>
                 <div
                   className="mt-4 grid h-40 grid-cols-7 items-end gap-3 text-xs text-slate-400"
                   role="img"
@@ -204,27 +258,6 @@ export default function DashboardPage() {
                       </div>
                     );
                   })}
-                </div>
-              </section>
-              {/* Recent Activities */}
-              <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
-                <h2 className="text-lg font-semibold">Recent Activities</h2>
-                <div className="mt-4 space-y-3" aria-live="polite">
-                  {activities.length === 0 ? (
-                    <div className="text-sm text-neutral-500">No recent activity yet</div>
-                  ) : (
-                    activities.map((a, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-3 text-sm hover:bg-neutral-900"
-                      >
-                        <div>
-                          <div className="font-medium text-neutral-100">{a.text}</div>
-                          <div className="text-xs text-neutral-500">{formatRelativeTime(a.time)}</div>
-                        </div>
-                      </div>
-                    ))
-                  )}
                 </div>
               </section>
 
@@ -339,12 +372,20 @@ export default function DashboardPage() {
                   role="img"
                   aria-label="Column chart of weekly performance for 4 weeks"
                 >
-                  {[1, 2, 3, 4].map((week) => (
-                    <div key={week} className="flex flex-col items-center gap-2">
-                      <div className="w-10 rounded-md bg-white" style={{ height: "24px" }} />
-                      <span>{`Week ${week}`}</span>
-                    </div>
-                  ))}
+                  {(monthlyWeeks.length ? monthlyWeeks : [
+                    { label: "W-3", hours: 0 },
+                    { label: "W-2", hours: 0 },
+                    { label: "W-1", hours: 0 },
+                    { label: "W", hours: 0 },
+                  ]).map((w) => {
+                    const height = Math.max(10, (w.hours / maxMonthHours) * 144);
+                    return (
+                      <div key={w.label} className="flex flex-col items-center gap-2">
+                        <div className="w-10 rounded-md bg-white" style={{ height: `${height}px` }} />
+                        <span>{w.label}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
             </section>
