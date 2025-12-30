@@ -15,6 +15,7 @@ export default function ResourcesPage() {
   const listeningHref = `${baseResourcesPath}/listening`;
   const writingHref = `${baseResourcesPath}/writing`;
   const mockHref = `${baseResourcesPath}/mock`;
+  const articlesHref = `${baseResourcesPath}/articles`;
   return (
     <DashboardShell>
       <div className="mx-auto max-w-5xl space-y-6">
@@ -117,20 +118,21 @@ export default function ResourcesPage() {
                   We are collecting for you now :)
                 </button>
               </div>
-              <div className="flex flex-col justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 min-h-[140px]">
+              <Link
+                href={articlesHref}
+                className="group flex flex-col justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
+              >
                 <div>
-                  <div className="text-sm font-medium text-slate-100">Topic-Based Sets</div>
+                  <div className="text-sm font-medium text-slate-100">Articles &amp; Magazines</div>
                   <div className="text-xs text-slate-400">
                     Education · Environment · Technology · Health
                   </div>
                 </div>
-                <button
-                  type="button"
-                  className="cursor-default inline-flex items-center self-start rounded-full border border-slate-700 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400"
-                >
-                  We are collecting for you now :)
-                </button>
-              </div>
+                <span className="mt-1 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
+                  Open
+                  <span className="ml-1 text-[10px]">→</span>
+                </span>
+              </Link>
               <div className="flex flex-col justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 min-h-[140px]">
                 <div>
                   <div className="text-sm font-medium text-slate-100">Phrasal Verbs &amp; Collocations</div>
