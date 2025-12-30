@@ -218,6 +218,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "769427": {
+      requiredPlan: "premium",
+      title: "Creating Meaningful Discussions in the Classroom",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 25,
+      questions: 16,
+    },
   },
   listening: {
     "846376": {
