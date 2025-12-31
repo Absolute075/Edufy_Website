@@ -107,7 +107,6 @@ export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const rawHost = request.headers.get("host") || "";
   const host = rawHost.split(":")[0]?.toLowerCase() || "";
-  const cookieHeader = request.headers.get("cookie") || "";
 
   if (request.headers.get("x-edufy-middleware") === "1") {
     return NextResponse.next();
@@ -273,9 +272,9 @@ export async function middleware(request: NextRequest) {
             headers: {
               Authorization: `Bearer ${accessToken}`,
               "x-edufy-middleware": "1",
-              ...(cookieHeader ? { cookie: cookieHeader } : {}),
             },
             cache: "no-store",
+            credentials: "include",
           });
 
           profileStatus = profileRes.status;
@@ -314,9 +313,9 @@ export async function middleware(request: NextRequest) {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "x-edufy-middleware": "1",
-                ...(cookieHeader ? { cookie: cookieHeader } : {}),
               },
               cache: "no-store",
+              credentials: "include",
             });
 
             meStatus = meRes.status;
