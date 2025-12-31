@@ -32,9 +32,25 @@ export const articlesRegistry: Record<string, ArticleRule> = {
   "wellbeing-01": {
     title: "Does your diet pass the acid test?",
     file: "wellbeing-01.pdf",
-    preview: "wellbeing-01.png",
+    preview: "wellbeing -01.png",
     tags: ["wellbeing"],
     pages: 5,
     description: "The food we eat has a surprising effect on the body that could lead to chronic illness -but luckily there's an easy fix, finds Graham Lawton",
+  },
+  "lifestyle-02": {
+    title: "Time for a new you?",
+    file: "lifestyle-02.pdf",
+    preview: "lifestyle-02.png",
+    tags: ["lifestyle"],
+    pages: 1,
+    description: "We sort ourselves into introverts and extroverts, but the truth is that personality is more malleable than you think, says Claudia Canavan",
+  },
+  "technology-01": {
+    title: "Will Australia’s social media ban work?",
+    file: "technology-01.pdf",
+    preview: "technology-01.png",
+    tags: ["technology"],
+    pages: 2,
+    description: "Social media platformswill soon have to exclude children under16 in Australia, but there are doubts over whether this is the right approach, finds James Woodford",
   },
 };
