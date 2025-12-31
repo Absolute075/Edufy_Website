@@ -308,6 +308,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "955789": {
+      requiredPlan: "premium",
+      title: "New Zealand Short Stories",
+      examType: "real",
+      part: 3,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 14,
+    },
   },
   listening: {
     "846376": {
