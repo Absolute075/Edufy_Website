@@ -264,6 +264,7 @@ export async function middleware(request: NextRequest) {
       const requiredPlan = rule?.requiredPlan ?? "premium";
       if (requiredPlan !== "free") {
         let userPlan = "free";
+        let planResolved = false;
         try {
           const profileRes = await fetch(new URL("/user/profile", request.nextUrl), {
             headers: {
@@ -285,7 +286,42 @@ export async function middleware(request: NextRequest) {
 
           if (profileRes.ok) {
             const body = await profileRes.json().catch(() => null as any);
-            userPlan = normalizePlan(body?.plan);
+            const rawPlan =
+              body?.plan ??
+              body?.data?.plan ??
+              body?.user?.plan ??
+              body?.profile?.plan ??
+              body?.subscriptionPlan ??
+              body?.tariff;
+            if (rawPlan !== undefined && rawPlan !== null && String(rawPlan).trim()) {
+              userPlan = normalizePlan(rawPlan);
+              planResolved = true;
+            }
+          }
+
+          if (!planResolved) {
+            const meRes = await fetch(new URL("/auth/me", request.nextUrl), {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-edufy-middleware": "1",
+              },
+              cache: "no-store",
+            });
+
+            if (meRes.ok) {
+              const body = await meRes.json().catch(() => null as any);
+              const rawPlan =
+                body?.plan ??
+                body?.data?.plan ??
+                body?.user?.plan ??
+                body?.profile?.plan ??
+                body?.subscriptionPlan ??
+                body?.tariff;
+              if (rawPlan !== undefined && rawPlan !== null && String(rawPlan).trim()) {
+                userPlan = normalizePlan(rawPlan);
+                planResolved = true;
+              }
+            }
           }
         } catch {
           userPlan = "free";

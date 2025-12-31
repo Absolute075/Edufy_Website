@@ -69,6 +69,16 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
           if (me) {
             if (me.username) username = me.username;
             if (me.email) email = me.email;
+            const rawPlan =
+              me.plan ??
+              me.data?.plan ??
+              me.user?.plan ??
+              me.profile?.plan ??
+              me.subscriptionPlan ??
+              me.tariff;
+            if (rawPlan !== undefined && rawPlan !== null && String(rawPlan).trim()) {
+              plan = normalizePlan(rawPlan);
+            }
           }
         }
       } catch {
@@ -85,7 +95,17 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
             const certVal = p.certificate || "";
             const favSubjVal = p.favorite_subject || "";
             const hoursVal = p.daily_hours || "";
-            const planVal = normalizePlan(p.plan);
+            const rawPlan =
+              p.plan ??
+              p.data?.plan ??
+              p.user?.plan ??
+              p.profile?.plan ??
+              p.subscriptionPlan ??
+              p.tariff;
+            const planVal =
+              rawPlan !== undefined && rawPlan !== null && String(rawPlan).trim()
+                ? normalizePlan(rawPlan)
+                : plan;
 
             const certList = certVal
               ? String(certVal)
