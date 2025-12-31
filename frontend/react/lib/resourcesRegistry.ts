@@ -290,6 +290,24 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "966444": {
+      requiredPlan: "premium",
+      title: "The Introduction of Gas and Electricity to the US",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 13,
+    },
+    "933410": {
+      requiredPlan: "premium",
+      title: "Farmers Centenary Celebration",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
