@@ -5,9 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { markTestCompleted } from "@/lib/completedTests";
 
-const fullTestAudioUrl =
-  "https://resources.edufyuzbekistan.com/materials/listening/876362/full-listening-test-3.mp3";
-
 const correctAnswers: Record<number, string> = {
   1: "94635550",
   2: "Clark House",
@@ -107,6 +104,51 @@ export default function ListeningTest876362Page() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [availableAudioSources, setAvailableAudioSources] = useState<string[]>([]);
+
+  const audioBaseUrl = (process.env.NEXT_PUBLIC_LISTENING_AUDIO_BASE_URL ?? "").replace(
+    /\/$/,
+    ""
+  );
+
+  const audioDir = useMemo(() => {
+    if (!audioBaseUrl) return "";
+    const endsWithId = audioBaseUrl.endsWith(`/${listeningId}`);
+    if (endsWithId) return audioBaseUrl;
+    return `${audioBaseUrl}/${listeningId}`;
+  }, [audioBaseUrl, listeningId]);
+
+  const checkAudioExists = async (url: string) => {
+    return await new Promise<boolean>((resolve) => {
+      try {
+        const probe = new Audio();
+        probe.preload = "metadata";
+        probe.src = url;
+
+        let done = false;
+        const finish = (ok: boolean) => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          probe.removeEventListener("loadedmetadata", onOk);
+          probe.removeEventListener("canplay", onOk);
+          probe.removeEventListener("error", onErr);
+          resolve(ok);
+        };
+
+        const onOk = () => finish(true);
+        const onErr = () => finish(false);
+
+        probe.addEventListener("loadedmetadata", onOk);
+        probe.addEventListener("canplay", onOk);
+        probe.addEventListener("error", onErr);
+
+        const timer = window.setTimeout(() => finish(false), 4500);
+        probe.load();
+      } catch {
+        resolve(false);
+      }
+    });
+  };
 
   const [playerSection, setPlayerSection] = useState(1);
   const [playerIsPlaying, setPlayerIsPlaying] = useState(false);
@@ -821,8 +863,30 @@ export default function ListeningTest876362Page() {
   }, [answers]);
 
   useEffect(() => {
-    setAvailableAudioSources([fullTestAudioUrl]);
-  }, [listeningId]);
+    let cancelled = false;
+
+    const run = async () => {
+      if (!audioDir) {
+        setAvailableAudioSources([]);
+        return;
+      }
+
+      const urls = [1, 2, 3, 4].map((i) => `${audioDir}/section${i}.mp3`);
+      const results = await Promise.all(urls.map((u) => checkAudioExists(u)));
+      const found: string[] = [];
+      for (let i = 0; i < urls.length; i++) {
+        if (!results[i]) break;
+        found.push(urls[i]);
+      }
+
+      if (!cancelled) setAvailableAudioSources(found);
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [audioDir]);
 
   const formatAudioTime = (sec: number) => {
     if (!Number.isFinite(sec) || sec < 0) return "0:00";
@@ -835,7 +899,7 @@ export default function ListeningTest876362Page() {
   const setPlayerAudioSourceForSection = (_sec: number) => {
     const audioEl = audioRef.current;
     if (!audioEl) return;
-    const src = availableAudioSources[0];
+    const src = availableAudioSources[0] ?? (audioDir ? `${audioDir}/section1.mp3` : "");
     if (!src) return;
     if (audioEl.src === src) return;
     audioEl.src = src;
@@ -3618,7 +3682,8 @@ export default function ListeningTest876362Page() {
                 const audioEl = audioRef.current;
                 if (!audioEl) return;
 
-                const firstUrl = availableAudioSources[0] ?? fullTestAudioUrl;
+                const firstUrl =
+                  availableAudioSources[0] ?? (audioDir ? `${audioDir}/section1.mp3` : "");
                 if (!firstUrl) return;
 
                 setCurrentSection(1);

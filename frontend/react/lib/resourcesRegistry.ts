@@ -356,7 +356,7 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       questions: 40,
     },
     "326963": {
-      requiredPlan: "free",
+      requiredPlan: "premium",
       title: "Listening Full Test 2",
       examType: "real",
       part: "full",

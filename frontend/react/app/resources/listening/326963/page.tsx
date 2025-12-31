@@ -78,9 +78,6 @@ export default function ListeningTest326963Page() {
     return "326963";
   }, [segments]);
 
-  const fullTestAudioUrl =
-    "https://resources.edufyuzbekistan.com/materials/listening/326963/full-listening-test-2.mp3";
-
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<number | null>(null);
@@ -780,11 +777,6 @@ export default function ListeningTest326963Page() {
     let cancelled = false;
 
     const run = async () => {
-      if (listeningId === "326963") {
-        setAvailableAudioSources([fullTestAudioUrl]);
-        return;
-      }
-
       if (!audioDir) {
         setAvailableAudioSources([]);
         return;
@@ -805,7 +797,7 @@ export default function ListeningTest326963Page() {
     return () => {
       cancelled = true;
     };
-  }, [audioDir, listeningId, fullTestAudioUrl]);
+  }, [audioDir]);
 
   const startAudioAtIndex = (index: number) => {
     const audioEl = audioRef.current;
@@ -3646,9 +3638,7 @@ export default function ListeningTest326963Page() {
                 if (!audioEl) return;
 
                 const firstUrl =
-                  listeningId === "326963"
-                    ? fullTestAudioUrl
-                    : availableAudioSources[0] ?? (audioDir ? `${audioDir}/section1.mp3` : "");
+                  availableAudioSources[0] ?? (audioDir ? `${audioDir}/section1.mp3` : "");
                 if (!firstUrl) return;
 
                 setCurrentAudioIndex(0);

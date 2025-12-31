@@ -74,6 +74,30 @@ func (m *AccessMiddleware) handle(c *gin.Context) {
 		c.Set("material_rel", rel)
 		c.Set("material_required_plan", required)
 		c.Set("material_user_plan", userPlan)
+	} else {
+		// Direct file path under /materials/:category/*path
+		path := strings.TrimSpace(c.Param("path"))
+		path = strings.TrimPrefix(path, "/")
+		if category != "" && path != "" {
+			id := strings.ToLower(strings.TrimSpace(category)) + "/" + path
+			item, found := m.svc.FindByID(id)
+			if !found || item == nil || !item.Active {
+				c.AbortWithStatus(http.StatusNotFound)
+				return
+			}
+			required := strings.ToLower(strings.TrimSpace(item.RequiredPlan))
+			if required == "" {
+				required = "free"
+			}
+			if !planAllows(userPlan, required) {
+				c.Redirect(http.StatusFound, m.cfg.UpgradeRedirectURL)
+				c.Abort()
+				return
+			}
+			c.Set("material_rel", id)
+			c.Set("material_required_plan", required)
+			c.Set("material_user_plan", userPlan)
+		}
 	}
 
 	c.Next()

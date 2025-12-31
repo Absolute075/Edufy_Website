@@ -120,7 +120,7 @@ func (s *service) Reindex() error {
 		if !ok {
 			return nil
 		}
-		url := fmt.Sprintf("%s/materials/t/%s", base, token)
+		url := fmt.Sprintf("%s/materials/%s/%s", base, strings.ToLower(cat), token)
 		item := ManifestItem{
 			ID:           id,
 			Title:        defaultTitleFromID(id),
@@ -278,21 +278,89 @@ func applyOverrides(items *[]ManifestItem, path string) {
 	if err := json.Unmarshal(b, &m); err != nil {
 		return
 	}
+
+	type prefixRule struct {
+		Prefix string
+		OV     struct {
+			Title        *string `json:"title"`
+			RequiredPlan *string `json:"requiredPlan"`
+			Active       *bool   `json:"active"`
+			URL          *string `json:"url"`
+		}
+	}
+
+	applyOne := func(i int, ov struct {
+		Title        *string `json:"title"`
+		RequiredPlan *string `json:"requiredPlan"`
+		Active       *bool   `json:"active"`
+		URL          *string `json:"url"`
+	}) {
+		if ov.Title != nil {
+			(*items)[i].Title = *ov.Title
+		}
+		if ov.RequiredPlan != nil {
+			(*items)[i].RequiredPlan = *ov.RequiredPlan
+		}
+		if ov.Active != nil {
+			(*items)[i].Active = *ov.Active
+		}
+		if ov.URL != nil {
+			(*items)[i].URL = *ov.URL
+		}
+	}
+
+	// Extract prefix rules (folder-style) from the same overrides map.
+	// Supported keys:
+	// - "listening/846376/*"  (prefix match)
+	// - "listening/846376/"   (prefix match)
+	prefixRules := make([]prefixRule, 0, 8)
+	exact := make(map[string]struct {
+		Title        *string `json:"title"`
+		RequiredPlan *string `json:"requiredPlan"`
+		Active       *bool   `json:"active"`
+		URL          *string `json:"url"`
+	}, len(m))
+
+	for k, ov := range m {
+		key := strings.TrimSpace(k)
+		if key == "" {
+			continue
+		}
+		if strings.Contains(key, "*") {
+			prefix := strings.SplitN(key, "*", 2)[0]
+			prefix = strings.TrimSpace(prefix)
+			if prefix != "" {
+				pr := prefixRule{Prefix: prefix}
+				pr.OV = ov
+				prefixRules = append(prefixRules, pr)
+				continue
+			}
+		}
+		if strings.HasSuffix(key, "/") {
+			pr := prefixRule{Prefix: key}
+			pr.OV = ov
+			prefixRules = append(prefixRules, pr)
+			continue
+		}
+		exact[key] = ov
+	}
+
+	// More specific prefix rules (longer prefixes) should win.
+	sort.Slice(prefixRules, func(i, j int) bool { return len(prefixRules[i].Prefix) < len(prefixRules[j].Prefix) })
+
 	for i := range *items {
 		id := (*items)[i].ID
-		if ov, ok := m[id]; ok {
-			if ov.Title != nil {
-				(*items)[i].Title = *ov.Title
+
+		// 1) Apply prefix rules (from general to specific).
+		for _, pr := range prefixRules {
+			if pr.Prefix != "" && strings.HasPrefix(id, pr.Prefix) {
+				applyOne(i, pr.OV)
 			}
-			if ov.RequiredPlan != nil {
-				(*items)[i].RequiredPlan = *ov.RequiredPlan
-			}
-			if ov.Active != nil {
-				(*items)[i].Active = *ov.Active
-			}
-			if ov.URL != nil {
-				(*items)[i].URL = *ov.URL
-			}
+		}
+
+		// 2) Apply exact rule last (highest priority).
+		if ov, ok := exact[id]; ok {
+			applyOne(i, ov)
 		}
 	}
 }
