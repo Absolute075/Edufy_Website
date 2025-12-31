@@ -32,7 +32,7 @@ export const articlesRegistry: Record<string, ArticleRule> = {
   "wellbeing-01": {
     title: "Does your diet pass the acid test?",
     file: "wellbeing-01.pdf",
-    preview: "wellbeing -01.png",
+    preview: "wellbeing-01.png",
     tags: ["wellbeing"],
     pages: 5,
     description: "The food we eat has a surprising effect on the body that could lead to chronic illness -but luckily there's an easy fix, finds Graham Lawton",
