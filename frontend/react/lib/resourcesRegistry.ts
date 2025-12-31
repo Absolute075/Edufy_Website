@@ -317,6 +317,33 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "945639": {
+      requiredPlan: "premium",
+      title: "The Link Between Low Light and Mood",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 13,
+    },
+    "954823": {
+      requiredPlan: "premium",
+      title: "Bird Migration",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 13,
+    },
+    "963555": {
+      requiredPlan: "premium",
+      title: "Vitamins",
+      examType: "real",
+      part: 3,
+      difficulty: "hard",
+      minutes: 20,
+      questions: 14,
+    },
   },
   listening: {
     "846376": {
