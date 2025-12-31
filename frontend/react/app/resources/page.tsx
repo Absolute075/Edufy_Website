@@ -14,6 +14,7 @@ export default function ResourcesPage() {
   const readingHref = `${baseResourcesPath}/reading`;
   const listeningHref = `${baseResourcesPath}/listening`;
   const writingHref = `${baseResourcesPath}/writing`;
+  const speakingHref = `${baseResourcesPath}/speaking`;
   const mockHref = `${baseResourcesPath}/mock`;
   const articlesHref = `${baseResourcesPath}/articles`;
   return (
@@ -31,7 +32,7 @@ export default function ResourcesPage() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold">IELTS Resources</h2>
-                <p className="text-sm text-slate-400">Reading · Listening · Writing · MOCK</p>
+                <p className="text-sm text-slate-400">Reading · Listening · Writing · Speaking · MOCK</p>
               </div>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -43,6 +44,21 @@ export default function ResourcesPage() {
                   <div className="text-sm font-medium text-slate-100">Reading</div>
                   <div className="mt-1 text-xs text-slate-400">
                     Passages, question types, and practice sets
+                  </div>
+                </div>
+                <span className="mt-3 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
+                  Open
+                  <span className="ml-1 text-[10px]">→</span>
+                </span>
+              </Link>
+              <Link
+                href={speakingHref}
+                className="group flex flex-col justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
+              >
+                <div>
+                  <div className="text-sm font-medium text-slate-100">Speaking</div>
+                  <div className="mt-1 text-xs text-slate-400">
+                    Find a partner and practise real speaking sessions
                   </div>
                 </div>
                 <span className="mt-3 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
