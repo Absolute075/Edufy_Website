@@ -108,6 +108,31 @@ export async function middleware(request: NextRequest) {
   const rawHost = request.headers.get("host") || "";
   const host = rawHost.split(":")[0]?.toLowerCase() || "";
 
+  const apiCandidates = [
+    process.env.API_ORIGIN,
+    process.env.NEXT_PUBLIC_API_ORIGIN,
+    "http://127.0.0.1:8082",
+    request.nextUrl.origin,
+  ].filter((v): v is string => Boolean(v));
+
+  async function fetchFromApi(path: string, init: RequestInit): Promise<{ res: Response; base: string; url: URL }> {
+    let lastError: string | null = null;
+    for (const base of apiCandidates) {
+      try {
+        const url = new URL(path, base);
+        const res = await fetch(url, init);
+        if (res.status === 404 || res.status === 502 || res.status === 503) {
+          lastError = `upstream_${res.status}`;
+          continue;
+        }
+        return { res, base, url };
+      } catch (err: any) {
+        lastError = String(err?.message ?? err ?? "fetch failed").slice(0, 160);
+      }
+    }
+    throw new Error(lastError || "fetch failed");
+  }
+
   if (request.headers.get("x-edufy-middleware") === "1") {
     return NextResponse.next();
   }
@@ -267,20 +292,20 @@ export async function middleware(request: NextRequest) {
         let planResolved = false;
         let profileStatus: number | "error" | "skipped" = "skipped";
         let meStatus: number | "error" | "skipped" = "skipped";
-        const profileUrl = new URL("/user/profile", request.nextUrl);
-        const meUrl = new URL("/auth/me", request.nextUrl);
+        let profileBase = "";
+        let meBase = "";
         let profileError: string | null = null;
         let meError: string | null = null;
 
         try {
-          const profileRes = await fetch(profileUrl, {
+          const { res: profileRes, base } = await fetchFromApi("/user/profile", {
             headers: {
               Authorization: `Bearer ${accessToken}`,
               "x-edufy-middleware": "1",
             },
             cache: "no-store",
-            credentials: "include",
           });
+          profileBase = base;
 
           profileStatus = profileRes.status;
 
@@ -319,14 +344,14 @@ export async function middleware(request: NextRequest) {
 
         if (!planResolved) {
           try {
-            const meRes = await fetch(meUrl, {
+            const { res: meRes, base } = await fetchFromApi("/auth/me", {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "x-edufy-middleware": "1",
               },
               cache: "no-store",
-              credentials: "include",
             });
+            meBase = base;
 
             meStatus = meRes.status;
 
@@ -364,7 +389,7 @@ export async function middleware(request: NextRequest) {
           const res = NextResponse.redirect(billingUrl);
           res.headers.set(
             "X-Edufy-Plan-Debug",
-            `required=${requiredPlan}; user=${normalizePlan(userPlan)}; resolved=${planResolved ? "1" : "0"}; profile=${profileStatus}; me=${meStatus}; profileUrl=${profileUrl.pathname}; meUrl=${meUrl.pathname}; profileErr=${profileError ?? ""}; meErr=${meError ?? ""}`
+            `required=${requiredPlan}; user=${normalizePlan(userPlan)}; resolved=${planResolved ? "1" : "0"}; profile=${profileStatus}; me=${meStatus}; profileBase=${profileBase}; meBase=${meBase}; profileErr=${profileError ?? ""}; meErr=${meError ?? ""}`
           );
           return applyRobotsHeader(res, pathname, host);
         }
