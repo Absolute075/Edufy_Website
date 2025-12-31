@@ -266,6 +266,8 @@ export async function middleware(request: NextRequest) {
       if (requiredPlan !== "free") {
         let userPlan = "free";
         let planResolved = false;
+        let profileStatus: number | "error" | "skipped" = "skipped";
+        let meStatus: number | "error" | "skipped" = "skipped";
         try {
           const profileRes = await fetch(new URL("/user/profile", request.nextUrl), {
             headers: {
@@ -275,6 +277,8 @@ export async function middleware(request: NextRequest) {
             },
             cache: "no-store",
           });
+
+          profileStatus = profileRes.status;
 
           if (profileRes.status === 401 || profileRes.status === 403) {
             const loginUrl = request.nextUrl.clone();
@@ -293,6 +297,10 @@ export async function middleware(request: NextRequest) {
               body?.data?.plan ??
               body?.user?.plan ??
               body?.profile?.plan ??
+              body?.subscription?.plan ??
+              body?.data?.subscription?.plan ??
+              body?.user?.subscription?.plan ??
+              body?.profile?.subscription?.plan ??
               body?.subscriptionPlan ??
               body?.tariff;
             if (rawPlan !== undefined && rawPlan !== null && String(rawPlan).trim()) {
@@ -311,6 +319,8 @@ export async function middleware(request: NextRequest) {
               cache: "no-store",
             });
 
+            meStatus = meRes.status;
+
             if (meRes.ok) {
               const body = await meRes.json().catch(() => null as any);
               const rawPlan =
@@ -318,6 +328,10 @@ export async function middleware(request: NextRequest) {
                 body?.data?.plan ??
                 body?.user?.plan ??
                 body?.profile?.plan ??
+                body?.subscription?.plan ??
+                body?.data?.subscription?.plan ??
+                body?.user?.subscription?.plan ??
+                body?.profile?.subscription?.plan ??
                 body?.subscriptionPlan ??
                 body?.tariff;
               if (rawPlan !== undefined && rawPlan !== null && String(rawPlan).trim()) {
@@ -328,6 +342,8 @@ export async function middleware(request: NextRequest) {
           }
         } catch {
           userPlan = "free";
+          profileStatus = profileStatus === "skipped" ? "error" : profileStatus;
+          meStatus = meStatus === "skipped" ? "error" : meStatus;
         }
 
         if (!isPlanSufficient(normalizePlan(userPlan), requiredPlan)) {
@@ -337,7 +353,12 @@ export async function middleware(request: NextRequest) {
             const redirectTarget = pathname + (search || "");
             billingUrl.searchParams.set("redirect", redirectTarget);
           }
-          return applyRobotsHeader(NextResponse.redirect(billingUrl), pathname, host);
+          const res = NextResponse.redirect(billingUrl);
+          res.headers.set(
+            "X-Edufy-Plan-Debug",
+            `required=${requiredPlan}; user=${normalizePlan(userPlan)}; resolved=${planResolved ? "1" : "0"}; profile=${profileStatus}; me=${meStatus}`
+          );
+          return applyRobotsHeader(res, pathname, host);
         }
       }
     }
