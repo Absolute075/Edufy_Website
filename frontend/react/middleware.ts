@@ -267,8 +267,13 @@ export async function middleware(request: NextRequest) {
         let planResolved = false;
         let profileStatus: number | "error" | "skipped" = "skipped";
         let meStatus: number | "error" | "skipped" = "skipped";
+        const profileUrl = new URL("/user/profile", request.nextUrl);
+        const meUrl = new URL("/auth/me", request.nextUrl);
+        let profileError: string | null = null;
+        let meError: string | null = null;
+
         try {
-          const profileRes = await fetch(new URL("/user/profile", request.nextUrl), {
+          const profileRes = await fetch(profileUrl, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
               "x-edufy-middleware": "1",
@@ -307,9 +312,14 @@ export async function middleware(request: NextRequest) {
               planResolved = true;
             }
           }
+        } catch (err: any) {
+          profileStatus = "error";
+          profileError = String(err?.message ?? err ?? "error").slice(0, 160);
+        }
 
-          if (!planResolved) {
-            const meRes = await fetch(new URL("/auth/me", request.nextUrl), {
+        if (!planResolved) {
+          try {
+            const meRes = await fetch(meUrl, {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "x-edufy-middleware": "1",
@@ -338,11 +348,10 @@ export async function middleware(request: NextRequest) {
                 planResolved = true;
               }
             }
+          } catch (err: any) {
+            meStatus = "error";
+            meError = String(err?.message ?? err ?? "error").slice(0, 160);
           }
-        } catch {
-          userPlan = "free";
-          profileStatus = profileStatus === "skipped" ? "error" : profileStatus;
-          meStatus = meStatus === "skipped" ? "error" : meStatus;
         }
 
         if (!isPlanSufficient(normalizePlan(userPlan), requiredPlan)) {
@@ -355,7 +364,7 @@ export async function middleware(request: NextRequest) {
           const res = NextResponse.redirect(billingUrl);
           res.headers.set(
             "X-Edufy-Plan-Debug",
-            `required=${requiredPlan}; user=${normalizePlan(userPlan)}; resolved=${planResolved ? "1" : "0"}; profile=${profileStatus}; me=${meStatus}`
+            `required=${requiredPlan}; user=${normalizePlan(userPlan)}; resolved=${planResolved ? "1" : "0"}; profile=${profileStatus}; me=${meStatus}; profileUrl=${profileUrl.pathname}; meUrl=${meUrl.pathname}; profileErr=${profileError ?? ""}; meErr=${meError ?? ""}`
           );
           return applyRobotsHeader(res, pathname, host);
         }
