@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"encoding/json"
+	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -166,19 +168,29 @@ func accessTokenFromRequest(r *http.Request) string {
 func (m *AccessMiddleware) fetchUserPlan(accessToken string) (string, string, bool) {
 	base := strings.TrimRight(m.cfg.UserServiceURL, "/")
 	if base == "" {
+		log.Printf("file_service: fetchUserPlan: USER_SERVICE_URL is empty")
 		return "", "", false
 	}
 	req, err := http.NewRequest(http.MethodGet, base+"/user/profile", nil)
 	if err != nil {
+		log.Printf("file_service: fetchUserPlan: build request failed: %v", err)
 		return "", "", false
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 	resp, err := m.hc.Do(req)
 	if err != nil {
+		log.Printf("file_service: fetchUserPlan: request failed url=%s err=%v", base+"/user/profile", err)
 		return "", "", false
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
+		msg := strings.TrimSpace(string(b))
+		if msg != "" {
+			log.Printf("file_service: fetchUserPlan: non-200 from user service url=%s status=%d body=%q", base+"/user/profile", resp.StatusCode, msg)
+		} else {
+			log.Printf("file_service: fetchUserPlan: non-200 from user service url=%s status=%d", base+"/user/profile", resp.StatusCode)
+		}
 		return "", "", false
 	}
 	var payload struct {
@@ -186,6 +198,7 @@ func (m *AccessMiddleware) fetchUserPlan(accessToken string) (string, string, bo
 		Username string `json:"username"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+		log.Printf("file_service: fetchUserPlan: decode json failed url=%s err=%v", base+"/user/profile", err)
 		return "", "", false
 	}
 	plan := strings.ToLower(strings.TrimSpace(payload.Plan))
