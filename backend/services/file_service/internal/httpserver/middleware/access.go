@@ -33,7 +33,7 @@ func (m *AccessMiddleware) handle(c *gin.Context) {
 		return
 	}
 
-	isApiStyle := strings.HasPrefix(p, "/materials/sign") || strings.HasPrefix(p, "/materials/s/") || strings.HasPrefix(p, "/materials/manifest")
+	isApiStyle := strings.HasPrefix(p, "/materials/manifest")
 
 	// Require login on any materials access
 	accessToken := accessTokenFromRequest(c.Request)
@@ -93,40 +93,6 @@ func (m *AccessMiddleware) handle(c *gin.Context) {
 		c.Set("material_rel", rel)
 		c.Set("material_required_plan", required)
 		c.Set("material_user_plan", userPlan)
-	} else {
-		// Signed material access: /materials/s/:signed
-		signed := strings.TrimSpace(c.Param("signed"))
-		if signed != "" {
-			rel, ok := materials.VerifyMaterialAccessToken(m.cfg.LinkSigningSecret, signed, userName, time.Now().UTC().Unix())
-			if !ok {
-				c.AbortWithStatus(http.StatusNotFound)
-				return
-			}
-			item, found := m.svc.FindByID(rel)
-			if !found || item == nil || !item.Active {
-				c.AbortWithStatus(http.StatusNotFound)
-				return
-			}
-			required := strings.ToLower(strings.TrimSpace(item.RequiredPlan))
-			if required == "" {
-				required = "free"
-			}
-			if !planAllows(userPlan, required) {
-				if isApiStyle {
-					c.AbortWithStatus(http.StatusForbidden)
-					return
-				}
-				c.Redirect(http.StatusFound, m.cfg.UpgradeRedirectURL)
-				c.Abort()
-				return
-			}
-			c.Set("material_rel", rel)
-			c.Set("material_required_plan", required)
-			c.Set("material_user_plan", userPlan)
-			c.Next()
-			return
-		}
-
 	}
 
 	c.Next()

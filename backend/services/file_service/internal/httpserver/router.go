@@ -57,7 +57,6 @@ func NewRouter(cfg config.Config) *gin.Engine {
 	mg.Use(middleware.NewAccessMiddleware(cfg, service))
 
 	mg.GET("/manifest", h.Manifest)
-	mg.GET("/sign", h.Sign)
 
 	serveResolved := func(c *gin.Context) {
 		relAny, ok := c.Get("material_rel")
@@ -81,8 +80,6 @@ func NewRouter(cfg config.Config) *gin.Engine {
 	mg.GET("/t/:token", serveResolved)
 
 	mg.GET("/:category/:token", serveResolved)
-
-	mg.GET("/s/:signed", serveResolved)
 
 	// Optionally expose other public assets if needed (not materials)
 	// r.Static("/static", cfg.PublicDir)
