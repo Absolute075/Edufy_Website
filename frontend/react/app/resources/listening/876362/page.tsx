@@ -106,7 +106,7 @@ export default function ListeningTest876362Page() {
   const [availableAudioSources, setAvailableAudioSources] = useState<string[]>([]);
 
   const signRel = async (rel: string): Promise<{ url: string | null; forbidden: boolean }> => {
-    const endpoints = ["/materials-sign", "/__materials_sign", "/api/materials/sign"];
+    const endpoints = ["/resources/materials-sign", "/materials-sign", "/__materials_sign", "/api/materials/sign"];
     for (const ep of endpoints) {
       try {
         const res = await fetch(`${ep}?rel=${encodeURIComponent(rel)}`, {
