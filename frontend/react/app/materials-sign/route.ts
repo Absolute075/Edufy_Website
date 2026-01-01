@@ -42,6 +42,18 @@ export async function GET(request: Request) {
         cache: 'no-store',
       });
 
+      if (res.status === 401 || res.status === 403) {
+        return NextResponse.json(
+          { error: res.status === 401 ? 'unauthorized' : 'forbidden' },
+          {
+            status: res.status,
+            headers: {
+              'Cache-Control': 'no-store',
+            },
+          },
+        );
+      }
+
       const contentType = res.headers.get('content-type') || '';
       const text = await res.text().catch(() => '');
 
