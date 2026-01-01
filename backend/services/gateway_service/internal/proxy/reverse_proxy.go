@@ -23,6 +23,9 @@ func ServiceProxy(target string, basePath string) gin.HandlerFunc {
 
 		// корректный путь на целевой сервис
 		c.Request.URL.Path = basePath + c.Param("path")
+		// IMPORTANT: rewrite Host header to upstream host.
+		// Some upstream servers (e.g., Tomcat) reject invalid hostnames like "gateway_service" (underscore).
+		c.Request.Host = targetURL.Host
 
 		// Пробрасываем реальный IP клиента в заголовках
 		clientIP := c.ClientIP()
@@ -80,6 +83,8 @@ func ServiceProxyWithUserHeaders(target string, basePath string) gin.HandlerFunc
 		proxy := httputil.NewSingleHostReverseProxy(targetURL)
 
 		c.Request.URL.Path = basePath + c.Param("path")
+		// Rewrite Host header to upstream to avoid invalid hostnames being forwarded.
+		c.Request.Host = targetURL.Host
 
 		authHeader := ensureAuthorizationFromCookie(c)
 		if authHeader == "" {
