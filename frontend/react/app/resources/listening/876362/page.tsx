@@ -3669,7 +3669,7 @@ export default function ListeningTest876362Page() {
 
       <audio
         ref={audioRef}
-        onEnded={submitted ? undefined : handleAudioEnded}
+        onEnded={submitted ? undefined : () => setPlayerIsPlaying(false)}
         crossOrigin="use-credentials"
         preload="auto"
         style={{ display: "none" }}
