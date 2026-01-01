@@ -147,6 +147,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  if (
+    pathname === "/resources/materials-sign" ||
+    pathname.startsWith("/resources/materials-sign/") ||
+    pathname === "/materials-sign" ||
+    pathname.startsWith("/materials-sign/") ||
+    pathname === "/__materials_sign" ||
+    pathname.startsWith("/__materials_sign/")
+  ) {
+    return NextResponse.next();
+  }
+
   // Only enforce auth redirects on real production domains.
   // Keep localhost / non-edufyuzbekistan hosts free for local development and previews.
   const isProdHost = host.endsWith("edufyuzbekistan.com");
