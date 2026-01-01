@@ -75,11 +75,11 @@ func (m *AccessMiddleware) handle(c *gin.Context) {
 		c.Set("material_required_plan", required)
 		c.Set("material_user_plan", userPlan)
 	} else {
-		// Direct file path under /materials/:category/*path
-		path := strings.TrimSpace(c.Param("path"))
-		path = strings.TrimPrefix(path, "/")
-		if category != "" && path != "" {
-			id := strings.ToLower(strings.TrimSpace(category)) + "/" + path
+		// Direct listening file path under /materials/listening/:listeningId/:file
+		listeningId := strings.TrimSpace(c.Param("listeningId"))
+		file := strings.TrimSpace(c.Param("file"))
+		if listeningId != "" && file != "" {
+			id := "listening/" + listeningId + "/" + file
 			item, found := m.svc.FindByID(id)
 			if !found || item == nil || !item.Active {
 				c.AbortWithStatus(http.StatusNotFound)

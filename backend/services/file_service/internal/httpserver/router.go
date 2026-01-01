@@ -68,9 +68,9 @@ func NewRouter(cfg config.Config) *gin.Engine {
 	// Legacy tokenized access: /materials/:category/:token
 	mg.GET("/:category/:token", serveResolved)
 
-	// Direct file path under category (protected by AccessMiddleware):
-	// /materials/:category/*path
-	mg.GET("/:category/*path", serveResolved)
+	// Direct listening file path (protected by AccessMiddleware):
+	// /materials/listening/:listeningId/:file
+	mg.GET("/listening/:listeningId/:file", serveResolved)
 
 	// Optionally expose other public assets if needed (not materials)
 	// r.Static("/static", cfg.PublicDir)
