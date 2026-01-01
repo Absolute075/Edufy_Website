@@ -44,7 +44,13 @@ func Load() Config {
 	adminToken := getenv("REINDEX_ADMIN_TOKEN", "")
 	defPlan := getenv("DEFAULT_REQUIRED_PLAN", "free")
 	linkSecret := getenv("LINK_SIGNING_SECRET", "")
+	if linkSecret == "" {
+		linkSecret = getenv("MATERIAL_SIGNING_SECRET", "")
+	}
 	linkTTL := getinti("LINK_TTL_SECONDS", 120)
+	if os.Getenv("LINK_TTL_SECONDS") == "" {
+		linkTTL = getinti("MATERIAL_SIGN_TTL_SECONDS", linkTTL)
+	}
 	tokenSecret := getenv("MATERIAL_TOKEN_SECRET", "edufy_material_token_secret")
 	requireSigned := getbool("LISTENING_REQUIRE_SIGNED", false)
 	return Config{
