@@ -64,6 +64,11 @@ func (h *Handler) Sign(c *gin.Context) {
 	}
 	exp := time.Now().UTC().Add(time.Duration(ttl) * time.Second).Unix()
 
+	if strings.TrimSpace(h.cfg.LinkSigningSecret) == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "missing_signing_secret"})
+		return
+	}
+
 	tok, ok := SignMaterialAccessToken(h.cfg.LinkSigningSecret, rel, userName, exp)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "sign_error"})
