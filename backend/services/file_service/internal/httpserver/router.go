@@ -21,7 +21,7 @@ func NewRouter(cfg config.Config) *gin.Engine {
 
 	// Materials feature
 	service := materials.NewServiceWithConfig(cfg)
-	h := materials.NewHandler(service)
+	h := materials.NewHandlerWithConfig(cfg, service)
 
 	// Manual reindex endpoint (admin)
 	r.POST("/materials/reindex", func(c *gin.Context) {
@@ -42,6 +42,7 @@ func NewRouter(cfg config.Config) *gin.Engine {
 	mg.Use(middleware.NewAccessMiddleware(cfg, service))
 
 	mg.GET("/manifest", h.Manifest)
+	mg.GET("/sign", h.Sign)
 
 	serveResolved := func(c *gin.Context) {
 		relAny, ok := c.Get("material_rel")
@@ -62,15 +63,11 @@ func NewRouter(cfg config.Config) *gin.Engine {
 		c.File(filepath.Join(baseDir, filepath.FromSlash(rel)))
 	}
 
-	// Tokenized permanent material access: /materials/t/:token
 	mg.GET("/t/:token", serveResolved)
 
-	// Legacy tokenized access: /materials/:category/:token
 	mg.GET("/:category/:token", serveResolved)
 
-	// Direct listening file path (protected by AccessMiddleware):
-	// /materials/listening/:listeningId/:file
-	mg.GET("/listening/:listeningId/:file", serveResolved)
+	mg.GET("/s/:signed", serveResolved)
 
 	// Optionally expose other public assets if needed (not materials)
 	// r.Static("/static", cfg.PublicDir)

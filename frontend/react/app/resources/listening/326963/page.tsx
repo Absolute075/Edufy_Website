@@ -728,70 +728,42 @@ export default function ListeningTest326963Page() {
     });
   }, [answers]);
 
-  const audioBaseUrl = (process.env.NEXT_PUBLIC_LISTENING_AUDIO_BASE_URL ?? "").replace(
-    /\/$/,
-    ""
-  );
-
-  const audioDir = useMemo(() => {
-    if (!audioBaseUrl) return "";
-    const endsWithId = audioBaseUrl.endsWith(`/${listeningId}`);
-    if (endsWithId) return audioBaseUrl;
-    return `${audioBaseUrl}/${listeningId}`;
-  }, [audioBaseUrl, listeningId]);
-
-  const checkAudioExists = async (url: string) => {
-    return await new Promise<boolean>((resolve) => {
-      try {
-        const probe = new Audio();
-        probe.preload = "metadata";
-        probe.src = url;
-
-        let done = false;
-        const finish = (ok: boolean) => {
-          if (done) return;
-          done = true;
-          clearTimeout(timer);
-          probe.removeEventListener("loadedmetadata", onOk);
-          probe.removeEventListener("canplay", onOk);
-          probe.removeEventListener("error", onErr);
-          resolve(ok);
-        };
-
-        const onOk = () => finish(true);
-        const onErr = () => finish(false);
-
-        probe.addEventListener("loadedmetadata", onOk);
-        probe.addEventListener("canplay", onOk);
-        probe.addEventListener("error", onErr);
-
-        const timer = window.setTimeout(() => finish(false), 4500);
-        probe.load();
-      } catch {
-        resolve(false);
-      }
-    });
+  const signRel = async (rel: string): Promise<{ url: string | null; forbidden: boolean }> => {
+    try {
+      const res = await fetch(`/api/materials/sign?rel=${encodeURIComponent(rel)}`, {
+        cache: "no-store",
+      });
+      if (res.status === 403) return { url: null, forbidden: true };
+      if (!res.ok) return { url: null, forbidden: false };
+      const data = (await res.json().catch(() => null)) as any;
+      const url = typeof data?.url === "string" ? data.url : null;
+      return { url, forbidden: false };
+    } catch {
+      return { url: null, forbidden: false };
+    }
   };
 
   useEffect(() => {
     let cancelled = false;
 
     const run = async () => {
-      if (!audioDir) {
-        setAvailableAudioSources([]);
-        return;
-      }
-
-      const urls = [1, 2, 3, 4].map((i) => `${audioDir}/section${i}.mp3`);
-      const results = await Promise.all(urls.map((u) => checkAudioExists(u)));
+      const relPrefix = `listening/${listeningId}/`;
       const found: string[] = [];
-      for (let i = 0; i < urls.length; i++) {
-        if (!results[i]) break;
-        found.push(urls[i]);
+
+      for (let i = 1; i <= 4; i++) {
+        // eslint-disable-next-line no-await-in-loop
+        const { url, forbidden } = await signRel(`${relPrefix}section${i}.mp3`);
+        if (forbidden) {
+          const redirectPath = `${userPrefix}/resources/listening/${listeningId}`;
+          router.push(`${userPrefix}/billing?redirect=${encodeURIComponent(redirectPath)}`);
+          return;
+        }
+        if (!url) break;
+        found.push(url);
       }
 
       if (found.length === 0) {
-        const fullCandidates = [
+        const fullNames = [
           "full.mp3",
           "full-test.mp3",
           "full-listening-test.mp3",
@@ -800,13 +772,17 @@ export default function ListeningTest326963Page() {
           "full-listening-test-3.mp3",
           "full-listening-test-4.mp3",
           "full-listening-test-5.mp3",
-        ].map((name) => `${audioDir}/${name}`);
-
-        for (const u of fullCandidates) {
+        ];
+        for (const name of fullNames) {
           // eslint-disable-next-line no-await-in-loop
-          const ok = await checkAudioExists(u);
-          if (ok) {
-            found.push(u);
+          const { url, forbidden } = await signRel(`${relPrefix}${name}`);
+          if (forbidden) {
+            const redirectPath = `${userPrefix}/resources/listening/${listeningId}`;
+            router.push(`${userPrefix}/billing?redirect=${encodeURIComponent(redirectPath)}`);
+            return;
+          }
+          if (url) {
+            found.push(url);
             break;
           }
         }
@@ -819,7 +795,7 @@ export default function ListeningTest326963Page() {
     return () => {
       cancelled = true;
     };
-  }, [audioDir]);
+  }, [listeningId, userPrefix, router]);
 
   const startAudioAtIndex = (index: number) => {
     const audioEl = audioRef.current;
@@ -3659,8 +3635,7 @@ export default function ListeningTest326963Page() {
                 const audioEl = audioRef.current;
                 if (!audioEl) return;
 
-                const firstUrl =
-                  availableAudioSources[0] ?? (audioDir ? `${audioDir}/section1.mp3` : "");
+                const firstUrl = availableAudioSources[0] ?? "";
                 if (!firstUrl) return;
 
                 setCurrentAudioIndex(0);
