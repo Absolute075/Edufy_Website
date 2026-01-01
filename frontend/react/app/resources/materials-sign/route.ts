@@ -17,11 +17,11 @@ export async function GET(request: Request) {
   })();
 
   const candidates = [
+    'http://127.0.0.1:8084',
+    'http://127.0.0.1:8082',
     process.env.MATERIALS_API_ORIGIN,
     process.env.API_ORIGIN,
     process.env.NEXT_PUBLIC_API_ORIGIN,
-    'http://127.0.0.1:8084',
-    'http://127.0.0.1:8082',
     requestOrigin,
   ].filter((v): v is string => Boolean(v));
 
@@ -43,15 +43,20 @@ export async function GET(request: Request) {
       });
 
       if (res.status === 401 || res.status === 403) {
-        return NextResponse.json(
-          { error: res.status === 401 ? 'unauthorized' : 'forbidden' },
-          {
-            status: res.status,
-            headers: {
-              'Cache-Control': 'no-store',
+        const isLocal = base.startsWith('http://127.0.0.1') || base.startsWith('http://localhost');
+        if (isLocal) {
+          return NextResponse.json(
+            { error: res.status === 401 ? 'unauthorized' : 'forbidden' },
+            {
+              status: res.status,
+              headers: {
+                'Cache-Control': 'no-store',
+              },
             },
-          },
-        );
+          );
+        }
+        lastError = `upstream_${res.status}`;
+        continue;
       }
 
       const contentType = res.headers.get('content-type') || '';
