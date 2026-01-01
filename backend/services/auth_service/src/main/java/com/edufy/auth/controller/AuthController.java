@@ -20,6 +20,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -417,8 +418,32 @@ public class AuthController {
 
     // Обновление токена
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refresh(@RequestBody RefreshRequest request) {
-        TokenResponse tokenResponse = authService.refresh(request);
+    public ResponseEntity<?> refresh(@RequestBody(required = false) RefreshRequest request, HttpServletRequest httpRequest) {
+        String refreshToken = request != null ? request.getRefreshToken() : null;
+        if (refreshToken == null || refreshToken.isBlank()) {
+            if (httpRequest.getCookies() != null) {
+                for (Cookie c : httpRequest.getCookies()) {
+                    if ("refreshToken".equals(c.getName())) {
+                        refreshToken = c.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+
+        RefreshRequest effective = new RefreshRequest();
+        effective.setRefreshToken(refreshToken);
+
+        TokenResponse tokenResponse;
+        try {
+            tokenResponse = authService.refresh(effective);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid refresh token"));
+        }
         if (tokenResponse.getAccessToken() == null) {
             return ResponseEntity.badRequest().body(tokenResponse);
         }

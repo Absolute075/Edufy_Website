@@ -732,9 +732,28 @@ export default function ListeningTest846376Page() {
     const endpoints = ["/resources/materials-sign", "/materials-sign", "/__materials_sign", "/api/materials/sign"];
     for (const ep of endpoints) {
       try {
-        const res = await fetch(`${ep}?rel=${encodeURIComponent(rel)}`, {
+        let res = await fetch(`${ep}?rel=${encodeURIComponent(rel)}`, {
           cache: "no-store",
+          credentials: "include",
         });
+
+        if (res.status === 401) {
+          try {
+            const r = await fetch("/auth/refresh", {
+              method: "POST",
+              credentials: "include",
+              cache: "no-store",
+            });
+            if (r.ok) {
+              res = await fetch(`${ep}?rel=${encodeURIComponent(rel)}`, {
+                cache: "no-store",
+                credentials: "include",
+              });
+            }
+          } catch {
+            // ignore refresh failures
+          }
+        }
         if (res.status === 403) return { url: null, forbidden: true };
         if (!res.ok) continue;
         const data = (await res.json().catch(() => null)) as any;
