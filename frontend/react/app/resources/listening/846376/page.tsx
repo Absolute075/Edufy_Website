@@ -750,17 +750,19 @@ export default function ListeningTest846376Page() {
       const relPrefix = `listening/${listeningId}/`;
       const found: string[] = [];
 
-      // section1..section4
-      for (let i = 1; i <= 4; i++) {
-        // eslint-disable-next-line no-await-in-loop
-        const { url, forbidden } = await signRel(`${relPrefix}section${i}.mp3`);
-        if (forbidden) {
-          const redirectPath = `${userPrefix}/resources/listening/${listeningId}`;
-          router.push(`${userPrefix}/billing?redirect=${encodeURIComponent(redirectPath)}`);
-          return;
-        }
-        if (!url) break;
-        found.push(url);
+      const sectionResults = await Promise.all(
+        [1, 2, 3, 4].map((i) => signRel(`${relPrefix}section${i}.mp3`))
+      );
+
+      if (sectionResults.some((r) => r.forbidden)) {
+        const redirectPath = `${userPrefix}/resources/listening/${listeningId}`;
+        router.push(`${userPrefix}/billing?redirect=${encodeURIComponent(redirectPath)}`);
+        return;
+      }
+
+      for (const r of sectionResults) {
+        if (!r.url) break;
+        found.push(r.url);
       }
 
       // full*.mp3 fallback
