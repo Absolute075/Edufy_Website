@@ -19,6 +19,8 @@ export async function GET(request: Request) {
   const candidates = [
     'http://127.0.0.1:8084',
     'http://127.0.0.1:8082',
+    'http://file_service:8080',
+    'http://gateway_service:8080',
     process.env.MATERIALS_API_ORIGIN,
     process.env.API_ORIGIN,
     process.env.NEXT_PUBLIC_API_ORIGIN,
@@ -41,6 +43,11 @@ export async function GET(request: Request) {
         },
         cache: 'no-store',
       });
+
+      if (res.status === 404) {
+        lastError = 'upstream_404';
+        continue;
+      }
 
       if (res.status === 401 || res.status === 403) {
         const isLocal = base.startsWith('http://127.0.0.1') || base.startsWith('http://localhost');
