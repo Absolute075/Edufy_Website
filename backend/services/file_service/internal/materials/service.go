@@ -61,7 +61,7 @@ func (s *service) GetManifest() (*Manifest, error) {
 }
 
 func (s *service) Reindex() error {
-	if s.cfg.MaterialsDir == "" || s.cfg.ResourcesBase == "" {
+	if s.cfg.MaterialsDir == "" {
 		// nothing to scan; keep current
 		return nil
 	}

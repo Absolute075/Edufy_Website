@@ -28,7 +28,6 @@ func (h *Handler) Manifest(c *gin.Context) {
 }
 
 func (h *Handler) Sign(c *gin.Context) {
-	// Requires AccessMiddleware (login), which sets user_plan + user_name.
 	planAny, _ := c.Get("user_plan")
 	userPlan, _ := planAny.(string)
 	userPlan = strings.ToLower(strings.TrimSpace(userPlan))
