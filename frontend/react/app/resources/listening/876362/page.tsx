@@ -106,41 +106,16 @@ export default function ListeningTest876362Page() {
   const [availableAudioSources, setAvailableAudioSources] = useState<string[]>([]);
 
   const signRel = async (rel: string): Promise<{ url: string | null; forbidden: boolean }> => {
-    const endpoints = ["/resources/materials-sign", "/materials-sign", "/__materials_sign", "/api/materials/sign"];
-    for (const ep of endpoints) {
-      try {
-        let res = await fetch(`${ep}?rel=${encodeURIComponent(rel)}`, {
-          cache: "no-store",
-          credentials: "include",
-        });
+    const baseRaw =
+      process.env.NEXT_PUBLIC_LISTENING_AUDIO_BASE_URL ||
+      "https://resources.edufyuzbekistan.com/materials/listening";
+    const base = String(baseRaw).replace(/\/+$/, "");
+    const cleaned = String(rel || "").trim().replace(/^\/+/, "");
+    if (!cleaned) return { url: null, forbidden: false };
 
-        if (res.status === 401) {
-          try {
-            const r = await fetch("/auth/refresh", {
-              method: "POST",
-              credentials: "include",
-              cache: "no-store",
-            });
-            if (r.ok) {
-              res = await fetch(`${ep}?rel=${encodeURIComponent(rel)}`, {
-                cache: "no-store",
-                credentials: "include",
-              });
-            }
-          } catch {
-            // ignore refresh failures
-          }
-        }
-        if (res.status === 403) return { url: null, forbidden: true };
-        if (!res.ok) continue;
-        const data = (await res.json().catch(() => null)) as any;
-        const url = typeof data?.url === "string" ? data.url : null;
-        return { url, forbidden: false };
-      } catch {
-        // try next endpoint
-      }
-    }
-    return { url: null, forbidden: false };
+    const prefix = "listening/";
+    const tail = cleaned.toLowerCase().startsWith(prefix) ? cleaned.slice(prefix.length) : cleaned;
+    return { url: `${base}/${tail}`, forbidden: false };
   };
 
   const [playerSection, setPlayerSection] = useState(1);
@@ -3670,7 +3645,6 @@ export default function ListeningTest876362Page() {
       <audio
         ref={audioRef}
         onEnded={submitted ? undefined : () => setPlayerIsPlaying(false)}
-        crossOrigin="use-credentials"
         preload="auto"
         style={{ display: "none" }}
       />

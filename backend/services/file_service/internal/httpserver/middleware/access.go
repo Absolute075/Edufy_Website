@@ -65,10 +65,6 @@ func (m *AccessMiddleware) handle(c *gin.Context) {
 	category := strings.TrimSpace(c.Param("category"))
 	token := strings.TrimSpace(c.Param("token"))
 	if token != "" {
-		if m.cfg.ListeningRequireSigned && strings.ToLower(strings.TrimSpace(category)) == "listening" {
-			c.AbortWithStatus(http.StatusNotFound)
-			return
-		}
 		var rel string
 		var item *materials.ManifestItem
 		var found bool
@@ -80,14 +76,6 @@ func (m *AccessMiddleware) handle(c *gin.Context) {
 		if !found || item == nil || !item.Active {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
-		}
-		if m.cfg.ListeningRequireSigned {
-			relLower := strings.ToLower(strings.TrimSpace(rel))
-			catLower := strings.ToLower(strings.TrimSpace(item.Category))
-			if strings.HasPrefix(relLower, "listening/") || catLower == "listening" {
-				c.AbortWithStatus(http.StatusNotFound)
-				return
-			}
 		}
 		required := strings.ToLower(strings.TrimSpace(item.RequiredPlan))
 		if required == "" {
@@ -139,11 +127,6 @@ func (m *AccessMiddleware) handle(c *gin.Context) {
 			return
 		}
 
-		// Direct listening route disabled when LISTENING_REQUIRE_SIGNED is enabled.
-		if m.cfg.ListeningRequireSigned && strings.HasPrefix(strings.ToLower(p), "/materials/listening/") {
-			c.AbortWithStatus(http.StatusNotFound)
-			return
-		}
 	}
 
 	c.Next()

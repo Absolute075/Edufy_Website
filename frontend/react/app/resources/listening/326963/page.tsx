@@ -3620,7 +3620,6 @@ export default function ListeningTest326963Page() {
       <audio
         ref={audioRef}
         onEnded={submitted ? undefined : handleAudioEnded}
-        crossOrigin="use-credentials"
         preload="auto"
         style={{ display: "none" }}
       />
