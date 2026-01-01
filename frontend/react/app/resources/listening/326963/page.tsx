@@ -729,18 +729,22 @@ export default function ListeningTest326963Page() {
   }, [answers]);
 
   const signRel = async (rel: string): Promise<{ url: string | null; forbidden: boolean }> => {
-    try {
-      const res = await fetch(`/api/materials/sign?rel=${encodeURIComponent(rel)}`, {
-        cache: "no-store",
-      });
-      if (res.status === 403) return { url: null, forbidden: true };
-      if (!res.ok) return { url: null, forbidden: false };
-      const data = (await res.json().catch(() => null)) as any;
-      const url = typeof data?.url === "string" ? data.url : null;
-      return { url, forbidden: false };
-    } catch {
-      return { url: null, forbidden: false };
+    const endpoints = ["/__materials_sign", "/api/materials/sign"];
+    for (const ep of endpoints) {
+      try {
+        const res = await fetch(`${ep}?rel=${encodeURIComponent(rel)}`, {
+          cache: "no-store",
+        });
+        if (res.status === 403) return { url: null, forbidden: true };
+        if (!res.ok) continue;
+        const data = (await res.json().catch(() => null)) as any;
+        const url = typeof data?.url === "string" ? data.url : null;
+        return { url, forbidden: false };
+      } catch {
+        // try next endpoint
+      }
     }
+    return { url: null, forbidden: false };
   };
 
   useEffect(() => {
