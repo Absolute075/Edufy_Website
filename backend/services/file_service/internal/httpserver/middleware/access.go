@@ -33,7 +33,7 @@ func (m *AccessMiddleware) handle(c *gin.Context) {
 		return
 	}
 
-	isApiStyle := strings.HasPrefix(p, "/materials/sign") || strings.HasPrefix(p, "/materials/s/")
+	isApiStyle := strings.HasPrefix(p, "/materials/sign") || strings.HasPrefix(p, "/materials/s/") || strings.HasPrefix(p, "/materials/manifest")
 
 	// Require login on any materials access
 	accessToken := accessTokenFromRequest(c.Request)

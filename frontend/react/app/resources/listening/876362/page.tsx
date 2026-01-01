@@ -3667,7 +3667,13 @@ export default function ListeningTest876362Page() {
 
       </main>
 
-      <audio ref={audioRef} preload="auto" style={{ display: "none" }} />
+      <audio
+        ref={audioRef}
+        onEnded={submitted ? undefined : handleAudioEnded}
+        crossOrigin="use-credentials"
+        preload="auto"
+        style={{ display: "none" }}
+      />
 
       {!hasStarted ? (
         <div className="intro-overlay">
