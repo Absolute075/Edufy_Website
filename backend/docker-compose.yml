@@ -87,26 +87,27 @@ services:
       - "8084:8080" # 8084 внешний порт docker, 8080 внутренний порт
     environment:
       - PORT=8080
-      - USER_SERVICE_URL=http://userservice:8080
+      - USER_SERVICE_URL=${USER_SERVICE_URL:-http://gateway_service:8080}
       - REDIS_HOST=cache_service
       - REDIS_PORT=6379
       - REDIS_URL=redis://cache_service:6379
-      - RESOURCES_BASE=https://resources.edufyuzbekistan.com
-      - LOGIN_REDIRECT_URL=https://access.edufyuzbekistan.com/login
-      - UPGRADE_REDIRECT_URL=https://edufyuzbekistan.com/pricing
-      - MATERIAL_TOKEN_SECRET=edufy_material_token_secret
-      - MATERIALS_DIR=/materials
-      - AUTOSCAN_SECONDS=5
-      - DEFAULT_REQUIRED_PLAN=free
-      - PLAN_DEFAULT_READING=free
-      - PLAN_DEFAULT_LISTENING=premium
-      - PLAN_DEFAULT_SPEAKING=premium
-      - PLAN_DEFAULT_WRITING=premium
-      - PLAN_DEFAULT_MOCK=premium
-      - OVERRIDES_PATH=/app/public/materials/overrides.json
-      - REINDEX_ADMIN_TOKEN=edufy
-      - LINK_TTL_SECONDS=120
-      - LINK_SIGNING_SECRET=
+      - RESOURCES_BASE=${RESOURCES_BASE:-https://resources.edufyuzbekistan.com}
+      - LOGIN_REDIRECT_URL=${LOGIN_REDIRECT_URL:-https://access.edufyuzbekistan.com/login}
+      - UPGRADE_REDIRECT_URL=${UPGRADE_REDIRECT_URL:-https://edufyuzbekistan.com/pricing}
+      - MATERIAL_TOKEN_SECRET=${MATERIAL_TOKEN_SECRET:-edufy_material_token_secret}
+      - MATERIALS_DIR=${MATERIALS_DIR:-/materials}
+      - AUTOSCAN_SECONDS=${AUTOSCAN_SECONDS:-5}
+      - DEFAULT_REQUIRED_PLAN=${DEFAULT_REQUIRED_PLAN:-free}
+      - PLAN_DEFAULT_READING=${PLAN_DEFAULT_READING:-free}
+      - PLAN_DEFAULT_LISTENING=${PLAN_DEFAULT_LISTENING:-premium}
+      - PLAN_DEFAULT_SPEAKING=${PLAN_DEFAULT_SPEAKING:-premium}
+      - PLAN_DEFAULT_WRITING=${PLAN_DEFAULT_WRITING:-premium}
+      - PLAN_DEFAULT_MOCK=${PLAN_DEFAULT_MOCK:-premium}
+      - OVERRIDES_PATH=${OVERRIDES_PATH:-/app/public/materials/overrides.json}
+      - REINDEX_ADMIN_TOKEN=${REINDEX_ADMIN_TOKEN:-edufy}
+      - LINK_TTL_SECONDS=${LINK_TTL_SECONDS:-120}
+      - LINK_SIGNING_SECRET=${LINK_SIGNING_SECRET:-}
+      - LISTENING_REQUIRE_SIGNED=${LISTENING_REQUIRE_SIGNED:-false}
     env_file:
       .env
     volumes:
