@@ -3,6 +3,7 @@ package proxy
 import (
 	"encoding/base64"
 	"encoding/json"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -25,7 +26,7 @@ func ServiceProxy(target string, basePath string) gin.HandlerFunc {
 		c.Request.URL.Path = basePath + c.Param("path")
 		// IMPORTANT: rewrite Host header to upstream host.
 		// Some upstream servers (e.g., Tomcat) reject invalid hostnames like "gateway_service" (underscore).
-		c.Request.Host = targetURL.Host
+		c.Request.Host = sanitizeHost(targetURL.Host)
 
 		// Пробрасываем реальный IP клиента в заголовках
 		clientIP := c.ClientIP()
@@ -57,6 +58,24 @@ func ServiceProxy(target string, basePath string) gin.HandlerFunc {
 	}
 }
 
+func sanitizeHost(hostport string) string {
+	if hostport == "" {
+		return hostport
+	}
+	// Preserve port if present; only sanitize hostname.
+	host := hostport
+	port := ""
+	if h, p, err := net.SplitHostPort(hostport); err == nil {
+		host = h
+		port = p
+	}
+	host = strings.ReplaceAll(host, "_", "-")
+	if port != "" {
+		return net.JoinHostPort(host, port)
+	}
+	return host
+}
+
 func ensureAuthorizationFromCookie(c *gin.Context) string {
 	if c == nil || c.Request == nil {
 		return ""
@@ -84,7 +103,7 @@ func ServiceProxyWithUserHeaders(target string, basePath string) gin.HandlerFunc
 
 		c.Request.URL.Path = basePath + c.Param("path")
 		// Rewrite Host header to upstream to avoid invalid hostnames being forwarded.
-		c.Request.Host = targetURL.Host
+		c.Request.Host = sanitizeHost(targetURL.Host)
 
 		authHeader := ensureAuthorizationFromCookie(c)
 		if authHeader == "" {
