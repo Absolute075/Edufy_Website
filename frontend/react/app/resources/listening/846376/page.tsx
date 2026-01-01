@@ -790,6 +790,34 @@ export default function ListeningTest846376Page() {
         found.push(urls[i]);
       }
 
+
+
+
+
+
+
+      if (found.length === 0) {
+        const fullCandidates = [
+          "full.mp3",
+          "full-test.mp3",
+          "full-listening-test.mp3",
+          "full-listening-test-1.mp3",
+          "full-listening-test-2.mp3",
+          "full-listening-test-3.mp3",
+          "full-listening-test-4.mp3",
+          "full-listening-test-5.mp3",
+        ].map((name) => `${audioDir}/${name}`);
+
+        for (const u of fullCandidates) {
+          // eslint-disable-next-line no-await-in-loop
+          const ok = await checkAudioExists(u);
+          if (ok) {
+            found.push(u);
+            break;
+          }
+        }
+      }
+
       if (!cancelled) setAvailableAudioSources(found);
     };
 
