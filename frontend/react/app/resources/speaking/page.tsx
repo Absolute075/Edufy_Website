@@ -21,11 +21,11 @@ export default function SpeakingResourcesPage() {
 
           <div className="mt-5 rounded-xl border border-neutral-800 bg-neutral-950 p-5">
             <div className="text-sm font-medium text-slate-100">Telegram group</div>
-            <div className="mt-1 break-all text-sm text-slate-300">https://t.me/englishchatting2025</div>
+            <div className="mt-1 break-all text-sm text-slate-300">https://t.me/englishchatting2026</div>
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <a
-                href="https://t.me/englishchatting2025"
+                href="https://t.me/englishchatting2026"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-slate-200"
@@ -36,7 +36,7 @@ export default function SpeakingResourcesPage() {
                 type="button"
                 onClick={async () => {
                   try {
-                    await navigator.clipboard.writeText("https://t.me/englishchatting2025");
+                    await navigator.clipboard.writeText("https://t.me/englishchatting2026");
                   } catch {}
                 }}
                 className="inline-flex items-center rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2 text-sm font-semibold text-slate-100 transition-colors hover:border-slate-400 hover:bg-neutral-900"

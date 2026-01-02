@@ -344,6 +344,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "978552": {
+      requiredPlan: "premium",
+      title: "Language Strategy in Multinational Company",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 14,
+    },
   },
   listening: {
     "846376": {
