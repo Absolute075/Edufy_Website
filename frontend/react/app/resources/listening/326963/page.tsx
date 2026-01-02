@@ -729,41 +729,25 @@ export default function ListeningTest326963Page() {
   }, [answers]);
 
   const signRel = async (rel: string): Promise<{ url: string | null; forbidden: boolean }> => {
-    const endpoints = ["/resources/materials-sign", "/materials-sign", "/__materials_sign", "/api/materials/sign"];
-    for (const ep of endpoints) {
-      try {
-        let res = await fetch(`${ep}?rel=${encodeURIComponent(rel)}`, {
-          cache: "no-store",
-          credentials: "include",
-        });
+    const baseRaw =
+      process.env.NEXT_PUBLIC_LISTENING_AUDIO_BASE_URL ||
+      "https://resources.edufyuzbekistan.com/materials/listening";
+    const base = String(baseRaw).replace(/\/+$/, "");
+    const cleaned = String(rel || "").trim().replace(/^\/+/, "");
+    if (!cleaned) return { url: null, forbidden: false };
 
-        if (res.status === 401) {
-          try {
-            const r = await fetch("/auth/refresh", {
-              method: "POST",
-              credentials: "include",
-              cache: "no-store",
-            });
-            if (r.ok) {
-              res = await fetch(`${ep}?rel=${encodeURIComponent(rel)}`, {
-                cache: "no-store",
-                credentials: "include",
-              });
-            }
-          } catch {
-            // ignore refresh failures
-          }
-        }
-        if (res.status === 403) return { url: null, forbidden: true };
-        if (!res.ok) continue;
-        const data = (await res.json().catch(() => null)) as any;
-        const url = typeof data?.url === "string" ? data.url : null;
-        return { url, forbidden: false };
-      } catch {
-        // try next endpoint
-      }
+    const prefix = "listening/";
+    const tail = cleaned.toLowerCase().startsWith(prefix) ? cleaned.slice(prefix.length) : cleaned;
+    const url = `${base}/${tail}`;
+
+    try {
+      const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+      if (res.status === 403) return { url: null, forbidden: true };
+      if (!res.ok && res.status !== 206) return { url: null, forbidden: false };
+      return { url, forbidden: false };
+    } catch {
+      return { url: null, forbidden: false };
     }
-    return { url: null, forbidden: false };
   };
 
   useEffect(() => {

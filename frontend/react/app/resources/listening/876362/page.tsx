@@ -115,7 +115,16 @@ export default function ListeningTest876362Page() {
 
     const prefix = "listening/";
     const tail = cleaned.toLowerCase().startsWith(prefix) ? cleaned.slice(prefix.length) : cleaned;
-    return { url: `${base}/${tail}`, forbidden: false };
+
+    const url = `${base}/${tail}`;
+    try {
+      const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+      if (res.status === 403) return { url: null, forbidden: true };
+      if (!res.ok && res.status !== 206) return { url: null, forbidden: false };
+      return { url, forbidden: false };
+    } catch {
+      return { url: null, forbidden: false };
+    }
   };
 
   const [playerSection, setPlayerSection] = useState(1);
