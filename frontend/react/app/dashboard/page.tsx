@@ -76,7 +76,6 @@ export default function DashboardPage() {
   const [weeklyHours, setWeeklyHours] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [monthlyWeeks, setMonthlyWeeks] = useState<Array<{ label: string; hours: number }>>([]);
   const [progress, setProgress] = useState<number>(0);
-  const [progressLabel, setProgressLabel] = useState<string>("0/0");
 
   const segments = pathname.split("/").filter(Boolean);
   const firstSegment = segments[0] || "";
@@ -141,7 +140,6 @@ export default function DashboardPage() {
 
       const pct = total > 0 ? Math.round((done / total) * 100) : 0;
       setProgress(pct);
-      setProgressLabel(`${done}/${total}`);
     };
 
     syncStudy();
@@ -207,8 +205,6 @@ export default function DashboardPage() {
                   </div>
                   <div className="mt-2 text-sm text-slate-300">
                     <span>{progress}</span>% completed
-                    <span className="text-slate-500"> · </span>
-                    <span className="text-slate-200">{progressLabel}</span>
                   </div>
                 </div>
               </div>
