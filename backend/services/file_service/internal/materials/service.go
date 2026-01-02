@@ -74,10 +74,6 @@ func (s *service) Reindex() error {
 			if s.cfg.PlanDefaultReading != "" {
 				return s.cfg.PlanDefaultReading
 			}
-		case "listening":
-			if s.cfg.PlanDefaultListening != "" {
-				return s.cfg.PlanDefaultListening
-			}
 		case "speaking":
 			if s.cfg.PlanDefaultSpeaking != "" {
 				return s.cfg.PlanDefaultSpeaking
@@ -224,7 +220,7 @@ func (s *service) FindByID(id string) (*ManifestItem, bool) {
 
 func isKnownCategory(s string) bool {
 	switch strings.ToLower(s) {
-	case "reading", "listening", "speaking", "writing", "mock":
+	case "reading", "speaking", "writing", "mock":
 		return true
 	default:
 		return false
@@ -311,8 +307,6 @@ func applyOverrides(items *[]ManifestItem, path string) {
 
 	// Extract prefix rules (folder-style) from the same overrides map.
 	// Supported keys:
-	// - "listening/846376/*"  (prefix match)
-	// - "listening/846376/"   (prefix match)
 	prefixRules := make([]prefixRule, 0, 8)
 	exact := make(map[string]struct {
 		Title        *string `json:"title"`

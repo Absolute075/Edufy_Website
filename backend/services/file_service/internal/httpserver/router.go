@@ -37,21 +37,6 @@ func NewRouter(cfg config.Config) *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"message": "reindexed"})
 	})
 
-	// Public direct listening access (no signed URLs).
-	// Example: /materials/listening/846376/section1.mp3
-	r.GET("/materials/listening/*filepath", func(c *gin.Context) {
-		rel := strings.TrimPrefix(c.Param("filepath"), "/")
-		if rel == "" || strings.Contains(rel, "..") {
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
-		baseDir := cfg.MaterialsDir
-		if baseDir == "" {
-			baseDir = filepath.Join(cfg.PublicDir, "materials")
-		}
-		c.File(filepath.Join(baseDir, "listening", filepath.FromSlash(rel)))
-	})
-
 	// Protected static under /materials with access control
 	mg := r.Group("/materials")
 	mg.Use(middleware.NewAccessMiddleware(cfg, service))

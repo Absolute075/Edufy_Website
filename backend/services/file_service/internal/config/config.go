@@ -6,27 +6,25 @@ import (
 )
 
 type Config struct {
-	Port                   string
-	PublicDir              string
-	ManifestRelPath        string
-	MaterialsDir           string
-	UserServiceURL         string
-	ResourcesBase          string
-	LoginRedirectURL       string
-	UpgradeRedirectURL     string
-	OverridesPath          string
-	AutoScanSeconds        int
-	AdminReindexToken      string
-	DefaultRequiredPlan    string
-	PlanDefaultReading     string
-	PlanDefaultListening   string
-	PlanDefaultSpeaking    string
-	PlanDefaultWriting     string
-	PlanDefaultMock        string
-	LinkSigningSecret      string
-	LinkTTLSeconds         int
-	MaterialTokenSecret    string
-	ListeningRequireSigned bool
+	Port                string
+	PublicDir           string
+	ManifestRelPath     string
+	MaterialsDir        string
+	UserServiceURL      string
+	ResourcesBase       string
+	LoginRedirectURL    string
+	UpgradeRedirectURL  string
+	OverridesPath       string
+	AutoScanSeconds     int
+	AdminReindexToken   string
+	DefaultRequiredPlan string
+	PlanDefaultReading  string
+	PlanDefaultSpeaking string
+	PlanDefaultWriting  string
+	PlanDefaultMock     string
+	LinkSigningSecret   string
+	LinkTTLSeconds      int
+	MaterialTokenSecret string
 }
 
 func Load() Config {
@@ -52,29 +50,26 @@ func Load() Config {
 		linkTTL = getinti("MATERIAL_SIGN_TTL_SECONDS", linkTTL)
 	}
 	tokenSecret := getenv("MATERIAL_TOKEN_SECRET", "edufy_material_token_secret")
-	requireSigned := getbool("LISTENING_REQUIRE_SIGNED", false)
 	return Config{
-		Port:                   port,
-		PublicDir:              pub,
-		ManifestRelPath:        man,
-		MaterialsDir:           materialsDir,
-		UserServiceURL:         userServiceURL,
-		ResourcesBase:          resourcesBase,
-		LoginRedirectURL:       loginRedirect,
-		UpgradeRedirectURL:     upgradeRedirect,
-		OverridesPath:          overrides,
-		AutoScanSeconds:        scanSec,
-		AdminReindexToken:      adminToken,
-		DefaultRequiredPlan:    defPlan,
-		PlanDefaultReading:     getenv("PLAN_DEFAULT_READING", ""),
-		PlanDefaultListening:   getenv("PLAN_DEFAULT_LISTENING", ""),
-		PlanDefaultSpeaking:    getenv("PLAN_DEFAULT_SPEAKING", ""),
-		PlanDefaultWriting:     getenv("PLAN_DEFAULT_WRITING", ""),
-		PlanDefaultMock:        getenv("PLAN_DEFAULT_MOCK", ""),
-		LinkSigningSecret:      linkSecret,
-		LinkTTLSeconds:         linkTTL,
-		MaterialTokenSecret:    tokenSecret,
-		ListeningRequireSigned: requireSigned,
+		Port:                port,
+		PublicDir:           pub,
+		ManifestRelPath:     man,
+		MaterialsDir:        materialsDir,
+		UserServiceURL:      userServiceURL,
+		ResourcesBase:       resourcesBase,
+		LoginRedirectURL:    loginRedirect,
+		UpgradeRedirectURL:  upgradeRedirect,
+		OverridesPath:       overrides,
+		AutoScanSeconds:     scanSec,
+		AdminReindexToken:   adminToken,
+		DefaultRequiredPlan: defPlan,
+		PlanDefaultReading:  getenv("PLAN_DEFAULT_READING", ""),
+		PlanDefaultSpeaking: getenv("PLAN_DEFAULT_SPEAKING", ""),
+		PlanDefaultWriting:  getenv("PLAN_DEFAULT_WRITING", ""),
+		PlanDefaultMock:     getenv("PLAN_DEFAULT_MOCK", ""),
+		LinkSigningSecret:   linkSecret,
+		LinkTTLSeconds:      linkTTL,
+		MaterialTokenSecret: tokenSecret,
 	}
 }
 
