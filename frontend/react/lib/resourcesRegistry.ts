@@ -353,6 +353,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "966855": {
+      requiredPlan: "premium",
+      title: "Olive Oil Production",
+      examType: "real",
+      part: 3,
+      difficulty: "hard",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
