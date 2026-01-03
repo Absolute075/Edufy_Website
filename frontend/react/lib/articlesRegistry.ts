@@ -141,4 +141,12 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 3,
     description: "Just because it doesn’t make sense doesn’t make it any less scary",
   },
+  "general-06": {
+    title: "Death House",
+    file: "general-06.pdf",
+    preview: "general-06.png",
+    tags: ["general"],
+    pages: 5,
+    description: "THE SMELL OF BREAKFAST DRIFTED UPSTAIRS. IT MADE THE BEDROOM FEEL HOMEY RATHER THAN LIKE A HOSTEL. BUT BY NIGHT, THE DRUGGED TENANT AWAITED BURIAL IN THE BACK GARDEN...  OURTESY OF THE OLD LANDLADY",
+  },
 };
