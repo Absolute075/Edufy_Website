@@ -4,6 +4,7 @@
  import { usePathname, useRouter } from "next/navigation";
  import { useEffect, useMemo, useRef, useState } from "react";
  import { markTestCompleted } from "@/lib/completedTests";
+ import { api } from "@/lib/api";
 
  const correctAnswers = {
    q27: "C",
@@ -2147,10 +2148,28 @@
                        type="button"
                        className="feedback-submit"
                        disabled={!feedbackHasWord}
-                       onClick={() => {
-                         if (!feedbackHasWord) return;
-                         setFeedbackSubmitted(true);
-                       }}
+                       onClick={async () => {
+                        if (!feedbackHasWord) return;
+                        try {
+                          const trimmed = feedbackText.trim();
+                          const res = await api("/support/report", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              title: `Reading feedback: ${readingId}`,
+                              category: "reading_feedback",
+                              description: `Reading ID: ${readingId}\nURL: ${typeof window !== "undefined" ? window.location.href : ""}\n\n${trimmed}`,
+                            }),
+                          });
+
+                          if (!res.ok) return;
+
+                          setFeedbackText("");
+                          setFeedbackSubmitted(true);
+                        } catch {
+                          return;
+                        }
+                      }}
                      >
                        Submit Feedback
                      </button>
