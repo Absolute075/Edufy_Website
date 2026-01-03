@@ -36,7 +36,11 @@ function formatDobInput(raw: string): string {
 }
 
 function normalizePhoneInput(raw: string): string {
-  return String(raw ?? "").replace(/\D/g, "");
+  const s = String(raw ?? "");
+  const hasLeadingPlus = s.trim().startsWith("+");
+  const digits = s.replace(/\D/g, "");
+  if (hasLeadingPlus) return digits ? `+${digits}` : "+";
+  return digits;
 }
 
 export default function ProfilePage() {
@@ -370,7 +374,7 @@ export default function ProfilePage() {
               <input
                 type="tel"
                 inputMode="numeric"
-                pattern="[0-9]*"
+                pattern="\\+?[0-9]*"
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                 value={phone}
                 onChange={(e) => setPhone(normalizePhoneInput(e.target.value))}
