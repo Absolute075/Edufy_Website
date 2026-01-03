@@ -53,4 +53,20 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 2,
     description: "Social media platformswill soon have to exclude children under16 in Australia, but there are doubts over whether this is the right approach, finds James Woodford",
   },
+  "lifestyle-03": {
+    title: "15 Ways to make LIFE more FUN",
+    file: "lifestyle-03.pdf",
+    preview: "lifestyle-03.png",
+    tags: ["lifestyle"],
+    pages: 2,
+    description: "Boredom got you down? Try these happiness hacks to boost your wellbeing",
+  },
+  "wellbeing-02": {
+    title: "Your Mental Health",
+    file: "wellbeing-02.pdf",
+    preview: "wellbeing-02.png",
+    tags: ["wellbeing"],
+    pages: 6,
+    description: "We look after our physical health, but our emotional wellbeing often gets neglected. It's time to make it a priority",
+  },
 };
