@@ -27,6 +27,7 @@ const TAG_LABELS: Record<ArticleTag, string> = {
   wellbeing: "Wellbeing",
   magazine: "Magazine",
   general: "General",
+  research: "Research",
 };
 
 export default function ArticlesPage() {
