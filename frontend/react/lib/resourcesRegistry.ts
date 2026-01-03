@@ -380,6 +380,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "111222": {
+      requiredPlan: "premium",
+      title: "Ensuring our future food supply",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
