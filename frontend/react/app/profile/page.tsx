@@ -35,6 +35,10 @@ function formatDobInput(raw: string): string {
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
+function normalizePhoneInput(raw: string): string {
+  return String(raw ?? "").replace(/\D/g, "");
+}
+
 export default function ProfilePage() {
   usePageTitle("Edufy – Profile");
   const {
@@ -80,7 +84,7 @@ export default function ProfilePage() {
     if (!profileData) return;
     if (editMode) return;
 
-    const phoneVal = profileData.phone || "";
+    const phoneVal = normalizePhoneInput(profileData.phone || "");
     const dobVal = profileData.dobDisplay || "";
     const certList = profileData.certificates || [];
     const favSubjVal = profileData.favoriteSubject || "";
@@ -365,9 +369,11 @@ export default function ProfilePage() {
               </label>
               <input
                 type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(normalizePhoneInput(e.target.value))}
                 disabled={profileLoading || saving || !editMode}
               />
             </div>
