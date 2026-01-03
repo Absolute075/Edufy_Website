@@ -1,4 +1,4 @@
-export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "magazine" | "general";
+export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "research" | "general";
 
 export type ArticleRule = {
   title: string;
@@ -68,5 +68,45 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     tags: ["wellbeing"],
     pages: 6,
     description: "We look after our physical health, but our emotional wellbeing often gets neglected. It's time to make it a priority",
+  },
+  "general-01": {
+    title: "The bitter truth about sugar",
+    file: "general-01.pdf",
+    preview: "general-01.png",
+    tags: ["general"],
+    pages: 8,
+    description: "It’s no secret that Americans have a serious addiction. Here’s how to cut back on the sweet stuff, once and for all.",
+  },
+  "general-02": {
+    title: "Caffeine: The unfiltered truth",
+    file: "general-02.pdf",
+    preview: "general-02.png",
+    tags: ["general"],
+    pages: 4,
+    description: "How worried should we be about our love for coffee and energy drinks? Jasmin Fox-Skelly investigates.",
+  },
+  "general-03": {
+    title: "Tasty Tacos",
+    file: "general-03.pdf",
+    preview: "general-03.png",
+    tags: ["general"],
+    pages: 4,
+    description: "Those shells hold a lot of history",
+  },
+  "general-04": {
+    title: "They came by sea...",
+    file: "general-04.pdf",
+    preview: "general-04.png",
+    tags: ["general"],
+    pages: 4,
+    description: "It is one of the greatest mysteries of ancient history: who were the Sea Peoples blamed for the destruction of a string of civilisations 3000 years ago? Colin Barras investigates",
+  },
+  "general-05": {
+    title: "Free of the Past",
+    file: "general-05.pdf",
+    preview: "general-05.png",
+    tags: ["general"],
+    pages: 2,
+    description: "When you liberate yourself from the ties hat bind you, you'll never look back...",
   },
 };
