@@ -126,7 +126,7 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     description: "Over tens of thousands of years, waves of Homo sapiens set out across Europe and Asia, only to mysteriously vanish. At last, ancient DNA is revealing why, finds Michael Marshall.",
   },
   "science-03": {
-    title: "Deep sleep seems to lead to more "eureka" moments",
+    title: "Deep sleep seems to lead to more eureka moments",
     file: "science-03.pdf",
     preview: "science-03.png",
     tags: ["science"],
