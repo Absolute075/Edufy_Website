@@ -7,39 +7,41 @@ import { markTestCompleted } from "@/lib/completedTests";
 import { api } from "@/lib/api";
 
 const correctAnswers = {
-  q1: "TRUE",
-  q2: "FALSE",
-  q3: "NOT GIVEN",
-  q4: "FALSE",
-  q5: "NOT GIVEN",
-  q6: "NOT GIVEN",
-  q7: "TRUE",
-  q8: "appearance",
-  q9: "rainforests",
-  q10: "apples",
-  q11: "50 percent",
-  q12: "famine",
-  q13: "population",
+  q27: "NO",
+  q28: "YES",
+  q29: "NOT GIVEN",
+  q30: "NO",
+  q31: "YES",
+  q32: "A",
+  q33: "C",
+  q34: "D",
+  q35: "B",
+  q36: "A",
+  q37: "B",
+  q38: "E",
+  q39: "G",
+  q40: "A",
 };
 
-const progressNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+const progressNumbers = [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40];
 
 type QuestionKey = keyof typeof correctAnswers;
 
 const initialSelections: Record<QuestionKey, string> = {
-  q1: "",
-  q2: "",
-  q3: "",
-  q4: "",
-  q5: "",
-  q6: "",
-  q7: "",
-  q8: "",
-  q9: "",
-  q10: "",
-  q11: "",
-  q12: "",
-  q13: "",
+  q27: "",
+  q28: "",
+  q29: "",
+  q30: "",
+  q31: "",
+  q32: "",
+  q33: "",
+  q34: "",
+  q35: "",
+  q36: "",
+  q37: "",
+  q38: "",
+  q39: "",
+  q40: "",
 };
 
 export default function Reading111222Page() {
@@ -62,8 +64,7 @@ export default function Reading111222Page() {
   const normalizeTextAnswer = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
 
   const isTextAnswerKey = (key: QuestionKey) => {
-    const n = Number(String(key).replace(/^q/, ""));
-    return n >= 8 && n <= 13;
+    return false;
   };
 
   const [timeLeft, setTimeLeft] = useState(20 * 60);
@@ -155,604 +156,604 @@ export default function Reading111222Page() {
     if (submitted) return;
     if (timeUpTriggeredRef.current) return;
 
-     timeUpTriggeredRef.current = true;
-     setIsSubmitConfirmOpen(false);
-     setIsTimeUpOpen(true);
-
-     if (timeUpTimeoutRef.current !== null) window.clearTimeout(timeUpTimeoutRef.current);
-     timeUpTimeoutRef.current = window.setTimeout(() => {
-       handleSubmitRef.current();
-       setIsTimeUpOpen(false);
-       timeUpTimeoutRef.current = null;
-     }, 900);
-   }, [timeLeft, submitted]);
-
-   useEffect(() => {
-     const prevBodyOverflow = document.body.style.overflow;
-     const prevHtmlOverflow = document.documentElement.style.overflow;
-     document.body.style.overflow = "hidden";
-     document.documentElement.style.overflow = "hidden";
-     return () => {
-       document.body.style.overflow = prevBodyOverflow;
-       document.documentElement.style.overflow = prevHtmlOverflow;
-     };
-   }, []);
-
-   useEffect(() => {
-     const onFullscreenChange = () => {
-       setIsFullscreen(Boolean(document.fullscreenElement));
-     };
-     document.addEventListener("fullscreenchange", onFullscreenChange);
-     onFullscreenChange();
-     return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
-   }, []);
-
-   useEffect(() => {
-     if (!passageRef.current) return;
-     if (passageHtml !== null) return;
-     setPassageHtml(passageRef.current.innerHTML);
-   }, [passageHtml]);
-
-   useEffect(() => {
-     if (!selectionToolbar.open) return;
-
-     const onPointerDown = (e: PointerEvent) => {
-       const target = e.target as HTMLElement | null;
-       if (!target) return;
-       if (!target.closest(".selection-toolbar")) {
-         setSelectionToolbar((s) => ({ ...s, open: false }));
-       }
-     };
-
-     const onKeyDown = (e: KeyboardEvent) => {
-       if (e.key === "Escape") setSelectionToolbar((s) => ({ ...s, open: false }));
-     };
-
-     document.addEventListener("pointerdown", onPointerDown);
-     document.addEventListener("keydown", onKeyDown);
-     return () => {
-       document.removeEventListener("pointerdown", onPointerDown);
-       document.removeEventListener("keydown", onKeyDown);
-     };
-   }, [selectionToolbar.open]);
-
-   useEffect(() => {
-     if (!isSubmitConfirmOpen) return;
-     const onKeyDown = (e: KeyboardEvent) => {
-       if (e.key === "Escape") setIsSubmitConfirmOpen(false);
-     };
-     document.addEventListener("keydown", onKeyDown);
-     return () => document.removeEventListener("keydown", onKeyDown);
-   }, [isSubmitConfirmOpen]);
-
-   useEffect(() => {
-     if (!isResultsOpen) return;
-     const onKeyDown = (e: KeyboardEvent) => {
-       if (e.key === "Escape") setIsResultsOpen(false);
-     };
-     document.addEventListener("keydown", onKeyDown);
-     return () => document.removeEventListener("keydown", onKeyDown);
-   }, [isResultsOpen]);
-
-   useEffect(() => {
-     if (!isSupportOpen) return;
-     const onKeyDown = (e: KeyboardEvent) => {
-       if (e.key === "Escape") setIsSupportOpen(false);
-     };
-     document.addEventListener("keydown", onKeyDown);
-     return () => document.removeEventListener("keydown", onKeyDown);
-   }, [isSupportOpen]);
-
-   useEffect(() => {
-     if (openDropdownKey === null) return;
-     const onPointerDown = (e: PointerEvent) => {
-       const target = e.target as HTMLElement | null;
-       if (!target) return;
-       if (!target.closest(".rounded-dropdown")) setOpenDropdownKey(null);
-     };
-     const onKeyDown = (e: KeyboardEvent) => {
-       if (e.key === "Escape") setOpenDropdownKey(null);
-     };
-     document.addEventListener("pointerdown", onPointerDown);
-     document.addEventListener("keydown", onKeyDown);
-     return () => {
-       document.removeEventListener("pointerdown", onPointerDown);
-       document.removeEventListener("keydown", onKeyDown);
-     };
-   }, [openDropdownKey]);
-
-   const getClosestPassageParagraph = (node: Node | null) => {
-     const el = node instanceof HTMLElement ? node : node?.parentElement;
-     if (!el) return null;
-     const p = el.closest("#passage3 p");
-     return p as HTMLParagraphElement | null;
-   };
-
-   const updatePassageHtmlFromDom = () => {
-     if (!passageRef.current) return;
-     setPassageHtml(passageRef.current.innerHTML);
-   };
-
-   const unwrapElement = (el: HTMLElement) => {
-     const parent = el.parentNode;
-     if (!parent) return;
-     while (el.firstChild) parent.insertBefore(el.firstChild, el);
-     parent.removeChild(el);
-     if (parent instanceof HTMLElement) parent.normalize();
-   };
-
-   const getPassageParagraphsInRange = (range: Range) => {
-     const root = passageRef.current;
-     if (!root) return [] as HTMLParagraphElement[];
-     const paragraphs = Array.from(root.querySelectorAll("#passage3 p")) as HTMLParagraphElement[];
-     return paragraphs.filter((p) => {
-       try {
-         return range.intersectsNode(p);
-       } catch {
-         return false;
-       }
-     });
-   };
-
-   const isEmptyFragment = (frag: DocumentFragment) => {
-     return frag.childNodes.length === 0;
-   };
-
-   const removeHighlightInSpanForRange = (spanEl: HTMLElement, range: Range) => {
-     const spanRange = document.createRange();
-     spanRange.selectNodeContents(spanEl);
-
-     const useSpanStart = range.compareBoundaryPoints(Range.START_TO_START, spanRange) <= 0;
-     const useSpanEnd = range.compareBoundaryPoints(Range.END_TO_END, spanRange) >= 0;
-
-     const startContainer = useSpanStart ? spanRange.startContainer : range.startContainer;
-     const startOffset = useSpanStart ? spanRange.startOffset : range.startOffset;
-     const endContainer = useSpanEnd ? spanRange.endContainer : range.endContainer;
-     const endOffset = useSpanEnd ? spanRange.endOffset : range.endOffset;
-
-     const intersection = document.createRange();
-     try {
-       intersection.setStart(startContainer, startOffset);
-       intersection.setEnd(endContainer, endOffset);
-     } catch {
-       return;
-     }
-
-     const beforeR = document.createRange();
-     beforeR.selectNodeContents(spanEl);
-     try {
-       beforeR.setEnd(startContainer, startOffset);
-     } catch {
-       // ignore
-     }
-     const beforeFrag = beforeR.cloneContents();
-
-     const selectedFrag = intersection.cloneContents();
-
-     const afterR = document.createRange();
-     afterR.selectNodeContents(spanEl);
-     try {
-       afterR.setStart(endContainer, endOffset);
-     } catch {
-       // ignore
-     }
-     const afterFrag = afterR.cloneContents();
-
-     const parent = spanEl.parentNode;
-     if (!parent) return;
-     const next = spanEl.nextSibling;
-
-     const mkSpan = (frag: DocumentFragment) => {
-       const s = document.createElement("span");
-       s.setAttribute("data-hl", "1");
-       const noteId = spanEl.getAttribute("data-note-id");
-       if (noteId) s.setAttribute("data-note-id", noteId);
-       s.className = spanEl.className;
-       s.appendChild(frag);
-       return s;
-     };
-
-     parent.removeChild(spanEl);
-
-     if (!isEmptyFragment(beforeFrag)) parent.insertBefore(mkSpan(beforeFrag), next);
-     if (!isEmptyFragment(selectedFrag)) parent.insertBefore(selectedFrag, next);
-     if (!isEmptyFragment(afterFrag)) parent.insertBefore(mkSpan(afterFrag), next);
-
-     if (parent instanceof HTMLElement) parent.normalize();
-   };
-
-   const removeHighlightsInRange = (range: Range) => {
-     const paragraphs = getPassageParagraphsInRange(range);
-     paragraphs.forEach((p) => {
-       const highlights = Array.from(p.querySelectorAll('span[data-hl="1"]')) as HTMLElement[];
-       highlights.forEach((hl) => {
-         try {
-           if (!range.intersectsNode(hl)) return;
-           removeHighlightInSpanForRange(hl, range);
-         } catch {
-           // ignore
-         }
-       });
-     });
-   };
-
-   const applyHighlight = (color: "yellow" | "green") => {
-     const range = selectionRangeRef.current;
-     if (!range || range.collapsed) return;
-
-     const paragraphs = getPassageParagraphsInRange(range);
-     if (paragraphs.length === 0) return;
-
-     removeHighlightsInRange(range);
-
-     paragraphs.forEach((p) => {
-       const sub = document.createRange();
-       const startInP = p.contains(range.startContainer);
-       const endInP = p.contains(range.endContainer);
-       try {
-         sub.setStart(startInP ? range.startContainer : p, startInP ? range.startOffset : 0);
-         sub.setEnd(endInP ? range.endContainer : p, endInP ? range.endOffset : p.childNodes.length);
-       } catch {
-         return;
-       }
-       if (sub.collapsed) return;
-
-       const wrapper = document.createElement("span");
-       wrapper.setAttribute("data-hl", "1");
-       wrapper.className = `hl hl-${color}`;
-
-       try {
-         const contents = sub.extractContents();
-         wrapper.appendChild(contents);
-         sub.insertNode(wrapper);
-       } catch {
-         // ignore
-       }
-     });
-
-     updatePassageHtmlFromDom();
-
-     const sel = window.getSelection();
-     sel?.removeAllRanges();
-     setSelectionToolbar((s) => ({ ...s, open: false }));
-   };
-
-   const applyNoteMarkWithId = (noteId: number) => {
-     const range = selectionRangeRef.current;
-     if (!range || range.collapsed) return;
-
-     const paragraphs = getPassageParagraphsInRange(range);
-     if (paragraphs.length === 0) return;
-
-     removeHighlightsInRange(range);
-
-     paragraphs.forEach((p) => {
-       const sub = document.createRange();
-       const startInP = p.contains(range.startContainer);
-       const endInP = p.contains(range.endContainer);
-       try {
-         sub.setStart(startInP ? range.startContainer : p, startInP ? range.startOffset : 0);
-         sub.setEnd(endInP ? range.endContainer : p, endInP ? range.endOffset : p.childNodes.length);
-       } catch {
-         return;
-       }
-       if (sub.collapsed) return;
-
-       const wrapper = document.createElement("span");
-       wrapper.setAttribute("data-hl", "1");
-       wrapper.setAttribute("data-note-id", String(noteId));
-       wrapper.className = "hl hl-note";
-
-       try {
-         const contents = sub.extractContents();
-         wrapper.appendChild(contents);
-         sub.insertNode(wrapper);
-       } catch {
-         // ignore
-       }
-     });
-
-     updatePassageHtmlFromDom();
-
-     const sel = window.getSelection();
-     sel?.removeAllRanges();
-     setSelectionToolbar((s) => ({ ...s, open: false }));
-   };
-
-   const clearHighlight = () => {
-     const range = selectionRangeRef.current;
-     if (!range) return;
-
-     removeHighlightsInRange(range);
-     updatePassageHtmlFromDom();
-     const sel = window.getSelection();
-     sel?.removeAllRanges();
-     setSelectionToolbar((s) => ({ ...s, open: false }));
-   };
-
-   const addNoteFromSelection = () => {
-     const quote = selectionToolbar.text.trim();
-     if (!quote) return;
-     const createdAt = Date.now();
-
-     applyNoteMarkWithId(createdAt);
-     setNotes((prev) => [{ quote, text: "", createdAt }, ...prev]);
-     setActiveNoteId(createdAt);
-     setIsNotesOpen(true);
-   };
-
-   const removeNoteMarksById = (noteId: number) => {
-     if (!passageRef.current) return;
-     const nodes = Array.from(passageRef.current.querySelectorAll(`span[data-note-id="${noteId}"]`)) as HTMLElement[];
-     nodes.forEach((n) => unwrapElement(n));
-     updatePassageHtmlFromDom();
-   };
-
-   const deleteNote = (id: number) => {
-     removeNoteMarksById(id);
-     setNotes((prev) => prev.filter((n) => n.createdAt !== id));
-     setActiveNoteId((prev) => (prev === id ? null : prev));
-   };
-
-   const handlePassageMouseUp = () => {
-     const sel = window.getSelection();
-     if (!sel || sel.rangeCount === 0) {
-       setSelectionToolbar((s) => ({ ...s, open: false }));
-       return;
-     }
-
-     const text = sel.toString();
-     if (!text || !text.trim()) {
-       setSelectionToolbar((s) => ({ ...s, open: false }));
-       return;
-     }
-
-     const range = sel.getRangeAt(0);
-     if (!passageRef.current) return;
-     const pStart = getClosestPassageParagraph(range.startContainer);
-     const pEnd = getClosestPassageParagraph(range.endContainer);
-     if (!pStart || !pEnd) {
-       setSelectionToolbar((s) => ({ ...s, open: false }));
-       return;
-     }
-
-     selectionRangeRef.current = range.cloneRange();
-     const rect = range.getBoundingClientRect();
-     const top = Math.max(10, rect.top - 44);
-     const left = Math.min(window.innerWidth - 260, Math.max(10, rect.left));
-     setSelectionToolbar({ open: true, top, left, text });
-   };
-
-   const toggleFullscreen = async () => {
-     try {
-       if (document.fullscreenElement) {
-         await document.exitFullscreen();
-       } else {
-         await document.documentElement.requestFullscreen();
-       }
-     } catch {
-       // ignore
-     }
-   };
-
-   const minutes = Math.floor(timeLeft / 60)
-     .toString()
-     .padStart(2, "0");
-   const seconds = (timeLeft % 60).toString().padStart(2, "0");
-
-   const activeNote = activeNoteId === null ? null : (notes.find((n) => n.createdAt === activeNoteId) ?? null);
-   const notesList = activeNoteId === null ? notes : notes.filter((n) => n.createdAt !== activeNoteId);
-   const passageDangerousHtml = useMemo(() => ({ __html: passageHtml ?? "" }), [passageHtml]);
-
-   const answerSheet = useMemo(() => {
-     return progressNumbers.map((num) => {
-       const key = `q${num}` as QuestionKey;
-       const correct = (correctAnswers as Record<string, string>)[key] ?? "";
-       const userRaw = (selections as Record<string, string>)[key] ?? "";
-       const userDisplay = userRaw && userRaw.trim() ? userRaw.trim() : "N/A";
-       const isCorrect =
-         userDisplay !== "N/A" &&
-         (isTextAnswerKey(key)
-           ? normalizeTextAnswer(userDisplay) === normalizeTextAnswer(String(correct))
-           : userDisplay === correct);
-       return { num, userDisplay, correct, isCorrect };
-     });
-   }, [selections]);
-
-   const totalQuestions = progressNumbers.length;
-   const scoreLabel = `${score ?? 0}/${totalQuestions}`;
-   const feedbackHasWord = /\S+/.test(feedbackText.trim());
-   const dashboardHref = `${userPrefix}/dashboard`;
-   const readingTestsHref = `${userPrefix}/resources/reading`;
-   const reviewHref = pathname;
-
-   const tfngOptions = [
-     { value: "TRUE", label: "TRUE" },
-     { value: "FALSE", label: "FALSE" },
-     { value: "NOT GIVEN", label: "NOT GIVEN" },
-   ];
-
-   const abcdOptions = [
-     { value: "A", label: "A" },
-     { value: "B", label: "B" },
-     { value: "C", label: "C" },
-     { value: "D", label: "D" },
-   ];
-
-   const dropdownOptions = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
-
-   const summaryDropdownOptions = [
-     { value: "A", label: "A. visual appeal" },
-     { value: "B", label: "B. basic function" },
-     { value: "C", label: "C. organised opposition" },
-     { value: "D", label: "D. essential meaning" },
-     { value: "E", label: "E. sharp contrast" },
-     { value: "F", label: "F. relative harmony" },
-     { value: "G", label: "G. traditional methods" },
-     { value: "H", label: "H. underlying principles" },
-   ];
-
-   const copySupportCard = async (key: "visa" | "uzcard", rawNumber: string) => {
-     const number = rawNumber.trim();
-     if (!number) return;
-
-     try {
-       await navigator.clipboard.writeText(number);
-     } catch {
-       try {
-         const ta = document.createElement("textarea");
-         ta.value = number;
-         ta.style.position = "fixed";
-         ta.style.left = "-9999px";
-         ta.style.top = "0";
-         document.body.appendChild(ta);
-         ta.focus();
-         ta.select();
-         document.execCommand("copy");
-         document.body.removeChild(ta);
-       } catch {
-         return;
-       }
-     }
-
-     setCopiedSupportKey(key);
-     const prev = supportCopyTimeoutRef.current[key];
-     if (prev !== null) window.clearTimeout(prev);
-     supportCopyTimeoutRef.current[key] = window.setTimeout(() => {
-       setCopiedSupportKey((cur) => (cur === key ? null : cur));
-       supportCopyTimeoutRef.current[key] = null;
-     }, 2000);
-   };
-
-   const renderTextInput = (key: QuestionKey, placeholder?: string) => {
-     const current = selections[key] ?? "";
-     return (
-       <input
-         type="text"
-         className="inline-text-input"
-         placeholder={placeholder}
-         value={current}
-         disabled={submitted}
-         onChange={(e) => {
-           if (submitted) return;
-           setSelections((s) => ({ ...s, [key]: e.target.value }));
-         }}
-       />
-     );
-   };
-
-   const renderTfngRadio = (key: QuestionKey) => {
-     const current = selections[key] ?? "";
-     return (
-       <div className="radio-group" role="radiogroup" aria-label={`Answer options for ${key}`}>
-         {tfngOptions.map((o) => (
-           <label key={o.value} className="radio-option">
-             <input
-               type="radio"
-               className="radio-input"
-               name={key}
-               value={o.value}
-               checked={current === o.value}
-               disabled={submitted}
-               onChange={() => {
-                 if (submitted) return;
-                 setSelections((s) => ({ ...s, [key]: o.value }));
-               }}
-             />
-             <span className="radio-circle" aria-hidden="true" />
-             <span className="radio-text">{o.label}</span>
-           </label>
-         ))}
-       </div>
-     );
-   };
-
-   const renderAbcdRadio = (key: QuestionKey, options?: Array<{ value: string; label: string }>) => {
-     const current = selections[key] ?? "";
-     const opts = options ?? abcdOptions;
-     return (
-       <div className="radio-group" role="radiogroup" aria-label={`Answer options for ${key}`}>
-         {opts.map((o) => (
-           <label key={o.value} className="radio-option">
-             <input
-               type="radio"
-               className="radio-input"
-               name={key}
-               value={o.value}
-               checked={current === o.value}
-               disabled={submitted}
-               onChange={() => {
-                 if (submitted) return;
-                 setSelections((s) => ({ ...s, [key]: o.value }));
-               }}
-             />
-             <span className="radio-circle" aria-hidden="true" />
-             <span className="radio-text">{o.label}</span>
-           </label>
-         ))}
-       </div>
-     );
-   };
-
-   const renderLetterDropdown = (key: QuestionKey, options?: Array<{ value: string; label: string }>, inline?: boolean) => {
-     const current = (selections[key] ?? "").trim();
-     const isOpen = openDropdownKey === key;
-     const opts = options ?? dropdownOptions.map((v) => ({ value: v, label: v }));
-     const currentLabel = (opts.find((o) => o.value === current)?.label ?? "").trim();
-     return (
-       <div className={`rounded-dropdown${inline ? " rounded-dropdown--inline" : ""}`}>
-         <button
-           type="button"
-           className="rounded-dropdown-trigger"
-           disabled={submitted}
-           onClick={() => {
-             if (submitted) return;
-             setOpenDropdownKey((prev) => (prev === key ? null : key));
-           }}
-         >
-           <span>{current ? currentLabel || current : "Select"}</span>
-           <span aria-hidden="true" style={{ color: "var(--muted)" }}>
-             ▾
-           </span>
-         </button>
-
-         <div
-           className={`rounded-dropdown-menu${isOpen ? " is-open" : ""}`}
-           role="listbox"
-           aria-label={`Select answer for ${key}`}
-         >
-           {opts.map((opt) => (
-             <button
-               key={opt.value}
-               type="button"
-               className="rounded-dropdown-item"
-               onClick={() => {
-                 if (submitted) return;
-                 setSelections((s) => ({ ...s, [key]: opt.value }));
-                 setOpenDropdownKey(null);
-               }}
-             >
-               {opt.label}
-             </button>
-           ))}
-         </div>
-       </div>
-     );
-   };
-
-   return (
-     <div>
-       <Head>
-         <meta charSet="UTF-8" />
-         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-         <title>Reading Passage 3 – Ensuring our future food supply</title>
-         <link
-           rel="stylesheet"
-           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-         />
-       </Head>
-
-       <style jsx global>{`
+    timeUpTriggeredRef.current = true;
+    setIsSubmitConfirmOpen(false);
+    setIsTimeUpOpen(true);
+
+    if (timeUpTimeoutRef.current !== null) window.clearTimeout(timeUpTimeoutRef.current);
+    timeUpTimeoutRef.current = window.setTimeout(() => {
+      handleSubmitRef.current();
+      setIsTimeUpOpen(false);
+      timeUpTimeoutRef.current = null;
+    }, 900);
+  }, [timeLeft, submitted]);
+
+  useEffect(() => {
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    onFullscreenChange();
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, []);
+
+  useEffect(() => {
+    if (!passageRef.current) return;
+    if (passageHtml !== null) return;
+    setPassageHtml(passageRef.current.innerHTML);
+  }, [passageHtml]);
+
+  useEffect(() => {
+    if (!selectionToolbar.open) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (!target.closest(".selection-toolbar")) {
+        setSelectionToolbar((s) => ({ ...s, open: false }));
+      }
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectionToolbar((s) => ({ ...s, open: false }));
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [selectionToolbar.open]);
+
+  useEffect(() => {
+    if (!isSubmitConfirmOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsSubmitConfirmOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isSubmitConfirmOpen]);
+
+  useEffect(() => {
+    if (!isResultsOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsResultsOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isResultsOpen]);
+
+  useEffect(() => {
+    if (!isSupportOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsSupportOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isSupportOpen]);
+
+  useEffect(() => {
+    if (openDropdownKey === null) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (!target.closest(".rounded-dropdown")) setOpenDropdownKey(null);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenDropdownKey(null);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [openDropdownKey]);
+
+  const getClosestPassageParagraph = (node: Node | null) => {
+    const el = node instanceof HTMLElement ? node : node?.parentElement;
+    if (!el) return null;
+    const p = el.closest("#passage3 p");
+    return p as HTMLParagraphElement | null;
+  };
+
+  const updatePassageHtmlFromDom = () => {
+    if (!passageRef.current) return;
+    setPassageHtml(passageRef.current.innerHTML);
+  };
+
+  const unwrapElement = (el: HTMLElement) => {
+    const parent = el.parentNode;
+    if (!parent) return;
+    while (el.firstChild) parent.insertBefore(el.firstChild, el);
+    parent.removeChild(el);
+    if (parent instanceof HTMLElement) parent.normalize();
+  };
+
+  const getPassageParagraphsInRange = (range: Range) => {
+    const root = passageRef.current;
+    if (!root) return [] as HTMLParagraphElement[];
+    const paragraphs = Array.from(root.querySelectorAll("#passage3 p")) as HTMLParagraphElement[];
+    return paragraphs.filter((p) => {
+      try {
+        return range.intersectsNode(p);
+      } catch {
+        return false;
+      }
+    });
+  };
+
+  const isEmptyFragment = (frag: DocumentFragment) => {
+    return frag.childNodes.length === 0;
+  };
+
+  const removeHighlightInSpanForRange = (spanEl: HTMLElement, range: Range) => {
+    const spanRange = document.createRange();
+    spanRange.selectNodeContents(spanEl);
+
+    const useSpanStart = range.compareBoundaryPoints(Range.START_TO_START, spanRange) <= 0;
+    const useSpanEnd = range.compareBoundaryPoints(Range.END_TO_END, spanRange) >= 0;
+
+    const startContainer = useSpanStart ? spanRange.startContainer : range.startContainer;
+    const startOffset = useSpanStart ? spanRange.startOffset : range.startOffset;
+    const endContainer = useSpanEnd ? spanRange.endContainer : range.endContainer;
+    const endOffset = useSpanEnd ? spanRange.endOffset : range.endOffset;
+
+    const intersection = document.createRange();
+    try {
+      intersection.setStart(startContainer, startOffset);
+      intersection.setEnd(endContainer, endOffset);
+    } catch {
+      return;
+    }
+
+    const beforeR = document.createRange();
+    beforeR.selectNodeContents(spanEl);
+    try {
+      beforeR.setEnd(startContainer, startOffset);
+    } catch {
+      // ignore
+    }
+    const beforeFrag = beforeR.cloneContents();
+
+    const selectedFrag = intersection.cloneContents();
+
+    const afterR = document.createRange();
+    afterR.selectNodeContents(spanEl);
+    try {
+      afterR.setStart(endContainer, endOffset);
+    } catch {
+      // ignore
+    }
+    const afterFrag = afterR.cloneContents();
+
+    const parent = spanEl.parentNode;
+    if (!parent) return;
+    const next = spanEl.nextSibling;
+
+    const mkSpan = (frag: DocumentFragment) => {
+      const s = document.createElement("span");
+      s.setAttribute("data-hl", "1");
+      const noteId = spanEl.getAttribute("data-note-id");
+      if (noteId) s.setAttribute("data-note-id", noteId);
+      s.className = spanEl.className;
+      s.appendChild(frag);
+      return s;
+    };
+
+    parent.removeChild(spanEl);
+
+    if (!isEmptyFragment(beforeFrag)) parent.insertBefore(mkSpan(beforeFrag), next);
+    if (!isEmptyFragment(selectedFrag)) parent.insertBefore(selectedFrag, next);
+    if (!isEmptyFragment(afterFrag)) parent.insertBefore(mkSpan(afterFrag), next);
+
+    if (parent instanceof HTMLElement) parent.normalize();
+  };
+
+  const removeHighlightsInRange = (range: Range) => {
+    const paragraphs = getPassageParagraphsInRange(range);
+    paragraphs.forEach((p) => {
+      const highlights = Array.from(p.querySelectorAll('span[data-hl="1"]')) as HTMLElement[];
+      highlights.forEach((hl) => {
+        try {
+          if (!range.intersectsNode(hl)) return;
+          removeHighlightInSpanForRange(hl, range);
+        } catch {
+          // ignore
+        }
+      });
+    });
+  };
+
+  const applyHighlight = (color: "yellow" | "green") => {
+    const range = selectionRangeRef.current;
+    if (!range || range.collapsed) return;
+
+    const paragraphs = getPassageParagraphsInRange(range);
+    if (paragraphs.length === 0) return;
+
+    removeHighlightsInRange(range);
+
+    paragraphs.forEach((p) => {
+      const sub = document.createRange();
+      const startInP = p.contains(range.startContainer);
+      const endInP = p.contains(range.endContainer);
+      try {
+        sub.setStart(startInP ? range.startContainer : p, startInP ? range.startOffset : 0);
+        sub.setEnd(endInP ? range.endContainer : p, endInP ? range.endOffset : p.childNodes.length);
+      } catch {
+        return;
+      }
+      if (sub.collapsed) return;
+
+      const wrapper = document.createElement("span");
+      wrapper.setAttribute("data-hl", "1");
+      wrapper.className = `hl hl-${color}`;
+
+      try {
+        const contents = sub.extractContents();
+        wrapper.appendChild(contents);
+        sub.insertNode(wrapper);
+      } catch {
+        // ignore
+      }
+    });
+
+    updatePassageHtmlFromDom();
+
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    setSelectionToolbar((s) => ({ ...s, open: false }));
+  };
+
+  const applyNoteMarkWithId = (noteId: number) => {
+    const range = selectionRangeRef.current;
+    if (!range || range.collapsed) return;
+
+    const paragraphs = getPassageParagraphsInRange(range);
+    if (paragraphs.length === 0) return;
+
+    removeHighlightsInRange(range);
+
+    paragraphs.forEach((p) => {
+      const sub = document.createRange();
+      const startInP = p.contains(range.startContainer);
+      const endInP = p.contains(range.endContainer);
+      try {
+        sub.setStart(startInP ? range.startContainer : p, startInP ? range.startOffset : 0);
+        sub.setEnd(endInP ? range.endContainer : p, endInP ? range.endOffset : p.childNodes.length);
+      } catch {
+        return;
+      }
+      if (sub.collapsed) return;
+
+      const wrapper = document.createElement("span");
+      wrapper.setAttribute("data-hl", "1");
+      wrapper.setAttribute("data-note-id", String(noteId));
+      wrapper.className = "hl hl-note";
+
+      try {
+        const contents = sub.extractContents();
+        wrapper.appendChild(contents);
+        sub.insertNode(wrapper);
+      } catch {
+        // ignore
+      }
+    });
+
+    updatePassageHtmlFromDom();
+
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    setSelectionToolbar((s) => ({ ...s, open: false }));
+  };
+
+  const clearHighlight = () => {
+    const range = selectionRangeRef.current;
+    if (!range) return;
+
+    removeHighlightsInRange(range);
+    updatePassageHtmlFromDom();
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    setSelectionToolbar((s) => ({ ...s, open: false }));
+  };
+
+  const addNoteFromSelection = () => {
+    const quote = selectionToolbar.text.trim();
+    if (!quote) return;
+    const createdAt = Date.now();
+
+    applyNoteMarkWithId(createdAt);
+    setNotes((prev) => [{ quote, text: "", createdAt }, ...prev]);
+    setActiveNoteId(createdAt);
+    setIsNotesOpen(true);
+  };
+
+  const removeNoteMarksById = (noteId: number) => {
+    if (!passageRef.current) return;
+    const nodes = Array.from(passageRef.current.querySelectorAll(`span[data-note-id="${noteId}"]`)) as HTMLElement[];
+    nodes.forEach((n) => unwrapElement(n));
+    updatePassageHtmlFromDom();
+  };
+
+  const deleteNote = (id: number) => {
+    removeNoteMarksById(id);
+    setNotes((prev) => prev.filter((n) => n.createdAt !== id));
+    setActiveNoteId((prev) => (prev === id ? null : prev));
+  };
+
+  const handlePassageMouseUp = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) {
+      setSelectionToolbar((s) => ({ ...s, open: false }));
+      return;
+    }
+
+    const text = sel.toString();
+    if (!text || !text.trim()) {
+      setSelectionToolbar((s) => ({ ...s, open: false }));
+      return;
+    }
+
+    const range = sel.getRangeAt(0);
+    if (!passageRef.current) return;
+    const pStart = getClosestPassageParagraph(range.startContainer);
+    const pEnd = getClosestPassageParagraph(range.endContainer);
+    if (!pStart || !pEnd) {
+      setSelectionToolbar((s) => ({ ...s, open: false }));
+      return;
+    }
+
+    selectionRangeRef.current = range.cloneRange();
+    const rect = range.getBoundingClientRect();
+    const top = Math.max(10, rect.top - 44);
+    const left = Math.min(window.innerWidth - 260, Math.max(10, rect.left));
+    setSelectionToolbar({ open: true, top, left, text });
+  };
+
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  const minutes = Math.floor(timeLeft / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = (timeLeft % 60).toString().padStart(2, "0");
+
+  const activeNote = activeNoteId === null ? null : (notes.find((n) => n.createdAt === activeNoteId) ?? null);
+  const notesList = activeNoteId === null ? notes : notes.filter((n) => n.createdAt !== activeNoteId);
+  const passageDangerousHtml = useMemo(() => ({ __html: passageHtml ?? "" }), [passageHtml]);
+
+  const answerSheet = useMemo(() => {
+    return progressNumbers.map((num) => {
+      const key = `q${num}` as QuestionKey;
+      const correct = (correctAnswers as Record<string, string>)[key] ?? "";
+      const userRaw = (selections as Record<string, string>)[key] ?? "";
+      const userDisplay = userRaw && userRaw.trim() ? userRaw.trim() : "N/A";
+      const isCorrect =
+        userDisplay !== "N/A" &&
+        (isTextAnswerKey(key)
+          ? normalizeTextAnswer(userDisplay) === normalizeTextAnswer(String(correct))
+          : userDisplay === correct);
+      return { num, userDisplay, correct, isCorrect };
+    });
+  }, [selections]);
+
+  const totalQuestions = progressNumbers.length;
+  const scoreLabel = `${score ?? 0}/${totalQuestions}`;
+  const feedbackHasWord = /\S+/.test(feedbackText.trim());
+  const dashboardHref = `${userPrefix}/dashboard`;
+  const readingTestsHref = `${userPrefix}/resources/reading`;
+  const reviewHref = pathname;
+
+  const tfngOptions = [
+    { value: "YES", label: "YES" },
+    { value: "NO", label: "NO" },
+    { value: "NOT GIVEN", label: "NOT GIVEN" },
+  ];
+
+  const abcdOptions = [
+    { value: "A", label: "A" },
+    { value: "B", label: "B" },
+    { value: "C", label: "C" },
+    { value: "D", label: "D" },
+  ];
+
+  const dropdownOptions = ["A", "B", "C", "D", "E", "F", "G", "H", "I"] as const;
+
+  const summaryDropdownOptions = [
+    { value: "A", label: "A. courtesy" },
+    { value: "B", label: "B. relationship" },
+    { value: "C", label: "C. difficulty" },
+    { value: "D", label: "D. countryside" },
+    { value: "E", label: "E. suburbs" },
+    { value: "F", label: "F. language" },
+    { value: "G", label: "G. barriers" },
+    { value: "H", label: "H. obstacles" },
+    { value: "I", label: "I. disapproval" },
+  ];
+
+  const copySupportCard = async (key: "visa" | "uzcard", rawNumber: string) => {
+    const number = rawNumber.trim();
+    if (!number) return;
+
+    try {
+      await navigator.clipboard.writeText(number);
+    } catch {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = number;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        ta.style.top = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {
+        return;
+      }
+    }
+
+    setCopiedSupportKey(key);
+    const prev = supportCopyTimeoutRef.current[key];
+    if (prev !== null) window.clearTimeout(prev);
+    supportCopyTimeoutRef.current[key] = window.setTimeout(() => {
+      setCopiedSupportKey((cur) => (cur === key ? null : cur));
+      supportCopyTimeoutRef.current[key] = null;
+    }, 2000);
+  };
+
+  const renderTextInput = (key: QuestionKey, placeholder?: string) => {
+    const current = selections[key] ?? "";
+    return (
+      <input
+        type="text"
+        className="inline-text-input"
+        placeholder={placeholder}
+        value={current}
+        disabled={submitted}
+        onChange={(e) => {
+          if (submitted) return;
+          setSelections((s) => ({ ...s, [key]: e.target.value }));
+        }}
+      />
+    );
+  };
+
+  const renderTfngRadio = (key: QuestionKey) => {
+    const current = selections[key] ?? "";
+    return (
+      <div className="radio-group" role="radiogroup" aria-label={`Answer options for ${key}`}>
+        {tfngOptions.map((o) => (
+          <label key={o.value} className="radio-option">
+            <input
+              type="radio"
+              className="radio-input"
+              name={key}
+              value={o.value}
+              checked={current === o.value}
+              disabled={submitted}
+              onChange={() => {
+                if (submitted) return;
+                setSelections((s) => ({ ...s, [key]: o.value }));
+              }}
+            />
+            <span className="radio-circle" aria-hidden="true" />
+            <span className="radio-text">{o.label}</span>
+          </label>
+        ))}
+      </div>
+    );
+  };
+
+  const renderAbcdRadio = (key: QuestionKey, options?: Array<{ value: string; label: string }>) => {
+    const current = selections[key] ?? "";
+    const opts = options ?? abcdOptions;
+    return (
+      <div className="radio-group" role="radiogroup" aria-label={`Answer options for ${key}`}>
+        {opts.map((o) => (
+          <label key={o.value} className="radio-option">
+            <input
+              type="radio"
+              className="radio-input"
+              name={key}
+              value={o.value}
+              checked={current === o.value}
+              disabled={submitted}
+              onChange={() => {
+                if (submitted) return;
+                setSelections((s) => ({ ...s, [key]: o.value }));
+              }}
+            />
+            <span className="radio-circle" aria-hidden="true" />
+            <span className="radio-text">{o.label}</span>
+          </label>
+        ))}
+      </div>
+    );
+  };
+
+  const renderLetterDropdown = (key: QuestionKey, options?: Array<{ value: string; label: string }>, inline?: boolean) => {
+    const current = (selections[key] ?? "").trim();
+    const isOpen = openDropdownKey === key;
+    const opts = options ?? dropdownOptions.map((v) => ({ value: v, label: v }));
+    const currentLabel = (opts.find((o) => o.value === current)?.label ?? "").trim();
+    return (
+      <div className={`rounded-dropdown${inline ? " rounded-dropdown--inline" : ""}`}>
+        <button
+          type="button"
+          className="rounded-dropdown-trigger"
+          disabled={submitted}
+          onClick={() => {
+            if (submitted) return;
+            setOpenDropdownKey((prev) => (prev === key ? null : key));
+          }}
+        >
+          <span>{current ? currentLabel || current : "Select"}</span>
+          <span aria-hidden="true" style={{ color: "var(--muted)" }}>
+            ▾
+          </span>
+        </button>
+        <div
+          className={`rounded-dropdown-menu${isOpen ? " is-open" : ""}`}
+          role="listbox"
+          aria-label={`Select answer for ${key}`}
+        >
+          {opts.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className="rounded-dropdown-item"
+              onClick={() => {
+                if (submitted) return;
+                setSelections((s) => ({ ...s, [key]: opt.value }));
+                setOpenDropdownKey(null);
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <Head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Reading Passage 3 – Some views on the use of headphones</title>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+      </Head>
+
+      <style jsx global>{`
          .page-root {
            --bg: #f5f5f5;
            --card: #ffffff;
@@ -2350,9 +2351,9 @@ export default function Reading111222Page() {
              boxShadow: "var(--shadow-card)",
            }}
          >
-           <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: "var(--text)" }}>Passage 1</div>
-          <div style={{ fontSize: 14, color: "var(--muted)" }}>Read the text and answer questions 1–13</div>
-        </div>
+           <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: "var(--text)" }}>Passage 3</div>
+           <div style={{ fontSize: 14, color: "var(--muted)" }}>Read the text and answer questions 27–40</div>
+         </div>
 
          <div
            className="main-layout"
@@ -2385,90 +2386,36 @@ export default function Reading111222Page() {
                 setSelectionToolbar((s) => ({ ...s, open: false }));
               }}
             >
-              <h3 style={{ marginTop: 0, marginBottom: 16, fontSize: 20, fontWeight: 700 }}>Ensuring our future food supply</h3>
+              <h3 style={{ marginTop: 0, marginBottom: 16, fontSize: 20, fontWeight: 700 }}>Some views on the use of headphones</h3>
 
-              {passageHtml === null ? (
+             {passageHtml === null ? (
                 <div id="passage3" ref={passageRef}>
                   <p>
-                    Climate change and new diseases threaten the limited varieties of seeds we depend on for food.
-                    Luckily, we still have many of the seeds used in the past—but we must take steps to save them.
+                    Whether wearing headphones at work, or in other areas of everyday life, is a good thing or a bad thing has generated a lot of research and opinion.
                   </p>
                   <p>
-                    Six miles outside the town of Decorah, Iowa in the USA, an 890-acre stretch of rolling fields and
-                    woods called Heritage Farm is letting its crops go to seed. Everything about Heritage Farm is in
-                    stark contrast to the surrounding acres of intensively farmed fields of corn and soybean that are
-                    typical of modern agriculture. Heritage Farm is devoted to collecting rather than growing seeds. It
-                    is home to the Seed Savers Exchange, one of the largest non government-owned seed banks in the
-                    United States.
+                    To visit a typical modern office today is to walk into a room with possibly a dozen songs playing simultaneously but to hear none of them. Up to half of younger workers listen to music on their headphones, and nearly all of them think it makes them better at their jobs. In survey after survey, people report with confidence that music makes them happier, better at concentrating, and more productive.
                   </p>
                   <p>
-                    In 1975 Diane Ott Whealy was given the seedlings of two plant varieties that her great-grandfather
-                    had brought to America from Bavaria in 1870: Grandpa Ott’s morning glory and his German Pink tomato.
-                    Wanting to preserve similar traditional varieties, known as heirloom plants, Diane and her husband,
-                    Kent, decided to establish a place where the seeds of the past could be kept and traded. The
-                    exchange now has more than 13,000 members, and the many thousands of heirloom varieties they have
-                    donated are kept in its walk-in coolers, freezers, and root cellars the seeds of many thousands of
-                    heirloom varieties and, as you walk around an old red barn that is covered in Grandpa Ott’s
-                    beautiful morning glory blossoms, you come across the different vegetables, herbs, and flowers they
-                    have planted there.
+                    Scientists do not share this belief, they maintain that listening to music hurts people’s ability to recall other things they should be doing, and any pop song, loud or soft, reduces overall performance for both extroverts and introverts. A Taiwanese study linked music that has lyrics to lower marks on concentration tests for college students, and other research has shown music with lyrics scrambles our brains’ verbal-processing skills. ‘As silence has the best overall performance, it would still be advisable that people work in silence,’ another reporter dryly concluded.
                   </p>
                   <p>
-                    “Each year our members list their seeds in this,” Diane Ott Whealy says, handing over a copy of the
-                    Seed Savers Exchange 2010 Yearbook. It is as thick as a big-city telephone directory, with page after
-                    page of exotic beans, garlic, potatoes, peppers, apples, pears, and plums—each with its own name and
-                    personal history. For example, there’s an Estonian Yellow Cherry tomato, which was brought to the
-                    seed bank by “an elderly Russian lady” who lived in Tallinn, and a Persian Star garlic from “a
-                    bazaar in Samarkand.” There’s also a bean donated by archaeologists searching for pygmy elephant
-                    fossils in New Mexico.
+                    The question is therefore: if headphones are so bad for productivity, why do so many people at work have them? One factor to consider is that countries like the USA have moved from a farming and manufacturing economy to a service economy, with an emphasis on jobs in offices that require higher levels of concentration, reflection and creativity. As an estimated 70 percent of office workers work in open-plan office spaces, it is more important to create one’s own enclosing bubble of sound. Lending strength to the argument for headphones at work is evidence that music relaxes our muscles, improves our mood, and may even moderately reduce blood pressure, heart rate and anxiety.
                   </p>
                   <p>
-                    Heirloom vegetables have become fashionable in the United States and Europe over the past decade,
-                    prized by a food movement that emphasizes eating locally and preserving the flavor and uniqueness of
-                    heirloom varieties. Found mostly in farmers’ markets and boutique groceries, heirloom varieties have
-                    been squeezed out of supermarkets in favor of modern single-variety fruits and vegetables bred to
-                    ship well and have a uniform appearance, not to enhance flavor.
+                    The story of headphones began in 1910, when the US Navy received an odd letter written in purple ink on blue-and-pink paper. The letter writer, an eccentric inventor and repairman named Nathaniel Baldwin, from the USA state of Utah, made what at the time was an astonishing claim: he had built, in his kitchen, a new kind of headset that could amplify sound. This was an opportune invention for the Navy, who asked for a sound test and then enthusiastically adopted the headsets, later called headphones, and used them in World War I for naval radio communication.
                   </p>
                   <p>
-                    But the movement to preserve heirloom varieties goes way beyond the current interest in North
-                    America and Europe in tasty, locally grown food. It’s also a campaign to protect the world’s future
-                    food supply. Most people in the well-fed world give little thought to where their food comes from or
-                    how it’s grown. They wander through well-stocked supermarkets without realizing that there may be
-                    problem ahead. We’ve been hearing for some time about the loss of flora and fauna in our
-                    rainforests. Very little, by contrast, is being said or done about the parallel decline in the
-                    diversity of the foods we eat.
+                    The purpose of headphones is to concentrate a quiet and private sound in the ear of the listener, which is a radical departure from music’s social purpose in history. ‘Music, together with dance, co-evolved biologically and culturally to serve as a technology of social bonding,’ Nills L Wallin and Bjorn Merker wrote in The Origins of Music. Songs don’t leave behind fossils, but evidence of musical notation dates back to Sumeria, 3,5000 years ago, and in 1995 archeologists discovered a bone flute in southern Europe estimated to be 44,000 years old. If music evolved as a social glue for the species, as a way to make groups and keep them together, headphones have done what writing and literacy did for language – they made music private.
                   </p>
                   <p>
-                    Food variety extinction is happening all over the world—and it’s happening fast. In the United
-                    States an estimated 90 percent of historic fruit and vegetable varieties are no longer grown. Of the
-                    7,000 different apple varieties that were grown in the 180s, fewer than a hundred remain. In the
-                    Philippines thousands of varieties of rice once thrived; now only about a hundred are grown there. In
-                    China 90 percent of the wheat varieties cultivated just a hundred years ago have disappeared.
-                    Experts estimate that in total we have lost more than 50 percent of the world’s food varieties over
-                    the past century.
+                    Author and columnist Stephen Marche wrote that separation from other people is one of the first things ordinary Americans spend their money achieving. It is ‘a by-product of a long-standing national appetite for independence,’ he said. Americans are not alone in their desire for personal independence and privacy. Marche is right; wealth can buy – and modern technology can deliver – personal independence, and it is this that people have always sought.
                   </p>
                   <p>
-                    Why is this a problem? Because if disease or future climate change affects one of the handful of
-                    plants we’ve come to depend on to feed our growing planet, we might desperately need one of those
-                    varieties we’ve let become extinct. The loss of the world’s cereal diversity is a particular cause
-                    for concern. A fungus called Ug99, which was first identified in Uganda in 1999, is spreading across
-                    the world’s wheat crops. From Uganda it moved to Kenya, Ethiopia, Sudan, and Yemen. By 2007 it had
-                    jumped the Persian Gulf into Iran. Scientists predict that the fungus will soon make its way into
-                    India and Pakistan, then spread to Russia and China, and eventually the USA.
+                    Dr Michael Bull, an expert on personal music devices from the University of Sussex in the UK, has repeatedly made the larger point that personal music devices change how we relate to public spaces. Controlling our public spaces is more important now that more people are moving from the edges of cities to live in urban centers. ‘With the urban space, the more it’s inhabited, the safer you feel,’ Bull says. ‘You feel safe if you can feel people there, but you don’t want to interact with them.’ Headphones create shields for wearers, separating them from other people and their surroundings. Headphones have their own rules of good manners; they are like wearing a ‘Do not disturb’ sign. We assume that people wearing them are busy and we should respect their privacy, so now people wear them to appear busy. In fact, it is now becoming quite common for people not to listen to anything at all, but just to wear headphones.
                   </p>
                   <p>
-                    Roughly 90 percent of the world’s wheat has no defense against this particular fungus. If it reached
-                    the USA, an estimated one billion dollars’ worth of crops would be at risk. Scientists believe that
-                    in Asia and Africa alone, the portion currently in danger could leave one billion people without
-                    their primary food source. A famine with significant humanitarian consequences could follow,
-                    according to Rick Ward of Cornell University.
-                  </p>
-                  <p>
-                    The population of the world is expected to reach nine billion by 2045. Some experts say we’ll need to
-                    double our food production to keep up with this growth. Given the added challenge of climate change
-                    and disease, it is becoming ever more urgent to find ways to increase food yield. The world has become
-                    increasingly dependent upon a technology-driven, one-size-fits-all approach to food supply. Yet the
-                    best hope for securing our food’s future may depend on our ability to preserve the locally cultivated
-                    foods of the past.
+                    However, as pointed out at the beginning of this piece, although scientists have stated that headphones are bad for productivity, people still wear them at work. It is not just that headphones create privacy out of public areas, but also that music causes people to relax and reflect and pause. The outcome of relaxation, reflection and pausing at work won’t be captured in minute-to-minute productivity metrics. What must be considered is that in moments of extreme focus, our attention radiates outward, toward the problem, rather than inward, on how to solve the problem. However, with music ‘When our minds are at ease, we’re more likely to direct the spotlight of attention inward,’ Jonah Lehrer wrote in his book Imagine: How Creativity Works. ‘The answers have been there all along. We just weren’t listening.’ In a crowded world, real estate is the ultimate scarce resource, and a headphone is a small invisible fence around our minds – making space, creating separation, and helping us listen to ourselves.
                   </p>
                 </div>
               ) : (
@@ -2493,90 +2440,126 @@ export default function Reading111222Page() {
              >
 
               <div className="question-group">
-                <div className="question-group-title"><strong>Questions 1-7</strong></div>
+                <div className="question-group-title"><strong>Questions 27-31</strong></div>
                 <p>
-                  Do the following statements agree with the views of the writer in Reading Passage?
+                  Do the following statements agree with the claims of the writer in Reading Passage 3?
                   <br />
-                  In boxes 1–7 on your answer sheet, write
+                  In boxes 27–31 on your answer sheet, write
                   <br />
-                  <strong>TRUE</strong> if the statement agrees with the information
+                  <strong>YES</strong> if the statement agrees with the claims of the writer
                   <br />
-                  <strong>FALSE</strong> if the statement contradicts the information
+                  <strong>NO</strong> if the statement contradicts the claims of the writer
                   <br />
-                  <strong>NOT GIVEN</strong> if there is no information on this
+                  <strong>NOT GIVEN</strong> if it is impossible to say what the writer thinks about this
                 </p>
 
                 <div className="question question--plain">
-                  <div className="question-text">1. Heritage Farm is different from most other nearby farms.</div>
-                  {renderTfngRadio("q1")}
+                  <div className="question-text">27. Young people are easily persuaded by surveys that listening to music is beneficial.</div>
+                  {renderTfngRadio("q27")}
                 </div>
 
                 <div className="question question--plain">
-                  <div className="question-text">2. Most nongovernment-owned seed banks are bigger than Seed Savers Exchange.</div>
-                  {renderTfngRadio("q2")}
+                  <div className="question-text">28. Different studies share the same conclusions about the desirability of working in silence.</div>
+                  {renderTfngRadio("q28")}
                 </div>
 
                 <div className="question question--plain">
-                  <div className="question-text">3. Diane Ott Whealy’s grandfather taught her a lot about seed varieties.</div>
-                  {renderTfngRadio("q3")}
+                  <div className="question-text">29. Some doctors recommend wearing headphones to lower blood pressure.</div>
+                  {renderTfngRadio("q29")}
                 </div>
 
                 <div className="question question--plain">
-                  <div className="question-text">4. The seeds people give to the Seed Savers Exchange are stored outdoors.</div>
-                  {renderTfngRadio("q4")}
+                  <div className="question-text">30. Nathaniel Baldwin was a respected government researcher.</div>
+                  {renderTfngRadio("q30")}
                 </div>
 
                 <div className="question question--plain">
-                  <div className="question-text">5. Diane and her husband choose which heirloom seeds to grow on Heritage Farm.</div>
-                  {renderTfngRadio("q5")}
-                </div>
-
-                <div className="question question--plain">
-                  <div className="question-text">6. The seeds are listed in alphabetical order in The Seed Savers Exchange Yearbook.</div>
-                  {renderTfngRadio("q6")}
-                </div>
-
-                <div className="question question--plain">
-                  <div className="question-text">7. The Seed Savers Exchange Yearbook describes how each seed was obtained.</div>
-                  {renderTfngRadio("q7")}
+                  <div className="question-text">31. The effect of the invention of headphones is comparable to the effect of the invention of the writing.</div>
+                  {renderTfngRadio("q31")}
                 </div>
               </div>
 
               <div className="question-group" style={{ marginTop: 16 }}>
-                <div className="question-group-title"><strong>Questions 8-13</strong></div>
+                <div className="question-group-title"><strong>Questions 32-36</strong></div>
                 <p>
-                  Complete the notes below.
+                  Choose the correct letter, <strong>A, B, C or D</strong>.
                   <br />
-                  Choose <strong>ONE WORD AND/OR A NUMBER</strong> from the passage for each answer.
+                  Write the correct letter in boxes <strong>32–36</strong> on your answer sheet.
+                </p>
+
+                <div className="question question--plain">
+                  <div className="question-text">32. What does the writer suggest about a service economy?</div>
+                  {renderAbcdRadio("q32", [
+                    { value: "A", label: "A. The work is mentally demanding" },
+                    { value: "B", label: "B. It provides employment for younger workers" },
+                    { value: "C", label: "C. It is a small part of a country’s economy" },
+                    { value: "D", label: "D. Workers have to live in urban centres" },
+                  ])}
+                </div>
+
+                <div className="question question--plain">
+                  <div className="question-text">33. When the writer mentions the historical evidence for early music he is</div>
+                  {renderAbcdRadio("q33", [
+                    { value: "A", label: "A. emphasizing the diversity of musical forms" },
+                    { value: "B", label: "B. expressing his frustration with the limited archaeological evidence uncovered" },
+                    { value: "C", label: "C. lending support to the view that music has been important in human history" },
+                    { value: "D", label: "D. creating a geographical map of the evolution of music" },
+                  ])}
+                </div>
+
+                <div className="question question--plain">
+                  <div className="question-text">34. What does the writer say about the social effects of listening to music through headphones?</div>
+                  {renderAbcdRadio("q34", [
+                    { value: "A", label: "A. It has caused a reduction in the number of people who listen to music" },
+                    { value: "B", label: "B. It has increased people’s participation in music events" },
+                    { value: "C", label: "C. It has reduced the global variation of music styles" },
+                    { value: "D", label: "D. It has changed the traditional role of music in society" },
+                  ])}
+                </div>
+
+                <div className="question question--plain">
+                  <div className="question-text">35. What does the writer say about personal independence?</div>
+                  {renderAbcdRadio("q35", [
+                    { value: "A", label: "A. Americans are unique in their desire for personal independence" },
+                    { value: "B", label: "B. Personal independence is something that can be purchased" },
+                    { value: "C", label: "C. Striving for personal independence is a recent phenomenon" },
+                    { value: "D", label: "D. Personal independence destroys social connections" },
+                  ])}
+                </div>
+
+                <div className="question question--plain">
+                  <div className="question-text">36. Why does the writer quote Jonah Lehrer in the last paragraph?</div>
+                  {renderAbcdRadio("q36", [
+                    { value: "A", label: "A. to support the writer’s own view" },
+                    { value: "B", label: "B. to draw attention to an authoritative book about music" },
+                    { value: "C", label: "C. to raise awareness of people’s loss of listening skills" },
+                    { value: "D", label: "D. to illustrate how music brings people closer to each other" },
+                  ])}
+                </div>
+              </div>
+
+              <div className="question-group" style={{ marginTop: 16 }}>
+                <div className="question-group-title"><strong>Questions 37-40</strong></div>
+                <p>
+                  Complete the summary using the list of words, <strong>A-I</strong>, below.
                   <br />
-                  Write your answers in boxes <strong>8–13</strong> on your answer sheet.
+                  Write the correct letter, <strong>A-I</strong>, in boxes <strong>37–40</strong> on your answer sheet.
                 </p>
-
-                <p><strong>The food we grow and eat</strong></p>
-
-                <p><strong>Supermarkets</strong></p>
-                <p>• sell fruit and vegetables that transport well</p>
-                <p>• want fruit and vegetables to be standard in their {renderTextInput("q8", "8")}.</p>
-
-                <p><strong>Public awareness</strong></p>
+                <p><strong>Headphones and city living</strong></p>
                 <p>
-                  • while people know about plants disappearing from {renderTextInput("q9", "9")}, very few know about the
-                  decline in fruit and vegetable varieties
+                  Dr Michael Bull believes that listening to music through headphones has changed the
+                  {renderLetterDropdown("q37", summaryDropdownOptions, true)}
+                  the wearers of headphones have with public spaces. Living in the centre of cities is becoming
+                  popular, as people become less keen on living in the
+                  {renderLetterDropdown("q38", summaryDropdownOptions, true)}.
+                  In densely populated city centres, headphones form
+                  {renderLetterDropdown("q39", summaryDropdownOptions, true)}
+                  that isolate people from fellow citizens and from their environment. Wearers of headphones are
+                  treated with
+                  {renderLetterDropdown("q40", summaryDropdownOptions, true)}
+                  that other people do not receive. This is because if we see someone wearing headphones, we
+                  believe they must be occupied in some way and should not be interrupted.
                 </p>
-
-                <p><strong>Extinction of food varieties</strong></p>
-                <p>• less than 100 of the types of {renderTextInput("q10", "10")} once available in the USA are still grown</p>
-                <p>• over {renderTextInput("q11", "11")} of food varieties around the world have disappeared in the last 100 years</p>
-
-                <p><strong>Current problems in food production</strong></p>
-                <p>• a particular fungus is attacking wheat in various countries</p>
-                <p>
-                  • Rick Ward believes the threat to food supplies in Asia and Africa might lead to a {renderTextInput("q12", "12")}
-                </p>
-
-                <p><strong>Food production in the future</strong></p>
-                <p>• climate change and disease may put pressure on food production</p>
-                <p>• twice the amount of food may be needed because of an increase in {renderTextInput("q13", "13")}</p>
               </div>
             </div>
           </div>
