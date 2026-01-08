@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { dirname, join } from "path";
@@ -107,25 +106,15 @@ async function fetchFromApi(request: Request, path: string, init: RequestInit) {
 }
 
 async function getUserIdentity(request: Request): Promise<{ userKey: string; author: string }> {
-  const cookieStore = await cookies();
-  let accessToken = cookieStore.get("accessToken")?.value || "";
-
-  // Backward-compatible: decode old encoded cookies.
-  if (accessToken.includes("%")) {
-    try {
-      accessToken = decodeURIComponent(accessToken);
-    } catch {
-      // ignore
-    }
-  }
-
-  if (!accessToken) {
+  const cookieHeader = request.headers.get("cookie") || "";
+  if (!cookieHeader) {
     throw new Error("unauthorized");
   }
 
+  // Your auth_service /auth/me reads token from cookies, not Authorization.
   const res = await fetchFromApi(request, "/auth/me", {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      cookie: cookieHeader,
       "x-edufy-middleware": "1",
       Accept: "application/json",
     },
@@ -160,19 +149,19 @@ export async function GET(request: Request) {
     return json({ error: "missing_id" }, 400);
   }
 
-  let identity: { userKey: string; author: string };
-  try {
-    identity = await getUserIdentity(request);
-  } catch {
-    return json({ error: "unauthorized" }, 401);
-  }
-
   const filePath = getStorePath();
   const store = await loadStore(filePath);
   const material = getMaterial(store, materialId);
 
   const likesCount = Object.keys(material.likes || {}).length;
-  const likedByMe = Boolean(material.likes && material.likes[identity.userKey]);
+  let likedByMe = false;
+  try {
+    const identity = await getUserIdentity(request);
+    likedByMe = Boolean(material.likes && material.likes[identity.userKey]);
+  } catch {
+    // Public read: allow seeing counts/comments without being logged in.
+    likedByMe = false;
+  }
 
   return json({
     id: materialId,
