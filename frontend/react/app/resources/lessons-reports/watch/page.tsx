@@ -1,35 +1,26 @@
 "use client";
 
 import { notFound, usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { isPlanSufficient } from "@/lib/resourcesRegistry";
 import { videoResourcesRegistry } from "@/lib/videoResourcesRegistry";
 import { useUserProfile } from "../../../UserProfileProvider";
+import { api } from "@/lib/api";
 
-type LocalComment = {
+type StoredComment = {
   id: string;
   text: string;
   author: string;
   createdAt: string;
 };
 
-function storageKeyLikes(materialId: string) {
-  return `edufy:lessons-reports:likes:${materialId}`;
-}
-
-function storageKeyComments(materialId: string) {
-  return `edufy:lessons-reports:comments:${materialId}`;
-}
-
-function safeParseJson<T>(raw: string | null, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
+type InteractionsResponse = {
+  id: string;
+  likesCount: number;
+  likedByMe: boolean;
+  comments: StoredComment[];
+};
 
 export default function LessonsReportsWatchPage() {
   const router = useRouter();
@@ -45,12 +36,13 @@ export default function LessonsReportsWatchPage() {
 
   const { data: profileData } = useUserProfile();
   const userPlan = profileData?.plan ?? "free";
-  const displayName = profileData?.username?.trim() || "User";
 
-  const [likedByMe, setLikedByMe] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
-  const [comments, setComments] = useState<LocalComment[]>([]);
+  const [likedByMe, setLikedByMe] = useState<boolean>(false);
+  const [likesCount, setLikesCount] = useState<number>(0);
+  const [comments, setComments] = useState<StoredComment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [interactionsLoading, setInteractionsLoading] = useState<boolean>(false);
+  const [interactionsError, setInteractionsError] = useState<string | null>(null);
 
   const item = useMemo(() => {
     if (!id) return null;
@@ -61,36 +53,55 @@ export default function LessonsReportsWatchPage() {
 
   const locked = item ? !isPlanSufficient(userPlan, item.requiredPlan) : false;
 
-  useEffect(() => {
+  const loadInteractions = useCallback(async () => {
     if (!item) return;
+    if (locked) return;
 
-    const likesState = safeParseJson<{ likedByMe: boolean; likesCount: number }>(
-      window.localStorage.getItem(storageKeyLikes(item.id)),
-      { likedByMe: false, likesCount: 0 }
-    );
-    setLikedByMe(!!likesState.likedByMe);
-    setLikesCount(Number.isFinite(likesState.likesCount) ? likesState.likesCount : 0);
+    setInteractionsLoading(true);
+    setInteractionsError(null);
+    try {
+      const res = await api(`/api/lessons-reports/interactions?id=${encodeURIComponent(item.id)}`, {
+        method: "GET",
+        headers: { Accept: "application/json" },
+      });
 
-    const storedComments = safeParseJson<LocalComment[]>(
-      window.localStorage.getItem(storageKeyComments(item.id)),
-      []
-    );
-    setComments(Array.isArray(storedComments) ? storedComments : []);
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        throw new Error(t || `request_failed_${res.status}`);
+      }
+
+      const data = (await res.json()) as InteractionsResponse;
+      setLikedByMe(!!data.likedByMe);
+      setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
+      setComments(Array.isArray(data.comments) ? data.comments : []);
+    } catch (err: any) {
+      setInteractionsError(String(err?.message ?? err ?? "Failed to load interactions").slice(0, 160));
+    } finally {
+      setInteractionsLoading(false);
+    }
+  }, [item, locked]);
+
+  useEffect(() => {
+    setLikedByMe(false);
+    setLikesCount(0);
+    setComments([]);
     setNewComment("");
-  }, [item?.id]);
+    setInteractionsError(null);
+    void loadInteractions();
+  }, [item?.id, loadInteractions]);
 
   useEffect(() => {
     if (!item) return;
-    window.localStorage.setItem(
-      storageKeyLikes(item.id),
-      JSON.stringify({ likedByMe, likesCount })
-    );
-  }, [item?.id, likedByMe, likesCount]);
+    if (locked) return;
 
-  useEffect(() => {
-    if (!item) return;
-    window.localStorage.setItem(storageKeyComments(item.id), JSON.stringify(comments));
-  }, [comments, item?.id]);
+    const intervalId = window.setInterval(() => {
+      void loadInteractions();
+    }, 15000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [item, locked, loadInteractions]);
 
   useEffect(() => {
     if (!id) return;
@@ -152,31 +163,70 @@ export default function LessonsReportsWatchPage() {
                 <div>
                   <h2 className="text-lg font-semibold">Comments</h2>
                   <p className="text-sm text-slate-400">
-                    Likes &amp; comments are saved on this device.
+                    Likes &amp; comments are shared across users.
                   </p>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => {
-                    setLikedByMe((prev) => {
-                      const next = !prev;
-                      setLikesCount((c) => {
-                        const safe = Number.isFinite(c) ? c : 0;
-                        return Math.max(0, safe + (next ? 1 : -1));
+                    if (!item) return;
+                    if (locked) return;
+
+                    setInteractionsLoading(true);
+                    setInteractionsError(null);
+                    api("/api/lessons-reports/interactions", {
+                      method: "POST",
+                      headers: { "content-type": "application/json" },
+                      body: JSON.stringify({ id: item.id, action: "toggle_like" }),
+                    })
+                      .then(async (res) => {
+                        if (!res.ok) {
+                          const t = await res.text().catch(() => "");
+                          throw new Error(t || `request_failed_${res.status}`);
+                        }
+                        const data = (await res.json()) as InteractionsResponse;
+                        setLikedByMe(!!data.likedByMe);
+                        setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
+                        setComments(Array.isArray(data.comments) ? data.comments : []);
+                      })
+                      .catch((err: any) => {
+                        setInteractionsError(
+                          String(err?.message ?? err ?? "Failed to update like").slice(0, 160)
+                        );
+                      })
+                      .finally(() => {
+                        setInteractionsLoading(false);
                       });
-                      return next;
-                    });
                   }}
-                  className={`inline-flex items-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
+                  disabled={interactionsLoading}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
                     likedByMe
-                      ? "border-white/70 bg-white text-slate-900"
+                      ? "border-red-500/70 bg-red-500/10 text-red-200"
                       : "border-neutral-700 bg-neutral-950 text-slate-100 hover:border-white/60 hover:bg-neutral-900"
-                  }`}
+                  } ${interactionsLoading ? "opacity-60" : ""}`}
                 >
-                  Like ({likesCount})
+                  <svg
+                    viewBox="0 0 24 24"
+                    className={`h-4 w-4 ${likedByMe ? "text-red-400" : "text-slate-300"}`}
+                    fill={likedByMe ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  {likesCount}
                 </button>
               </div>
+
+              {interactionsError && (
+                <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-3 text-sm text-red-200">
+                  {interactionsError}
+                </div>
+              )}
 
               <div className="space-y-3">
                 <label className="block text-xs font-medium text-slate-400">Add a comment</label>
@@ -193,15 +243,37 @@ export default function LessonsReportsWatchPage() {
                     onClick={() => {
                       const text = newComment.trim();
                       if (!text) return;
-                      const next: LocalComment = {
-                        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                        text,
-                        author: displayName,
-                        createdAt: new Date().toISOString(),
-                      };
-                      setComments((prev) => [next, ...prev]);
-                      setNewComment("");
+                      if (!item) return;
+                      if (locked) return;
+
+                      setInteractionsLoading(true);
+                      setInteractionsError(null);
+                      api("/api/lessons-reports/interactions", {
+                        method: "POST",
+                        headers: { "content-type": "application/json" },
+                        body: JSON.stringify({ id: item.id, action: "add_comment", text }),
+                      })
+                        .then(async (res) => {
+                          if (!res.ok) {
+                            const t = await res.text().catch(() => "");
+                            throw new Error(t || `request_failed_${res.status}`);
+                          }
+                          const data = (await res.json()) as InteractionsResponse;
+                          setLikedByMe(!!data.likedByMe);
+                          setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
+                          setComments(Array.isArray(data.comments) ? data.comments : []);
+                          setNewComment("");
+                        })
+                        .catch((err: any) => {
+                          setInteractionsError(
+                            String(err?.message ?? err ?? "Failed to post comment").slice(0, 160)
+                          );
+                        })
+                        .finally(() => {
+                          setInteractionsLoading(false);
+                        });
                     }}
+                    disabled={interactionsLoading}
                     className="inline-flex items-center rounded-full border border-neutral-700 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-900 transition-colors hover:bg-white/90"
                   >
                     Post
