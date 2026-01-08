@@ -16,7 +16,7 @@ export const LESSONS_REPORTS_BASE_URL =
   "https://resources.edufyuzbekistan.com/materials/lessons-reports";
 
 export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
-  "writing-band-report-task-1": {
+  "A7f9K2Qm8Z": {
     title: "How to write overviews for maps/layouts",
     section: "writing",
     mediaType: "video",
@@ -24,7 +24,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     href: `${LESSONS_REPORTS_BASE_URL}/video5376445830.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },
-  "writing-band-report-task-2": {
+  "B3Z8qM6A9T": {
     title: "Linking sentences in Task 2",
     section: "writing",
     mediaType: "video",
