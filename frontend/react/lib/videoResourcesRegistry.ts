@@ -9,6 +9,7 @@ export type VideoResourceRule = {
   mediaType: VideoResourceMediaType;
   requiredPlan: UserPlan;
   href?: string;
+  telegramHref?: string;
 };
 
 export const LESSONS_REPORTS_BASE_URL =
@@ -21,6 +22,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     mediaType: "video",
     requiredPlan: "premium",
     href: `${LESSONS_REPORTS_BASE_URL}/video5376445830.mp4`,
+    telegramHref: "https://t.me/sweetsielts",
   },
   "listening-mcq-explanations": {
     title: "Listening: MCQ explanations",
@@ -28,6 +30,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     mediaType: "video",
     requiredPlan: "free",
     href: `${LESSONS_REPORTS_BASE_URL}/listening-mcq-explanations.mp4`,
+    telegramHref: "https://t.me/sweetsielts",
   },
   "reading-tfng-strategy": {
     title: "Reading: TFNG strategy lesson",
@@ -35,6 +38,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     mediaType: "video",
     requiredPlan: "free",
     href: `${LESSONS_REPORTS_BASE_URL}/reading-tfng-strategy.mp4`,
+    telegramHref: "https://t.me/sweetsielts",
   },
   "speaking-part-2-feedback": {
     title: "Speaking: Part 2 feedback",
@@ -42,5 +46,6 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     mediaType: "file",
     requiredPlan: "premium",
     href: `${LESSONS_REPORTS_BASE_URL}/speaking-part-2-feedback.zip`,
+    telegramHref: "https://t.me/sweetsielts",
   },
 };
