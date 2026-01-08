@@ -20,7 +20,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "writing",
     mediaType: "video",
     requiredPlan: "premium",
-    href: `${LESSONS_REPORTS_BASE_URL}/video5376445830-shirin-9.0.mp4`,
+    href: `${LESSONS_REPORTS_BASE_URL}/video5376445830.mp4`,
   },
   "listening-mcq-explanations": {
     title: "Listening: MCQ explanations",
