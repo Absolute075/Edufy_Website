@@ -1,7 +1,7 @@
 import type { UserPlan } from "./resourcesRegistry";
 
 export type VideoResourceSection = "writing" | "listening" | "reading" | "speaking";
-export type VideoResourceMediaType = "pdf" | "video" | "file";
+export type VideoResourceMediaType = "video" | "file";
 
 export type VideoResourceRule = {
   title: string;

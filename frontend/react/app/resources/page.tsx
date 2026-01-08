@@ -17,7 +17,7 @@ export default function ResourcesPage() {
   const speakingHref = `${baseResourcesPath}/speaking`;
   const mockHref = `${baseResourcesPath}/mock`;
   const articlesHref = `${baseResourcesPath}/articles`;
-  const videoHref = `${baseResourcesPath}/video`;
+  const videoHref = `${baseResourcesPath}/lessons-reports`;
 
   return (
     <DashboardShell>
