@@ -17,6 +17,8 @@ export default function ResourcesPage() {
   const speakingHref = `${baseResourcesPath}/speaking`;
   const mockHref = `${baseResourcesPath}/mock`;
   const articlesHref = `${baseResourcesPath}/articles`;
+  const videoHref = `${baseResourcesPath}/video`;
+
   return (
     <DashboardShell>
       <div className="mx-auto max-w-5xl space-y-6">
@@ -107,6 +109,24 @@ export default function ResourcesPage() {
                   </div>
                 </div>
                 <span className="mt-3 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
+                  Open
+                  <span className="ml-1 text-[10px]">→</span>
+                </span>
+              </Link>
+
+              <Link
+                href={videoHref}
+                className="group flex flex-col justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
+              >
+                <div>
+                  <div className="text-sm font-medium text-slate-100">
+                    Video lessons &amp; reports &amp; explanations
+                  </div>
+                  <div className="mt-1 text-xs text-slate-400">
+                    Video lessons, band reports, and detailed explanations
+                  </div>
+                </div>
+                <span className="mt-1 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
                   Open
                   <span className="ml-1 text-[10px]">→</span>
                 </span>
