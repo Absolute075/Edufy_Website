@@ -338,8 +338,8 @@ public class AuthService {
     public TokenResponse refresh(RefreshRequest request) {
         String username = jwtService.extractUsername(request.getRefreshToken());
         String newAccessToken = jwtService.generateAccessToken(username);
-        // Возвращаем новый accessToken, старый refreshToken оставляем
-        return new TokenResponse(newAccessToken, request.getRefreshToken());
+        String newRefreshToken = jwtService.generateRefreshToken(username);
+        return new TokenResponse(newAccessToken, newRefreshToken);
     }
 
     // ================== FORGOT PASSWORD (SEND CODE) ==================
