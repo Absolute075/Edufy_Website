@@ -180,22 +180,21 @@ export default function LessonsReportsResourcesPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        if (!item.href) return;
-
                         if (locked) {
                           router.push(
-                            `${userPrefix}/billing?redirect=${encodeURIComponent(pathname)}`
+                            `${userPrefix}/billing?redirect=${encodeURIComponent(
+                              `${userPrefix}/resources/lessons-reports/watch?id=${encodeURIComponent(item.id)}`
+                            )}`
                           );
                           return;
                         }
 
-                        window.open(item.href, "_blank", "noopener,noreferrer");
+                        router.push(
+                          `${userPrefix}/resources/lessons-reports/watch?id=${encodeURIComponent(item.id)}`
+                        );
                       }}
-                      disabled={!item.href}
                       className={`shrink-0 rounded-full border px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition-colors md:self-center ${
-                        !item.href
-                          ? "cursor-not-allowed border-neutral-800 bg-neutral-950 text-slate-500"
-                          : locked
+                        locked
                           ? "border-neutral-700 bg-neutral-950 text-slate-200 hover:border-white/60 hover:bg-neutral-900"
                           : "border-neutral-700 bg-white text-slate-900 hover:bg-white/90"
                       }`}
