@@ -10,6 +10,17 @@ type StoredComment = {
   text: string;
   author: string;
   createdAt: string;
+  parentId?: string | null;
+  authorKey?: string;
+};
+
+type StoredNotification = {
+  id: string;
+  title: string;
+  text: string;
+  href?: string;
+  createdAt: string;
+  unread: boolean;
 };
 
 type MaterialInteractions = {
@@ -19,6 +30,10 @@ type MaterialInteractions = {
 
 type InteractionsStore = {
   materials: Record<string, MaterialInteractions>;
+};
+
+type NotificationsStore = {
+  users: Record<string, StoredNotification[]>;
 };
 
 function json(data: unknown, status = 200) {
@@ -37,6 +52,13 @@ function getStorePath(): string {
   // On prod the project is usually: /var/www/Edufy_Website/frontend/react
   // and storage is: /var/www/Edufy_Website/storage
   return join(process.cwd(), "..", "..", "storage", "lessons-reports-interactions.json");
+}
+
+function getNotificationsPath(): string {
+  const fromEnv = process.env.NOTIFICATIONS_PATH;
+  if (fromEnv && String(fromEnv).trim()) return String(fromEnv).trim();
+
+  return join(process.cwd(), "..", "..", "storage", "notifications.json");
 }
 
 async function loadStore(filePath: string): Promise<InteractionsStore> {
@@ -58,6 +80,37 @@ async function saveStore(filePath: string, store: InteractionsStore): Promise<vo
   const tmpPath = `${filePath}.tmp`;
   await writeFile(tmpPath, JSON.stringify(store, null, 2), "utf8");
   await rename(tmpPath, filePath);
+}
+
+async function loadNotificationsStore(filePath: string): Promise<NotificationsStore> {
+  try {
+    const raw = await readFile(filePath, "utf8");
+    const parsed = JSON.parse(raw) as NotificationsStore;
+    if (!parsed || typeof parsed !== "object") return { users: {} };
+    if (!parsed.users || typeof parsed.users !== "object") return { users: {} };
+    return { users: parsed.users };
+  } catch {
+    return { users: {} };
+  }
+}
+
+async function saveNotificationsStore(filePath: string, store: NotificationsStore): Promise<void> {
+  const dir = dirname(filePath);
+  await mkdir(dir, { recursive: true });
+
+  const tmpPath = `${filePath}.tmp`;
+  await writeFile(tmpPath, JSON.stringify(store, null, 2), "utf8");
+  await rename(tmpPath, filePath);
+}
+
+function toPublicComment(c: StoredComment) {
+  return {
+    id: c.id,
+    text: c.text,
+    author: c.author,
+    createdAt: c.createdAt,
+    parentId: c.parentId ?? null,
+  };
 }
 
 function getMaterial(store: InteractionsStore, materialId: string): MaterialInteractions {
@@ -167,7 +220,7 @@ export async function GET(request: Request) {
     id: materialId,
     likesCount,
     likedByMe,
-    comments: material.comments || [],
+    comments: (material.comments || []).map(toPublicComment),
   });
 }
 
@@ -209,14 +262,54 @@ export async function POST(request: Request) {
       return json({ error: "empty_comment" }, 400);
     }
 
+    const parentIdRaw = payload?.parentId;
+    const parentId = parentIdRaw === undefined || parentIdRaw === null ? null : String(parentIdRaw).trim();
+    if (parentId !== null && !parentId) {
+      return json({ error: "invalid_parent" }, 400);
+    }
+
+    let repliedToUserKey: string | null = null;
+    if (parentId) {
+      const parent = (material.comments || []).find((c) => c && c.id === parentId);
+      if (!parent) {
+        return json({ error: "invalid_parent" }, 400);
+      }
+      if (parent.authorKey && String(parent.authorKey).trim()) {
+        repliedToUserKey = String(parent.authorKey).trim();
+      }
+    }
+
     const comment: StoredComment = {
       id: randomUUID(),
       text: text.slice(0, 2000),
       author: identity.author,
       createdAt: new Date().toISOString(),
+      parentId,
+      authorKey: identity.userKey,
     };
 
     material.comments = [comment, ...(material.comments || [])].slice(0, 200);
+
+    if (parentId && repliedToUserKey && repliedToUserKey !== identity.userKey) {
+      try {
+        const nPath = getNotificationsPath();
+        const nStore = await loadNotificationsStore(nPath);
+        const list = nStore.users[repliedToUserKey] || [];
+        const href = `/resources/lessons-reports/watch?id=${encodeURIComponent(materialId)}`;
+        const notif: StoredNotification = {
+          id: randomUUID(),
+          title: "Вам ответили",
+          text: `Вам ответили в этом видео: ${materialId}`,
+          href,
+          createdAt: new Date().toISOString(),
+          unread: true,
+        };
+        nStore.users[repliedToUserKey] = [notif, ...list].slice(0, 200);
+        await saveNotificationsStore(nPath, nStore);
+      } catch {
+        // ignore
+      }
+    }
   }
 
   store.materials[materialId] = material;
@@ -229,6 +322,6 @@ export async function POST(request: Request) {
     id: materialId,
     likesCount,
     likedByMe,
-    comments: material.comments || [],
+    comments: (material.comments || []).map(toPublicComment),
   });
 }
