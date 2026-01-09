@@ -811,9 +811,7 @@ export default function LessonsReportsWatchPage() {
 
               <div className="space-y-3">
                 {comments.length === 0 ? (
-                  <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4 text-sm text-slate-400">
-                    No comments yet.
-                  </div>
+                  <div className="text-sm text-slate-400">No comments yet.</div>
                 ) : (
                   (() => {
                     const list = Array.isArray(comments) ? comments : [];
