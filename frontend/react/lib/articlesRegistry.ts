@@ -158,7 +158,7 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     description: "Heiress patty hearst's time as a gun-toting militia member both shocked and confused onlookers. Who could help but wonder if she was a willing participant or a brainwashed bandit?",
   },
   "environment-01": {
-    title: "THE KIDNAPPING OF PATTY HEARST",
+    title: "TUNING IN TO NATURE",
     file: "environment-01.pdf",
     preview: "environment-01.png",
     tags: ["environment"],
