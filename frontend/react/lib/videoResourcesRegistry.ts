@@ -64,4 +64,12 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     href: `${LESSONS_REPORTS_BASE_URL}/video1978912924.mp4`,
     telegramHref: "https://t.me/nozima_writes",
   },
+  "F9a5Z2M7YC": {
+    title: "Comparison graphs (Nozima Qadamova 9.0)",
+    section: "writing",
+    mediaType: "video",
+    requiredPlan: "free",
+    href: `${LESSONS_REPORTS_BASE_URL}/video1106821846.mp4`,
+    telegramHref: "https://t.me/nozima_writes",
+  },
 };
