@@ -48,4 +48,12 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     href: `${LESSONS_REPORTS_BASE_URL}/video2140512538.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },
+  "P9M6ZB8A2k": {
+    title: "Idea generation for writing Task 2",
+    section: "writing",
+    mediaType: "video",
+    requiredPlan: "free",
+    href: `${LESSONS_REPORTS_BASE_URL}/video3750045404.mp4`,
+    telegramHref: "https://t.me/sweetsielts",
+  },
 };
