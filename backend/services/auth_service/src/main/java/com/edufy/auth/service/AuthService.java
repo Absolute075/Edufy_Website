@@ -107,8 +107,13 @@ public class AuthService {
         UserEntity user = new UserEntity();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        // Роль: по умолчанию STUDENT, если не передана
-        user.setRole(request.getRole() != null ? request.getRole() : UserEntity.Role.STUDENT);
+        // Роль: при регистрации разрешаем только STUDENT/TEACHER. ADMIN назначается только админом.
+        UserEntity.Role requestedRole = request.getRole();
+        if (requestedRole == UserEntity.Role.TEACHER) {
+            user.setRole(UserEntity.Role.TEACHER);
+        } else {
+            user.setRole(UserEntity.Role.STUDENT);
+        }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 

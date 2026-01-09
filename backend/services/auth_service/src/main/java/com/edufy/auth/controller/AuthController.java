@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -533,6 +535,93 @@ public class AuthController {
         payload.put("email", user.getEmail());
         payload.put("role", user.getRole());
         return ResponseEntity.ok(payload);
+    }
+
+    private Set<String> getBootstrapAdminEmails() {
+        String raw = System.getenv("AUTH_BOOTSTRAP_ADMIN_EMAILS");
+        if (raw == null || raw.isBlank()) return Set.of();
+        return List.of(raw.split(",")).stream()
+                .map(v -> v == null ? "" : v.trim().toLowerCase())
+                .filter(v -> !v.isBlank())
+                .collect(Collectors.toSet());
+    }
+
+    private String getAccessTokenCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+        for (Cookie c : request.getCookies()) {
+            if (c != null && "accessToken".equals(c.getName())) {
+                String v = c.getValue();
+                if (v != null && !v.isBlank()) return v;
+            }
+        }
+        return null;
+    }
+
+    @PostMapping("/admin/set-role")
+    public ResponseEntity<?> adminSetRole(@RequestBody Map<String, Object> body, HttpServletRequest request) {
+        String accessToken = getAccessTokenCookie(request);
+        if (accessToken == null || accessToken.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+
+        String username;
+        try {
+            username = jwtService.extractUsername(accessToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid token"));
+        }
+
+        Optional<UserEntity> callerOpt = userRepository.findByUsername(username);
+        if (callerOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("message", "User not found"));
+        }
+
+        UserEntity caller = callerOpt.get();
+        boolean callerIsAdmin = caller.getRole() == UserEntity.Role.ADMIN;
+        boolean callerIsBootstrapAdmin = getBootstrapAdminEmails().contains(String.valueOf(caller.getEmail()).trim().toLowerCase());
+        if (!callerIsAdmin && !callerIsBootstrapAdmin) {
+            return ResponseEntity.status(403).body(Map.of("message", "Forbidden"));
+        }
+
+        String targetEmail = String.valueOf(body.getOrDefault("email", "")).trim();
+        String targetUsername = String.valueOf(body.getOrDefault("username", "")).trim();
+        String roleRaw = String.valueOf(body.getOrDefault("role", "")).trim();
+
+        if (roleRaw.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Role is required"));
+        }
+
+        UserEntity.Role nextRole;
+        try {
+            nextRole = UserEntity.Role.valueOf(roleRaw.toUpperCase());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
+        }
+
+        Optional<UserEntity> targetOpt = Optional.empty();
+        if (!targetEmail.isBlank()) {
+            targetOpt = userRepository.findByEmail(targetEmail);
+        } else if (!targetUsername.isBlank()) {
+            targetOpt = userRepository.findByUsername(targetUsername);
+        }
+
+        if (targetOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("message", "Target user not found"));
+        }
+
+        UserEntity target = targetOpt.get();
+        target.setRole(nextRole);
+        userRepository.save(target);
+
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "user", Map.of(
+                        "id", target.getId(),
+                        "username", target.getUsername(),
+                        "email", target.getEmail(),
+                        "role", target.getRole()
+                )
+        ));
     }
 
     @GetMapping("/profile")

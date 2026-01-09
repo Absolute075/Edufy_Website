@@ -194,11 +194,53 @@ export async function middleware(request: NextRequest) {
 
     let adminToken = request.cookies.get("admin_token")?.value;
     if (!adminToken) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/login";
-      const redirectTarget = pathname + (search || "");
-      loginUrl.searchParams.set("redirect", redirectTarget);
-      return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+      // Role-based admin session via accessToken cookie.
+      const cookieHeader = request.headers.get("cookie") || "";
+      if (cookieHeader) {
+        try {
+          const { res: meRes } = await fetchFromApi("/auth/me", {
+            headers: {
+              cookie: cookieHeader,
+              "x-edufy-middleware": "1",
+              Accept: "application/json",
+            },
+            cache: "no-store",
+          });
+
+          if (meRes.ok) {
+            const body = await meRes.json().catch(() => null as any);
+            const role = String(body?.role ?? "").toUpperCase();
+            if (role === "ADMIN") {
+              // Allow access without admin_token.
+              adminToken = "";
+            } else {
+              const loginUrl = request.nextUrl.clone();
+              loginUrl.pathname = "/login";
+              const redirectTarget = pathname + (search || "");
+              loginUrl.searchParams.set("redirect", redirectTarget);
+              return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+            }
+          } else {
+            const loginUrl = request.nextUrl.clone();
+            loginUrl.pathname = "/login";
+            const redirectTarget = pathname + (search || "");
+            loginUrl.searchParams.set("redirect", redirectTarget);
+            return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+          }
+        } catch {
+          const loginUrl = request.nextUrl.clone();
+          loginUrl.pathname = "/login";
+          const redirectTarget = pathname + (search || "");
+          loginUrl.searchParams.set("redirect", redirectTarget);
+          return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+        }
+      } else {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = "/login";
+        const redirectTarget = pathname + (search || "");
+        loginUrl.searchParams.set("redirect", redirectTarget);
+        return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+      }
     }
 
     // Backward-compatible: decode old encoded cookies.
@@ -208,26 +250,29 @@ export async function middleware(request: NextRequest) {
       } catch {}
     }
 
-    try {
-      const infoUrl = new URL("/admin-api/admin/info", request.nextUrl);
-      const res = await fetch(infoUrl, {
-        headers: {
-          Authorization: `Bearer ${adminToken}`,
-          "x-edufy-middleware": "1",
-        },
-        cache: "no-store",
-      });
+    // Verify access if admin_token exists (legacy). Role-based flow is verified via /auth/me above.
+    if (adminToken) {
+      try {
+        const infoUrl = new URL("/admin-api/admin/info", request.nextUrl);
+        const res = await fetch(infoUrl, {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+            "x-edufy-middleware": "1",
+          },
+          cache: "no-store",
+        });
 
-      if (res.status === 401 || res.status === 403) {
-        const loginUrl = request.nextUrl.clone();
-        loginUrl.pathname = "/login";
-        const redirectTarget = pathname + (search || "");
-        loginUrl.searchParams.set("redirect", redirectTarget);
-        const redirectRes = clearAdminTokenCookie(NextResponse.redirect(loginUrl), request);
-        return applyRobotsHeader(redirectRes, pathname, host);
+        if (res.status === 401 || res.status === 403) {
+          const loginUrl = request.nextUrl.clone();
+          loginUrl.pathname = "/login";
+          const redirectTarget = pathname + (search || "");
+          loginUrl.searchParams.set("redirect", redirectTarget);
+          const redirectRes = clearAdminTokenCookie(NextResponse.redirect(loginUrl), request);
+          return applyRobotsHeader(redirectRes, pathname, host);
+        }
+      } catch {
+        // If admin service is temporarily unreachable, allow the request to proceed.
       }
-    } catch {
-      // If admin service is temporarily unreachable, allow the request to proceed.
     }
 
     const needsAdminPrefix = pathname === "/" || !isAdminUiPath(pathname);
@@ -253,11 +298,47 @@ export async function middleware(request: NextRequest) {
 
     const adminToken = request.cookies.get("admin_token")?.value;
     if (!adminToken) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/admin/login";
-      const redirectTarget = pathname + (search || "");
-      loginUrl.searchParams.set("redirect", redirectTarget);
-      return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+      const cookieHeader = request.headers.get("cookie") || "";
+      if (!cookieHeader) {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = "/login";
+        const redirectTarget = pathname + (search || "");
+        loginUrl.searchParams.set("redirect", redirectTarget);
+        return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+      }
+
+      try {
+        const { res: meRes } = await fetchFromApi("/auth/me", {
+          headers: {
+            cookie: cookieHeader,
+            "x-edufy-middleware": "1",
+            Accept: "application/json",
+          },
+          cache: "no-store",
+        });
+
+        if (!meRes.ok) {
+          const loginUrl = request.nextUrl.clone();
+          loginUrl.pathname = "/login";
+          const redirectTarget = pathname + (search || "");
+          loginUrl.searchParams.set("redirect", redirectTarget);
+          return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+        }
+
+        const body = await meRes.json().catch(() => null as any);
+        const role = String(body?.role ?? "").toUpperCase();
+        if (role !== "ADMIN") {
+          const url = request.nextUrl.clone();
+          url.pathname = "/dashboard";
+          return applyRobotsHeader(NextResponse.redirect(url), pathname, host);
+        }
+      } catch {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = "/login";
+        const redirectTarget = pathname + (search || "");
+        loginUrl.searchParams.set("redirect", redirectTarget);
+        return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+      }
     }
   }
 

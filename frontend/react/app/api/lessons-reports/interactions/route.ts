@@ -36,22 +36,6 @@ type NotificationsStore = {
   users: Record<string, StoredNotification[]>;
 };
 
-function getAdminKeys(): Set<string> {
-  const raw = String(process.env.LESSONS_REPORTS_ADMIN_KEYS ?? "").trim();
-  if (!raw) return new Set();
-  return new Set(
-    raw
-      .split(",")
-      .map((v) => String(v).trim())
-      .filter(Boolean)
-  );
-}
-
-function isAdminUser(userKey: string): boolean {
-  if (!userKey) return false;
-  return getAdminKeys().has(String(userKey).trim());
-}
-
 function json(data: unknown, status = 200) {
   return NextResponse.json(data, {
     status,
@@ -176,7 +160,9 @@ async function fetchFromApi(request: Request, path: string, init: RequestInit) {
   throw new Error(lastError || "fetch failed");
 }
 
-async function getUserIdentity(request: Request): Promise<{ userKey: string; author: string }> {
+async function getUserIdentity(
+  request: Request
+): Promise<{ userKey: string; author: string; role: "STUDENT" | "TEACHER" | "ADMIN" | string }> {
   const cookieHeader = request.headers.get("cookie") || "";
   if (!cookieHeader) {
     throw new Error("unauthorized");
@@ -201,6 +187,7 @@ async function getUserIdentity(request: Request): Promise<{ userKey: string; aut
   const id = body?.id ?? body?.user?.id ?? body?.data?.id;
   const username = body?.username ?? body?.user?.username ?? body?.data?.username;
   const email = body?.email ?? body?.user?.email ?? body?.data?.email;
+  const role = body?.role ?? body?.user?.role ?? body?.data?.role ?? "";
 
   const userKey = String(id ?? username ?? email ?? "").trim();
   const author = String(username ?? email ?? "User").trim() || "User";
@@ -209,7 +196,7 @@ async function getUserIdentity(request: Request): Promise<{ userKey: string; aut
     throw new Error("unauthorized");
   }
 
-  return { userKey, author };
+  return { userKey, author, role: String(role || "").trim() };
 }
 
 export async function GET(request: Request) {
@@ -231,7 +218,7 @@ export async function GET(request: Request) {
   try {
     const identity = await getUserIdentity(request);
     viewerUserKey = identity.userKey;
-    viewerIsAdmin = isAdminUser(identity.userKey);
+    viewerIsAdmin = String(identity.role).toUpperCase() === "ADMIN";
     likedByMe = Boolean(material.likes && material.likes[identity.userKey]);
   } catch {
     // Public read: allow seeing counts/comments without being logged in.
@@ -253,7 +240,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  let identity: { userKey: string; author: string };
+  let identity: { userKey: string; author: string; role: string };
   try {
     identity = await getUserIdentity(request);
   } catch {
@@ -346,7 +333,7 @@ export async function POST(request: Request) {
       return json({ error: "missing_comment_id" }, 400);
     }
 
-    const viewerIsAdmin = isAdminUser(identity.userKey);
+    const viewerIsAdmin = String(identity.role).toUpperCase() === "ADMIN";
     const target = (material.comments || []).find((c) => c && c.id === commentId);
     if (!target) {
       return json({ error: "comment_not_found" }, 404);
@@ -381,7 +368,7 @@ export async function POST(request: Request) {
 
   const likesCount = Object.keys(material.likes || {}).length;
   const likedByMe = Boolean(material.likes && material.likes[identity.userKey]);
-  const viewerIsAdmin = isAdminUser(identity.userKey);
+  const viewerIsAdmin = String(identity.role).toUpperCase() === "ADMIN";
 
   return json({
     id: materialId,

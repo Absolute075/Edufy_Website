@@ -5,6 +5,64 @@ export async function GET(request: Request) {
   const cookieStore = await cookies();
   const tokenRaw = cookieStore.get('admin_token')?.value;
 
+  const cookieHeader = request.headers.get('cookie') || '';
+
+  // Preferred: role-based admin session via auth_service accessToken cookie.
+  if (!tokenRaw) {
+    if (!cookieHeader) {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+    }
+
+    const requestOrigin = (() => {
+      try {
+        return new URL(request.url).origin;
+      } catch {
+        return '';
+      }
+    })();
+
+    const candidates = [
+      process.env.API_ORIGIN,
+      process.env.NEXT_PUBLIC_API_ORIGIN,
+      'http://127.0.0.1:8082',
+      requestOrigin,
+    ].filter((v): v is string => Boolean(v));
+
+    for (const base of candidates) {
+      try {
+        const meUrl = new URL('/auth/me', base);
+        const res = await fetch(meUrl, {
+          headers: {
+            cookie: cookieHeader,
+            'x-edufy-middleware': '1',
+            Accept: 'application/json',
+          },
+          cache: 'no-store',
+        });
+
+        if (res.status === 401) {
+          return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+        }
+        if (!res.ok) {
+          continue;
+        }
+
+        const data: any = await res.json().catch(() => null);
+        const role = String(data?.role ?? '').toUpperCase();
+        if (role !== 'ADMIN') {
+          return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+        }
+
+        const admin = String(data?.username ?? data?.email ?? 'admin');
+        return NextResponse.json({ admin, role: 'ADMIN', status: 'ok' }, { status: 200 });
+      } catch {
+        // try next candidate
+      }
+    }
+
+    return NextResponse.json({ error: 'upstream_unreachable' }, { status: 502 });
+  }
+
   if (!tokenRaw) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
