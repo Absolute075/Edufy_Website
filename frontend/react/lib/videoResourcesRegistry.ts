@@ -17,7 +17,7 @@ export const LESSONS_REPORTS_BASE_URL =
 
 export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
   "A7f9K2Qm8Z": {
-    title: "How to write overviews for maps/layouts in Task 1",
+    title: "How to write overviews for maps/layouts in Task 1 (Shirin 9.0)",
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
@@ -25,7 +25,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     telegramHref: "https://t.me/sweetsielts",
   },
   "B3Z8qM6A9T": {
-    title: "Linking sentences in Task 2",
+    title: "Linking sentences in Task 2 (Shirin 9.0)",
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
@@ -33,7 +33,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     telegramHref: "https://t.me/sweetsielts",
   },
   "K7A9M2Qz8B": {
-    title: "How to write overviews in Task 1",
+    title: "How to write overviews in Task 1 (Shirin 9.0)",
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
@@ -41,7 +41,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     telegramHref: "https://t.me/sweetsielts",
   },
   "A8Z9B6M2Qt": {
-    title: "How to work with AI to improve speaking",
+    title: "How to work with AI to improve speaking (Shirin 9.0)",
     section: "speaking",
     mediaType: "video",
     requiredPlan: "free",
@@ -49,7 +49,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     telegramHref: "https://t.me/sweetsielts",
   },
   "P9M6ZB8A2k": {
-    title: "Idea generation for writing Task 2",
+    title: "Idea generation for writing Task 2 (Shirin 9.0)",
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
@@ -57,7 +57,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     telegramHref: "https://t.me/sweetsielts",
   },
   "G7K2m9B4QX": {
-    title: "Trend graphs in Task 1",
+    title: "Trend graphs in Task 1 (Nozima Qadamova 9.0)",
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
