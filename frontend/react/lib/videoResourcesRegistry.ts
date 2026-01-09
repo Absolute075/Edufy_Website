@@ -17,7 +17,7 @@ export const LESSONS_REPORTS_BASE_URL =
 
 export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
   "A7f9K2Qm8Z": {
-    title: "How to write overviews for maps/layouts",
+    title: "How to write overviews for maps/layouts in Task 1",
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
@@ -30,6 +30,22 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     mediaType: "video",
     requiredPlan: "free",
     href: `${LESSONS_REPORTS_BASE_URL}/video2993536838.mp4`,
+    telegramHref: "https://t.me/sweetsielts",
+  },
+  "K7A9M2Qz8B": {
+    title: "How to write overviews in Task 1",
+    section: "writing",
+    mediaType: "video",
+    requiredPlan: "free",
+    href: `${LESSONS_REPORTS_BASE_URL}/video5742279084.mp4`,
+    telegramHref: "https://t.me/sweetsielts",
+  },
+  "A8Z9B6M2Qt": {
+    title: "How to work with AI to improve speaking",
+    section: "speaking",
+    mediaType: "video",
+    requiredPlan: "free",
+    href: `${LESSONS_REPORTS_BASE_URL}/video2140512538.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },
 };
