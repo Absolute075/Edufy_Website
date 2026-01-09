@@ -61,6 +61,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
       let favoriteSubject = data?.favoriteSubject ?? "";
       let dailyHours = data?.dailyHours ?? "";
       let plan = data?.plan ?? "free";
+      let isAdmin = false;
 
       try {
         const resMe = await api("/auth/me");
@@ -69,6 +70,9 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
           if (me) {
             if (me.username) username = me.username;
             if (me.email) email = me.email;
+
+            const role = String(me.role ?? "").toUpperCase();
+            isAdmin = role === "ADMIN";
             const rawPlan =
               me.plan ??
               me.data?.plan ??
@@ -125,6 +129,10 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
         }
       } catch {
         // ignore, ошибка сессии уже обрабатывается глобально
+      }
+
+      if (isAdmin) {
+        plan = "premium";
       }
 
       const next: UserProfileData = {

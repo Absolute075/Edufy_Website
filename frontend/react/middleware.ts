@@ -369,6 +369,28 @@ export async function middleware(request: NextRequest) {
         : undefined;
       const requiredPlan = rule?.requiredPlan ?? "premium";
       if (requiredPlan !== "free") {
+        // Admin: full access to all resources regardless of plan.
+        try {
+          const { res: meRes } = await fetchFromApi("/auth/me", {
+            headers: {
+              cookie: `accessToken=${accessToken}`,
+              "x-edufy-middleware": "1",
+              Accept: "application/json",
+            },
+            cache: "no-store",
+          });
+
+          if (meRes.ok) {
+            const body = await meRes.json().catch(() => null as any);
+            const role = String(body?.role ?? "").toUpperCase();
+            if (role === "ADMIN") {
+              return applyRobotsHeader(NextResponse.next(), pathname, host);
+            }
+          }
+        } catch {
+          // ignore and fallback to plan checks
+        }
+
         let userPlan = "free";
         let planResolved = false;
         let profileStatus: number | "error" | "skipped" = "skipped";
