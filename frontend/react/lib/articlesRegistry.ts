@@ -149,4 +149,28 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 5,
     description: "THE SMELL OF BREAKFAST DRIFTED UPSTAIRS. IT MADE THE BEDROOM FEEL HOMEY RATHER THAN LIKE A HOSTEL. BUT BY NIGHT, THE DRUGGED TENANT AWAITED BURIAL IN THE BACK GARDEN...  OURTESY OF THE OLD LANDLADY",
   },
+  "general-07": {
+    title: "THE KIDNAPPING OF PATTY HEARST",
+    file: "general-07.pdf",
+    preview: "general-07.png",
+    tags: ["general"],
+    pages: 7,
+    description: "Heiress patty hearst's time as a gun-toting militia member both shocked and confused onlookers. Who could help but wonder if she was a willing participant or a brainwashed bandit?",
+  },
+  "environment-01": {
+    title: "THE KIDNAPPING OF PATTY HEARST",
+    file: "environment-01.pdf",
+    preview: "environment-01.png",
+    tags: ["environment"],
+    pages: 4,
+    description: "Discover joy by letting go and letting your mind wander in the outside world",
+  },
+  "lifestyle-05": {
+    title: "Parenting Is a Joke!",
+    file: "lifestyle-05.pdf",
+    preview: "lifestyle-05.png",
+    tags: ["lifestyle"],
+    pages: 4,
+    description: "This Mother's Day and Father's Day, let's all take some time to laugh at our kids",
+  },
 };
