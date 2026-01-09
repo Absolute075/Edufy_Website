@@ -14,6 +14,7 @@ type StoredComment = {
   author: string;
   createdAt: string;
   parentId?: string | null;
+  canDelete?: boolean;
 };
 
 type InteractionsResponse = {
@@ -555,6 +556,42 @@ export default function LessonsReportsWatchPage() {
     }
   }, [item, locked]);
 
+  const deleteComment = useCallback(
+    async (commentId: string) => {
+      if (!item) return;
+      if (locked) return;
+      const idToDelete = String(commentId || "").trim();
+      if (!idToDelete) return;
+
+      if (!window.confirm("Delete this comment?") ) return;
+
+      setInteractionsLoading(true);
+      setInteractionsError(null);
+      try {
+        const res = await api("/api/lessons-reports/interactions", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id: item.id, action: "delete_comment", commentId: idToDelete }),
+        });
+
+        if (!res.ok) {
+          const t = await res.text().catch(() => "");
+          throw new Error(t || `request_failed_${res.status}`);
+        }
+
+        const data = (await res.json()) as InteractionsResponse;
+        setLikedByMe(!!data.likedByMe);
+        setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
+        setComments(Array.isArray(data.comments) ? data.comments : []);
+      } catch (err: any) {
+        setInteractionsError(String(err?.message ?? err ?? "Failed to delete comment").slice(0, 160));
+      } finally {
+        setInteractionsLoading(false);
+      }
+    },
+    [item, locked]
+  );
+
   useEffect(() => {
     setLikedByMe(false);
     setLikesCount(0);
@@ -830,6 +867,7 @@ export default function LessonsReportsWatchPage() {
                     return top.map((c) => {
                       const whenText = formatRelativeTime(c.createdAt);
                       const replies = repliesFor(c.id);
+                      const canDelete = Boolean(c.canDelete);
                       return (
                         <div
                           key={c.id}
@@ -841,16 +879,27 @@ export default function LessonsReportsWatchPage() {
                           </div>
                           <div className="mt-2 whitespace-pre-wrap text-sm text-slate-200">{c.text}</div>
                           <div className="mt-3 flex items-center justify-between gap-3">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setReplyToId(c.id);
-                                setReplyToAuthor(c.author);
-                              }}
-                              className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
-                            >
-                              Reply
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReplyToId(c.id);
+                                  setReplyToAuthor(c.author);
+                                }}
+                                className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
+                              >
+                                Reply
+                              </button>
+                              {canDelete && (
+                                <button
+                                  type="button"
+                                  onClick={() => void deleteComment(c.id)}
+                                  className="inline-flex items-center rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-200 hover:bg-red-500/15"
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </div>
                             {replies.length > 0 && (
                               <div className="text-xs text-slate-500">{replies.length} replies</div>
                             )}
@@ -869,10 +918,8 @@ export default function LessonsReportsWatchPage() {
                                       {formatRelativeTime(r.createdAt)}
                                     </div>
                                   </div>
-                                  <div className="mt-2 whitespace-pre-wrap text-sm text-slate-200">
-                                    {r.text}
-                                  </div>
-                                  <div className="mt-3">
+                                  <div className="mt-2 whitespace-pre-wrap text-sm text-slate-200">{r.text}</div>
+                                  <div className="mt-3 flex items-center gap-2">
                                     <button
                                       type="button"
                                       onClick={() => {
@@ -883,6 +930,15 @@ export default function LessonsReportsWatchPage() {
                                     >
                                       Reply
                                     </button>
+                                    {Boolean(r.canDelete) && (
+                                      <button
+                                        type="button"
+                                        onClick={() => void deleteComment(r.id)}
+                                        className="inline-flex items-center rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-200 hover:bg-red-500/15"
+                                      >
+                                        Delete
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               ))}
