@@ -72,4 +72,12 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     href: `${LESSONS_REPORTS_BASE_URL}/video1106821846.mp4`,
     telegramHref: "https://t.me/nozima_writes",
   },
+  "R2K9P5X8LF": {
+    title: "Writing Reports (Nozima Qadamova 9.0)",
+    section: "writing",
+    mediaType: "file",
+    requiredPlan: "premium",
+    href: `${LESSONS_REPORTS_BASE_URL}/writing-toward-clarity.pdf`,
+    telegramHref: "https://t.me/nozima_writes",
+  },
 };
