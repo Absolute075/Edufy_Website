@@ -197,4 +197,20 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 124,
     description: "Meet the men behind the Nazis' crimes - from profiteering businessmen and indoctrinated schoolteachers to Hitler's chillingly cold inner circle",
   },
+  "wellbeing-04": {
+    title: "BBC Good Food Middle East",
+    file: "wellbeing-04.pdf",
+    preview: "wellbeing-04.png",
+    tags: ["wellbeing"],
+    pages: 68,
+    description: "100 ways to eat more plants",
+  },
+  "wellbeing-05": {
+    title: "VegNews – Wellness ",
+    file: "wellbeing-05.pdf",
+    preview: "wellbeing-05.png",
+    tags: ["wellbeing"],
+    pages: 132,
+    description: "Eat well for your age",
+  },
 };
