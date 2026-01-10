@@ -416,6 +416,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "125778": {
+      requiredPlan: "premium",
+      title: "The Happiness Industry: How the Government and Big Business Sold Us Well-Being",
+      examType: "real",
+      part: 3,
+      difficulty: "hard",
+      minutes: 20,
+      questions: 14,
+    },
   },
   listening: {
     "846376": {
