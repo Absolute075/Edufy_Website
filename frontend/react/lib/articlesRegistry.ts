@@ -1,4 +1,4 @@
-export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "research" | "magazine" | "general";
+export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "research" | "magazine" | "general" | "history";
 
 export type ArticleRule = {
   title: string;
@@ -180,5 +180,21 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     tags: ["lifestyle"],
     pages: 7,
     description: "Walking the path of the warrior is not for everyone",
+  },
+  "history-01": {
+    title: "All About History Story of World War II",
+    file: "history-01.pdf",
+    preview: "history-01.png",
+    tags: ["history"],
+    pages: 148,
+    description: "THE EVENTS, PEOPLE AND PLACES THAT SHAPED THE WAR",
+  },
+  "history-02": {
+    title: "Bringing history to life",
+    file: "history-02.pdf",
+    preview: "history-02.png",
+    tags: ["history"],
+    pages: 124,
+    description: "Meet the men behind the Nazis' crimes - from profiteering businessmen and indoctrinated schoolteachers to Hitler's chillingly cold inner circle",
   },
 };
