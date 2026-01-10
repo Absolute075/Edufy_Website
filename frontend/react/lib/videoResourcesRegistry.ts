@@ -80,4 +80,12 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     href: `${LESSONS_REPORTS_BASE_URL}/writing-toward-clarity.pdf`,
     telegramHref: "https://t.me/nozima_writes",
   },
+  "G7K2M9P4qX": {
+    title: "How to write overviews for processes (Shirin 9.0)",
+    section: "writing",
+    mediaType: "video",
+    requiredPlan: "free",
+    href: `${LESSONS_REPORTS_BASE_URL}/video3734014428.mp4`,
+    telegramHref: "https://t.me/sweetsielts",
+  },
 };
