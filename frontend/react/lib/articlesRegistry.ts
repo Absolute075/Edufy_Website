@@ -173,4 +173,12 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 4,
     description: "This Mother's Day and Father's Day, let's all take some time to laugh at our kids",
   },
+  "lifestyle-06": {
+    title: "Samurai",
+    file: "lifestyle-06.pdf",
+    preview: "lifestyle-06.png",
+    tags: ["lifestyle"],
+    pages: 7,
+    description: "Walking the path of the warrior is not for everyone",
+  },
 };
