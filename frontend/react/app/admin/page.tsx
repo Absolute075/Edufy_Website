@@ -141,12 +141,12 @@ export default function AdminDashboardPage() {
                 <div className="mt-5">
                   <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Passages</div>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {(['1', '2', '3', '4', 'full'] as const).map((key) => (
+                    {(['1', '2', '3', 'full'] as const).map((key) => (
                       <span
                         key={key}
                         className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1 text-xs text-slate-300"
                       >
-                        {key === 'full' ? 'Full' : `P${key}`}{' '}
+                        {key === 'full' ? 'Full' : `P${key}`} -{' '}
                         <span className="text-slate-100">{readingPartCounts[key]}</span>
                       </span>
                     ))}
@@ -179,7 +179,7 @@ export default function AdminDashboardPage() {
                         key={key}
                         className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1 text-xs text-slate-300"
                       >
-                        {key === 'full' ? 'Full' : `S${key}`}{' '}
+                        {key === 'full' ? 'Full' : `S${key}`} -{' '}
                         <span className="text-slate-100">{listeningPartCounts[key]}</span>
                       </span>
                     ))}
