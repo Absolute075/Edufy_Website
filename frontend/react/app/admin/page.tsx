@@ -100,44 +100,13 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-4 flex flex-col justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-1">Subscriptions</p>
-            <p className="text-sm text-gray-200">Inspect and manage active subscriptions across users.</p>
-          </div>
-          <div className="mt-4 flex gap-4">
-            <Link
-              href="/admin/subscriptions"
-              className="text-[11px] uppercase tracking-[0.22em] text-white/90 underline underline-offset-4 decoration-white/40 hover:text-white"
-            >
-              Open subscriptions
-            </Link>
-          </div>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-4 flex flex-col justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-1">Monitoring</p>
-            <p className="text-sm text-gray-200">
-              Check services health and links to Docker monitor or dashboards.
-            </p>
-          </div>
-          <div className="mt-4">
-            <Link
-              href="/admin/monitoring"
-              className="text-[11px] uppercase tracking-[0.22em] text-white/90 underline underline-offset-4 decoration-white/40 hover:text-white"
-            >
-              Open monitoring
-            </Link>
-          </div>
-        </div>
-
+      <div className="grid gap-4">
         <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-4 flex flex-col justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-3">Materials</p>
 
-            <div className="space-y-3">
-              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-1">
                 <div className="text-sm text-gray-200">Reading</div>
                 <div className="mt-1 text-xs text-gray-400">
                   Total: <span className="text-gray-200">{readingCounts.total}</span>
@@ -146,7 +115,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2">
+              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-1">
                 <div className="text-sm text-gray-200">Listening</div>
                 <div className="mt-1 text-xs text-gray-400">
                   Total: <span className="text-gray-200">{listeningCounts.total}</span>
@@ -155,7 +124,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2">
+              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-2">
                 <div className="text-sm text-gray-200">Articles by tag</div>
                 <div className="mt-1 text-xs text-gray-400">
                   Total: <span className="text-gray-200">{articleItems.length}</span>
@@ -171,7 +140,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2">
+              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-2">
                 <div className="text-sm text-gray-200">Video resources</div>
                 <div className="mt-1 text-xs text-gray-400">
                   Total: <span className="text-gray-200">{videoItems.length}</span>
@@ -196,7 +165,7 @@ export default function AdminDashboardPage() {
                   <span className="text-gray-200">Speaking {videoCountsBySection.speaking}</span>
                 </div>
 
-                <div className="mt-3 space-y-2">
+                <div className="mt-3 space-y-2 max-h-64 overflow-auto pr-1">
                   {sortedVideoEntries.map(([id, rule]) => (
                     <div key={id} className="rounded border border-white/10 bg-black/20 px-2 py-2">
                       <div className="text-xs text-gray-200">{rule.title}</div>
