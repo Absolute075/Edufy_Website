@@ -47,8 +47,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {isLoginPage ? (
         <main className="px-6 py-6 max-w-5xl w-full mx-auto">{children}</main>
       ) : (
-        <div className="min-h-screen flex">
-          <aside className="w-64 border-r border-white/10 bg-black/80 backdrop-blur-sm px-5 py-6 flex flex-col">
+        <div className="h-screen overflow-hidden">
+          <aside className="fixed inset-y-0 left-0 z-30 w-64 border-r border-white/10 bg-black/80 backdrop-blur-sm px-5 py-6 flex flex-col">
             <div className="mb-8">
               <div className="flex items-baseline gap-2">
                 <span className="font-ptserif tracking-[0.35em] text-sm text-white/80">EDUFY</span>
@@ -56,7 +56,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               </div>
             </div>
 
-            <nav className="flex flex-col gap-1 text-xs">
+            <nav className="flex flex-col gap-1 text-xs flex-1 overflow-y-auto pr-1">
               {navItems.map((item) => {
                 const active = pathname === item.href || pathname.startsWith(item.href + '/');
                 return (
@@ -84,7 +84,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
           </aside>
 
-          <main className="flex-1 px-6 py-6 max-w-5xl w-full mx-auto">{children}</main>
+          <main className="ml-64 h-screen overflow-y-auto px-6 py-6">
+            <div className="max-w-5xl w-full mx-auto">{children}</div>
+          </main>
         </div>
       )}
     </div>
