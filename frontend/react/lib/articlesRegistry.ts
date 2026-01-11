@@ -1,4 +1,4 @@
-export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "research" | "magazine" | "general" | "history" | "crime" | "finance" | "politics";
+export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "research" | "general" | "history" | "crime" | "finance" | "politics";
 
 export type ArticleRule = {
   title: string;

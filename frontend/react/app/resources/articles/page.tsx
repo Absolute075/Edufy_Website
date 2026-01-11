@@ -25,7 +25,6 @@ const TAG_LABELS: Record<ArticleTag, string> = {
   lifestyle: "Lifestyle",
   technology: "Technology",
   wellbeing: "Wellbeing",
-  magazine: "Magazine",
   general: "General",
   research: "Research",
   history: "History",
@@ -69,9 +68,9 @@ export default function ArticlesPage() {
               Resources
             </Link>
             <span className="mx-2 text-slate-600">/</span>
-            <span className="text-slate-200">Articles &amp; Magazines</span>
+            <span className="text-slate-200">Articles</span>
           </div>
-          <h1 className="text-2xl font-semibold">Articles &amp; Magazines</h1>
+          <h1 className="text-2xl font-semibold">Articles</h1>
           <p className="text-sm text-slate-400">
             Read topic-based PDFs and open the full document in one click.
           </p>
