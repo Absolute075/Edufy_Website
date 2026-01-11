@@ -121,47 +121,69 @@ export default function AdminDashboardPage() {
             <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-3">Materials</p>
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-1 flex flex-col justify-center xl:aspect-square">
-                <div className="text-sm text-gray-200">Reading</div>
-                <div className="mt-1 text-xs text-gray-400">
-                  Total: <span className="text-gray-200">{readingCounts.total}</span>
-                  {' • '}Free: <span className="text-gray-200">{readingCounts.free}</span>
-                  {' • '}Premium: <span className="text-gray-200">{readingCounts.premium}</span>
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4 xl:col-span-1 xl:aspect-square flex flex-col">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Reading</div>
+                    <div className="mt-2 text-3xl font-semibold text-slate-100">{readingCounts.total}</div>
+                    <div className="mt-0.5 text-xs text-slate-500">Total materials</div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 text-xs text-slate-400">
+                    <span>
+                      Free <span className="text-slate-100">{readingCounts.free}</span>
+                    </span>
+                    <span>
+                      Premium <span className="text-slate-100">{readingCounts.premium}</span>
+                    </span>
+                  </div>
                 </div>
-                <div className="mt-2 text-xs text-gray-400">
-                  Passages:
-                  {' '}
-                  <span className="text-gray-200">1 {readingPartCounts['1']}</span>
-                  {' • '}
-                  <span className="text-gray-200">2 {readingPartCounts['2']}</span>
-                  {' • '}
-                  <span className="text-gray-200">3 {readingPartCounts['3']}</span>
-                  {' • '}
-                  <span className="text-gray-200">4 {readingPartCounts['4']}</span>
-                  {' • '}
-                  <span className="text-gray-200">Full {readingPartCounts.full}</span>
+
+                <div className="mt-5">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Passages</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(['1', '2', '3', '4', 'full'] as const).map((key) => (
+                      <span
+                        key={key}
+                        className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1 text-xs text-slate-300"
+                      >
+                        {key === 'full' ? 'Full' : `P${key}`}{' '}
+                        <span className="text-slate-100">{readingPartCounts[key]}</span>
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-1 flex flex-col justify-center xl:aspect-square">
-                <div className="text-sm text-gray-200">Listening</div>
-                <div className="mt-1 text-xs text-gray-400">
-                  Total: <span className="text-gray-200">{listeningCounts.total}</span>
-                  {' • '}Free: <span className="text-gray-200">{listeningCounts.free}</span>
-                  {' • '}Premium: <span className="text-gray-200">{listeningCounts.premium}</span>
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4 xl:col-span-1 xl:aspect-square flex flex-col">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Listening</div>
+                    <div className="mt-2 text-3xl font-semibold text-slate-100">{listeningCounts.total}</div>
+                    <div className="mt-0.5 text-xs text-slate-500">Total materials</div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 text-xs text-slate-400">
+                    <span>
+                      Free <span className="text-slate-100">{listeningCounts.free}</span>
+                    </span>
+                    <span>
+                      Premium <span className="text-slate-100">{listeningCounts.premium}</span>
+                    </span>
+                  </div>
                 </div>
-                <div className="mt-2 text-xs text-gray-400">
-                  Sections:
-                  {' '}
-                  <span className="text-gray-200">1 {listeningPartCounts['1']}</span>
-                  {' • '}
-                  <span className="text-gray-200">2 {listeningPartCounts['2']}</span>
-                  {' • '}
-                  <span className="text-gray-200">3 {listeningPartCounts['3']}</span>
-                  {' • '}
-                  <span className="text-gray-200">4 {listeningPartCounts['4']}</span>
-                  {' • '}
-                  <span className="text-gray-200">Full {listeningPartCounts.full}</span>
+
+                <div className="mt-5">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Sections</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(['1', '2', '3', '4', 'full'] as const).map((key) => (
+                      <span
+                        key={key}
+                        className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1 text-xs text-slate-300"
+                      >
+                        {key === 'full' ? 'Full' : `S${key}`}{' '}
+                        <span className="text-slate-100">{listeningPartCounts[key]}</span>
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
 
