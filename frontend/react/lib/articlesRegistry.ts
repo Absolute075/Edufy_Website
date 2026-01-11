@@ -221,4 +221,12 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 100,
     description: "20 Destinations Where You Can — And Should—Go It Alone This Year",
   },
+  "research-01": {
+    title: "New Scientist International Edition",
+    file: "research-01.pdf",
+    preview: "research-01.png",
+    tags: ["research-01"],
+    pages: 52,
+    description: "Why time flies and how to make the most of it. Ghostly particles challenge our view of the universe. Revelations from human-plant hybrids",
+  },
 };
