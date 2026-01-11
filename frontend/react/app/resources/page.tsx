@@ -187,8 +187,8 @@ export default function ResourcesPage() {
                 className="group flex flex-col justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
               >
                 <div>
-                  <div className="text-sm font-medium text-slate-100">Practice &amp; Quizzes</div>
-                  <div className="text-xs text-slate-400">Spaced repetition and quick checks</div>
+                  <div className="text-sm font-medium text-slate-100">Practice</div>
+                  <div className="text-xs text-slate-400">Practice to type faster!</div>
                 </div>
                 <span className="mt-1 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
                   Open
