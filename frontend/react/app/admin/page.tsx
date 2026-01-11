@@ -105,8 +105,8 @@ export default function AdminDashboardPage() {
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-3">Materials</p>
 
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
-              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-1">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-1 flex flex-col justify-center xl:aspect-square">
                 <div className="text-sm text-gray-200">Reading</div>
                 <div className="mt-1 text-xs text-gray-400">
                   Total: <span className="text-gray-200">{readingCounts.total}</span>
@@ -115,7 +115,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-1">
+              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-1 flex flex-col justify-center xl:aspect-square">
                 <div className="text-sm text-gray-200">Listening</div>
                 <div className="mt-1 text-xs text-gray-400">
                   Total: <span className="text-gray-200">{listeningCounts.total}</span>
@@ -139,54 +139,6 @@ export default function AdminDashboardPage() {
                   ))}
                 </div>
               </div>
-
-              <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-2">
-                <div className="text-sm text-gray-200">Video resources</div>
-                <div className="mt-1 text-xs text-gray-400">
-                  Total: <span className="text-gray-200">{videoItems.length}</span>
-                  {' • '}Free: <span className="text-gray-200">{videoCountsByPlan.free}</span>
-                  {' • '}Premium: <span className="text-gray-200">{videoCountsByPlan.premium}</span>
-                </div>
-
-                <div className="mt-2 text-xs text-gray-400">
-                  Media: <span className="text-gray-200">Video {videoCountsByMediaType.video}</span>
-                  {' • '}File: <span className="text-gray-200">{videoCountsByMediaType.file}</span>
-                </div>
-
-                <div className="mt-2 text-xs text-gray-400">
-                  Sections:
-                  {' '}
-                  <span className="text-gray-200">Writing {videoCountsBySection.writing}</span>
-                  {' • '}
-                  <span className="text-gray-200">Listening {videoCountsBySection.listening}</span>
-                  {' • '}
-                  <span className="text-gray-200">Reading {videoCountsBySection.reading}</span>
-                  {' • '}
-                  <span className="text-gray-200">Speaking {videoCountsBySection.speaking}</span>
-                </div>
-
-                <div className="mt-3 space-y-2 max-h-64 overflow-auto pr-1">
-                  {sortedVideoEntries.map(([id, rule]) => (
-                    <div key={id} className="rounded border border-white/10 bg-black/20 px-2 py-2">
-                      <div className="text-xs text-gray-200">{rule.title}</div>
-                      <div className="mt-1 text-[11px] text-gray-400">
-                        ID: <span className="font-mono text-gray-200">{id}</span>
-                        {' • '}Section: <span className="text-gray-200">{rule.section}</span>
-                        {' • '}Type: <span className="text-gray-200">{rule.mediaType}</span>
-                        {' • '}Plan: <span className="text-gray-200">{rule.requiredPlan}</span>
-                      </div>
-                      <div className="mt-1 text-[11px] text-gray-400 break-all">
-                        Href:{' '}
-                        <span className="text-gray-200">{rule.href ?? '-'}</span>
-                      </div>
-                      <div className="mt-1 text-[11px] text-gray-400 break-all">
-                        Telegram:{' '}
-                        <span className="text-gray-200">{rule.telegramHref ?? '-'}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
 
@@ -197,6 +149,87 @@ export default function AdminDashboardPage() {
             >
               Open resources
             </Link>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-3">Video resources</p>
+
+            <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4">
+              <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+                <div className="text-sm text-gray-200">
+                  Total: <span className="text-gray-100">{videoItems.length}</span>
+                  {' • '}Free: <span className="text-gray-100">{videoCountsByPlan.free}</span>
+                  {' • '}Premium: <span className="text-gray-100">{videoCountsByPlan.premium}</span>
+                </div>
+                <div className="text-xs text-gray-400">
+                  Media: <span className="text-gray-200">video {videoCountsByMediaType.video}</span>
+                  {' • '}file: <span className="text-gray-200">{videoCountsByMediaType.file}</span>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-400">
+                Sections:
+                {' '}
+                <span className="text-gray-200">writing {videoCountsBySection.writing}</span>
+                {' • '}
+                <span className="text-gray-200">listening {videoCountsBySection.listening}</span>
+                {' • '}
+                <span className="text-gray-200">reading {videoCountsBySection.reading}</span>
+                {' • '}
+                <span className="text-gray-200">speaking {videoCountsBySection.speaking}</span>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {sortedVideoEntries.map(([id, rule]) => (
+                <div
+                  key={id}
+                  className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-base font-semibold text-slate-100">{rule.title}</div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      ID: <span className="font-mono text-slate-300">{id}</span>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                      <span className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1">
+                        {rule.section}
+                      </span>
+                      <span className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1">
+                        {rule.mediaType}
+                      </span>
+                      <span className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1">
+                        {rule.requiredPlan}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {rule.href ? (
+                      <a
+                        href={rule.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-100 transition-colors hover:border-white/60 hover:bg-neutral-900"
+                      >
+                        Open
+                      </a>
+                    ) : null}
+                    {rule.telegramHref ? (
+                      <a
+                        href={rule.telegramHref}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-100 transition-colors hover:border-white/60 hover:bg-neutral-900"
+                      >
+                        Telegram
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
