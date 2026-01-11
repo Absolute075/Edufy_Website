@@ -265,7 +265,7 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     title: "How Gaza Broke MAGA",
     file: "politics-01.pdf",
     preview: "politics-01.png",
-    tags: ["politics-01"],
+    tags: ["politics"],
     pages: 84,
     description: "CHARLIE KIRK AND THE END OF THE ISRAEL CONSENSUS",
   },
