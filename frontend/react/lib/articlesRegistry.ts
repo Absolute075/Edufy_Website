@@ -269,4 +269,12 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 84,
     description: "CHARLIE KIRK AND THE END OF THE ISRAEL CONSENSUS",
   },
+  "lifestyle-08": {
+    title: "The New Yorker",
+    file: "lifestyle-08.pdf",
+    preview: "lifestyle-08.png",
+    tags: ["lifestyle"],
+    pages: 70,
+    description: "Everything about New Yorkers",
+  },
 };
