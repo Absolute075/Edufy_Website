@@ -30,7 +30,8 @@ const TAG_LABELS: Record<ArticleTag, string> = {
   research: "Research",
   history: "History",
   crime: "Crime",
-
+  finance: "Finance",
+  politics: "Politics",
 };
 
 export default function ArticlesPage() {

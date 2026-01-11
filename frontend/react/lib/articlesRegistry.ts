@@ -1,4 +1,4 @@
-export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "research" | "magazine" | "general" | "history" | "crime";
+export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "research" | "magazine" | "general" | "history" | "crime" | "finance" | "politics";
 
 export type ArticleRule = {
   title: string;
@@ -244,5 +244,29 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     tags: ["research"],
     pages: 84,
     description: "Discover the new new sage range",
+  },
+  "finance-01": {
+    title: "Barron’s Magazine",
+    file: "finance-01.pdf",
+    preview: "finance-01.png",
+    tags: ["finance"],
+    pages: 45,
+    description: "Best income investments for 2026",
+  },
+  "finance-02": {
+    title: "Beware The Bubble",
+    file: "finance-02.pdf",
+    preview: "finance-02.png",
+    tags: ["finance"],
+    pages: 96,
+    description: "How to survive the year ahead",
+  },
+  "politics-01": {
+    title: "How Gaza Broke MAGA",
+    file: "politics-01.pdf",
+    preview: "politics-01.png",
+    tags: ["politics-01"],
+    pages: 84,
+    description: "CHARLIE KIRK AND THE END OF THE ISRAEL CONSENSUS",
   },
 };
