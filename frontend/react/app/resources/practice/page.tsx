@@ -264,8 +264,22 @@ function ToolsIcon({ className }: { className?: string }) {
   );
 }
 
+function formatDurationHuman(seconds: number): string {
+  if (seconds === 0) return "infinite";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+
+  const parts: string[] = [];
+  if (h > 0) parts.push(`${h} ${h === 1 ? "hour" : "hours"}`);
+  if (m > 0) parts.push(`${m} ${m === 1 ? "minute" : "minutes"}`);
+  if (s > 0 && h === 0) parts.push(`${s} ${s === 1 ? "second" : "seconds"}`);
+  return parts.length ? parts.join(" ") : "0 seconds";
+}
+
 function parseDurationSeconds(input: string): number | null {
-  const raw = input.trim().toLowerCase();
+  const rawWithSpaces = input.trim().toLowerCase();
+  const raw = rawWithSpaces.replace(/\s+/g, "");
   if (!raw) return null;
   if (/^\d+(\.\d+)?$/.test(raw)) {
     const asNumber = Number(raw);
@@ -273,18 +287,31 @@ function parseDurationSeconds(input: string): number | null {
     return Math.round(asNumber);
   }
 
-  const hoursMatch = raw.match(/(\d+(?:\.\d+)?)\s*h/);
-  const minutesMatch = raw.match(/(\d+(?:\.\d+)?)\s*m/);
-  const secondsMatch = raw.match(/(\d+(?:\.\d+)?)\s*s/);
+  const normalized = raw.replace(/hm(?=\d)/g, "h");
 
-  const h = hoursMatch ? Number(hoursMatch[1]) : 0;
-  const m = minutesMatch ? Number(minutesMatch[1]) : 0;
-  const s = secondsMatch ? Number(secondsMatch[1]) : 0;
+  const tokenRe = /(\d+(?:\.\d+)?)([hms])/g;
+  let totalSeconds = 0;
+  let matchedAny = false;
 
-  if (![h, m, s].every((v) => Number.isFinite(v) && v >= 0)) return null;
-  if (!hoursMatch && !minutesMatch && !secondsMatch) return null;
+  let lastEnd = 0;
+  for (;;) {
+    const m = tokenRe.exec(normalized);
+    if (m === null) break;
+    matchedAny = true;
+    if (m.index !== lastEnd) return null;
+    lastEnd = tokenRe.lastIndex;
+    const value = Number(m[1]);
+    const unit = m[2];
+    if (!Number.isFinite(value) || value < 0) return null;
+    if (unit === "h") totalSeconds += value * 3600;
+    else if (unit === "m") totalSeconds += value * 60;
+    else totalSeconds += value;
+  }
 
-  return Math.round(h * 3600 + m * 60 + s);
+  if (!matchedAny) return null;
+  if (lastEnd !== normalized.length) return null;
+
+  return Math.round(totalSeconds);
 }
 
 export default function PracticePage() {
@@ -317,7 +344,7 @@ export default function PracticePage() {
   const generatedWordCount = useMemo(() => {
     if (mode === "words") return wordsLimit === 0 ? 200 : wordsLimit;
     const seconds = duration === 0 ? 30 : duration;
-    return Math.max(200, seconds * 10);
+    return Math.max(200, Math.min(5000, seconds * 10));
   }, [duration, mode, wordsLimit]);
 
   const [words, setWords] = useState<string[]>(() =>
@@ -476,6 +503,22 @@ export default function PracticePage() {
   }, [currentWord, expectedText.length, historyWords, mode, state, wordsLimit]);
 
   const targetWords = useMemo(() => words, [words]);
+
+  useEffect(() => {
+    if (state !== "running") return;
+    if (mode !== "time") return;
+
+    const remaining = words.length - inputWordIndex;
+    if (remaining > 120) return;
+
+    const extra = buildEnglishText({
+      words: wordlist.words,
+      count: 500,
+      punctuation,
+      numbers,
+    });
+    setWords((prev) => [...prev, ...extra]);
+  }, [inputWordIndex, mode, numbers, punctuation, state, wordlist.words, words.length]);
 
   const chars = useMemo(() => {
     return countChars({
@@ -1753,7 +1796,17 @@ export default function PracticePage() {
                   {mode === "words" ? "Custom Word Amount" : "Test duration"}
                 </div>
                 {mode === "time" ? (
-                  <div className="mt-1 text-xs text-slate-500">Current: {duration === 0 ? "infinite" : `${duration}s`}</div>
+                  <div className="mt-1 text-xs text-slate-500">
+                    <div>Current: {duration === 0 ? "infinite" : `${duration}s`}</div>
+                    <div>
+                      Input: {(() => {
+                        const parsed = parseDurationSeconds(customTimeValue);
+                        if (parsed === null) return "invalid";
+                        if (parsed !== 0 && parsed > 24 * 3600) return "max 24h";
+                        return formatDurationHuman(parsed);
+                      })()}
+                    </div>
+                  </div>
                 ) : null}
 
                 <div className="mt-4">
@@ -1775,7 +1828,7 @@ export default function PracticePage() {
                     <>You can start an infinite test by inputting 0. Then, to stop the test, use esc</>
                   ) : (
                     <>
-                      You can use "h" for hours and "m" for minutes, for example "1h30m".
+                      Formats: 30 (seconds), 1h, 30m, 120m (2h), 1h30m, 15h47m. Max 24h.
                       <div className="mt-2">You can start an infinite test by inputting 0. Then, to stop the test, use esc</div>
                     </>
                   )}
@@ -1826,7 +1879,12 @@ export default function PracticePage() {
 
                       const parsed = parseDurationSeconds(customTimeValue);
                       if (parsed === null) {
-                        setSettingsError("Enter seconds (e.g. 30) or use h/m (e.g. 1h30m). ");
+                        setSettingsError("Enter seconds (e.g. 30) or use h/m (e.g. 1h30m). Max 24h.");
+                        return;
+                      }
+
+                      if (parsed !== 0 && parsed > 24 * 3600) {
+                        setSettingsError("Max duration is 24h.");
                         return;
                       }
                       setDuration(parsed);
