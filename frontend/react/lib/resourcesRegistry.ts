@@ -434,6 +434,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "111555": {
+      requiredPlan: "premium",
+      title: "Examining the placebo effect",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 14,
+    },
   },
   listening: {
     "846376": {

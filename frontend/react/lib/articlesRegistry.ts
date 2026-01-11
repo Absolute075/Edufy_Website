@@ -213,4 +213,12 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 132,
     description: "Eat well for your age",
   },
+  "lifestyle-07": {
+    title: "5280 Magazine: Solo Travel",
+    file: "lifestyle-07.pdf",
+    preview: "lifestyle-07.png",
+    tags: ["lifestyle"],
+    pages: 100,
+    description: "20 Destinations Where You Can — And Should—Go It Alone This Year",
+  },
 };
