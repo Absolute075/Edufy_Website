@@ -237,4 +237,12 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 132,
     description: "Deadliest psychopaths: The Killers who hid their fantasies in plain sight",
   },
+  "research-02": {
+    title: "Coffee Magazine",
+    file: "research-02.pdf",
+    preview: "research-02.png",
+    tags: ["research"],
+    pages: 84,
+    description: "Discover the new new sage range",
+  },
 };
