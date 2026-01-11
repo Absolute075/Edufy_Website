@@ -443,6 +443,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "964512": {
+      requiredPlan: "premium",
+      title: "The Scent of Bygone Days: Is Smell Uniquely Intertwined with Memory?",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
