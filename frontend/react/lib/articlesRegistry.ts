@@ -225,7 +225,7 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     title: "New Scientist International Edition",
     file: "research-01.pdf",
     preview: "research-01.png",
-    tags: ["research-01"],
+    tags: ["research"],
     pages: 52,
     description: "Why time flies and how to make the most of it. Ghostly particles challenge our view of the universe. Revelations from human-plant hybrids",
   },
