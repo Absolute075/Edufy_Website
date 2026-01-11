@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo, useState } from 'react';
 import { useAdminAuth } from './useAdminAuth';
 import { resourcesRegistry } from '@/lib/resourcesRegistry';
 import { articlesRegistry, type ArticleTag } from '@/lib/articlesRegistry';
@@ -98,6 +99,21 @@ export default function AdminDashboardPage() {
     return aRule.title.localeCompare(bRule.title);
   });
 
+  const [readingSearchQuery, setReadingSearchQuery] = useState('');
+
+  const readingSearchResults = useMemo(() => {
+    const q = readingSearchQuery.trim().toLowerCase();
+    if (!q) return [];
+
+    return Object.entries(resourcesRegistry.reading)
+      .map(([id, rule]) => ({ id, ...rule }))
+      .filter((item) => {
+        const hay = `${item.id} ${item.title}`.toLowerCase();
+        return hay.includes(q);
+      })
+      .sort((a, b) => a.title.localeCompare(b.title));
+  }, [readingSearchQuery]);
+
   if (loading) {
     return <p className="text-sm text-gray-300">Loading admin dashboard...</p>;
   }
@@ -119,6 +135,42 @@ export default function AdminDashboardPage() {
         <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-4 flex flex-col justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-3">Materials</p>
+
+            <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4 mb-4">
+              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Reading title check</div>
+              <input
+                type="text"
+                value={readingSearchQuery}
+                onChange={(e) => setReadingSearchQuery(e.target.value)}
+                placeholder="Type reading title or ID..."
+                className="mt-3 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 transition-all duration-200 ease-out hover:border-white/60 focus:border-white focus:outline-none focus:ring-1 focus:ring-white/40"
+              />
+
+              {readingSearchQuery.trim() ? (
+                <div className="mt-3">
+                  <div className="text-xs text-slate-400">
+                    Matches: <span className="text-slate-100">{readingSearchResults.length}</span>
+                  </div>
+                  <div className="mt-3 max-h-60 space-y-2 overflow-auto pr-1">
+                    {readingSearchResults.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-xl border border-neutral-800 bg-black/30 px-4 py-3"
+                      >
+                        <div className="truncate text-sm font-semibold text-slate-100">{item.title}</div>
+                        <div className="mt-1 text-xs text-slate-400">
+                          ID: <span className="font-mono text-slate-200">{item.id}</span>
+                          {' • '}Part: <span className="text-slate-200">{item.part}</span>
+                          {' • '}Plan: <span className="text-slate-200">{item.requiredPlan}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-3 text-xs text-slate-500">Start typing to search in Reading registry.</div>
+              )}
+            </div>
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4 xl:col-span-1 xl:aspect-square flex flex-col">
