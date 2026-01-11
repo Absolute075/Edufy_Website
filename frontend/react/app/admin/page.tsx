@@ -42,8 +42,23 @@ export default function AdminDashboardPage() {
     return { total: items.length, free, premium };
   };
 
+  const countParts = (
+    items: Array<{ part: 1 | 2 | 3 | 4 | 'full' }>,
+  ): Record<'1' | '2' | '3' | '4' | 'full', number> => {
+    return items.reduce(
+      (acc, item) => {
+        const key = String(item.part) as '1' | '2' | '3' | '4' | 'full';
+        acc[key] += 1;
+        return acc;
+      },
+      { '1': 0, '2': 0, '3': 0, '4': 0, full: 0 },
+    );
+  };
+
   const readingCounts = countPlans(readingItems);
   const listeningCounts = countPlans(listeningItems);
+  const readingPartCounts = countParts(readingItems);
+  const listeningPartCounts = countParts(listeningItems);
   const articleTagCounts = ARTICLE_TAGS.reduce(
     (acc, tag) => {
       acc[tag] = 0;
@@ -113,6 +128,19 @@ export default function AdminDashboardPage() {
                   {' • '}Free: <span className="text-gray-200">{readingCounts.free}</span>
                   {' • '}Premium: <span className="text-gray-200">{readingCounts.premium}</span>
                 </div>
+                <div className="mt-2 text-xs text-gray-400">
+                  Passages:
+                  {' '}
+                  <span className="text-gray-200">1 {readingPartCounts['1']}</span>
+                  {' • '}
+                  <span className="text-gray-200">2 {readingPartCounts['2']}</span>
+                  {' • '}
+                  <span className="text-gray-200">3 {readingPartCounts['3']}</span>
+                  {' • '}
+                  <span className="text-gray-200">4 {readingPartCounts['4']}</span>
+                  {' • '}
+                  <span className="text-gray-200">Full {readingPartCounts.full}</span>
+                </div>
               </div>
 
               <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 xl:col-span-1 flex flex-col justify-center xl:aspect-square">
@@ -121,6 +149,19 @@ export default function AdminDashboardPage() {
                   Total: <span className="text-gray-200">{listeningCounts.total}</span>
                   {' • '}Free: <span className="text-gray-200">{listeningCounts.free}</span>
                   {' • '}Premium: <span className="text-gray-200">{listeningCounts.premium}</span>
+                </div>
+                <div className="mt-2 text-xs text-gray-400">
+                  Sections:
+                  {' '}
+                  <span className="text-gray-200">1 {listeningPartCounts['1']}</span>
+                  {' • '}
+                  <span className="text-gray-200">2 {listeningPartCounts['2']}</span>
+                  {' • '}
+                  <span className="text-gray-200">3 {listeningPartCounts['3']}</span>
+                  {' • '}
+                  <span className="text-gray-200">4 {listeningPartCounts['4']}</span>
+                  {' • '}
+                  <span className="text-gray-200">Full {listeningPartCounts.full}</span>
                 </div>
               </div>
 
