@@ -277,6 +277,45 @@ function formatDurationHuman(seconds: number): string {
   return parts.length ? parts.join(" ") : "0 seconds";
 }
 
+function formatDurationHumanFull(seconds: number): string {
+  if (seconds === 0) return "infinite";
+  const total = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+
+  const parts: string[] = [];
+  if (h > 0) parts.push(`${h} ${h === 1 ? "hour" : "hours"}`);
+  if (m > 0) parts.push(`${m} ${m === 1 ? "minute" : "minutes"}`);
+  if (s > 0 || parts.length === 0) parts.push(`${s} ${s === 1 ? "second" : "seconds"}`);
+  return parts.join(" ");
+}
+
+function formatDurationInput(seconds: number): string {
+  if (seconds === 0) return "0";
+  const total = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  let out = "";
+  if (h > 0) out += `${h}h`;
+  if (m > 0) out += `${m}m`;
+  if (s > 0 || !out) out += `${s}s`;
+  return out;
+}
+
+function formatTimerDisplay(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  if (s < 60) return String(s);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = s % 60;
+  if (h >= 1) {
+    return `${h}:${String(m).padStart(2, "0")}`;
+  }
+  return `${m}:${String(ss).padStart(2, "0")}`;
+}
+
 function parseDurationSeconds(input: string): number | null {
   const rawWithSpaces = input.trim().toLowerCase();
   const raw = rawWithSpaces.replace(/\s+/g, "");
@@ -314,6 +353,136 @@ function parseDurationSeconds(input: string): number | null {
   return Math.round(totalSeconds);
 }
 
+function SettingsModal(props: {
+  mode: Mode;
+  duration: number;
+  wordsLimit: number;
+  strict: boolean;
+  onClose: () => void;
+  onApplyWords: (words: number) => void;
+  onApplyDuration: (seconds: number) => void;
+  onToggleStrict: () => void;
+}) {
+  const { mode, duration, wordsLimit, strict, onClose, onApplyWords, onApplyDuration, onToggleStrict } = props;
+
+  const [customWordsValue, setCustomWordsValue] = useState<string>(String(wordsLimit));
+  const [customTimeValue, setCustomTimeValue] = useState<string>(() => formatDurationInput(duration));
+  const [settingsError, setSettingsError] = useState<string>("");
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+      role="dialog"
+      aria-modal="true"
+      onMouseDown={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-2xl border border-neutral-800 bg-neutral-950 p-5"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div className="text-sm font-semibold text-slate-100">
+          {mode === "words" ? "Custom Word Amount" : "Test duration"}
+        </div>
+        {mode === "time" ? (
+          <div className="mt-1 text-xs text-slate-500">
+            <div>
+              Current: {duration === 0 ? "infinite" : formatDurationHumanFull(duration)}
+            </div>
+            <div>
+              Input: {(() => {
+                const parsed = parseDurationSeconds(customTimeValue);
+                if (parsed === null) return "invalid";
+                if (parsed !== 0 && parsed > 24 * 3600) return "max 24h";
+                return formatDurationHumanFull(parsed);
+              })()}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-4">
+          <input
+            value={mode === "words" ? customWordsValue : customTimeValue}
+            onChange={(e) => {
+              setSettingsError("");
+              if (mode === "words") setCustomWordsValue(e.target.value);
+              else setCustomTimeValue(e.target.value);
+            }}
+            className="w-full rounded-xl border border-neutral-800 bg-black/30 px-4 py-3 text-sm text-slate-100 outline-none focus:border-neutral-500"
+            placeholder={mode === "words" ? "25" : "30"}
+            autoFocus
+          />
+        </div>
+
+        <div className="mt-3 text-xs text-slate-500">
+          {mode === "words" ? (
+            <>You can start an infinite test by inputting 0. Then, to stop the test, use esc</>
+          ) : (
+            <>
+              Formats: 30 (seconds), 1h, 30m, 120m (2h), 1h30m, 15h47m. Max 24h.
+              <div className="mt-2">You can start an infinite test by inputting 0. Then, to stop the test, use esc</div>
+            </>
+          )}
+        </div>
+
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-neutral-900 bg-black/20 px-4 py-3">
+          <div className="text-xs uppercase tracking-[0.22em] text-slate-500">strict</div>
+          <button
+            type="button"
+            onClick={onToggleStrict}
+            className={`rounded-full border px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition-colors ${
+              strict
+                ? "border-neutral-500 bg-black/30 text-white"
+                : "border-neutral-800 bg-black/20 text-slate-300 hover:border-neutral-600 hover:text-white"
+            }`}
+          >
+            {strict ? "on" : "off"}
+          </button>
+        </div>
+
+        {settingsError ? <div className="mt-3 text-xs text-red-300">{settingsError}</div> : null}
+
+        <div className="mt-5 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            className="rounded-full border border-neutral-800 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-300 transition-colors hover:text-white"
+            onClick={onClose}
+          >
+            cancel
+          </button>
+          <button
+            type="button"
+            className="rounded-full border border-neutral-700 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200 transition-colors hover:border-neutral-500 hover:text-white"
+            onClick={() => {
+              if (mode === "words") {
+                const n = Number(customWordsValue.trim());
+                if (!Number.isFinite(n) || n < 0 || !Number.isInteger(n)) {
+                  setSettingsError("Enter a non-negative integer.");
+                  return;
+                }
+                onApplyWords(n);
+                return;
+              }
+
+              const parsed = parseDurationSeconds(customTimeValue);
+              if (parsed === null) {
+                setSettingsError("Enter seconds (e.g. 30) or use h/m (e.g. 1h30m). Max 24h.");
+                return;
+              }
+              if (parsed !== 0 && parsed > 24 * 3600) {
+                setSettingsError("Max duration is 24h.");
+                return;
+              }
+              onApplyDuration(parsed);
+            }}
+          >
+            apply
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PracticePage() {
   const pathname = usePathname() || "/";
   const segments = pathname.split("/").filter(Boolean);
@@ -333,9 +502,6 @@ export default function PracticePage() {
   const [strict, setStrict] = useState<boolean>(false);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [customWordsValue, setCustomWordsValue] = useState<string>(String(wordsLimit));
-  const [customTimeValue, setCustomTimeValue] = useState<string>(String(duration));
-  const [settingsError, setSettingsError] = useState<string>("");
 
   const [state, setState] = useState<TestState>("idle");
   const [startedAt, setStartedAt] = useState<number | null>(null);
@@ -746,7 +912,12 @@ export default function PracticePage() {
     setWords(
       buildEnglishText({
         words: wordlist.words,
-        count: mode === "words" ? (wl === 0 ? 200 : wl) : Math.max(200, (d === 0 ? 30 : d) * 10),
+        count:
+          mode === "words"
+            ? wl === 0
+              ? 200
+              : wl
+            : Math.max(200, Math.min(5000, (d === 0 ? 30 : d) * 10)),
         punctuation,
         numbers,
       }),
@@ -811,7 +982,12 @@ export default function PracticePage() {
     const caretWordIndex = inputWordIndex;
     const caretCharIndex = currentWord.length;
 
-    for (let wi = 0; wi < targetWords.length; wi += 1) {
+    const windowBefore = 30;
+    const windowAfter = 120;
+    const startWi = Math.max(0, caretWordIndex - windowBefore);
+    const endWi = Math.min(targetWords.length, caretWordIndex + windowAfter);
+
+    for (let wi = startWi; wi < endWi; wi += 1) {
       const expWord = targetWords[wi] ?? "";
       const typedCommitted = historyWords[wi] ?? "";
       const isCommitted = wi < historyWords.length;
@@ -873,7 +1049,7 @@ export default function PracticePage() {
         }
       }
 
-      if (wi < targetWords.length - 1) {
+      if (wi < endWi - 1) {
         out.push(
           <span key={`sp-${wi}`} className="text-slate-500">
             {" "}
@@ -1047,7 +1223,11 @@ export default function PracticePage() {
         <div className="flex w-full items-center justify-center">
           {mode === "time" ? (
             <div className="select-none text-5xl font-semibold tracking-tight text-white">
-              {duration === 0 ? Math.floor(elapsedSeconds) : state === "idle" ? duration : remainingSeconds}
+              {duration === 0
+                ? formatTimerDisplay(elapsedSeconds)
+                : state === "idle"
+                  ? formatTimerDisplay(duration)
+                  : formatTimerDisplay(remainingSeconds)}
             </div>
           ) : null}
         </div>
@@ -1154,9 +1334,6 @@ export default function PracticePage() {
             <button
               type="button"
               onClick={() => {
-                setSettingsError("");
-                setCustomWordsValue(String(wordsLimit));
-                setCustomTimeValue(String(duration));
                 setSettingsOpen(true);
               }}
               className="inline-flex items-center gap-2 text-slate-400 transition-colors hover:text-white"
@@ -1205,194 +1382,194 @@ export default function PracticePage() {
           </div>
         ) : null}
 
-        <div
-          className="px-1"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            inputRef.current?.focus();
-          }}
-        >
-          <div
-            ref={textAreaRef}
-            className="relative overflow-hidden whitespace-pre-wrap break-words text-2xl leading-[2.7rem] text-slate-400 selection:bg-white/20"
-            style={{ height: `${lineHeightPx * 3}px` }}
-          >
-            {caretStyle && state !== "finished" ? (
+        {!settingsOpen ? (
+          <>
+            <div
+              className="px-1"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                inputRef.current?.focus();
+              }}
+            >
               <div
-                className="pointer-events-none absolute top-0 left-0 w-[2px] bg-white transition-transform duration-150 ease-out"
-                style={{
-                  height: `${caretStyle.h}px`,
-                  transform: `translate(${caretStyle.x}px, ${caretStyle.y}px)`,
-                }}
-              />
-            ) : null}
+                ref={textAreaRef}
+                className="relative overflow-hidden whitespace-pre-wrap break-words text-2xl leading-[2.7rem] text-slate-400 selection:bg-white/20"
+                style={{ height: `${lineHeightPx * 3}px` }}
+              >
+                {caretStyle && state !== "finished" ? (
+                  <div
+                    className="pointer-events-none absolute top-0 left-0 w-[2px] bg-white transition-transform duration-150 ease-out"
+                    style={{
+                      height: `${caretStyle.h}px`,
+                      transform: `translate(${caretStyle.x}px, ${caretStyle.y}px)`,
+                    }}
+                  />
+                ) : null}
+
+                <div
+                  className="relative transform-gpu transition-transform duration-300 ease-out will-change-transform"
+                  style={{ transform: `translateY(${textOffsetY}px)` }}
+                >
+                  {renderedNodes}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={currentWord}
+                  disabled={!canType}
+                  onChange={(e) => {
+                    if (state === "finished") return;
+                    const next = e.target.value;
+                    startIfNeeded(next);
+                    bumpNow();
+
+                    if (next.includes(" ")) {
+                      const parts = next.split(" ");
+                      const committed = parts.slice(0, -1).filter((p) => p.length > 0);
+                      const last = parts[parts.length - 1] ?? "";
+                      if (committed.length > 0) {
+                        setHistoryWords((prev) => [...prev, ...committed]);
+                      }
+                      setCurrentWord(last);
+                      return;
+                    }
+
+                    setCurrentWord(next);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      reset();
+                      return;
+                    }
+
+                    if (state === "finished") {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        reset();
+                      }
+                      return;
+                    }
+
+                    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      return;
+                    }
+
+                    if (e.key === "Tab") {
+                      e.preventDefault();
+                      return;
+                    }
+
+                    if (e.key === "Backspace") {
+                      e.preventDefault();
+                      if (currentWord) {
+                        const expectedWord = targetWords[inputWordIndex] ?? "";
+                        const deleteIndex = currentWord.length - 1;
+                        const deleted = currentWord[deleteIndex] ?? "";
+                        const expected = expectedWord[deleteIndex] ?? "";
+                        const wasExtra = deleteIndex >= expectedWord.length;
+                        const wasIncorrect = wasExtra || deleted !== expected;
+                        if (wasIncorrect) {
+                          setCorrectedCount((v) => v + 1);
+                        }
+                        setCurrentWord((prev) => prev.slice(0, -1));
+                        bumpNow();
+                        return;
+                      }
+                      if (historyWords.length === 0) return;
+                      const last = historyWords[historyWords.length - 1] ?? "";
+                      setHistoryWords((prev) => prev.slice(0, -1));
+                      setCurrentWord(last);
+                      bumpNow();
+                      return;
+                    }
+
+                    if (e.key === " ") {
+                      e.preventDefault();
+                      if (!currentWord) return;
+
+                      const expectedWord = targetWords[inputWordIndex] ?? "";
+                      if (strict && currentWord !== expectedWord) return;
+
+                      startIfNeeded(currentWord);
+
+                      const nowTs = performance.now();
+                      bumpNow(nowTs);
+                      const burstStart = burstStartRef.current ?? nowTs;
+                      const burstSeconds = Math.max(0.001, (nowTs - burstStart) / 1000);
+                      const burstChars = currentWord.length + 1;
+                      lastBurstWpmRef.current = calcWpmFromChars(burstChars, burstSeconds);
+                      burstStartRef.current = nowTs;
+
+                      const nextTypedLen = [...historyWords, currentWord].join(" ").length;
+
+                      setHistoryWords((prev) => [...prev, currentWord]);
+                      setCurrentWord("");
+
+                      if (
+                        nextTypedLen + 30 > expectedText.length &&
+                        (mode === "time" || wordsLimit === 0)
+                      ) {
+                        appendWords(50);
+                      }
+                      if (mode === "words" && wordsLimit !== 0 && nextTypedLen >= expectedText.length) {
+                        setState("finished");
+                      }
+                      return;
+                    }
+
+                    if (e.key.length === 1) {
+                      e.preventDefault();
+                      const nowTs = performance.now();
+                      bumpNow(nowTs);
+                      const expectedWord = targetWords[inputWordIndex] ?? "";
+                      const charIndex = currentWord.length;
+                      const expectedCh = expectedWord[charIndex] ?? "";
+                      const rawChar = e.key;
+                      const nextChar =
+                        expectedCh && expectedCh.toLowerCase() === expectedCh ? rawChar.toLowerCase() : rawChar;
+                      const nextWord = currentWord + nextChar;
+                      startIfNeeded(nextWord);
+                      setCurrentWord(nextWord);
+
+                      const typedLen =
+                        historyWords.join(" ").length +
+                        (historyWords.length > 0 ? 1 : 0) +
+                        nextWord.length;
+
+                      if (
+                        typedLen + 30 > expectedText.length &&
+                        (mode === "time" || wordsLimit === 0)
+                      ) {
+                        appendWords(50);
+                      }
+                      if (mode === "words" && wordsLimit !== 0 && typedLen >= expectedText.length) {
+                        setState("finished");
+                      }
+                    }
+                  }}
+                  className="absolute left-[-9999px] top-auto h-px w-px opacity-0"
+                  aria-label="Typing input"
+                />
+                <div className="mt-2 text-xs text-slate-600">
+                  Press <span className="text-slate-400">Esc</span> to restart.
+                </div>
+              </div>
+            </div>
 
             <div
-              className="relative transform-gpu transition-transform duration-300 ease-out will-change-transform"
-              style={{ transform: `translateY(${textOffsetY}px)` }}
+              className={`overflow-hidden transition-all duration-500 ease-out transform-gpu ${
+                state === "finished"
+                  ? "max-h-[1400px] opacity-100 translate-y-0"
+                  : "max-h-0 opacity-0 translate-y-8"
+              }`}
             >
-              {renderedNodes}
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <input
-              ref={inputRef}
-              type="text"
-              value={currentWord}
-              disabled={!canType}
-              onChange={(e) => {
-                if (state === "finished") return;
-                const next = e.target.value;
-                startIfNeeded(next);
-                bumpNow();
-
-                if (next.includes(" ")) {
-                  const parts = next.split(" ");
-                  const committed = parts.slice(0, -1).filter((p) => p.length > 0);
-                  const last = parts[parts.length - 1] ?? "";
-                  if (committed.length > 0) {
-                    setHistoryWords((prev) => [...prev, ...committed]);
-                  }
-                  setCurrentWord(last);
-                  return;
-                }
-
-                setCurrentWord(next);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  e.preventDefault();
-                  reset();
-                  return;
-                }
-
-                if (state === "finished") {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    reset();
-                  }
-                  return;
-                }
-
-                if (e.ctrlKey || e.metaKey || e.altKey) return;
-
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  return;
-                }
-
-                if (e.key === "Tab") {
-                  e.preventDefault();
-                  return;
-                }
-
-                if (e.key === "Backspace") {
-                  e.preventDefault();
-                  if (currentWord) {
-                    const expectedWord = targetWords[inputWordIndex] ?? "";
-                    const deleteIndex = currentWord.length - 1;
-                    const deleted = currentWord[deleteIndex] ?? "";
-                    const expected = expectedWord[deleteIndex] ?? "";
-                    const wasExtra = deleteIndex >= expectedWord.length;
-                    const wasIncorrect = wasExtra || deleted !== expected;
-                    if (wasIncorrect) {
-                      setCorrectedCount((v) => v + 1);
-                    }
-                    setCurrentWord((prev) => prev.slice(0, -1));
-                    bumpNow();
-                    return;
-                  }
-                  if (historyWords.length === 0) return;
-                  const last = historyWords[historyWords.length - 1] ?? "";
-                  setHistoryWords((prev) => prev.slice(0, -1));
-                  setCurrentWord(last);
-                  bumpNow();
-                  return;
-                }
-
-                if (e.key === " ") {
-                  e.preventDefault();
-                  if (!currentWord) return;
-
-                  const expectedWord = targetWords[inputWordIndex] ?? "";
-                  if (strict && currentWord !== expectedWord) return;
-
-                  startIfNeeded(currentWord);
-
-                  // Burst: calculate burst speed for the committed word.
-                  const nowTs = performance.now();
-                  bumpNow(nowTs);
-                  const burstStart = burstStartRef.current ?? nowTs;
-                  const burstSeconds = Math.max(0.001, (nowTs - burstStart) / 1000);
-                  const burstChars = currentWord.length + 1; // include space
-                  lastBurstWpmRef.current = calcWpmFromChars(burstChars, burstSeconds);
-                  burstStartRef.current = nowTs;
-
-                  const nextTypedLen = [...historyWords, currentWord].join(" ").length;
-
-                  setHistoryWords((prev) => [...prev, currentWord]);
-                  setCurrentWord("");
-
-                  if (
-                    nextTypedLen + 30 > expectedText.length &&
-                    (mode === "time" || wordsLimit === 0)
-                  ) {
-                    appendWords(50);
-                  }
-                  if (mode === "words" && wordsLimit !== 0 && nextTypedLen >= expectedText.length) {
-                    setState("finished");
-                  }
-                  return;
-                }
-
-                if (e.key.length === 1) {
-                  e.preventDefault();
-                  const nowTs = performance.now();
-                  bumpNow(nowTs);
-                  const expectedWord = targetWords[inputWordIndex] ?? "";
-                  const charIndex = currentWord.length;
-                  const expectedCh = expectedWord[charIndex] ?? "";
-                  const rawChar = e.key;
-                  const nextChar =
-                    expectedCh && expectedCh.toLowerCase() === expectedCh ? rawChar.toLowerCase() : rawChar;
-                  const isCorrectChar =
-                    charIndex < expectedWord.length && nextChar === expectedWord[charIndex];
-
-                  const nextWord = currentWord + nextChar;
-                  startIfNeeded(nextWord);
-                  setCurrentWord(nextWord);
-
-                  const typedLen =
-                    historyWords.join(" ").length +
-                    (historyWords.length > 0 ? 1 : 0) +
-                    nextWord.length;
-
-                  if (
-                    typedLen + 30 > expectedText.length &&
-                    (mode === "time" || wordsLimit === 0)
-                  ) {
-                    appendWords(50);
-                  }
-                  if (mode === "words" && wordsLimit !== 0 && typedLen >= expectedText.length) {
-                    setState("finished");
-                  }
-                }
-              }}
-              className="absolute left-[-9999px] top-auto h-px w-px opacity-0"
-              aria-label="Typing input"
-            />
-            <div className="mt-2 text-xs text-slate-600">
-              Press <span className="text-slate-400">Esc</span> to restart.
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`overflow-hidden transition-all duration-500 ease-out transform-gpu ${
-            state === "finished" ? "max-h-[1400px] opacity-100 translate-y-0" : "max-h-0 opacity-0 translate-y-8"
-          }`}
-        >
           <div className="pt-6">
             <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 px-5 py-4">
               <div className="grid gap-6 lg:grid-cols-[220px_260px_1fr]">
@@ -1779,124 +1956,29 @@ export default function PracticePage() {
               </div>
             </div>
           </div>
-        </div>
+            </div>
+          </>
+        ) : null}
 
           {settingsOpen ? (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
-              role="dialog"
-              aria-modal="true"
-              onMouseDown={() => setSettingsOpen(false)}
-            >
-              <div
-                className="w-full max-w-lg rounded-2xl border border-neutral-800 bg-neutral-950 p-5"
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                <div className="text-sm font-semibold text-slate-100">
-                  {mode === "words" ? "Custom Word Amount" : "Test duration"}
-                </div>
-                {mode === "time" ? (
-                  <div className="mt-1 text-xs text-slate-500">
-                    <div>Current: {duration === 0 ? "infinite" : `${duration}s`}</div>
-                    <div>
-                      Input: {(() => {
-                        const parsed = parseDurationSeconds(customTimeValue);
-                        if (parsed === null) return "invalid";
-                        if (parsed !== 0 && parsed > 24 * 3600) return "max 24h";
-                        return formatDurationHuman(parsed);
-                      })()}
-                    </div>
-                  </div>
-                ) : null}
-
-                <div className="mt-4">
-                  <input
-                    value={mode === "words" ? customWordsValue : customTimeValue}
-                    onChange={(e) => {
-                      setSettingsError("");
-                      if (mode === "words") setCustomWordsValue(e.target.value);
-                      else setCustomTimeValue(e.target.value);
-                    }}
-                    className="w-full rounded-xl border border-neutral-800 bg-black/30 px-4 py-3 text-sm text-slate-100 outline-none focus:border-neutral-500"
-                    placeholder={mode === "words" ? "25" : "30"}
-                    autoFocus
-                  />
-                </div>
-
-                <div className="mt-3 text-xs text-slate-500">
-                  {mode === "words" ? (
-                    <>You can start an infinite test by inputting 0. Then, to stop the test, use esc</>
-                  ) : (
-                    <>
-                      Formats: 30 (seconds), 1h, 30m, 120m (2h), 1h30m, 15h47m. Max 24h.
-                      <div className="mt-2">You can start an infinite test by inputting 0. Then, to stop the test, use esc</div>
-                    </>
-                  )}
-                </div>
-
-                <div className="mt-4 flex items-center justify-between rounded-xl border border-neutral-900 bg-black/20 px-4 py-3">
-                  <div className="text-xs uppercase tracking-[0.22em] text-slate-500">strict</div>
-                  <button
-                    type="button"
-                    onClick={() => setStrict((v) => !v)}
-                    className={`rounded-full border px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition-colors ${
-                      strict
-                        ? "border-neutral-500 bg-black/30 text-white"
-                        : "border-neutral-800 bg-black/20 text-slate-300 hover:border-neutral-600 hover:text-white"
-                    }`}
-                  >
-                    {strict ? "on" : "off"}
-                  </button>
-                </div>
-
-                {settingsError ? (
-                  <div className="mt-3 text-xs text-red-300">{settingsError}</div>
-                ) : null}
-
-                <div className="mt-5 flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    className="rounded-full border border-neutral-800 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-300 transition-colors hover:text-white"
-                    onClick={() => setSettingsOpen(false)}
-                  >
-                    cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-neutral-700 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200 transition-colors hover:border-neutral-500 hover:text-white"
-                    onClick={() => {
-                      if (mode === "words") {
-                        const n = Number(customWordsValue.trim());
-                        if (!Number.isFinite(n) || n < 0 || !Number.isInteger(n)) {
-                          setSettingsError("Enter a non-negative integer.");
-                          return;
-                        }
-                        setWordsLimit(n);
-                        setSettingsOpen(false);
-                        reset(duration, n);
-                        return;
-                      }
-
-                      const parsed = parseDurationSeconds(customTimeValue);
-                      if (parsed === null) {
-                        setSettingsError("Enter seconds (e.g. 30) or use h/m (e.g. 1h30m). Max 24h.");
-                        return;
-                      }
-
-                      if (parsed !== 0 && parsed > 24 * 3600) {
-                        setSettingsError("Max duration is 24h.");
-                        return;
-                      }
-                      setDuration(parsed);
-                      setSettingsOpen(false);
-                      reset(parsed, wordsLimit);
-                    }}
-                  >
-                    apply
-                  </button>
-                </div>
-              </div>
-            </div>
+            <SettingsModal
+              mode={mode}
+              duration={duration}
+              wordsLimit={wordsLimit}
+              strict={strict}
+              onClose={() => setSettingsOpen(false)}
+              onToggleStrict={() => setStrict((v) => !v)}
+              onApplyWords={(n) => {
+                setWordsLimit(n);
+                setSettingsOpen(false);
+                reset(duration, n);
+              }}
+              onApplyDuration={(parsed) => {
+                setDuration(parsed);
+                setSettingsOpen(false);
+                reset(parsed, wordsLimit);
+              }}
+            />
           ) : null}
       </div>
     </DashboardShell>
