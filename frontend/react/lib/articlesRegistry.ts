@@ -229,4 +229,12 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 52,
     description: "Why time flies and how to make the most of it. Ghostly particles challenge our view of the universe. Revelations from human-plant hybrids",
   },
+  "crime-01": {
+    title: "Real Crime",
+    file: "crime-01.pdf",
+    preview: "crime-01.png",
+    tags: ["crime"],
+    pages: 132,
+    description: "Deadliest psychopaths: The Killers who hid their fantasies in plain sight",
+  },
 };
