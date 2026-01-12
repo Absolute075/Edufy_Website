@@ -515,6 +515,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "111245": {
+      requiredPlan: "premium",
+      title: "Biophilic Design",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
