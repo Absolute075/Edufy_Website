@@ -1,4 +1,4 @@
-export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "research" | "general" | "history" | "crime" | "finance" | "politics";
+export type ArticleTag = "education" | "environment" | "science" | "lifestyle" | "technology" | "wellbeing" | "research" | "general" | "history" | "crime" | "finance" | "politics" | "sport" | "medicine";
 
 export type ArticleRule = {
   title: string;
@@ -277,4 +277,20 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     pages: 70,
     description: "Everything about New Yorkers",
   },
+  "research-03": {
+    title: "Between ORDER and CHAOS",
+    file: "research-03.pdf",
+    preview: "research-03.png",
+    tags: ["research"],
+    pages: 5,
+    description: "A radical theory says cognitive power of the human brain can be explained by its proximity to disorder",
+  },
+  "sport-01": {
+    title: "Yamal",
+    file: "sport-01.pdf",
+    preview: "sport-01.png",
+    tags: ["sport"],
+    pages: 2,
+    description: "Deemed to be the second coming of Lionel Messi, Yamal is very much his own player",
+  }
 };
