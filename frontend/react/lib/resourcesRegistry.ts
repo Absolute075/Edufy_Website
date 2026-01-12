@@ -479,6 +479,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "781693": {
+      requiredPlan: "premium",
+      title: "The Father of English Geology",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
