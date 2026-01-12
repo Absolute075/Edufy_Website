@@ -470,6 +470,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "999815": {
+      requiredPlan: "premium",
+      title: "Robert Louis Stevenson",
+      examType: "real",
+      part: 3,
+      difficulty: "hard",
+      minutes: 20,
+      questions: 14,
+    },
   },
   listening: {
     "846376": {
