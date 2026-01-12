@@ -506,6 +506,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "155896": {
+      requiredPlan: "premium",
+      title: "Inside the Mind of a Fan: How Watching Sport Affects the Brain",
+      examType: "real",
+      part: 3,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 14,
+    },
   },
   listening: {
     "846376": {
