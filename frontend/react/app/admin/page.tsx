@@ -29,6 +29,8 @@ export default function AdminDashboardPage() {
     'crime',
     'finance',
     'politics',
+    'sport',
+    'medicine',
   ] as const satisfies ReadonlyArray<ArticleTag>;
 
   const countPlans = (
