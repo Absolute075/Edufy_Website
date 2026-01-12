@@ -461,6 +461,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "999841": {
+      requiredPlan: "premium",
+      title: "What’s Happening to Our Food?",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
