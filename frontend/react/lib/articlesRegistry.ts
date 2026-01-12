@@ -292,7 +292,7 @@ export const articlesRegistry: Record<string, ArticleRule> = {
     tags: ["sport"],
     pages: 2,
     description: "Deemed to be the second coming of Lionel Messi, Yamal is very much his own player",
-  }
+  },
   "politics-02": {
     title: "Who Controls Birth Control?",
     file: "politics-02.pdf",
