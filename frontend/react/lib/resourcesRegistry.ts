@@ -497,6 +497,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 14,
     },
+    "665445": {
+      requiredPlan: "premium",
+      title: "Pollution! In the Bay",
+      examType: "real",
+      part: 2,
+      difficulty: "medium",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
