@@ -452,6 +452,15 @@ export const resourcesRegistry: Record<ResourceCategory, Record<string, Resource
       minutes: 20,
       questions: 13,
     },
+    "999856": {
+      requiredPlan: "premium",
+      title: "Discovering Purple",
+      examType: "real",
+      part: 1,
+      difficulty: "easy",
+      minutes: 20,
+      questions: 13,
+    },
   },
   listening: {
     "846376": {
