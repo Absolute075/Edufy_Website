@@ -19,6 +19,9 @@ export default function ResourcesPage() {
   const articlesHref = `${baseResourcesPath}/articles`;
   const videoHref = `${baseResourcesPath}/lessons-reports`;
   const practiceHref = `${baseResourcesPath}/practice`;
+  const academicWordListHref = `${baseResourcesPath}/academic-word-list`;
+  const satMathHref = `${baseResourcesPath}/sat/math`;
+  const satEnglishHref = `${baseResourcesPath}/sat/english`;
 
   return (
     <DashboardShell>
@@ -133,6 +136,39 @@ export default function ResourcesPage() {
                 </span>
               </Link>
             </div>
+
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-slate-100">SAT Resources</h3>
+              <p className="text-sm text-slate-400">Math · English</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <Link
+                  href={satMathHref}
+                  className="group flex flex-col justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
+                >
+                  <div>
+                    <div className="text-sm font-medium text-slate-100">Math</div>
+                    <div className="mt-1 text-xs text-slate-400">Practice sets and explanations</div>
+                  </div>
+                  <span className="mt-3 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
+                    Open
+                    <span className="ml-1 text-[10px]">→</span>
+                  </span>
+                </Link>
+                <Link
+                  href={satEnglishHref}
+                  className="group flex flex-col justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
+                >
+                  <div>
+                    <div className="text-sm font-medium text-slate-100">English</div>
+                    <div className="mt-1 text-xs text-slate-400">Reading &amp; writing practice and tips</div>
+                  </div>
+                  <span className="mt-3 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
+                    Open
+                    <span className="ml-1 text-[10px]">→</span>
+                  </span>
+                </Link>
+              </div>
+            </div>
           </section>
 
           <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6 md:col-span-2">
@@ -143,18 +179,19 @@ export default function ResourcesPage() {
               </div>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="flex flex-col justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 min-h-[140px]">
+              <Link
+                href={academicWordListHref}
+                className="group flex flex-col justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
+              >
                 <div>
                   <div className="text-sm font-medium text-slate-100">Academic Word List</div>
                   <div className="text-xs text-slate-400">Core academic vocabulary by sublist</div>
                 </div>
-                <button
-                  type="button"
-                  className="cursor-default inline-flex items-center self-start rounded-full border border-slate-700 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400"
-                >
-                  We are collecting for you now :)
-                </button>
-              </div>
+                <span className="mt-1 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
+                  Open
+                  <span className="ml-1 text-[10px]">→</span>
+                </span>
+              </Link>
               <Link
                 href={articlesHref}
                 className="group flex flex-col justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900"
