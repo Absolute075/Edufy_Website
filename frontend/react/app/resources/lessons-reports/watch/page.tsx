@@ -145,6 +145,13 @@ function CustomVideoPlayer({ src }: { src: string }) {
     const v = ref.current;
     if (!v) return;
 
+    setReady(false);
+    setBuffering(true);
+    setPlaying(false);
+    setDuration(0);
+    setCurrentTime(0);
+    setBuffered(0);
+
     if (hlsRef.current) {
       try {
         hlsRef.current.destroy();
@@ -189,6 +196,10 @@ function CustomVideoPlayer({ src }: { src: string }) {
     const onTime = () => syncFromVideo();
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
+    const onLoadStart = () => setBuffering(true);
+    const onSeeking = () => setBuffering(true);
+    const onSeeked = () => setBuffering(false);
+    const onStalled = () => setBuffering(true);
     const onVol = () => {
       const vv = ref.current;
       if (!vv) return;
@@ -201,9 +212,13 @@ function CustomVideoPlayer({ src }: { src: string }) {
     const onCanPlay = () => setBuffering(false);
 
     v.addEventListener("loadedmetadata", onLoaded);
+    v.addEventListener("loadstart", onLoadStart);
     v.addEventListener("timeupdate", onTime);
     v.addEventListener("play", onPlay);
     v.addEventListener("pause", onPause);
+    v.addEventListener("seeking", onSeeking);
+    v.addEventListener("seeked", onSeeked);
+    v.addEventListener("stalled", onStalled);
     v.addEventListener("volumechange", onVol);
     v.addEventListener("progress", onProgress);
     v.addEventListener("waiting", onWaiting);
@@ -220,9 +235,13 @@ function CustomVideoPlayer({ src }: { src: string }) {
         hlsRef.current = null;
       }
       v.removeEventListener("loadedmetadata", onLoaded);
+      v.removeEventListener("loadstart", onLoadStart);
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("play", onPlay);
       v.removeEventListener("pause", onPause);
+      v.removeEventListener("seeking", onSeeking);
+      v.removeEventListener("seeked", onSeeked);
+      v.removeEventListener("stalled", onStalled);
       v.removeEventListener("volumechange", onVol);
       v.removeEventListener("progress", onProgress);
       v.removeEventListener("waiting", onWaiting);

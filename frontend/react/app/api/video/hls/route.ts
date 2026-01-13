@@ -235,6 +235,15 @@ export async function GET(request: Request) {
     });
   }
 
+  const secFetchMode = String(request.headers.get("sec-fetch-mode") || "").toLowerCase();
+  const secFetchDest = String(request.headers.get("sec-fetch-dest") || "").toLowerCase();
+  if ((secFetchMode && secFetchMode === "navigate") || (secFetchDest && secFetchDest === "document")) {
+    return new NextResponse(JSON.stringify({ error: "not_found" }), {
+      status: 404,
+      headers: noStoreHeaders({ "content-type": "application/json" }),
+    });
+  }
+
   const verified = verifyToken(token, secret);
   if (!verified.ok) {
     return new NextResponse(JSON.stringify({ error: "invalid_token" }), {
