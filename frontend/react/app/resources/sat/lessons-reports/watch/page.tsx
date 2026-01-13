@@ -19,7 +19,8 @@ export default function SatLessonsReportsWatchPage() {
   const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
   const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
 
-  const { data: profileData } = useUserProfile();
+  const { data: profileData, loading: profileLoading } = useUserProfile();
+  const accessCheckPending = profileLoading && !profileData;
   const userPlan = profileData?.plan ?? "free";
 
   const item = useMemo(() => {
@@ -29,16 +30,17 @@ export default function SatLessonsReportsWatchPage() {
     return { id, ...rule };
   }, [id]);
 
-  const locked = item ? !isPlanSufficient(userPlan, item.requiredPlan) : false;
+  const locked = item ? (!accessCheckPending && !isPlanSufficient(userPlan, item.requiredPlan)) : false;
 
   useEffect(() => {
     if (!id) return;
     if (!item) return;
+    if (accessCheckPending) return;
     if (!locked) return;
 
     const redirectUrl = `${userPrefix}/resources/sat/lessons-reports/watch?id=${encodeURIComponent(id)}`;
     router.replace(`${userPrefix}/billing?redirect=${encodeURIComponent(redirectUrl)}`);
-  }, [id, item, locked, router, userPrefix]);
+  }, [accessCheckPending, id, item, locked, router, userPrefix]);
 
   if (!id) {
     notFound();
@@ -78,14 +80,26 @@ export default function SatLessonsReportsWatchPage() {
           </p>
         </div>
 
-        {locked ? (
+        {accessCheckPending ? (
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 px-5 py-6 text-sm text-slate-400">
+            Loading...
+          </div>
+        ) : locked ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 px-5 py-6 text-sm text-slate-400">
             Redirecting to billing...
           </div>
         ) : item.mediaType === "video" ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-4">
             {item.href ? (
-              <video className="block w-full rounded-xl" src={item.href} controls preload="metadata" />
+              <video
+                className="block w-full rounded-xl"
+                src={item.href}
+                controls
+                preload="metadata"
+                controlsList="nodownload noremoteplayback"
+                disablePictureInPicture
+                onContextMenu={(e) => e.preventDefault()}
+              />
             ) : (
               <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4 text-sm text-slate-400">
                 Video URL is missing.

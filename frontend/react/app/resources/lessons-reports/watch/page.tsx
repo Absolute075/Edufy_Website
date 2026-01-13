@@ -271,6 +271,9 @@ function CustomVideoPlayer({ src }: { src: string }) {
         className="block w-full"
         preload="metadata"
         src={src}
+        controlsList="nodownload noremoteplayback"
+        disablePictureInPicture
+        onContextMenu={(e) => e.preventDefault()}
         onClick={() => {
           showControls();
           togglePlay();
@@ -507,7 +510,8 @@ export default function LessonsReportsWatchPage() {
   const hasNumericUserPrefix = /^\d+$/.test(firstSegment);
   const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
 
-  const { data: profileData } = useUserProfile();
+  const { data: profileData, loading: profileLoading } = useUserProfile();
+  const accessCheckPending = profileLoading && !profileData;
   const userPlan = profileData?.plan ?? "free";
 
   const [likedByMe, setLikedByMe] = useState<boolean>(false);
@@ -526,7 +530,7 @@ export default function LessonsReportsWatchPage() {
     return { id, ...rule };
   }, [id]);
 
-  const locked = item ? !isPlanSufficient(userPlan, item.requiredPlan) : false;
+  const locked = item ? (!accessCheckPending && !isPlanSufficient(userPlan, item.requiredPlan)) : false;
 
   const loadInteractions = useCallback(async () => {
     if (!item) return;
@@ -619,11 +623,12 @@ export default function LessonsReportsWatchPage() {
   useEffect(() => {
     if (!id) return;
     if (!item) return;
+    if (accessCheckPending) return;
     if (!locked) return;
 
     const redirectUrl = `${userPrefix}/resources/lessons-reports/watch?id=${encodeURIComponent(id)}`;
     router.replace(`${userPrefix}/billing?redirect=${encodeURIComponent(redirectUrl)}`);
-  }, [id, item, locked, router, userPrefix]);
+  }, [accessCheckPending, id, item, locked, router, userPrefix]);
 
   if (!id) {
     notFound();
@@ -663,7 +668,11 @@ export default function LessonsReportsWatchPage() {
           </p>
         </div>
 
-        {locked ? (
+        {accessCheckPending ? (
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 px-5 py-6 text-sm text-slate-400">
+            Loading...
+          </div>
+        ) : locked ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 px-5 py-6 text-sm text-slate-400">
             Redirecting to billing...
           </div>
@@ -696,7 +705,7 @@ export default function LessonsReportsWatchPage() {
           </div>
         )}
 
-        {!locked && (
+        {!accessCheckPending && !locked && (
           <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between gap-4">
