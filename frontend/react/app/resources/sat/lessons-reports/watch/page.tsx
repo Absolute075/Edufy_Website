@@ -6,6 +6,8 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { isPlanSufficient } from "@/lib/resourcesRegistry";
 import { satVideoResourcesRegistry } from "@/lib/satVideoResourcesRegistry";
 import { useUserProfile } from "../../../../UserProfileProvider";
+import { api } from "@/lib/api";
+import Hls from "hls.js";
 
 function formatTimeShort(seconds: number) {
   const s = Math.max(0, Math.floor(seconds));
@@ -24,6 +26,7 @@ function CustomVideoPlayer({ src }: { src: string }) {
   const scrubRef = useRef<HTMLDivElement | null>(null);
   const hideTimerRef = useRef<number | null>(null);
   const scrubbingRef = useRef(false);
+  const hlsRef = useRef<Hls | null>(null);
 
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -84,6 +87,43 @@ function CustomVideoPlayer({ src }: { src: string }) {
     const v = ref.current;
     if (!v) return;
 
+    if (hlsRef.current) {
+      try {
+        hlsRef.current.destroy();
+      } catch {
+        // ignore
+      }
+      hlsRef.current = null;
+    }
+
+    try {
+      v.removeAttribute("src");
+      v.load();
+    } catch {
+      // ignore
+    }
+
+    const isHls = /\.m3u8($|\?)/i.test(src);
+    if (isHls) {
+      const canNative = Boolean(v.canPlayType("application/vnd.apple.mpegurl"));
+      if (canNative) {
+        v.src = src;
+      } else if (Hls.isSupported()) {
+        const hls = new Hls({
+          xhrSetup: (xhr: XMLHttpRequest) => {
+            xhr.withCredentials = true;
+          },
+        });
+        hlsRef.current = hls;
+        hls.loadSource(src);
+        hls.attachMedia(v);
+      } else {
+        v.src = src;
+      }
+    } else {
+      v.src = src;
+    }
+
     const onLoaded = () => {
       setReady(true);
       syncFromVideo();
@@ -113,6 +153,14 @@ function CustomVideoPlayer({ src }: { src: string }) {
     v.addEventListener("canplay", onCanPlay);
 
     return () => {
+      if (hlsRef.current) {
+        try {
+          hlsRef.current.destroy();
+        } catch {
+          // ignore
+        }
+        hlsRef.current = null;
+      }
       v.removeEventListener("loadedmetadata", onLoaded);
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("play", onPlay);
@@ -211,7 +259,6 @@ function CustomVideoPlayer({ src }: { src: string }) {
         ref={ref}
         className="block w-full"
         preload="metadata"
-        src={src}
         controlsList="nodownload noremoteplayback"
         disablePictureInPicture
         onContextMenu={(e) => e.preventDefault()}
@@ -449,6 +496,46 @@ export default function SatLessonsReportsWatchPage() {
 
   const locked = item ? (!accessCheckPending && !isPlanSufficient(userPlan, item.requiredPlan)) : false;
 
+  const [streamSrc, setStreamSrc] = useState<string | null>(null);
+  const [streamError, setStreamError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setStreamSrc(null);
+    setStreamError(null);
+    if (!item) return;
+    if (accessCheckPending) return;
+    if (locked) return;
+    if (item.mediaType !== "video") return;
+    if (!item.href) return;
+
+    const ctrl = new AbortController();
+    api("/api/video/token", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ catalog: "sat", id: item.id }),
+      signal: ctrl.signal,
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const t = await res.text().catch(() => "");
+          throw new Error(t || `token_failed_${res.status}`);
+        }
+        const data: any = await res.json().catch(() => null);
+        const token = String(data?.token || "").trim();
+        if (!token) throw new Error("token_missing");
+        const url = `/api/video/hls?catalog=sat&id=${encodeURIComponent(item.id)}&token=${encodeURIComponent(token)}`;
+        setStreamSrc(url);
+      })
+      .catch((err: any) => {
+        if (String(err?.name || "") === "AbortError") return;
+        setStreamError(String(err?.message ?? err ?? "Failed to load video").slice(0, 160));
+      });
+
+    return () => {
+      ctrl.abort();
+    };
+  }, [accessCheckPending, item, locked]);
+
   useEffect(() => {
     if (!id) return;
     if (!item) return;
@@ -507,11 +594,15 @@ export default function SatLessonsReportsWatchPage() {
           </div>
         ) : item.mediaType === "video" ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-4">
-            {item.href ? (
-              <CustomVideoPlayer src={item.href} />
+            {streamError ? (
+              <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4 text-sm text-red-200">
+                {streamError}
+              </div>
+            ) : streamSrc ? (
+              <CustomVideoPlayer src={streamSrc} />
             ) : (
               <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4 text-sm text-slate-400">
-                Video URL is missing.
+                Loading video...
               </div>
             )}
           </div>
