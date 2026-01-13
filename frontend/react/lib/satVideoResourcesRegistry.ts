@@ -5,7 +5,7 @@ export type SatVideoResourceMediaType = "video" | "file";
 
 export type SatVideoResourceRule = {
   title: string;
-  section: SatVideoResourceSection;
+  section: SatVideoResourceSection | SatVideoResourceSection[];
   mediaType: SatVideoResourceMediaType;
   requiredPlan: UserPlan;
   teacher?: string;
@@ -17,13 +17,13 @@ export const SAT_LESSONS_REPORTS_BASE_URL =
   "https://resources.edufyuzbekistan.com/materials/lessons-reports-sat";
 
 export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
-  "sat-math-01-linear-equations": {
-    title: "Linear Equations — Basics",
-    section: "math",
+  "M2QF9A7X4k": {
+    title: "Introduction Lesson",
+    section: "general",
     mediaType: "video",
-    requiredPlan: "free",
-    teacher: "Teacher A",
-    href: `${SAT_LESSONS_REPORTS_BASE_URL}/videos/math/linear-equations-basics.mp4`,
+    requiredPlan: "premium",
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/IMG_3368.MP4`,
   },
   "sat-math-02-functions": {
     title: "Functions — Introduction",
