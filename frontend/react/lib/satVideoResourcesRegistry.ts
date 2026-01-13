@@ -8,6 +8,7 @@ export type SatVideoResourceRule = {
   section: SatVideoResourceSection;
   mediaType: SatVideoResourceMediaType;
   requiredPlan: UserPlan;
+  teacher?: string;
   href?: string;
   telegramHref?: string;
 };
@@ -21,6 +22,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     section: "math",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Teacher A",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/videos/math/linear-equations-basics.mp4`,
   },
   "sat-math-02-functions": {
@@ -28,6 +30,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     section: "math",
     mediaType: "video",
     requiredPlan: "premium",
+    teacher: "Teacher A",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/videos/math/functions-intro.mp4`,
   },
   "sat-math-worksheet-01": {
@@ -35,6 +38,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     section: "math",
     mediaType: "file",
     requiredPlan: "free",
+    teacher: "Teacher A",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/files/math/worksheet-practice-set-1.pdf`,
   },
   "sat-eng-01-grammar-punctuation": {
@@ -42,6 +46,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     section: "english",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Teacher B",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/videos/english/grammar-punctuation-essentials.mp4`,
   },
   "sat-eng-02-reading-strategies": {
@@ -49,6 +54,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     section: "english",
     mediaType: "video",
     requiredPlan: "premium",
+    teacher: "Teacher B",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/videos/english/reading-main-idea-inference.mp4`,
   },
   "sat-eng-report-01": {
@@ -56,6 +62,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     section: "english",
     mediaType: "file",
     requiredPlan: "premium",
+    teacher: "Teacher B",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/files/english/report-common-mistakes.pdf`,
   },
   "sat-general-01-how-to-use": {
@@ -63,6 +70,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     section: "general",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Team Edufy",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/videos/general/how-to-use.mp4`,
   },
 };

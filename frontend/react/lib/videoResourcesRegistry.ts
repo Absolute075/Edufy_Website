@@ -8,6 +8,7 @@ export type VideoResourceRule = {
   section: VideoResourceSection;
   mediaType: VideoResourceMediaType;
   requiredPlan: UserPlan;
+  teacher?: string;
   href?: string;
   telegramHref?: string;
 };
@@ -21,6 +22,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Shirin",
     href: `${LESSONS_REPORTS_BASE_URL}/video5376445830.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },
@@ -29,6 +31,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Shirin",
     href: `${LESSONS_REPORTS_BASE_URL}/video2993536838.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },
@@ -37,6 +40,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Shirin",
     href: `${LESSONS_REPORTS_BASE_URL}/video5742279084.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },
@@ -45,6 +49,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "speaking",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Shirin",
     href: `${LESSONS_REPORTS_BASE_URL}/video2140512538.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },
@@ -53,6 +58,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Shirin",
     href: `${LESSONS_REPORTS_BASE_URL}/video3750045404.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },
@@ -61,6 +67,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Nozima Qadamova",
     href: `${LESSONS_REPORTS_BASE_URL}/video1978912924.mp4`,
     telegramHref: "https://t.me/nozima_writes",
   },
@@ -69,6 +76,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Nozima Qadamova",
     href: `${LESSONS_REPORTS_BASE_URL}/video1106821846.mp4`,
     telegramHref: "https://t.me/nozima_writes",
   },
@@ -77,6 +85,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "writing",
     mediaType: "file",
     requiredPlan: "premium",
+    teacher: "Nozima Qadamova",
     href: `${LESSONS_REPORTS_BASE_URL}/writing-toward-clarity.pdf`,
     telegramHref: "https://t.me/nozima_writes",
   },
@@ -85,6 +94,7 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     section: "writing",
     mediaType: "video",
     requiredPlan: "free",
+    teacher: "Shirin",
     href: `${LESSONS_REPORTS_BASE_URL}/video3734014428.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },

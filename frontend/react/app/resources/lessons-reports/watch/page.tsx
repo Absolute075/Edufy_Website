@@ -658,7 +658,8 @@ export default function LessonsReportsWatchPage() {
             )}
           </div>
           <p className="text-sm text-slate-400">
-            {item.section} · {item.mediaType} · {item.requiredPlan}
+            {item.section} · {item.mediaType}
+            {item.teacher ? <> · {item.teacher}</> : null} · {item.requiredPlan}
           </p>
         </div>
 

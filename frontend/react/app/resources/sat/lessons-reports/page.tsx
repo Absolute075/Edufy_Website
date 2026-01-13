@@ -21,6 +21,7 @@ export default function SatLessonsReportsResourcesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "math" | "english" | "general">("all");
   const [planFilter, setPlanFilter] = useState<"all" | "free" | "premium">("all");
+  const [teacherFilter, setTeacherFilter] = useState<string>("all");
 
   const items = useMemo(() => {
     const planOrder = (plan: (typeof satVideoResourcesRegistry)[string]["requiredPlan"]) => {
@@ -48,6 +49,14 @@ export default function SatLessonsReportsResourcesPage() {
       });
   }, []);
 
+  const teacherOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const item of items) {
+      if (item.teacher && item.teacher.trim()) set.add(item.teacher.trim());
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [items]);
+
   const filteredItems = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return items.filter((item) => {
@@ -58,10 +67,11 @@ export default function SatLessonsReportsResourcesPage() {
 
       if (typeFilter !== "all" && item.section !== typeFilter) return false;
       if (planFilter !== "all" && item.requiredPlan !== planFilter) return false;
+      if (teacherFilter !== "all" && (item.teacher || "") !== teacherFilter) return false;
 
       return true;
     });
-  }, [items, planFilter, searchQuery, typeFilter]);
+  }, [items, planFilter, searchQuery, teacherFilter, typeFilter]);
 
   return (
     <DashboardShell>
@@ -108,6 +118,40 @@ export default function SatLessonsReportsResourcesPage() {
                         }`}
                       >
                         {item.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="w-full sm:w-auto">
+                <label className="mb-1 block text-xs font-medium text-slate-400">Type</label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTeacherFilter("all")}
+                    className={`rounded-full border px-4 py-2 text-sm transition-colors duration-150 ${
+                      teacherFilter === "all"
+                        ? "border-white/70 bg-white text-slate-900"
+                        : "border-neutral-800 bg-neutral-950 text-slate-200 hover:border-white/60"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {teacherOptions.map((teacher) => {
+                    const isActive = teacherFilter === teacher;
+                    return (
+                      <button
+                        key={teacher}
+                        type="button"
+                        onClick={() => setTeacherFilter((prev) => (prev === teacher ? "all" : teacher))}
+                        className={`rounded-full border px-4 py-2 text-sm transition-colors duration-150 ${
+                          isActive
+                            ? "border-white/70 bg-white text-slate-900"
+                            : "border-neutral-800 bg-neutral-950 text-slate-200 hover:border-white/60"
+                        }`}
+                      >
+                        {teacher}
                       </button>
                     );
                   })}
@@ -165,6 +209,11 @@ export default function SatLessonsReportsResourcesPage() {
                         <span className="rounded-full border border-neutral-700 px-2.5 py-0.5 text-[11px] text-slate-300">
                           {item.mediaType}
                         </span>
+                        {item.teacher ? (
+                          <span className="rounded-full border border-neutral-700 px-2.5 py-0.5 text-[11px] text-slate-300">
+                            {item.teacher}
+                          </span>
+                        ) : null}
                         <span className="rounded-full border border-neutral-700 px-2.5 py-0.5 text-[11px] text-slate-300">
                           {item.requiredPlan}
                         </span>

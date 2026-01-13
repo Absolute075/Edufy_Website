@@ -73,7 +73,8 @@ export default function SatLessonsReportsWatchPage() {
             ) : null}
           </div>
           <p className="text-sm text-slate-400">
-            SAT · {item.section} · {item.mediaType} · {item.requiredPlan}
+            SAT · {item.section} · {item.mediaType}
+            {item.teacher ? <> · {item.teacher}</> : null} · {item.requiredPlan}
           </p>
         </div>
 
