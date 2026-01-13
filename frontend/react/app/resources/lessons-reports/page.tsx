@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { videoResourcesRegistry } from "@/lib/videoResourcesRegistry";
 import { isPlanSufficient } from "@/lib/resourcesRegistry";
@@ -24,6 +24,7 @@ export default function LessonsReportsResourcesPage() {
   >("all");
   const [planFilter, setPlanFilter] = useState<"all" | "free" | "premium">("all");
   const [teacherFilter, setTeacherFilter] = useState<string>("all");
+  const [openTeacherDropdown, setOpenTeacherDropdown] = useState(false);
 
   const items = useMemo(() => {
     const planOrder = (plan: (typeof videoResourcesRegistry)[string]["requiredPlan"]) => {
@@ -59,6 +60,29 @@ export default function LessonsReportsResourcesPage() {
     }
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [items]);
+
+  useEffect(() => {
+    if (!openTeacherDropdown) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (!target.closest(".teacher-rounded-dropdown")) {
+        setOpenTeacherDropdown(false);
+      }
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenTeacherDropdown(false);
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [openTeacherDropdown]);
 
   const filteredItems = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -101,7 +125,7 @@ export default function LessonsReportsResourcesPage() {
               </div>
 
               <div className="w-full sm:w-auto">
-                <label className="mb-1 block text-xs font-medium text-slate-400">Type</label>
+                <label className="mb-1 block text-xs font-medium text-slate-400">Section</label>
                 <div className="flex flex-wrap gap-2">
                   {(
                     [
@@ -132,35 +156,48 @@ export default function LessonsReportsResourcesPage() {
 
               <div className="w-full sm:w-auto">
                 <label className="mb-1 block text-xs font-medium text-slate-400">Type</label>
-                <div className="flex flex-wrap gap-2">
+                <div className="teacher-rounded-dropdown rounded-dropdown">
                   <button
                     type="button"
-                    onClick={() => setTeacherFilter("all")}
-                    className={`rounded-full border px-4 py-2 text-sm transition-colors duration-150 ${
-                      teacherFilter === "all"
-                        ? "border-white/70 bg-white text-slate-900"
-                        : "border-neutral-800 bg-neutral-950 text-slate-200 hover:border-white/60"
-                    }`}
+                    className="rounded-dropdown-trigger"
+                    aria-haspopup="listbox"
+                    aria-expanded={openTeacherDropdown}
+                    onClick={() => setOpenTeacherDropdown((v) => !v)}
                   >
-                    All
+                    <span className="truncate">
+                      {teacherFilter === "all" ? "All" : teacherFilter}
+                    </span>
+                    <span style={{ color: "#718096", fontSize: 12 }}>▼</span>
                   </button>
-                  {teacherOptions.map((teacher) => {
-                    const isActive = teacherFilter === teacher;
-                    return (
+                  <div
+                    className={`rounded-dropdown-menu${openTeacherDropdown ? " is-open" : ""}`}
+                    role="listbox"
+                    aria-hidden={!openTeacherDropdown}
+                  >
+                    <button
+                      type="button"
+                      className="rounded-dropdown-item"
+                      onClick={() => {
+                        setTeacherFilter("all");
+                        setOpenTeacherDropdown(false);
+                      }}
+                    >
+                      All
+                    </button>
+                    {teacherOptions.map((teacher) => (
                       <button
                         key={teacher}
                         type="button"
-                        onClick={() => setTeacherFilter((prev) => (prev === teacher ? "all" : teacher))}
-                        className={`rounded-full border px-4 py-2 text-sm transition-colors duration-150 ${
-                          isActive
-                            ? "border-white/70 bg-white text-slate-900"
-                            : "border-neutral-800 bg-neutral-950 text-slate-200 hover:border-white/60"
-                        }`}
+                        className="rounded-dropdown-item"
+                        onClick={() => {
+                          setTeacherFilter(teacher);
+                          setOpenTeacherDropdown(false);
+                        }}
                       >
                         {teacher}
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -263,6 +300,77 @@ export default function LessonsReportsResourcesPage() {
           </div>
         </section>
       </div>
+
+      <style jsx>{`
+        .rounded-dropdown {
+          position: relative;
+          width: 220px;
+          max-width: 100%;
+          --panel: #0b0f14;
+          --border: rgba(255, 255, 255, 0.1);
+          --text: #e6edf3;
+          --text-soft: #cbd5e1;
+          --hover: rgba(255, 255, 255, 0.06);
+          --shadow-menu: 0 16px 40px rgba(0, 0, 0, 0.65);
+        }
+
+        .rounded-dropdown-trigger {
+          width: 100%;
+          padding: 10px 12px;
+          border-radius: 14px;
+          border: 1px solid var(--border);
+          background: var(--panel);
+          color: var(--text);
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          transition: border-color 160ms ease, transform 160ms ease;
+        }
+
+        .rounded-dropdown-trigger:hover {
+          border-color: rgba(255, 255, 255, 0.25);
+          transform: translateY(-1px);
+        }
+
+        .rounded-dropdown-menu {
+          position: absolute;
+          top: calc(100% + 6px);
+          left: 0;
+          width: 100%;
+          border-radius: 14px;
+          border: 1px solid var(--border);
+          background: var(--panel);
+          box-shadow: var(--shadow-menu);
+          overflow: hidden;
+          opacity: 0;
+          transform: translateY(6px);
+          pointer-events: none;
+          transition: opacity 180ms ease, transform 180ms ease;
+          z-index: 20;
+        }
+
+        .rounded-dropdown-menu.is-open {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+
+        .rounded-dropdown-item {
+          width: 100%;
+          border: none;
+          background: transparent;
+          padding: 10px 12px;
+          text-align: left;
+          color: var(--text-soft);
+          font-size: 14px;
+        }
+
+        .rounded-dropdown-item:hover {
+          background: var(--hover);
+        }
+      `}</style>
     </DashboardShell>
   );
 }
