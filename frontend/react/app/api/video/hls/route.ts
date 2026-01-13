@@ -137,6 +137,14 @@ function getHlsRootFromHref(href: string): { rootUrl: string; masterFile: string
 }
 
 function rewritePlaylist(text: string, baseUrl: string, catalog: Catalog, id: string, token: string) {
+  const root = (() => {
+    try {
+      return new URL(baseUrl);
+    } catch {
+      return null;
+    }
+  })();
+
   const lines = String(text).split(/\r?\n/);
   const out: string[] = [];
 
@@ -169,12 +177,28 @@ function rewritePlaylist(text: string, baseUrl: string, catalog: Catalog, id: st
       continue;
     }
 
-    if (/^https?:\/\//i.test(trimmed)) {
-      out.push(line);
-      continue;
+    let p = trimmed;
+
+    if (/^https?:\/\//i.test(p) && root) {
+      try {
+        const abs = new URL(p);
+        if (abs.origin === root.origin && abs.pathname.startsWith(root.pathname)) {
+          p = abs.pathname.slice(root.pathname.length);
+        }
+      } catch {
+        // keep original
+      }
     }
 
-    out.push(`/api/video/hls?catalog=${encodeURIComponent(catalog)}&id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}&path=${encodeURIComponent(trimmed)}`);
+    if (p.startsWith("/") && root && p.startsWith(root.pathname)) {
+      p = p.slice(root.pathname.length);
+    }
+
+    p = p.replace(/^\/+/, "");
+
+    out.push(
+      `/api/video/hls?catalog=${encodeURIComponent(catalog)}&id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}&path=${encodeURIComponent(p)}`
+    );
   }
 
   return out.join("\n");
@@ -271,7 +295,25 @@ export async function GET(request: Request) {
   }
 
   const { rootUrl, masterFile } = getHlsRootFromHref(rule.href);
-  const fileToFetch = path || masterFile;
+  const root = new URL(rootUrl);
+
+  let fileToFetch = path || masterFile;
+  if (/^https?:\/\//i.test(fileToFetch)) {
+    try {
+      const abs = new URL(fileToFetch);
+      if (abs.origin === root.origin && abs.pathname.startsWith(root.pathname)) {
+        fileToFetch = abs.pathname.slice(root.pathname.length);
+      }
+    } catch {
+      // keep original
+    }
+  }
+
+  if (fileToFetch.startsWith("/") && fileToFetch.startsWith(root.pathname)) {
+    fileToFetch = fileToFetch.slice(root.pathname.length);
+  }
+
+  fileToFetch = fileToFetch.replace(/^\/+/, "");
 
   let upstream: URL;
   try {
