@@ -145,6 +145,8 @@ export async function GET(request: Request) {
     });
   }
 
+  const upstreamSecret = String(process.env.VIDEO_UPSTREAM_SECRET || "").trim();
+
   const url = new URL(request.url);
   const catalog = String(url.searchParams.get("catalog") || "").trim().toLowerCase() as Catalog;
   const id = String(url.searchParams.get("id") || "").trim();
@@ -231,6 +233,7 @@ export async function GET(request: Request) {
     cache: "no-store",
     headers: {
       Accept: "application/octet-stream",
+      ...(upstreamSecret ? { "x-video-internal": upstreamSecret } : null),
     },
   });
 
