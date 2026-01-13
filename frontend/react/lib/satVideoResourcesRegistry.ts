@@ -23,14 +23,6 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     mediaType: "video",
     requiredPlan: "premium",
     teacher: "Marstiff Teachers",
-    href: `${SAT_LESSONS_REPORTS_BASE_URL}/678368.mp4`,
-  },
-  "7M4A2XqF9K": {
-    title: "Lesson 1 - Reading",
-    section: "english",
-    mediaType: "video",
-    requiredPlan: "premium",
-    teacher: "Marstiff Teachers",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/598412.mp4`,
   },
 };
