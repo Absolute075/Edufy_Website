@@ -22,6 +22,7 @@ export default function ResourcesPage() {
   const academicWordListHref = `${baseResourcesPath}/academic-word-list`;
   const satMathHref = `${baseResourcesPath}/sat/math`;
   const satEnglishHref = `${baseResourcesPath}/sat/english`;
+  const satVideoHref = `${baseResourcesPath}/sat/lessons-reports`;
 
   return (
     <DashboardShell>
@@ -139,7 +140,7 @@ export default function ResourcesPage() {
 
             <div className="mt-6">
               <h3 className="text-sm font-semibold text-slate-100">SAT Resources</h3>
-              <p className="text-sm text-slate-400">Math · English</p>
+              <p className="text-sm text-slate-400">Math · English · Video</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <Link
                   href={satMathHref}
@@ -163,6 +164,24 @@ export default function ResourcesPage() {
                     <div className="mt-1 text-xs text-slate-400">Reading &amp; writing practice and tips</div>
                   </div>
                   <span className="mt-3 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
+                    Open
+                    <span className="ml-1 text-[10px]">→</span>
+                  </span>
+                </Link>
+
+                <Link
+                  href={satVideoHref}
+                  className="group flex flex-col justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-left min-h-[140px] transition-colors duration-150 hover:border-slate-400 hover:bg-neutral-900 sm:col-span-2"
+                >
+                  <div>
+                    <div className="text-sm font-medium text-slate-100">
+                      Video lessons &amp; reports &amp; explanations
+                    </div>
+                    <div className="mt-1 text-xs text-slate-400">
+                      SAT video lessons, reports, and detailed explanations
+                    </div>
+                  </div>
+                  <span className="mt-1 inline-flex items-center text-xs font-medium text-slate-300 group-hover:text-white">
                     Open
                     <span className="ml-1 text-[10px]">→</span>
                   </span>
