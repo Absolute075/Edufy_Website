@@ -23,7 +23,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     mediaType: "video",
     requiredPlan: "premium",
     teacher: "Marstiff Teachers",
-    href: `${SAT_LESSONS_REPORTS_BASE_URL}/6783368.mp4`,
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/678368.mp4`,
   },
   "sat-math-02-functions": {
     title: "Functions — Introduction",
