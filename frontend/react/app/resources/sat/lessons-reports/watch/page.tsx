@@ -1,11 +1,428 @@
 "use client";
 
 import { notFound, usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { isPlanSufficient } from "@/lib/resourcesRegistry";
 import { satVideoResourcesRegistry } from "@/lib/satVideoResourcesRegistry";
 import { useUserProfile } from "../../../../UserProfileProvider";
+
+function formatTimeShort(seconds: number) {
+  const s = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) {
+    return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+  }
+  return `${m}:${String(sec).padStart(2, "0")}`;
+}
+
+function CustomVideoPlayer({ src }: { src: string }) {
+  const ref = useRef<HTMLVideoElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const scrubRef = useRef<HTMLDivElement | null>(null);
+  const hideTimerRef = useRef<number | null>(null);
+  const scrubbingRef = useRef(false);
+
+  const [ready, setReady] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [muted, setMuted] = useState(false);
+  const [buffered, setBuffered] = useState(0);
+  const [buffering, setBuffering] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const [volumeOpen, setVolumeOpen] = useState(false);
+
+  const progress = duration > 0 ? Math.min(1, Math.max(0, currentTime / duration)) : 0;
+  const bufferedProgress = duration > 0 ? Math.min(1, Math.max(0, buffered / duration)) : 0;
+
+  function syncFromVideo() {
+    const v = ref.current;
+    if (!v) return;
+    setPlaying(!v.paused);
+    setDuration(Number.isFinite(v.duration) ? v.duration : 0);
+    setCurrentTime(Number.isFinite(v.currentTime) ? v.currentTime : 0);
+    setMuted(v.muted);
+    setVolume(Number.isFinite(v.volume) ? v.volume : 1);
+
+    try {
+      const b = v.buffered;
+      if (b && b.length > 0 && Number.isFinite(v.duration)) {
+        const end = b.end(b.length - 1);
+        setBuffered(Number.isFinite(end) ? end : 0);
+      } else {
+        setBuffered(0);
+      }
+    } catch {
+      setBuffered(0);
+    }
+  }
+
+  const scheduleHide = useCallback(() => {
+    if (hideTimerRef.current) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    if (!playing) return;
+    if (scrubbingRef.current) return;
+    if (volumeOpen) return;
+
+    hideTimerRef.current = window.setTimeout(() => {
+      setControlsVisible(false);
+    }, 2200);
+  }, [playing, volumeOpen]);
+
+  const showControls = useCallback(() => {
+    setControlsVisible(true);
+    scheduleHide();
+  }, [scheduleHide]);
+
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+
+    const onLoaded = () => {
+      setReady(true);
+      syncFromVideo();
+    };
+    const onTime = () => syncFromVideo();
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    const onVol = () => {
+      const vv = ref.current;
+      if (!vv) return;
+      setMuted(vv.muted);
+      setVolume(vv.volume);
+    };
+    const onProgress = () => syncFromVideo();
+    const onWaiting = () => setBuffering(true);
+    const onPlaying = () => setBuffering(false);
+    const onCanPlay = () => setBuffering(false);
+
+    v.addEventListener("loadedmetadata", onLoaded);
+    v.addEventListener("timeupdate", onTime);
+    v.addEventListener("play", onPlay);
+    v.addEventListener("pause", onPause);
+    v.addEventListener("volumechange", onVol);
+    v.addEventListener("progress", onProgress);
+    v.addEventListener("waiting", onWaiting);
+    v.addEventListener("playing", onPlaying);
+    v.addEventListener("canplay", onCanPlay);
+
+    return () => {
+      v.removeEventListener("loadedmetadata", onLoaded);
+      v.removeEventListener("timeupdate", onTime);
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("pause", onPause);
+      v.removeEventListener("volumechange", onVol);
+      v.removeEventListener("progress", onProgress);
+      v.removeEventListener("waiting", onWaiting);
+      v.removeEventListener("playing", onPlaying);
+      v.removeEventListener("canplay", onCanPlay);
+    };
+  }, [src]);
+
+  useEffect(() => {
+    setControlsVisible(true);
+    scheduleHide();
+  }, [playing, scheduleHide]);
+
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current) {
+        window.clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  function togglePlay() {
+    const v = ref.current;
+    if (!v) return;
+    if (v.paused) {
+      void v.play();
+    } else {
+      v.pause();
+    }
+  }
+
+  function seekTo(p: number) {
+    const v = ref.current;
+    if (!v) return;
+    const d = Number.isFinite(v.duration) ? v.duration : 0;
+    if (d <= 0) return;
+    v.currentTime = Math.max(0, Math.min(d, p * d));
+  }
+
+  function seekToClientX(clientX: number) {
+    const bar = scrubRef.current;
+    if (!bar) return;
+    const rect = bar.getBoundingClientRect();
+    const p = rect.width > 0 ? (clientX - rect.left) / rect.width : 0;
+    seekTo(Math.max(0, Math.min(1, p)));
+  }
+
+  function setVol(next: number) {
+    const v = ref.current;
+    if (!v) return;
+    const clamped = Math.max(0, Math.min(1, next));
+    v.volume = clamped;
+    if (clamped > 0 && v.muted) v.muted = false;
+  }
+
+  function toggleMute() {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = !v.muted;
+  }
+
+  async function toggleFullscreen() {
+    const v = ref.current;
+    if (!v) return;
+    const el = v.parentElement;
+    if (!el) return;
+
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await el.requestFullscreen();
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return (
+    <div
+      ref={wrapperRef}
+      className="group relative overflow-hidden rounded-xl border border-neutral-800 bg-black"
+      onMouseMove={() => showControls()}
+      onMouseDown={() => showControls()}
+      onTouchStart={() => showControls()}
+      onMouseLeave={() => {
+        if (playing) setControlsVisible(false);
+      }}
+    >
+      <video
+        ref={ref}
+        className="block w-full"
+        preload="metadata"
+        src={src}
+        controlsList="nodownload noremoteplayback"
+        disablePictureInPicture
+        onContextMenu={(e) => e.preventDefault()}
+        onClick={() => {
+          showControls();
+          togglePlay();
+        }}
+        onDoubleClick={() => {
+          showControls();
+          void toggleFullscreen();
+        }}
+      />
+
+      <div
+        className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+          playing ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => {
+            showControls();
+            togglePlay();
+          }}
+          className="pointer-events-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-black/60 text-white shadow-[0_12px_60px_rgba(0,0,0,0.55)] backdrop-blur-sm transition-transform duration-200 hover:scale-105"
+          aria-label="Play"
+        >
+          <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden="true">
+            <path d="M8 5v14l11-7z" className="fill-current" />
+          </svg>
+        </button>
+      </div>
+
+      <div
+        className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+          buffering ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <div className="pointer-events-none h-10 w-10 animate-spin rounded-full border-2 border-white/25 border-t-white/90" />
+      </div>
+
+      <div
+        className={`pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent px-4 pb-4 pt-10 transition-all duration-300 ${
+          controlsVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <div className="pointer-events-auto">
+          <div
+            ref={scrubRef}
+            className="group/scrub relative mb-3 h-2 cursor-pointer rounded-full bg-white/15 transition-all duration-200 hover:h-3"
+            onPointerDown={(e) => {
+              (e.currentTarget as any).setPointerCapture?.(e.pointerId);
+              scrubbingRef.current = true;
+              setControlsVisible(true);
+              seekToClientX(e.clientX);
+            }}
+            onPointerMove={(e) => {
+              if (!scrubbingRef.current) return;
+              seekToClientX(e.clientX);
+            }}
+            onPointerUp={() => {
+              scrubbingRef.current = false;
+              scheduleHide();
+            }}
+            onPointerCancel={() => {
+              scrubbingRef.current = false;
+              scheduleHide();
+            }}
+            aria-label="Seek"
+          >
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-white/25"
+              style={{ width: `${bufferedProgress * 100}%` }}
+            />
+            <div className="absolute inset-y-0 left-0 rounded-full bg-red-500" style={{ width: `${progress * 100}%` }} />
+            <div
+              className="absolute top-1/2 -translate-y-1/2 rounded-full bg-red-500 opacity-0 shadow-[0_0_0_4px_rgba(239,68,68,0.25)] transition-opacity duration-150 group-hover/scrub:opacity-100"
+              style={{ left: `${progress * 100}%`, width: "12px", height: "12px", marginLeft: "-6px" }}
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                showControls();
+                togglePlay();
+              }}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/15"
+              aria-label={playing ? "Pause" : "Play"}
+            >
+              {playing ? (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                  <rect x="6" y="5" width="4" height="14" rx="1" className="fill-current" />
+                  <rect x="14" y="5" width="4" height="14" rx="1" className="fill-current" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" className="fill-current" />
+                </svg>
+              )}
+            </button>
+
+            <div className="flex items-center gap-2 text-[11px] font-medium text-white/80">
+              <span className="tabular-nums">{formatTimeShort(currentTime)}</span>
+              <span className="text-white/45">/</span>
+              <span className="tabular-nums">{ready ? formatTimeShort(duration) : "0:00"}</span>
+            </div>
+
+            <div className="flex-1" />
+
+            <div
+              className="relative hidden items-center md:flex"
+              onMouseEnter={() => {
+                setVolumeOpen(true);
+                setControlsVisible(true);
+              }}
+              onMouseLeave={() => {
+                setVolumeOpen(false);
+                scheduleHide();
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  showControls();
+                  toggleMute();
+                }}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/15"
+                aria-label={muted || volume === 0 ? "Unmute" : "Mute"}
+              >
+                {muted || volume === 0 ? (
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                    <path
+                      d="M11 5L6 9H3v6h3l5 4V5z"
+                      className="fill-none stroke-current"
+                      strokeWidth="1.8"
+                      strokeLinejoin="round"
+                    />
+                    <path d="M16 9l5 6" className="fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M21 9l-5 6" className="fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                    <path
+                      d="M11 5L6 9H3v6h3l5 4V5z"
+                      className="fill-none stroke-current"
+                      strokeWidth="1.8"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M15 9.5a4.5 4.5 0 0 1 0 5"
+                      className="fill-none stroke-current"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M17.5 7a8 8 0 0 1 0 10"
+                      className="fill-none stroke-current"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                )}
+              </button>
+
+              <div
+                className={`absolute bottom-12 right-0 w-36 rounded-2xl border border-white/10 bg-black/70 p-3 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-md transition-all duration-200 ${
+                  volumeOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
+                }`}
+              >
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={Math.round((muted ? 0 : volume) * 100)}
+                  onChange={(e) => setVol(Number(e.target.value) / 100)}
+                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/20"
+                  style={{
+                    background: `linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.95) ${(muted ? 0 : volume) * 100}%, rgba(255,255,255,0.18) ${(muted ? 0 : volume) * 100}%, rgba(255,255,255,0.18) 100%)`,
+                  }}
+                  aria-label="Volume"
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                showControls();
+                void toggleFullscreen();
+              }}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/15"
+              aria-label="Fullscreen"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                <path
+                  d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"
+                  className="fill-none stroke-current"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function SatLessonsReportsWatchPage() {
   const router = useRouter();
@@ -91,15 +508,7 @@ export default function SatLessonsReportsWatchPage() {
         ) : item.mediaType === "video" ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-4">
             {item.href ? (
-              <video
-                className="block w-full rounded-xl"
-                src={item.href}
-                controls
-                preload="metadata"
-                controlsList="nodownload noremoteplayback"
-                disablePictureInPicture
-                onContextMenu={(e) => e.preventDefault()}
-              />
+              <CustomVideoPlayer src={item.href} />
             ) : (
               <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4 text-sm text-slate-400">
                 Video URL is missing.
