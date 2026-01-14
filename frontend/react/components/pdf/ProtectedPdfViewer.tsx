@@ -258,7 +258,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
 
       <div
         ref={containerRef}
-        className="max-h-[75vh] overflow-auto px-4 py-4"
+        className="pdfScroll max-h-[75vh] overflow-auto px-4 py-4"
         onContextMenu={(e) => e.preventDefault()}
       >
         {loading ? (
@@ -301,6 +301,31 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        .pdfScroll {
+          scrollbar-color: rgba(156, 163, 175, 0.75) transparent;
+          scrollbar-width: thin;
+        }
+        .pdfScroll::-webkit-scrollbar {
+          width: 10px;
+          height: 10px;
+        }
+        .pdfScroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .pdfScroll::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.55);
+          border-radius: 999px;
+          border: 3px solid transparent;
+          background-clip: content-box;
+        }
+        .pdfScroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 163, 175, 0.8);
+          border: 2px solid transparent;
+          background-clip: content-box;
+        }
+      `}</style>
     </div>
   );
 }
