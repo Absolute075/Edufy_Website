@@ -92,6 +92,10 @@ async function getUserIdentity(request: Request): Promise<{ userId: string; role
     body?.data?.plan ??
     body?.user?.plan ??
     body?.profile?.plan ??
+    body?.subscription?.plan ??
+    body?.data?.subscription?.plan ??
+    body?.user?.subscription?.plan ??
+    body?.profile?.subscription?.plan ??
     body?.subscriptionPlan ??
     body?.tariff;
 
