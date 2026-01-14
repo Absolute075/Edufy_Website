@@ -15,6 +15,33 @@ function noStoreHeaders(extra?: Record<string, string>) {
   };
 }
 
+function extractRawPlan(body: any) {
+  if (!body) return undefined;
+
+  return (
+    body?.plan ??
+    body?.data?.plan ??
+    body?.user?.plan ??
+    body?.data?.user?.plan ??
+    body?.profile?.plan ??
+    body?.data?.profile?.plan ??
+    body?.user?.profile?.plan ??
+    body?.data?.user?.profile?.plan ??
+    body?.subscription?.plan ??
+    body?.data?.subscription?.plan ??
+    body?.user?.subscription?.plan ??
+    body?.data?.user?.subscription?.plan ??
+    body?.profile?.subscription?.plan ??
+    body?.data?.profile?.subscription?.plan ??
+    body?.user?.profile?.subscription?.plan ??
+    body?.data?.user?.profile?.subscription?.plan ??
+    body?.subscriptionPlan ??
+    body?.data?.subscriptionPlan ??
+    body?.tariff ??
+    body?.data?.tariff
+  );
+}
+
 async function fetchFromApi(request: Request, path: string, init: RequestInit) {
   const requestOrigin = (() => {
     try {
@@ -74,20 +101,36 @@ async function getUserIdentity(request: Request): Promise<{ userKey: string; rol
   const email = body?.email ?? body?.user?.email ?? body?.data?.email;
   const role = body?.role ?? body?.user?.role ?? body?.data?.role ?? "";
 
-  const rawPlan =
-    body?.plan ??
-    body?.data?.plan ??
-    body?.user?.plan ??
-    body?.profile?.plan ??
-    body?.subscriptionPlan ??
-    body?.tariff;
+  const rawPlan = extractRawPlan(body);
 
   const userKey = String(id ?? username ?? email ?? "").trim();
   if (!userKey) {
     throw new Error("unauthorized");
   }
 
-  const plan = normalizePlan(rawPlan);
+  let plan = normalizePlan(rawPlan);
+  if (plan === "free") {
+    try {
+      const profileRes = await fetchFromApi(request, "/user/profile", {
+        headers: {
+          cookie: cookieHeader,
+          "x-edufy-middleware": "1",
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      });
+      if (profileRes.ok) {
+        const p: any = await profileRes.json().catch(() => null);
+        const rawProfilePlan = extractRawPlan(p);
+        if (rawProfilePlan !== undefined && rawProfilePlan !== null && String(rawProfilePlan).trim()) {
+          plan = normalizePlan(rawProfilePlan);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   return { userKey, role: String(role ?? "").trim(), plan };
 }
 
@@ -221,7 +264,12 @@ export async function GET(request: Request) {
   if (!isAdmin && !isPlanSufficient(userPlan as any, required as any)) {
     return new NextResponse(JSON.stringify({ error: "forbidden" }), {
       status: 403,
-      headers: noStoreHeaders({ "content-type": "application/json" }),
+      headers: noStoreHeaders({
+        "content-type": "application/json",
+        "x-edufy-plan-debug": `required=${String(required)}; user=${String(userPlan)}; role=${String(
+          identity.role
+        )}; catalog=${String(catalog)}; id=${String(id)}; auth=cookie`,
+      }),
     });
   }
 
