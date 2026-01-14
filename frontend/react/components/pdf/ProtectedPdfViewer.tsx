@@ -10,6 +10,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
   const canvasesRef = useRef<Map<number, HTMLCanvasElement>>(new Map());
   const pdfRef = useRef<any>(null);
   const renderingRef = useRef<Map<number, boolean>>(new Map());
+  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +26,40 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
     const clampedZoom = Math.max(0.5, Math.min(3, zoom));
     return clampedZoom;
   }, [zoom]);
+
+  const setZoomAnchored = useCallback(
+    (next: number, anchor?: { x: number; y: number } | null) => {
+      const el = containerRef.current;
+      const prevZoom = Math.max(0.5, Math.min(3, zoom));
+      const nextZoom = Math.max(0.5, Math.min(3, next));
+
+      if (!el || prevZoom === nextZoom) {
+        setZoom(nextZoom);
+        return;
+      }
+
+      const rect = el.getBoundingClientRect();
+      const ax = anchor?.x ?? rect.left + rect.width / 2;
+      const ay = anchor?.y ?? rect.top + rect.height / 2;
+
+      const vx = ax - rect.left;
+      const vy = ay - rect.top;
+
+      const contentX = el.scrollLeft + vx;
+      const contentY = el.scrollTop + vy;
+      const ratio = nextZoom / prevZoom;
+
+      setZoom(nextZoom);
+
+      requestAnimationFrame(() => {
+        const el2 = containerRef.current;
+        if (!el2) return;
+        el2.scrollLeft = contentX * ratio - vx;
+        el2.scrollTop = contentY * ratio - vy;
+      });
+    },
+    [zoom]
+  );
 
   const ensurePageRendered = useCallback(
     async (pageNumber: number) => {
@@ -156,10 +191,12 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
 
   useEffect(() => {
     if (!numPages) return;
-    for (let i = 1; i <= Math.min(3, numPages); i++) {
+    const from = Math.max(1, currentPage - 1);
+    const to = Math.min(numPages, currentPage + 2);
+    for (let i = from; i <= to; i++) {
       void ensurePageRendered(i);
     }
-  }, [effectiveScale, ensurePageRendered, numPages]);
+  }, [currentPage, effectiveScale, ensurePageRendered, numPages]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -193,7 +230,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setZoom((z) => Math.max(0.5, Math.round((z - 0.1) * 10) / 10))}
+            onClick={() => setZoomAnchored(zoom - 0.05, lastPointerRef.current)}
             className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-neutral-700 bg-neutral-950 text-slate-200 hover:border-white/60 hover:bg-neutral-900"
             aria-label="Zoom out"
           >
@@ -206,7 +243,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
 
           <button
             type="button"
-            onClick={() => setZoom((z) => Math.min(3, Math.round((z + 0.1) * 10) / 10))}
+            onClick={() => setZoomAnchored(zoom + 0.05, lastPointerRef.current)}
             className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-neutral-700 bg-neutral-950 text-slate-200 hover:border-white/60 hover:bg-neutral-900"
             aria-label="Zoom in"
           >
@@ -218,6 +255,19 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
       <div
         ref={containerRef}
         className="pdfScroll max-h-[75vh] overflow-auto px-4 py-4"
+        onMouseMove={(e) => {
+          lastPointerRef.current = { x: e.clientX, y: e.clientY };
+        }}
+        onMouseLeave={() => {
+          lastPointerRef.current = null;
+        }}
+        onWheel={(e) => {
+          if (!e.ctrlKey && !e.metaKey) return;
+          e.preventDefault();
+          const delta = e.deltaY;
+          const step = 0.05;
+          setZoomAnchored(zoom + (delta > 0 ? -step : step), { x: e.clientX, y: e.clientY });
+        }}
         onContextMenu={(e) => e.preventDefault()}
       >
         {loading ? (
@@ -229,7 +279,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
             {error}
           </div>
         ) : numPages ? (
-          <div className="space-y-6">
+          <div className="flex flex-col" style={{ gap: `${24 * effectiveScale}px` }}>
             {Array.from({ length: numPages }).map((_, idx) => {
               const pageNumber = idx + 1;
               return (
@@ -237,7 +287,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
                   key={pageNumber}
                   data-page={pageNumber}
                   className="flex justify-center"
-                  style={{ minHeight: 140 }}
+                  style={{ minHeight: 140 * effectiveScale }}
                 >
                   <canvas
                     ref={(node) => {
@@ -265,6 +315,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         .pdfScroll {
           scrollbar-color: rgba(156, 163, 175, 0.75) transparent;
           scrollbar-width: thin;
+          overscroll-behavior: contain;
         }
         .pdfScroll::-webkit-scrollbar {
           width: 10px;
