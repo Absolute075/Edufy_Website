@@ -35,6 +35,10 @@ export function MobileGateOverlay({ videoSrc }: Props) {
         if (p && typeof (p as any).then === "function") {
           await p;
         }
+
+        if (v.muted) {
+          if (!cancelled) setSoundBlocked(true);
+        }
       } catch {
         try {
           v.muted = true;
@@ -75,6 +79,12 @@ export function MobileGateOverlay({ videoSrc }: Props) {
     try {
       v.muted = false;
       v.volume = 1;
+      if (v.paused) {
+        const p = v.play();
+        if (p && typeof (p as any).then === "function") {
+          await p;
+        }
+      }
       const p = v.play();
       if (p && typeof (p as any).then === "function") {
         await p;
@@ -84,6 +94,31 @@ export function MobileGateOverlay({ videoSrc }: Props) {
       // keep blocked
     }
   };
+
+  useEffect(() => {
+    if (phase !== "video") return;
+    if (!soundBlocked) return;
+
+    let done = false;
+    const onFirstGesture = () => {
+      if (done) return;
+      done = true;
+      enableSound();
+      window.removeEventListener("pointerdown", onFirstGesture);
+      window.removeEventListener("touchstart", onFirstGesture);
+      window.removeEventListener("click", onFirstGesture);
+    };
+
+    window.addEventListener("pointerdown", onFirstGesture, { passive: true });
+    window.addEventListener("touchstart", onFirstGesture, { passive: true });
+    window.addEventListener("click", onFirstGesture);
+
+    return () => {
+      window.removeEventListener("pointerdown", onFirstGesture);
+      window.removeEventListener("touchstart", onFirstGesture);
+      window.removeEventListener("click", onFirstGesture);
+    };
+  }, [phase, soundBlocked]);
 
   return (
     <div className="mobile-gate-root">
@@ -124,17 +159,20 @@ export function MobileGateOverlay({ videoSrc }: Props) {
           justify-content: center;
         }
 
-        .mobile-gate-video {
+        video.mobile-gate-video {
           width: min(92vw, 520px);
           height: auto;
           max-height: 72vh;
+          aspect-ratio: 16 / 9;
           object-fit: contain;
           background: #000;
           border-radius: 14px;
+          display: block;
         }
 
         .mobile-gate-sound {
           position: absolute;
+          z-index: 5;
           left: 50%;
           bottom: 22px;
           transform: translateX(-50%);
