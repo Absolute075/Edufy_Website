@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import './globals.css';
 import { SessionExpiredProvider } from './SessionExpiredProvider';
 import { UserProfileProvider } from './UserProfileProvider';
+import { MobileGateOverlay } from '@/components/mobile/MobileGateOverlay';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://edufyuzbekistan.com'),
@@ -35,6 +36,7 @@ export default async function RootLayout({
   const rawHost = (h.get('x-forwarded-host') ?? h.get('host') ?? '').toLowerCase();
   const hostname = rawHost.split(',')[0].trim().split(':')[0];
   const isAdminSubdomain = hostname === 'admin.edufyuzbekistan.com';
+  const mobileGateVideoUrl = String(process.env.NEXT_PUBLIC_MOBILE_GATE_VIDEO_URL ?? '').trim();
 
   return (
     <html lang="en" className="dark">
@@ -64,14 +66,7 @@ export default async function RootLayout({
             <div className="orientation-allowed-content">{children}</div>
             {isAdminSubdomain ? null : (
               <div className="orientation-lock-overlay">
-                <div className="orientation-lock-box">
-                  <p className="orientation-lock-title">Hi there!</p>
-                  <p className="orientation-lock-subtitle">
-                    Mobile adaptation is still in development, so please try using a PC for a better experience.
-                    <br />
-                    We sincerely apologize for the inconvenience!
-                  </p>
-                </div>
+                <MobileGateOverlay videoSrc={mobileGateVideoUrl} />
               </div>
             )}
           </UserProfileProvider>

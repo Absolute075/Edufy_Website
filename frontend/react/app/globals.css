@@ -443,11 +443,11 @@ body {
   inset: 0;
   z-index: 9999;
   display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 1.75rem;
-  background: radial-gradient(1000px 700px at 50% 20%, rgba(34, 211, 238, 0.12), transparent 55%),
-    linear-gradient(180deg, #000 0%, #05070c 55%, #000 100%);
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  background: #000;
+  overflow: hidden;
   text-align: center;
 }
 
