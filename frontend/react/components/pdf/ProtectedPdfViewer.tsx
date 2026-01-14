@@ -58,6 +58,23 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
     return `url('${url}')`;
   }, [watermarkNonce, watermarkText]);
 
+  const sideBg = useMemo(() => {
+    const t = String(watermarkText || "edufyuzbekistan.com");
+    const nonce = Number.isFinite(watermarkNonce) ? watermarkNonce : 0;
+    const x = 10 + (nonce % 40);
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="520">
+  <rect width="100%" height="100%" fill="rgba(0,0,0,0.15)"/>
+  <g transform="translate(${x},30) rotate(-90)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="rgba(255,255,255,0.55)">${t}</text>
+    <text x="0" y="40" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="rgba(255,255,255,0.45)">PROTECTED CONTENT</text>
+    <text x="0" y="78" font-family="Arial, sans-serif" font-size="14" fill="rgba(255,255,255,0.35)">edufyuzbekistan.com</text>
+  </g>
+</svg>`;
+    const url = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    return `url('${url}')`;
+  }, [watermarkNonce, watermarkText]);
+
   const setZoomAnchored = useCallback(
     (next: number, anchor?: { x: number; y: number } | null) => {
       const el = containerRef.current;
@@ -292,6 +309,22 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
       return false;
     };
 
+    const isPrintScreenLike = (e: KeyboardEvent) => {
+      const key = String(e.key || "");
+      const lower = key.toLowerCase();
+      if (key === "PrintScreen") return true;
+      if (lower === "prtsc" || lower === "prtscn") return true;
+      // Some browsers report empty key but still provide keyCode 44
+      if ((e as any).keyCode === 44) return true;
+
+      // Best-effort: Windows Snipping Tool shortcut (if browser receives it)
+      if (e.metaKey && e.shiftKey && lower === "s") return true;
+      // Some users use Ctrl+Shift+S for screenshot tools
+      if (e.ctrlKey && e.shiftKey && lower === "s") return true;
+
+      return false;
+    };
+
     const onVisibility = () => {
       clearShieldTimer();
       setShielded(document.hidden);
@@ -308,8 +341,9 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
     };
 
     const onKey = (e: KeyboardEvent) => {
-      if (String(e.key) === "PrintScreen" || (e as any).keyCode === 44) {
-        activateTempShield(1800);
+      if (isPrintScreenLike(e)) {
+        // Try to cover both keydown and keyup capture timings.
+        activateTempShield(2200);
         return;
       }
 
@@ -317,6 +351,12 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         e.preventDefault();
         e.stopPropagation();
         activateTempShield(2500);
+      }
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (isPrintScreenLike(e)) {
+        activateTempShield(2200);
       }
     };
 
@@ -341,6 +381,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
     window.addEventListener("blur", onBlur);
     window.addEventListener("focus", onFocus);
     window.addEventListener("keydown", onKey, { capture: true });
+    window.addEventListener("keyup", onKeyUp, { capture: true });
     window.addEventListener("beforeprint", onBeforePrint);
     window.addEventListener("afterprint", onAfterPrint);
     if (mql) {
@@ -371,6 +412,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
       window.removeEventListener("blur", onBlur);
       window.removeEventListener("focus", onFocus);
       window.removeEventListener("keydown", onKey, { capture: true } as any);
+      window.removeEventListener("keyup", onKeyUp, { capture: true } as any);
       window.removeEventListener("beforeprint", onBeforePrint);
       window.removeEventListener("afterprint", onAfterPrint);
       if (mql) {
@@ -523,6 +565,31 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
           </div>
         )}
         </div>
+
+        {!shielded && (
+          <>
+            <div
+              className="pointer-events-none absolute left-0 top-0 bottom-0 z-[6]"
+              style={{
+                width: "86px",
+                backgroundImage: sideBg,
+                backgroundRepeat: "repeat",
+                backgroundSize: "260px 520px",
+                opacity: 1,
+              }}
+            />
+            <div
+              className="pointer-events-none absolute right-0 top-0 bottom-0 z-[6]"
+              style={{
+                width: "86px",
+                backgroundImage: sideBg,
+                backgroundRepeat: "repeat",
+                backgroundSize: "260px 520px",
+                opacity: 1,
+              }}
+            />
+          </>
+        )}
 
         {!shielded && (
           <div
