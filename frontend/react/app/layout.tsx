@@ -37,6 +37,14 @@ export default async function RootLayout({
   const hostname = rawHost.split(',')[0].trim().split(':')[0];
   const isAdminSubdomain = hostname === 'admin.edufyuzbekistan.com';
   const mobileGateVideoUrl = String(process.env.NEXT_PUBLIC_MOBILE_GATE_VIDEO_URL ?? '').trim();
+  const ua = (h.get('user-agent') ?? '').toLowerCase();
+  const isMobileUa =
+    /android|iphone|ipod|ipad|iemobile|opera mini|mobile/.test(ua) && !/craw|bot|spider/.test(ua);
+
+  const chMobileRaw = String(h.get('sec-ch-ua-mobile') ?? '').replace(/"/g, '').trim();
+  const isMobileHint = chMobileRaw === '?1';
+  const isNotMobileHint = chMobileRaw === '?0';
+  const isMobileRequest = isNotMobileHint ? false : isMobileHint ? true : isMobileUa;
 
   return (
     <html lang="en" className="dark">
@@ -64,7 +72,7 @@ export default async function RootLayout({
         <SessionExpiredProvider>
           <UserProfileProvider>
             <div className="orientation-allowed-content">{children}</div>
-            {isAdminSubdomain ? null : (
+            {isAdminSubdomain || !isMobileRequest ? null : (
               <div className="orientation-lock-overlay">
                 <MobileGateOverlay videoSrc={mobileGateVideoUrl} />
               </div>

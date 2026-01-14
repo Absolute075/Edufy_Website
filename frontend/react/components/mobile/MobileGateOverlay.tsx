@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
   videoSrc?: string;
@@ -9,10 +9,72 @@ type Props = {
 export function MobileGateOverlay({ videoSrc }: Props) {
   const src = useMemo(() => String(videoSrc || "").trim(), [videoSrc]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [phase, setPhase] = useState<"video" | "message">(src ? "video" : "message");
   const [soundBlocked, setSoundBlocked] = useState<boolean>(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia("(max-width: 900px) and (pointer: coarse)");
+
+    const sync = () => {
+      setIsMobile(Boolean(media.matches));
+    };
+
+    sync();
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", sync);
+      return () => media.removeEventListener("change", sync);
+    }
+
+    // @ts-ignore
+    media.addListener(sync);
+    // @ts-ignore
+    return () => media.removeListener(sync);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+    const v = videoRef.current;
+    if (!v) return;
+    try {
+      v.pause();
+    } catch {
+      // ignore
+    }
+  }, [isMobile]);
+
+  const enableSound = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+
+    try {
+      v.muted = false;
+      v.volume = 1;
+    } catch {
+      // ignore
+    }
+
+    try {
+      const p = v.play();
+      if (p && typeof (p as any).then === "function") {
+        p.then(() => {
+          setSoundBlocked(false);
+        }).catch(() => {
+          setSoundBlocked(true);
+        });
+        return;
+      }
+
+      // Some browsers return void; assume success if we managed to call play()
+      setSoundBlocked(false);
+    } catch {
+      setSoundBlocked(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) return;
     if (!src) {
       setPhase("message");
       return;
@@ -68,30 +130,18 @@ export function MobileGateOverlay({ videoSrc }: Props) {
 
     return () => {
       cancelled = true;
+      try {
+        v.pause();
+      } catch {
+        // ignore
+      }
       v.removeEventListener("ended", onEnded);
       v.removeEventListener("error", onError);
     };
-  }, [src]);
-
-  const enableSound = async () => {
-    const v = videoRef.current;
-    if (!v) return;
-    try {
-      v.muted = false;
-      v.volume = 1;
-      const p = v.play();
-      if (p && typeof (p as any).then === "function") {
-        await p;
-      }
-      if (!v.muted && v.volume > 0) {
-        setSoundBlocked(false);
-      }
-    } catch {
-      // keep blocked
-    }
-  };
+  }, [isMobile, src]);
 
   useEffect(() => {
+    if (!isMobile) return;
     if (phase !== "video") return;
     if (!soundBlocked) return;
 
@@ -114,7 +164,9 @@ export function MobileGateOverlay({ videoSrc }: Props) {
       window.removeEventListener("touchstart", onFirstGesture);
       window.removeEventListener("click", onFirstGesture);
     };
-  }, [phase, soundBlocked]);
+  }, [enableSound, isMobile, phase, soundBlocked]);
+
+  if (!isMobile) return null;
 
   return (
     <div className="mobile-gate-root">
@@ -131,7 +183,13 @@ export function MobileGateOverlay({ videoSrc }: Props) {
       ) : null}
 
       {phase === "video" && soundBlocked ? (
-        <button type="button" className="mobile-gate-sound" onClick={enableSound}>
+        <button
+          type="button"
+          className="mobile-gate-sound"
+          onPointerDown={enableSound}
+          onTouchStart={enableSound}
+          onClick={enableSound}
+        >
           Enable sound
         </button>
       ) : null}
