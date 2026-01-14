@@ -801,8 +801,14 @@ export default function SatLessonsReportsWatchPage() {
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-lg font-semibold">Comments</h2>
-                  <p className="text-sm text-slate-400">Likes &amp; comments are shared across users.</p>
+                  <h2 className="text-lg font-semibold">
+                    {item.mediaType === "video" ? "Comments" : "Likes"}
+                  </h2>
+                  {item.mediaType === "video" ? (
+                    <p className="text-sm text-slate-400">Likes &amp; comments are shared across users.</p>
+                  ) : (
+                    <p className="text-sm text-slate-400">Likes are shared across users.</p>
+                  )}
                 </div>
 
                 <button
@@ -864,181 +870,203 @@ export default function SatLessonsReportsWatchPage() {
                 </div>
               )}
 
-              <div className="space-y-3">
-                <label className="block text-xs font-medium text-slate-400">Add a comment</label>
+              {item.mediaType === "video" && (
+                <>
+                  <div className="space-y-3">
+                    <label className="block text-xs font-medium text-slate-400">Add a comment</label>
 
-                {replyToId && replyToAuthor && (
-                  <div className="flex items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-3 text-sm text-slate-200">
-                    <div className="min-w-0">
-                      Replying to <span className="font-semibold">{replyToAuthor}</span>
+                    {replyToId && replyToAuthor && (
+                      <div className="flex items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-3 text-sm text-slate-200">
+                        <div className="min-w-0">
+                          Replying to <span className="font-semibold">{replyToAuthor}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReplyToId(null);
+                            setReplyToAuthor(null);
+                          }}
+                          className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+
+                    <textarea
+                      className="w-full resize-none rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 transition-all duration-200 ease-out hover:border-white/60 focus:border-white focus:outline-none focus:ring-1 focus:ring-white/40"
+                      rows={3}
+                      placeholder="Write your comment..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                    />
+                    <div className="flex items-center justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const text = newComment.trim();
+                          if (!text) return;
+                          if (!item) return;
+                          if (locked) return;
+
+                          setInteractionsLoading(true);
+                          setInteractionsError(null);
+                          api("/api/lessons-reports/interactions", {
+                            method: "POST",
+                            headers: { "content-type": "application/json" },
+                            body: JSON.stringify({
+                              catalog: "sat",
+                              id: item.id,
+                              action: "add_comment",
+                              text,
+                              parentId: replyToId,
+                            }),
+                          })
+                            .then(async (res) => {
+                              if (!res.ok) {
+                                const t = await res.text().catch(() => "");
+                                throw new Error(t || `request_failed_${res.status}`);
+                              }
+                              const data = (await res.json()) as InteractionsResponse;
+                              setLikedByMe(!!data.likedByMe);
+                              setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
+                              setComments(Array.isArray(data.comments) ? data.comments : []);
+                              setNewComment("");
+                              setReplyToId(null);
+                              setReplyToAuthor(null);
+                            })
+                            .catch((err: any) => {
+                              setInteractionsError(
+                                String(err?.message ?? err ?? "Failed to post comment").slice(0, 160)
+                              );
+                            })
+                            .finally(() => {
+                              setInteractionsLoading(false);
+                            });
+                        }}
+                        disabled={interactionsLoading}
+                        className="inline-flex items-center rounded-full border border-neutral-700 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-900 transition-colors hover:bg-white/90"
+                      >
+                        Post
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setReplyToId(null);
-                        setReplyToAuthor(null);
-                      }}
-                      className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
-                    >
-                      Cancel
-                    </button>
                   </div>
-                )}
 
-                <textarea
-                  className="w-full resize-none rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 transition-all duration-200 ease-out hover:border-white/60 focus:border-white focus:outline-none focus:ring-1 focus:ring-white/40"
-                  rows={3}
-                  placeholder="Write your comment..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                />
-                <div className="flex items-center justify-end">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const text = newComment.trim();
-                      if (!text) return;
-                      if (!item) return;
-                      if (locked) return;
+                  <div className="space-y-3">
+                    {comments.length === 0 ? (
+                      <div className="text-sm text-slate-400">No comments yet.</div>
+                    ) : (
+                      (() => {
+                        const list = Array.isArray(comments) ? comments : [];
+                        const top = list
+                          .filter((c) => !c.parentId)
+                          .slice()
+                          .sort(
+                            (a, b) =>
+                              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                          );
 
-                      setInteractionsLoading(true);
-                      setInteractionsError(null);
-                      api("/api/lessons-reports/interactions", {
-                        method: "POST",
-                        headers: { "content-type": "application/json" },
-                        body: JSON.stringify({
-                          catalog: "sat",
-                          id: item.id,
-                          action: "add_comment",
-                          text,
-                          parentId: replyToId,
-                        }),
-                      })
-                        .then(async (res) => {
-                          if (!res.ok) {
-                            const t = await res.text().catch(() => "");
-                            throw new Error(t || `request_failed_${res.status}`);
-                          }
-                          const data = (await res.json()) as InteractionsResponse;
-                          setLikedByMe(!!data.likedByMe);
-                          setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
-                          setComments(Array.isArray(data.comments) ? data.comments : []);
-                          setNewComment("");
-                          setReplyToId(null);
-                          setReplyToAuthor(null);
-                        })
-                        .catch((err: any) => {
-                          setInteractionsError(String(err?.message ?? err ?? "Failed to post comment").slice(0, 160));
-                        })
-                        .finally(() => {
-                          setInteractionsLoading(false);
-                        });
-                    }}
-                    disabled={interactionsLoading}
-                    className="inline-flex items-center rounded-full border border-neutral-700 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-900 transition-colors hover:bg-white/90"
-                  >
-                    Post
-                  </button>
-                </div>
-              </div>
+                        function repliesFor(parentId: string) {
+                          return list
+                            .filter((c) => c.parentId === parentId)
+                            .slice()
+                            .sort(
+                              (a, b) =>
+                                new Date(a.createdAt).getTime() -
+                                new Date(b.createdAt).getTime()
+                            );
+                        }
 
-              <div className="space-y-3">
-                {comments.length === 0 ? (
-                  <div className="text-sm text-slate-400">No comments yet.</div>
-                ) : (
-                  (() => {
-                    const list = Array.isArray(comments) ? comments : [];
-                    const top = list
-                      .filter((c) => !c.parentId)
-                      .slice()
-                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-                    function repliesFor(parentId: string) {
-                      return list
-                        .filter((c) => c.parentId === parentId)
-                        .slice()
-                        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-                    }
-
-                    return top.map((c) => {
-                      const whenText = formatRelativeTime(c.createdAt);
-                      const replies = repliesFor(c.id);
-                      const canDelete = Boolean(c.canDelete);
-                      return (
-                        <div key={c.id} className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="text-sm font-medium text-slate-100">{c.author}</div>
-                            <div className="text-xs text-slate-500">{whenText}</div>
-                          </div>
-                          <div className="mt-2 whitespace-pre-wrap text-sm text-slate-200">{c.text}</div>
-                          <div className="mt-3 flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setReplyToId(c.id);
-                                  setReplyToAuthor(c.author);
-                                }}
-                                className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
-                              >
-                                Reply
-                              </button>
-                              {canDelete && (
-                                <button
-                                  type="button"
-                                  onClick={() => void deleteComment(c.id)}
-                                  className="inline-flex items-center rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-200 hover:bg-red-500/15"
-                                >
-                                  Delete
-                                </button>
-                              )}
-                            </div>
-                            {replies.length > 0 && <div className="text-xs text-slate-500">{replies.length} replies</div>}
-                          </div>
-
-                          {replies.length > 0 && (
-                            <div className="mt-4 space-y-3 border-l border-neutral-800 pl-4">
-                              {replies.map((r) => (
-                                <div
-                                  key={r.id}
-                                  className="rounded-xl border border-neutral-800 bg-neutral-950/50 px-4 py-3"
-                                >
-                                  <div className="flex items-center justify-between gap-3">
-                                    <div className="text-sm font-medium text-slate-100">{r.author}</div>
-                                    <div className="text-xs text-slate-500">{formatRelativeTime(r.createdAt)}</div>
-                                  </div>
-                                  <div className="mt-2 whitespace-pre-wrap text-sm text-slate-200">{r.text}</div>
-                                  <div className="mt-3 flex items-center gap-2">
+                        return top.map((c) => {
+                          const whenText = formatRelativeTime(c.createdAt);
+                          const replies = repliesFor(c.id);
+                          const canDelete = Boolean(c.canDelete);
+                          return (
+                            <div
+                              key={c.id}
+                              className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="text-sm font-medium text-slate-100">{c.author}</div>
+                                <div className="text-xs text-slate-500">{whenText}</div>
+                              </div>
+                              <div className="mt-2 whitespace-pre-wrap text-sm text-slate-200">{c.text}</div>
+                              <div className="mt-3 flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setReplyToId(c.id);
+                                      setReplyToAuthor(c.author);
+                                    }}
+                                    className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
+                                  >
+                                    Reply
+                                  </button>
+                                  {canDelete && (
                                     <button
                                       type="button"
-                                      onClick={() => {
-                                        setReplyToId(c.id);
-                                        setReplyToAuthor(c.author);
-                                      }}
-                                      className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
+                                      onClick={() => void deleteComment(c.id)}
+                                      className="inline-flex items-center rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-200 hover:bg-red-500/15"
                                     >
-                                      Reply
+                                      Delete
                                     </button>
-                                    {Boolean(r.canDelete) && (
-                                      <button
-                                        type="button"
-                                        onClick={() => void deleteComment(r.id)}
-                                        className="inline-flex items-center rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-200 hover:bg-red-500/15"
-                                      >
-                                        Delete
-                                      </button>
-                                    )}
-                                  </div>
+                                  )}
                                 </div>
-                              ))}
+                                {replies.length > 0 && (
+                                  <div className="text-xs text-slate-500">
+                                    {replies.length} replies
+                                  </div>
+                                )}
+                              </div>
+
+                              {replies.length > 0 && (
+                                <div className="mt-4 space-y-3 border-l border-neutral-800 pl-4">
+                                  {replies.map((r) => (
+                                    <div
+                                      key={r.id}
+                                      className="rounded-xl border border-neutral-800 bg-neutral-950/50 px-4 py-3"
+                                    >
+                                      <div className="flex items-center justify-between gap-3">
+                                        <div className="text-sm font-medium text-slate-100">{r.author}</div>
+                                        <div className="text-xs text-slate-500">
+                                          {formatRelativeTime(r.createdAt)}
+                                        </div>
+                                      </div>
+                                      <div className="mt-2 whitespace-pre-wrap text-sm text-slate-200">{r.text}</div>
+                                      <div className="mt-3 flex items-center gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setReplyToId(c.id);
+                                            setReplyToAuthor(c.author);
+                                          }}
+                                          className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
+                                        >
+                                          Reply
+                                        </button>
+                                        {Boolean(r.canDelete) && (
+                                          <button
+                                            type="button"
+                                            onClick={() => void deleteComment(r.id)}
+                                            className="inline-flex items-center rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-200 hover:bg-red-500/15"
+                                          >
+                                            Delete
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    });
-                  })()
-                )}
-              </div>
+                          );
+                        });
+                      })()
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </section>
         )}

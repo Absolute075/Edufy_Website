@@ -29,6 +29,33 @@ function getRule(catalog: Catalog, id: string) {
   return satVideoResourcesRegistry[id] || null;
 }
 
+function extractRawPlan(body: any) {
+  if (!body) return undefined;
+
+  return (
+    body?.plan ??
+    body?.data?.plan ??
+    body?.user?.plan ??
+    body?.data?.user?.plan ??
+    body?.profile?.plan ??
+    body?.data?.profile?.plan ??
+    body?.user?.profile?.plan ??
+    body?.data?.user?.profile?.plan ??
+    body?.subscription?.plan ??
+    body?.data?.subscription?.plan ??
+    body?.user?.subscription?.plan ??
+    body?.data?.user?.subscription?.plan ??
+    body?.profile?.subscription?.plan ??
+    body?.data?.profile?.subscription?.plan ??
+    body?.user?.profile?.subscription?.plan ??
+    body?.data?.user?.profile?.subscription?.plan ??
+    body?.subscriptionPlan ??
+    body?.data?.subscriptionPlan ??
+    body?.tariff ??
+    body?.data?.tariff
+  );
+}
+
 async function fetchFromApi(request: Request, path: string, init: RequestInit) {
   const requestOrigin = (() => {
     try {
@@ -87,17 +114,7 @@ async function getUserIdentity(request: Request): Promise<{ userId: string; role
   const email = body?.email ?? body?.user?.email ?? body?.data?.email;
   const role = body?.role ?? body?.user?.role ?? body?.data?.role ?? "";
 
-  const rawPlan =
-    body?.plan ??
-    body?.data?.plan ??
-    body?.user?.plan ??
-    body?.profile?.plan ??
-    body?.subscription?.plan ??
-    body?.data?.subscription?.plan ??
-    body?.user?.subscription?.plan ??
-    body?.profile?.subscription?.plan ??
-    body?.subscriptionPlan ??
-    body?.tariff;
+  const rawPlan = extractRawPlan(body);
 
   const userId = String(id ?? username ?? email ?? "").trim();
   if (!userId) {
@@ -119,17 +136,7 @@ async function getUserIdentity(request: Request): Promise<{ userId: string; role
 
       if (profileRes.ok) {
         const p: any = await profileRes.json().catch(() => null);
-        const rawProfilePlan =
-          p?.plan ??
-          p?.data?.plan ??
-          p?.user?.plan ??
-          p?.profile?.plan ??
-          p?.subscription?.plan ??
-          p?.data?.subscription?.plan ??
-          p?.user?.subscription?.plan ??
-          p?.profile?.subscription?.plan ??
-          p?.subscriptionPlan ??
-          p?.tariff;
+        const rawProfilePlan = extractRawPlan(p);
         if (rawProfilePlan !== undefined && rawProfilePlan !== null && String(rawProfilePlan).trim()) {
           plan = normalizePlan(rawProfilePlan);
         }
@@ -285,7 +292,7 @@ export async function GET(request: Request) {
       status: 403,
       headers: noStoreHeaders({
         "content-type": "application/json",
-        "x-edufy-plan-debug": `required=${required}; user=${String(userPlan)}; role=${String(identity.role)}; catalog=${catalog}; id=${id}`,
+        "x-edufy-plan-debug": `required=${required}; user=${String(userPlan)}; role=${String(identity.role)}; catalog=${catalog}; id=${id}; auth=cookie`,
       }),
     });
   }

@@ -2,11 +2,8 @@
 
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Roboto_Mono } from "next/font/google";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import baseWordsData from "@/lib/typingWords.en.json";
-
-const monkeytypeMono = Roboto_Mono({ subsets: ["latin"], display: "swap" });
 
 type Wordlist = {
   name: string;
@@ -1219,7 +1216,7 @@ export default function PracticePage() {
         }
       `}</style>
 
-      <div className={`practice-root ${monkeytypeMono.className} flex w-full flex-col gap-5`}>
+      <div className="practice-root font-mono flex w-full flex-col gap-5">
         <div className="flex w-full items-center justify-center">
           {mode === "time" ? (
             <div className="select-none text-5xl font-semibold tracking-tight text-white">
