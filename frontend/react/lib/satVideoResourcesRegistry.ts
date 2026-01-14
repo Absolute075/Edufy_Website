@@ -179,10 +179,26 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
   },
   "H9pX0xQ5Lp": {
     title: "Lesson 10 - Homework",
-    section: "math",
+    section: "english",
     mediaType: "file",
     requiredPlan: "premium",
     teacher: "Marstiff Teachers",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/10-lesson-homework.pdf`,
+  },
+  "P2nL8gH4Kt": {
+    title: "Lesson 11 - Writing",
+    section: "english",
+    mediaType: "video",
+    requiredPlan: "premium",
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/video2913730344.mp4`,
+  },
+  "N5kM3rP7Mb": {
+    title: "Lesson 11 - Homework",
+    section: "english",
+    mediaType: "file",
+    requiredPlan: "premium",
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/11-lesson-homework.pdf`,
   },
 };
