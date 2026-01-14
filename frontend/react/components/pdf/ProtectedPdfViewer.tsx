@@ -493,8 +493,12 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
       <div className="relative">
         <div
           ref={containerRef}
-          className="pdfScroll max-h-[75vh] overflow-auto px-4 py-4"
-          style={{ filter: shielded ? "blur(12px)" : "none" }}
+          className="pdfScroll relative z-[7] max-h-[75vh] overflow-auto py-4"
+          style={{
+            paddingLeft: 96,
+            paddingRight: 96,
+            filter: shielded ? "blur(12px)" : "none",
+          }}
           onMouseMove={(e) => {
             lastPointerRef.current = { x: e.clientX, y: e.clientY };
           }}
@@ -569,7 +573,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         {!shielded && (
           <>
             <div
-              className="pointer-events-none absolute left-0 top-0 bottom-0 z-[6]"
+              className="pointer-events-none absolute left-0 top-0 bottom-0 z-[2]"
               style={{
                 width: "86px",
                 backgroundImage: sideBg,
@@ -579,7 +583,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
               }}
             />
             <div
-              className="pointer-events-none absolute right-0 top-0 bottom-0 z-[6]"
+              className="pointer-events-none absolute right-0 top-0 bottom-0 z-[2]"
               style={{
                 width: "86px",
                 backgroundImage: sideBg,
@@ -593,7 +597,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
 
         {!shielded && (
           <div
-            className="pointer-events-none absolute inset-0 z-[5]"
+            className="pointer-events-none absolute inset-0 z-[6]"
             style={{
               backgroundImage: watermarkBg,
               backgroundRepeat: "repeat",
