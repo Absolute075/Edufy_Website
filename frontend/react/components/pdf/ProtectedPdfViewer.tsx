@@ -16,7 +16,6 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
   const [numPages, setNumPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [zoom, setZoom] = useState<number>(1);
-  const [fitWidth, setFitWidth] = useState<boolean>(true);
   const [basePageWidth, setBasePageWidth] = useState<number | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
 
@@ -25,10 +24,10 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
   }, [catalog, id]);
 
   const effectiveScale = useMemo(() => {
-    const base = fitWidth && basePageWidth && containerWidth > 0 ? containerWidth / basePageWidth : 1;
+    const base = basePageWidth && containerWidth > 0 ? containerWidth / basePageWidth : 1;
     const clampedZoom = Math.max(0.5, Math.min(3, zoom));
     return base * clampedZoom;
-  }, [basePageWidth, containerWidth, fitWidth, zoom]);
+  }, [basePageWidth, containerWidth, zoom]);
 
   const ensurePageRendered = useCallback(
     async (pageNumber: number) => {
@@ -224,20 +223,6 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setFitWidth((v) => {
-                const next = !v;
-                setZoom(1);
-                return next;
-              });
-            }}
-            className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-950 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-200 hover:border-white/60 hover:bg-neutral-900"
-          >
-            {fitWidth ? "Fit" : "Actual"}
-          </button>
-
           <button
             type="button"
             onClick={() => setZoom((z) => Math.max(0.5, Math.round((z - 0.1) * 10) / 10))}

@@ -104,7 +104,40 @@ async function getUserIdentity(request: Request): Promise<{ userId: string; role
     throw new Error("unauthorized");
   }
 
-  const plan = normalizePlan(rawPlan);
+  let plan = normalizePlan(rawPlan);
+
+  if (plan === "free") {
+    try {
+      const profileRes = await fetchFromApi(request, "/user/profile", {
+        headers: {
+          cookie: cookieHeader,
+          "x-edufy-middleware": "1",
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      });
+
+      if (profileRes.ok) {
+        const p: any = await profileRes.json().catch(() => null);
+        const rawProfilePlan =
+          p?.plan ??
+          p?.data?.plan ??
+          p?.user?.plan ??
+          p?.profile?.plan ??
+          p?.subscription?.plan ??
+          p?.data?.subscription?.plan ??
+          p?.user?.subscription?.plan ??
+          p?.profile?.subscription?.plan ??
+          p?.subscriptionPlan ??
+          p?.tariff;
+        if (rawProfilePlan !== undefined && rawProfilePlan !== null && String(rawProfilePlan).trim()) {
+          plan = normalizePlan(rawProfilePlan);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
   return { userId, role: String(role ?? "").trim(), plan };
 }
 
@@ -250,7 +283,10 @@ export async function GET(request: Request) {
   if (!isAdmin && !isPlanSufficient(userPlan as any, required as any)) {
     return new NextResponse(JSON.stringify({ error: "forbidden" }), {
       status: 403,
-      headers: noStoreHeaders({ "content-type": "application/json" }),
+      headers: noStoreHeaders({
+        "content-type": "application/json",
+        "x-edufy-plan-debug": `required=${required}; user=${String(userPlan)}; role=${String(identity.role)}; catalog=${catalog}; id=${id}`,
+      }),
     });
   }
 
