@@ -10,6 +10,7 @@ export function MobileGateOverlay({ videoSrc }: Props) {
   const src = useMemo(() => String(videoSrc || "").trim(), [videoSrc]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [phase, setPhase] = useState<"video" | "message">(src ? "video" : "message");
+  const [soundBlocked, setSoundBlocked] = useState<boolean>(false);
 
   useEffect(() => {
     if (!src) {
@@ -18,6 +19,7 @@ export function MobileGateOverlay({ videoSrc }: Props) {
     }
 
     setPhase("video");
+    setSoundBlocked(false);
 
     const v = videoRef.current;
     if (!v) return;
@@ -26,12 +28,25 @@ export function MobileGateOverlay({ videoSrc }: Props) {
 
     const tryPlay = async () => {
       try {
+        v.muted = false;
+        v.volume = 1;
+
         const p = v.play();
         if (p && typeof (p as any).then === "function") {
           await p;
         }
       } catch {
-        if (!cancelled) setPhase("message");
+        try {
+          v.muted = true;
+          v.volume = 0;
+          const p2 = v.play();
+          if (p2 && typeof (p2 as any).then === "function") {
+            await p2;
+          }
+          if (!cancelled) setSoundBlocked(true);
+        } catch {
+          if (!cancelled) setPhase("message");
+        }
       }
     };
 
@@ -54,6 +69,22 @@ export function MobileGateOverlay({ videoSrc }: Props) {
     };
   }, [src]);
 
+  const enableSound = async () => {
+    const v = videoRef.current;
+    if (!v) return;
+    try {
+      v.muted = false;
+      v.volume = 1;
+      const p = v.play();
+      if (p && typeof (p as any).then === "function") {
+        await p;
+      }
+      setSoundBlocked(false);
+    } catch {
+      // keep blocked
+    }
+  };
+
   return (
     <div className="mobile-gate-root">
       {phase === "video" ? (
@@ -62,11 +93,16 @@ export function MobileGateOverlay({ videoSrc }: Props) {
           className="mobile-gate-video"
           src={src}
           autoPlay
-          muted
           playsInline
           preload="auto"
           controls={false}
         />
+      ) : null}
+
+      {phase === "video" && soundBlocked ? (
+        <button type="button" className="mobile-gate-sound" onClick={enableSound}>
+          Enable sound
+        </button>
       ) : null}
 
       <div className={`mobile-gate-message${phase === "message" ? " is-visible" : ""}`}>
@@ -83,15 +119,33 @@ export function MobileGateOverlay({ videoSrc }: Props) {
           height: 100%;
           background: #000;
           overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .mobile-gate-video {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
+          width: min(92vw, 520px);
+          height: auto;
+          max-height: 72vh;
+          object-fit: contain;
           background: #000;
+          border-radius: 14px;
+        }
+
+        .mobile-gate-sound {
+          position: absolute;
+          left: 50%;
+          bottom: 22px;
+          transform: translateX(-50%);
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          background: rgba(0, 0, 0, 0.65);
+          color: rgba(255, 255, 255, 0.92);
+          padding: 10px 14px;
+          border-radius: 999px;
+          font-size: 14px;
+          font-weight: 600;
+          backdrop-filter: blur(10px);
         }
 
         .mobile-gate-message {
