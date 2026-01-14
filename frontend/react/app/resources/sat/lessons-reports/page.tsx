@@ -27,29 +27,8 @@ export default function SatLessonsReportsResourcesPage() {
   const [openTeacherMediaTypeDropdown, setOpenTeacherMediaTypeDropdown] = useState(false);
 
   const items = useMemo(() => {
-    const planOrder = (plan: (typeof satVideoResourcesRegistry)[string]["requiredPlan"]) => {
-      return plan === "free" ? 0 : 1;
-    };
-
-    const sectionOrder = (section: (typeof satVideoResourcesRegistry)[string]["section"]) => {
-      if (section === "math") return 0;
-      if (section === "english") return 1;
-      return 2;
-    };
-
     return Object.entries(satVideoResourcesRegistry)
-      .map(([id, rule]) => ({ id, ...rule }))
-      .sort((a, b) => {
-        const aPlan = planOrder(a.requiredPlan);
-        const bPlan = planOrder(b.requiredPlan);
-        if (aPlan !== bPlan) return aPlan - bPlan;
-
-        const aSection = sectionOrder(a.section);
-        const bSection = sectionOrder(b.section);
-        if (aSection !== bSection) return aSection - bSection;
-
-        return a.title.localeCompare(b.title);
-      });
+      .map(([id, rule]) => ({ id, ...rule }));
   }, []);
 
   const teacherOptions = useMemo(() => {
