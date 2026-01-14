@@ -66,7 +66,10 @@ function getStorePath(catalog: Catalog): string {
 
   // On prod the project is usually: /var/www/Edufy_Website/frontend/react
   // and storage is: /var/www/Edufy_Website/storage
-  return join(process.cwd(), "..", "..", "storage", `lessons-reports-interactions.${catalog}.json`);
+  if (catalog === "ielts") {
+    return join(process.cwd(), "..", "..", "storage", "lessons-reports-interactions.json");
+  }
+  return join(process.cwd(), "..", "..", "storage", "lessons-reports-interactions.sat.json");
 }
 
 function getNotificationsPath(): string {

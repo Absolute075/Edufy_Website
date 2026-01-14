@@ -8,6 +8,7 @@ import { videoResourcesRegistry } from "@/lib/videoResourcesRegistry";
 import { useUserProfile } from "../../../UserProfileProvider";
 import { api } from "@/lib/api";
 import Hls from "hls.js";
+import { ProtectedPdfViewer } from "@/components/pdf/ProtectedPdfViewer";
 
 type StoredComment = {
   id: string;
@@ -798,14 +799,7 @@ export default function LessonsReportsWatchPage() {
         ) : (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
             {item.href ? (
-              <a
-                href={item.href}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center rounded-full border border-neutral-700 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-900 transition-colors hover:bg-white/90"
-              >
-                Download
-              </a>
+              <ProtectedPdfViewer catalog="ielts" id={item.id} />
             ) : (
               <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4 text-sm text-slate-400">
                 File URL is missing.
