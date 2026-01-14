@@ -11,21 +11,32 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
   const pdfRef = useRef<any>(null);
   const renderingRef = useRef<Map<number, boolean>>(new Map());
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
+  const shieldTimerRef = useRef<number | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [zoom, setZoom] = useState<number>(1);
+  const [renderScale, setRenderScale] = useState<number>(1);
+  const [pageSizes, setPageSizes] = useState<Record<number, { w: number; h: number }>>({});
+  const [shielded, setShielded] = useState<boolean>(false);
 
   const pdfUrl = useMemo(() => {
     return `/api/lessons-reports/pdf?catalog=${encodeURIComponent(catalog)}&id=${encodeURIComponent(id)}`;
   }, [catalog, id]);
 
-  const effectiveScale = useMemo(() => {
-    const clampedZoom = Math.max(0.5, Math.min(3, zoom));
-    return clampedZoom;
+  const clampedZoom = useMemo(() => {
+    return Math.max(0.5, Math.min(3, zoom));
   }, [zoom]);
+
+  const clampedRenderScale = useMemo(() => {
+    return Math.max(0.5, Math.min(3, renderScale));
+  }, [renderScale]);
+
+  const displayRatio = useMemo(() => {
+    return clampedZoom / clampedRenderScale;
+  }, [clampedRenderScale, clampedZoom]);
 
   const setZoomAnchored = useCallback(
     (next: number, anchor?: { x: number; y: number } | null) => {
@@ -61,6 +72,20 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
     [zoom]
   );
 
+  useEffect(() => {
+    const next = clampedZoom;
+    const current = clampedRenderScale;
+    if (Math.abs(next - current) < 0.12) return;
+
+    const t = window.setTimeout(() => {
+      setRenderScale(next);
+    }, 220);
+
+    return () => {
+      window.clearTimeout(t);
+    };
+  }, [clampedRenderScale, clampedZoom]);
+
   const ensurePageRendered = useCallback(
     async (pageNumber: number) => {
       if (!pdfRef.current) return;
@@ -72,7 +97,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
 
       try {
         const page = await pdfRef.current.getPage(pageNumber);
-        const viewport = page.getViewport({ scale: effectiveScale });
+        const viewport = page.getViewport({ scale: clampedRenderScale });
 
         const outputScale = window.devicePixelRatio || 1;
         const w = Math.floor(viewport.width);
@@ -82,6 +107,12 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         canvas.style.height = `${h}px`;
         canvas.width = Math.floor(w * outputScale);
         canvas.height = Math.floor(h * outputScale);
+
+        setPageSizes((prev) => {
+          const cur = prev[pageNumber];
+          if (cur && cur.w === w && cur.h === h) return prev;
+          return { ...prev, [pageNumber]: { w, h } };
+        });
 
         const ctx = canvas.getContext("2d", { alpha: false });
         if (!ctx) return;
@@ -95,7 +126,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         renderingRef.current.set(pageNumber, false);
       }
     },
-    [effectiveScale]
+    [clampedRenderScale]
   );
 
   useEffect(() => {
@@ -196,7 +227,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
     for (let i = from; i <= to; i++) {
       void ensurePageRendered(i);
     }
-  }, [currentPage, effectiveScale, ensurePageRendered, numPages]);
+  }, [clampedRenderScale, currentPage, ensurePageRendered, numPages]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -212,6 +243,60 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
     window.addEventListener("keydown", onKeyDown, { capture: true });
     return () => {
       window.removeEventListener("keydown", onKeyDown, { capture: true } as any);
+    };
+  }, []);
+
+  useEffect(() => {
+    const clearShieldTimer = () => {
+      if (shieldTimerRef.current) {
+        window.clearTimeout(shieldTimerRef.current);
+        shieldTimerRef.current = null;
+      }
+    };
+
+    const activateTempShield = (ms: number) => {
+      clearShieldTimer();
+      setShielded(true);
+      shieldTimerRef.current = window.setTimeout(() => {
+        shieldTimerRef.current = null;
+        if (!document.hidden) setShielded(false);
+      }, ms);
+    };
+
+    const onVisibility = () => {
+      clearShieldTimer();
+      setShielded(document.hidden);
+    };
+
+    const onBlur = () => {
+      clearShieldTimer();
+      setShielded(true);
+    };
+
+    const onFocus = () => {
+      clearShieldTimer();
+      if (!document.hidden) setShielded(false);
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (String(e.key) === "PrintScreen" || (e as any).keyCode === 44) {
+        activateTempShield(1800);
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("blur", onBlur);
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("keydown", onKey, { capture: true });
+
+    onVisibility();
+
+    return () => {
+      clearShieldTimer();
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("blur", onBlur);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("keydown", onKey, { capture: true } as any);
     };
   }, []);
 
@@ -238,7 +323,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
           </button>
 
           <div className="w-16 text-center text-xs font-semibold text-slate-200">
-            {Math.round(Math.max(0.5, Math.min(3, zoom)) * 100)}%
+            {Math.round(clampedZoom * 100)}%
           </div>
 
           <button
@@ -252,24 +337,29 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         </div>
       </div>
 
-      <div
-        ref={containerRef}
-        className="pdfScroll max-h-[75vh] overflow-auto px-4 py-4"
-        onMouseMove={(e) => {
-          lastPointerRef.current = { x: e.clientX, y: e.clientY };
-        }}
-        onMouseLeave={() => {
-          lastPointerRef.current = null;
-        }}
-        onWheel={(e) => {
-          if (!e.ctrlKey && !e.metaKey) return;
-          e.preventDefault();
-          const delta = e.deltaY;
-          const step = 0.05;
-          setZoomAnchored(zoom + (delta > 0 ? -step : step), { x: e.clientX, y: e.clientY });
-        }}
-        onContextMenu={(e) => e.preventDefault()}
-      >
+      <div className="relative">
+        <div
+          ref={containerRef}
+          className="pdfScroll max-h-[75vh] overflow-auto px-4 py-4"
+          style={{ filter: shielded ? "blur(12px)" : "none" }}
+          onMouseMove={(e) => {
+            lastPointerRef.current = { x: e.clientX, y: e.clientY };
+          }}
+          onMouseLeave={() => {
+            lastPointerRef.current = null;
+          }}
+          onWheel={(e) => {
+            if (!e.ctrlKey && !e.metaKey) return;
+            e.preventDefault();
+            const delta = e.deltaY;
+            const step = 0.05;
+            setZoomAnchored(zoom + (delta > 0 ? -step : step), { x: e.clientX, y: e.clientY });
+          }}
+          onContextMenu={(e) => e.preventDefault()}
+          onCopy={(e) => e.preventDefault()}
+          onCut={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
+        >
         {loading ? (
           <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4 text-sm text-slate-400">
             Loading PDF...
@@ -279,27 +369,39 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
             {error}
           </div>
         ) : numPages ? (
-          <div className="flex flex-col" style={{ gap: `${24 * effectiveScale}px` }}>
+          <div className="flex flex-col" style={{ gap: `${24 * clampedZoom}px` }}>
             {Array.from({ length: numPages }).map((_, idx) => {
               const pageNumber = idx + 1;
+              const size = pageSizes[pageNumber];
+              const boxW = size ? size.w * displayRatio : 0;
+              const boxH = size ? size.h * displayRatio : 0;
               return (
                 <div
                   key={pageNumber}
                   data-page={pageNumber}
                   className="flex justify-center"
-                  style={{ minHeight: 140 * effectiveScale }}
+                  style={{ minHeight: 140 * clampedZoom }}
                 >
-                  <canvas
-                    ref={(node) => {
-                      if (!node) {
-                        canvasesRef.current.delete(pageNumber);
-                        return;
-                      }
-                      canvasesRef.current.set(pageNumber, node);
-                      void ensurePageRendered(pageNumber);
-                    }}
-                    className="rounded-lg bg-white shadow-[0_10px_50px_rgba(0,0,0,0.45)]"
-                  />
+                  <div
+                    className="relative"
+                    style={{ width: boxW ? `${boxW}px` : undefined, height: boxH ? `${boxH}px` : undefined }}
+                  >
+                    <canvas
+                      ref={(node) => {
+                        if (!node) {
+                          canvasesRef.current.delete(pageNumber);
+                          return;
+                        }
+                        canvasesRef.current.set(pageNumber, node);
+                        void ensurePageRendered(pageNumber);
+                      }}
+                      className="absolute left-0 top-0 rounded-lg bg-white shadow-[0_10px_50px_rgba(0,0,0,0.45)]"
+                      style={{
+                        transform: `scale(${displayRatio})`,
+                        transformOrigin: "0 0",
+                      }}
+                    />
+                  </div>
                 </div>
               );
             })}
@@ -307,6 +409,16 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         ) : (
           <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4 text-sm text-slate-400">
             Empty document.
+          </div>
+        )}
+        </div>
+
+        {shielded && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+            <div className="rounded-2xl border border-neutral-700 bg-neutral-950/80 px-6 py-5 text-center">
+              <div className="text-sm font-semibold text-slate-100">Protected content</div>
+              <div className="mt-1 text-xs text-slate-400">Return to this tab to continue viewing.</div>
+            </div>
           </div>
         )}
       </div>
