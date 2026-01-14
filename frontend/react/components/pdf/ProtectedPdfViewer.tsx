@@ -16,18 +16,15 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
   const [numPages, setNumPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [zoom, setZoom] = useState<number>(1);
-  const [basePageWidth, setBasePageWidth] = useState<number | null>(null);
-  const [containerWidth, setContainerWidth] = useState<number>(0);
 
   const pdfUrl = useMemo(() => {
     return `/api/lessons-reports/pdf?catalog=${encodeURIComponent(catalog)}&id=${encodeURIComponent(id)}`;
   }, [catalog, id]);
 
   const effectiveScale = useMemo(() => {
-    const base = basePageWidth && containerWidth > 0 ? containerWidth / basePageWidth : 1;
     const clampedZoom = Math.max(0.5, Math.min(3, zoom));
-    return base * clampedZoom;
-  }, [basePageWidth, containerWidth, zoom]);
+    return clampedZoom;
+  }, [zoom]);
 
   const ensurePageRendered = useCallback(
     async (pageNumber: number) => {
@@ -67,33 +64,12 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
   );
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const update = () => {
-      const rect = el.getBoundingClientRect();
-      const next = Math.max(320, Math.floor(rect.width - 32));
-      setContainerWidth(next);
-    };
-
-    update();
-
-    const ro = new ResizeObserver(() => update());
-    ro.observe(el);
-
-    return () => {
-      ro.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
     let cancelled = false;
 
     setLoading(true);
     setError(null);
     setNumPages(0);
     setCurrentPage(1);
-    setBasePageWidth(null);
     pdfRef.current = null;
     canvasesRef.current.clear();
 
@@ -121,14 +97,6 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
 
         pdfRef.current = doc;
         setNumPages(doc.numPages || 0);
-
-        try {
-          const p1 = await doc.getPage(1);
-          const v = p1.getViewport({ scale: 1 });
-          setBasePageWidth(v.width || null);
-        } catch {
-          // ignore
-        }
 
         setLoading(false);
 
