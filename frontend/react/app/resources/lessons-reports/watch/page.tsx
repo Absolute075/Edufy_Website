@@ -325,7 +325,7 @@ function CustomVideoPlayer({ src }: { src: string }) {
   return (
     <div
       ref={wrapperRef}
-      className="group relative overflow-hidden rounded-xl border border-neutral-800 bg-black"
+      className="group relative aspect-video w-full overflow-hidden rounded-xl border border-neutral-800 bg-black"
       onMouseMove={() => showControls()}
       onMouseDown={() => showControls()}
       onTouchStart={() => showControls()}
@@ -335,7 +335,7 @@ function CustomVideoPlayer({ src }: { src: string }) {
     >
       <video
         ref={ref}
-        className="block w-full"
+        className="absolute inset-0 h-full w-full object-contain"
         preload="metadata"
         controlsList="nodownload noremoteplayback"
         disablePictureInPicture
