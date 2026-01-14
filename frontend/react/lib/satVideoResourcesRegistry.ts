@@ -22,16 +22,16 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     section: "general",
     mediaType: "video",
     requiredPlan: "premium",
-    teacher: "marstiff-teachers",
-    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/598412.mp4`,
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/video1403153147.mp4`,
   },
   "A7F9K2Q8m4": {
     title: "Lesson 1 - Reading",
     section: "english",
     mediaType: "video",
     requiredPlan: "premium",
-    teacher: "marstiff-teachers",
-    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/8473926150.mp4`,
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/video5884924978.mp4`,
   },
   "A9M4Q2kFX7": {
     title: "Lesson 1 - Homework",
@@ -39,6 +39,6 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     mediaType: "file",
     requiredPlan: "premium",
     teacher: "marstiff-teachers",
-    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/1-lesson-reading.pdf`,
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/1-lesson-homework.pdf`,
   },
 };
