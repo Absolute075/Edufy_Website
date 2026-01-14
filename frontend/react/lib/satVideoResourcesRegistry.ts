@@ -38,7 +38,15 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     section: "english",
     mediaType: "file",
     requiredPlan: "premium",
-    teacher: "marstiff-teachers",
+    teacher: "Marstiff Teachers",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/1-lesson-homework.pdf`,
+  },
+  "F5qV2bH8Rt": {
+    title: "Lesson 2 - Writing",
+    section: "english",
+    mediaType: "video",
+    requiredPlan: "premium",
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/video4377113700.mp4 `,
   },
 };
