@@ -25,6 +25,8 @@ export default function LessonsReportsResourcesPage() {
   const [planFilter, setPlanFilter] = useState<"all" | "free" | "premium">("all");
   const [teacherFilter, setTeacherFilter] = useState<string>("all");
   const [openTeacherDropdown, setOpenTeacherDropdown] = useState(false);
+  const [teacherMediaTypeFilter, setTeacherMediaTypeFilter] = useState<"all" | "video" | "file">("all");
+  const [openTeacherMediaTypeDropdown, setOpenTeacherMediaTypeDropdown] = useState(false);
 
   const items = useMemo(() => {
     const planOrder = (plan: (typeof videoResourcesRegistry)[string]["requiredPlan"]) => {
@@ -62,18 +64,22 @@ export default function LessonsReportsResourcesPage() {
   }, [items]);
 
   useEffect(() => {
-    if (!openTeacherDropdown) return;
+    if (!openTeacherDropdown && !openTeacherMediaTypeDropdown) return;
 
     const onPointerDown = (e: PointerEvent) => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
-      if (!target.closest(".teacher-rounded-dropdown")) {
+      if (!target.closest(".teacher-rounded-dropdown") && !target.closest(".teacher-media-type-rounded-dropdown")) {
         setOpenTeacherDropdown(false);
+        setOpenTeacherMediaTypeDropdown(false);
       }
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenTeacherDropdown(false);
+      if (e.key === "Escape") {
+        setOpenTeacherDropdown(false);
+        setOpenTeacherMediaTypeDropdown(false);
+      }
     };
 
     document.addEventListener("pointerdown", onPointerDown);
@@ -82,7 +88,14 @@ export default function LessonsReportsResourcesPage() {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [openTeacherDropdown]);
+  }, [openTeacherDropdown, openTeacherMediaTypeDropdown]);
+
+  useEffect(() => {
+    if (teacherFilter === "all") {
+      setTeacherMediaTypeFilter("all");
+      setOpenTeacherMediaTypeDropdown(false);
+    }
+  }, [teacherFilter]);
 
   const filteredItems = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -95,10 +108,12 @@ export default function LessonsReportsResourcesPage() {
       if (typeFilter !== "all" && item.section !== typeFilter) return false;
       if (planFilter !== "all" && item.requiredPlan !== planFilter) return false;
       if (teacherFilter !== "all" && (item.teacher || "") !== teacherFilter) return false;
+      if (teacherFilter !== "all" && teacherMediaTypeFilter !== "all" && item.mediaType !== teacherMediaTypeFilter)
+        return false;
 
       return true;
     });
-  }, [items, planFilter, searchQuery, teacherFilter, typeFilter]);
+  }, [items, planFilter, searchQuery, teacherFilter, teacherMediaTypeFilter, typeFilter]);
 
   return (
     <DashboardShell>
@@ -155,7 +170,7 @@ export default function LessonsReportsResourcesPage() {
               </div>
 
               <div className="w-full sm:w-auto">
-                <label className="mb-1 block text-xs font-medium text-slate-400">Type</label>
+                <label className="mb-1 block text-xs font-medium text-slate-400">Teacher</label>
                 <div className="teacher-rounded-dropdown rounded-dropdown">
                   <button
                     type="button"
@@ -200,6 +215,66 @@ export default function LessonsReportsResourcesPage() {
                   </div>
                 </div>
               </div>
+
+              {teacherFilter !== "all" ? (
+                <div className="w-full sm:w-auto">
+                  <label className="mb-1 block text-xs font-medium text-slate-400">Type</label>
+                  <div className="teacher-media-type-rounded-dropdown rounded-dropdown">
+                    <button
+                      type="button"
+                      className="rounded-dropdown-trigger"
+                      aria-haspopup="listbox"
+                      aria-expanded={openTeacherMediaTypeDropdown}
+                      onClick={() => setOpenTeacherMediaTypeDropdown((v) => !v)}
+                    >
+                      <span className="truncate">
+                        {teacherMediaTypeFilter === "all"
+                          ? "All"
+                          : teacherMediaTypeFilter === "video"
+                            ? "Videos"
+                            : "Files"}
+                      </span>
+                      <span style={{ color: "#718096", fontSize: 12 }}>▼</span>
+                    </button>
+                    <div
+                      className={`rounded-dropdown-menu${openTeacherMediaTypeDropdown ? " is-open" : ""}`}
+                      role="listbox"
+                      aria-hidden={!openTeacherMediaTypeDropdown}
+                    >
+                      <button
+                        type="button"
+                        className="rounded-dropdown-item"
+                        onClick={() => {
+                          setTeacherMediaTypeFilter("all");
+                          setOpenTeacherMediaTypeDropdown(false);
+                        }}
+                      >
+                        All
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-dropdown-item"
+                        onClick={() => {
+                          setTeacherMediaTypeFilter("video");
+                          setOpenTeacherMediaTypeDropdown(false);
+                        }}
+                      >
+                        Videos
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-dropdown-item"
+                        onClick={() => {
+                          setTeacherMediaTypeFilter("file");
+                          setOpenTeacherMediaTypeDropdown(false);
+                        }}
+                      >
+                        Files
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
