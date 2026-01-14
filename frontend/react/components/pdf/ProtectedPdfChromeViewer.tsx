@@ -34,7 +34,6 @@ export function ProtectedPdfChromeViewer({ catalog, id }: { catalog: Catalog; id
         title="PDF"
         src={src}
         className="relative z-0 h-[75vh] w-full"
-        sandbox="allow-same-origin"
         onContextMenu={(e) => e.preventDefault()}
       />
     </div>
