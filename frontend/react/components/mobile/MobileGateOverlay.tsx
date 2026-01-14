@@ -79,17 +79,13 @@ export function MobileGateOverlay({ videoSrc }: Props) {
     try {
       v.muted = false;
       v.volume = 1;
-      if (v.paused) {
-        const p = v.play();
-        if (p && typeof (p as any).then === "function") {
-          await p;
-        }
-      }
       const p = v.play();
       if (p && typeof (p as any).then === "function") {
         await p;
       }
-      setSoundBlocked(false);
+      if (!v.muted && v.volume > 0) {
+        setSoundBlocked(false);
+      }
     } catch {
       // keep blocked
     }
@@ -160,6 +156,8 @@ export function MobileGateOverlay({ videoSrc }: Props) {
         }
 
         video.mobile-gate-video {
+          position: relative;
+          z-index: 1;
           width: min(92vw, 520px);
           height: auto;
           max-height: 72vh;
@@ -189,6 +187,7 @@ export function MobileGateOverlay({ videoSrc }: Props) {
         .mobile-gate-message {
           position: absolute;
           inset: 0;
+          z-index: 4;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -196,6 +195,7 @@ export function MobileGateOverlay({ videoSrc }: Props) {
           opacity: 0;
           transform: translateY(10px);
           filter: blur(10px);
+          pointer-events: none;
           transition: opacity 2200ms cubic-bezier(0.12, 0.8, 0.2, 1),
             transform 2200ms cubic-bezier(0.12, 0.8, 0.2, 1),
             filter 2400ms cubic-bezier(0.12, 0.8, 0.2, 1);
@@ -205,6 +205,7 @@ export function MobileGateOverlay({ videoSrc }: Props) {
           opacity: 1;
           transform: translateY(0);
           filter: blur(0);
+          pointer-events: auto;
         }
 
         .mobile-gate-message-inner {
