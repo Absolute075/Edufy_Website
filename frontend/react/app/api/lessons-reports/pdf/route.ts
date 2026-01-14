@@ -202,15 +202,6 @@ async function generateWatermarkedPdf(srcPdf: Uint8Array, watermarkText: string)
 }
 
 export async function GET(request: Request) {
-  const secFetchMode = String(request.headers.get("sec-fetch-mode") || "").toLowerCase();
-  const secFetchDest = String(request.headers.get("sec-fetch-dest") || "").toLowerCase();
-  if ((secFetchMode && secFetchMode === "navigate") || (secFetchDest && secFetchDest === "document")) {
-    return new NextResponse(JSON.stringify({ error: "not_found" }), {
-      status: 404,
-      headers: noStoreHeaders({ "content-type": "application/json" }),
-    });
-  }
-
   const url = new URL(request.url);
   const catalog = normalizeCatalog(url.searchParams.get("catalog"));
   const id = String(url.searchParams.get("id") || "").trim();
