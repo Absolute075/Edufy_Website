@@ -6,6 +6,7 @@ import { useAdminAuth } from './useAdminAuth';
 import { resourcesRegistry } from '@/lib/resourcesRegistry';
 import { articlesRegistry, type ArticleTag } from '@/lib/articlesRegistry';
 import { videoResourcesRegistry } from '@/lib/videoResourcesRegistry';
+import { satVideoResourcesRegistry } from '@/lib/satVideoResourcesRegistry';
 
 export default function AdminDashboardPage() {
   const { info, loading, error } = useAdminAuth();
@@ -13,8 +14,10 @@ export default function AdminDashboardPage() {
   const readingItems = Object.values(resourcesRegistry.reading);
   const listeningItems = Object.values(resourcesRegistry.listening);
   const articleItems = Object.values(articlesRegistry);
-  const videoItems = Object.values(videoResourcesRegistry);
-  const videoEntries = Object.entries(videoResourcesRegistry);
+  const ieltsVideoItems = Object.values(videoResourcesRegistry);
+  const ieltsVideoEntries = Object.entries(videoResourcesRegistry);
+  const satVideoItems = Object.values(satVideoResourcesRegistry);
+  const satVideoEntries = Object.entries(satVideoResourcesRegistry);
 
   const ARTICLE_TAGS = [
     'education',
@@ -76,8 +79,8 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const videoCountsByPlan = countPlans(videoItems);
-  const videoCountsByMediaType = videoItems.reduce(
+  const ieltsVideoCountsByPlan = countPlans(ieltsVideoItems);
+  const ieltsVideoCountsByMediaType = ieltsVideoItems.reduce(
     (acc, item) => {
       acc[item.mediaType] += 1;
       return acc;
@@ -85,7 +88,7 @@ export default function AdminDashboardPage() {
     { video: 0, file: 0 },
   );
 
-  const videoCountsBySection = videoItems.reduce(
+  const ieltsVideoCountsBySection = ieltsVideoItems.reduce(
     (acc, item) => {
       acc[item.section] += 1;
       return acc;
@@ -93,10 +96,40 @@ export default function AdminDashboardPage() {
     { writing: 0, listening: 0, reading: 0, speaking: 0 },
   );
 
-  const sortedVideoEntries = [...videoEntries].sort((a, b) => {
+  const sortedIeltsVideoEntries = [...ieltsVideoEntries].sort((a, b) => {
     const aRule = a[1];
     const bRule = b[1];
     const sectionCompare = aRule.section.localeCompare(bRule.section);
+    if (sectionCompare !== 0) return sectionCompare;
+    return aRule.title.localeCompare(bRule.title);
+  });
+
+  const satVideoCountsByPlan = countPlans(satVideoItems);
+  const satVideoCountsByMediaType = satVideoItems.reduce(
+    (acc, item) => {
+      acc[item.mediaType] += 1;
+      return acc;
+    },
+    { video: 0, file: 0 },
+  );
+
+  const satVideoCountsBySection = satVideoItems.reduce(
+    (acc, item) => {
+      const sections = Array.isArray(item.section) ? item.section : [item.section];
+      for (const s of sections) {
+        acc[s] += 1;
+      }
+      return acc;
+    },
+    { math: 0, english: 0, general: 0 },
+  );
+
+  const sortedSatVideoEntries = [...satVideoEntries].sort((a, b) => {
+    const aRule = a[1];
+    const bRule = b[1];
+    const aSection = Array.isArray(aRule.section) ? aRule.section.join(',') : aRule.section;
+    const bSection = Array.isArray(bRule.section) ? bRule.section.join(',') : bRule.section;
+    const sectionCompare = aSection.localeCompare(bSection);
     if (sectionCompare !== 0) return sectionCompare;
     return aRule.title.localeCompare(bRule.title);
   });
@@ -271,35 +304,35 @@ export default function AdminDashboardPage() {
 
         <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-3">Video resources</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-3">IELTS Video Resources</p>
 
             <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4">
               <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
                 <div className="text-sm text-gray-200">
-                  Total: <span className="text-gray-100">{videoItems.length}</span>
-                  {' • '}Free: <span className="text-gray-100">{videoCountsByPlan.free}</span>
-                  {' • '}Premium: <span className="text-gray-100">{videoCountsByPlan.premium}</span>
+                  Total: <span className="text-gray-100">{ieltsVideoItems.length}</span>
+                  {' • '}Free: <span className="text-gray-100">{ieltsVideoCountsByPlan.free}</span>
+                  {' • '}Premium: <span className="text-gray-100">{ieltsVideoCountsByPlan.premium}</span>
                 </div>
                 <div className="text-xs text-gray-400">
-                  Media: <span className="text-gray-200">video {videoCountsByMediaType.video}</span>
-                  {' • '}file: <span className="text-gray-200">{videoCountsByMediaType.file}</span>
+                  Media: <span className="text-gray-200">video {ieltsVideoCountsByMediaType.video}</span>
+                  {' • '}file: <span className="text-gray-200">{ieltsVideoCountsByMediaType.file}</span>
                 </div>
               </div>
               <div className="mt-2 text-xs text-gray-400">
                 Sections:
                 {' '}
-                <span className="text-gray-200">writing {videoCountsBySection.writing}</span>
+                <span className="text-gray-200">writing {ieltsVideoCountsBySection.writing}</span>
                 {' • '}
-                <span className="text-gray-200">listening {videoCountsBySection.listening}</span>
+                <span className="text-gray-200">listening {ieltsVideoCountsBySection.listening}</span>
                 {' • '}
-                <span className="text-gray-200">reading {videoCountsBySection.reading}</span>
+                <span className="text-gray-200">reading {ieltsVideoCountsBySection.reading}</span>
                 {' • '}
-                <span className="text-gray-200">speaking {videoCountsBySection.speaking}</span>
+                <span className="text-gray-200">speaking {ieltsVideoCountsBySection.speaking}</span>
               </div>
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {sortedVideoEntries.map(([id, rule]) => (
+              {sortedIeltsVideoEntries.map(([id, rule]) => (
                 <div
                   key={id}
                   className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4"
@@ -320,6 +353,7 @@ export default function AdminDashboardPage() {
                         {rule.requiredPlan}
                       </span>
                     </div>
+                    {rule.teacher ? <div className="mt-2 text-xs text-slate-500">Teacher: {rule.teacher}</div> : null}
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -346,6 +380,86 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-8">
+              <p className="text-xs uppercase tracking-[0.22em] text-gray-400 mb-3">SAT Video Resources</p>
+
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4">
+                <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+                  <div className="text-sm text-gray-200">
+                    Total: <span className="text-gray-100">{satVideoItems.length}</span>
+                    {' • '}Free: <span className="text-gray-100">{satVideoCountsByPlan.free}</span>
+                    {' • '}Premium: <span className="text-gray-100">{satVideoCountsByPlan.premium}</span>
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    Media: <span className="text-gray-200">video {satVideoCountsByMediaType.video}</span>
+                    {' • '}file: <span className="text-gray-200">{satVideoCountsByMediaType.file}</span>
+                  </div>
+                </div>
+                <div className="mt-2 text-xs text-gray-400">
+                  Sections:
+                  {' '}
+                  <span className="text-gray-200">math {satVideoCountsBySection.math}</span>
+                  {' • '}
+                  <span className="text-gray-200">english {satVideoCountsBySection.english}</span>
+                  {' • '}
+                  <span className="text-gray-200">general {satVideoCountsBySection.general}</span>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {sortedSatVideoEntries.map(([id, rule]) => (
+                  <div
+                    key={id}
+                    className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950/80 px-5 py-4"
+                  >
+                    <div className="min-w-0">
+                      <div className="truncate text-base font-semibold text-slate-100">{rule.title}</div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        ID: <span className="font-mono text-slate-300">{id}</span>
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                        <span className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1">
+                          {Array.isArray(rule.section) ? rule.section.join(', ') : rule.section}
+                        </span>
+                        <span className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1">
+                          {rule.mediaType}
+                        </span>
+                        <span className="rounded-full border border-neutral-800 bg-black/30 px-3 py-1">
+                          {rule.requiredPlan}
+                        </span>
+                      </div>
+
+                      {rule.teacher ? <div className="mt-2 text-xs text-slate-500">Teacher: {rule.teacher}</div> : null}
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {rule.href ? (
+                        <a
+                          href={rule.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-100 transition-colors hover:border-white/60 hover:bg-neutral-900"
+                        >
+                          Open
+                        </a>
+                      ) : null}
+                      {rule.telegramHref ? (
+                        <a
+                          href={rule.telegramHref}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-950 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-100 transition-colors hover:border-white/60 hover:bg-neutral-900"
+                        >
+                          Telegram
+                        </a>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
