@@ -9,6 +9,64 @@ import { useUserProfile } from "../../../../UserProfileProvider";
 import { api } from "@/lib/api";
 import Hls from "hls.js";
 
+type StoredComment = {
+  id: string;
+  text: string;
+  author: string;
+  createdAt: string;
+  parentId?: string | null;
+  canDelete?: boolean;
+};
+
+type InteractionsResponse = {
+  id: string;
+  likesCount: number;
+  likedByMe: boolean;
+  comments: StoredComment[];
+};
+
+function pluralEn(n: number, unit: string) {
+  return n === 1 ? unit : `${unit}s`;
+}
+
+function formatRelativeTime(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const diffMs = Date.now() - d.getTime();
+  const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+
+  if (diffSec < 10) return "just now";
+  if (diffSec < 60) return "less than a minute ago";
+
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) {
+    return `${diffMin} ${pluralEn(diffMin, "minute")} ago`;
+  }
+
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) {
+    return `${diffHours} ${pluralEn(diffHours, "hour")} ago`;
+  }
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) {
+    return `${diffDays} ${pluralEn(diffDays, "day")} ago`;
+  }
+
+  const diffWeeks = Math.floor(diffDays / 7);
+  if (diffWeeks < 4) {
+    return `${diffWeeks} ${pluralEn(diffWeeks, "week")} ago`;
+  }
+
+  const diffMonths = Math.floor(diffDays / 30);
+  if (diffMonths < 12) {
+    return `${diffMonths} ${pluralEn(diffMonths, "month")} ago`;
+  }
+
+  const diffYears = Math.floor(diffDays / 365);
+  return `${diffYears} ${pluralEn(diffYears, "year")} ago`;
+}
+
 function formatTimeShort(seconds: number) {
   const s = Math.max(0, Math.floor(seconds));
   const h = Math.floor(s / 3600);
@@ -506,6 +564,15 @@ export default function SatLessonsReportsWatchPage() {
   const accessCheckPending = profileLoading && !profileData;
   const userPlan = profileData?.plan ?? "free";
 
+  const [likedByMe, setLikedByMe] = useState<boolean>(false);
+  const [likesCount, setLikesCount] = useState<number>(0);
+  const [comments, setComments] = useState<StoredComment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [replyToId, setReplyToId] = useState<string | null>(null);
+  const [replyToAuthor, setReplyToAuthor] = useState<string | null>(null);
+  const [interactionsLoading, setInteractionsLoading] = useState<boolean>(false);
+  const [interactionsError, setInteractionsError] = useState<string | null>(null);
+
   const item = useMemo(() => {
     if (!id) return null;
     const rule = satVideoResourcesRegistry[id];
@@ -517,6 +584,97 @@ export default function SatLessonsReportsWatchPage() {
 
   const [streamSrc, setStreamSrc] = useState<string | null>(null);
   const [streamError, setStreamError] = useState<string | null>(null);
+
+  const loadInteractions = useCallback(async () => {
+    if (!item) return;
+    if (locked) return;
+
+    setInteractionsLoading(true);
+    setInteractionsError(null);
+    try {
+      const res = await api(
+        `/api/lessons-reports/interactions?catalog=sat&id=${encodeURIComponent(item.id)}`,
+        {
+          method: "GET",
+          headers: { Accept: "application/json" },
+        }
+      );
+
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        throw new Error(t || `request_failed_${res.status}`);
+      }
+
+      const data = (await res.json()) as InteractionsResponse;
+      setLikedByMe(!!data.likedByMe);
+      setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
+      setComments(Array.isArray(data.comments) ? data.comments : []);
+    } catch (err: any) {
+      setInteractionsError(String(err?.message ?? err ?? "Failed to load interactions").slice(0, 160));
+    } finally {
+      setInteractionsLoading(false);
+    }
+  }, [item, locked]);
+
+  const deleteComment = useCallback(
+    async (commentId: string) => {
+      if (!item) return;
+      if (locked) return;
+      const idToDelete = String(commentId || "").trim();
+      if (!idToDelete) return;
+
+      if (!window.confirm("Delete this comment?")) return;
+
+      setInteractionsLoading(true);
+      setInteractionsError(null);
+      try {
+        const res = await api("/api/lessons-reports/interactions", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ catalog: "sat", id: item.id, action: "delete_comment", commentId: idToDelete }),
+        });
+
+        if (!res.ok) {
+          const t = await res.text().catch(() => "");
+          throw new Error(t || `request_failed_${res.status}`);
+        }
+
+        const data = (await res.json()) as InteractionsResponse;
+        setLikedByMe(!!data.likedByMe);
+        setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
+        setComments(Array.isArray(data.comments) ? data.comments : []);
+      } catch (err: any) {
+        setInteractionsError(String(err?.message ?? err ?? "Failed to delete comment").slice(0, 160));
+      } finally {
+        setInteractionsLoading(false);
+      }
+    },
+    [item, locked]
+  );
+
+  useEffect(() => {
+    setLikedByMe(false);
+    setLikesCount(0);
+    setComments([]);
+    setNewComment("");
+    setReplyToId(null);
+    setReplyToAuthor(null);
+    setInteractionsError(null);
+    void loadInteractions();
+  }, [item?.id, loadInteractions]);
+
+  useEffect(() => {
+    if (!item) return;
+    if (locked) return;
+
+    const intervalId = window.setInterval(() => {
+      void loadInteractions();
+    }, 15000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [item, locked, loadInteractions]);
 
   useEffect(() => {
     setStreamSrc(null);
@@ -642,6 +800,253 @@ export default function SatLessonsReportsWatchPage() {
               </div>
             )}
           </div>
+        )}
+
+        {!accessCheckPending && !locked && (
+          <section className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-semibold">Comments</h2>
+                  <p className="text-sm text-slate-400">Likes &amp; comments are shared across users.</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!item) return;
+                    if (locked) return;
+
+                    setInteractionsLoading(true);
+                    setInteractionsError(null);
+                    api("/api/lessons-reports/interactions", {
+                      method: "POST",
+                      headers: { "content-type": "application/json" },
+                      body: JSON.stringify({ catalog: "sat", id: item.id, action: "toggle_like" }),
+                    })
+                      .then(async (res) => {
+                        if (!res.ok) {
+                          const t = await res.text().catch(() => "");
+                          throw new Error(t || `request_failed_${res.status}`);
+                        }
+                        const data = (await res.json()) as InteractionsResponse;
+                        setLikedByMe(!!data.likedByMe);
+                        setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
+                        setComments(Array.isArray(data.comments) ? data.comments : []);
+                      })
+                      .catch((err: any) => {
+                        setInteractionsError(String(err?.message ?? err ?? "Failed to update like").slice(0, 160));
+                      })
+                      .finally(() => {
+                        setInteractionsLoading(false);
+                      });
+                  }}
+                  disabled={interactionsLoading}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
+                    likedByMe
+                      ? "border-red-500/70 bg-red-500/10 text-red-200"
+                      : "border-neutral-700 bg-neutral-950 text-slate-100 hover:border-white/60 hover:bg-neutral-900"
+                  } ${interactionsLoading ? "opacity-60" : ""}`}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    className={`h-4 w-4 ${likedByMe ? "text-red-400" : "text-slate-300"}`}
+                    fill={likedByMe ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  {likesCount}
+                </button>
+              </div>
+
+              {interactionsError && (
+                <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-3 text-sm text-red-200">
+                  {interactionsError}
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <label className="block text-xs font-medium text-slate-400">Add a comment</label>
+
+                {replyToId && replyToAuthor && (
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-3 text-sm text-slate-200">
+                    <div className="min-w-0">
+                      Replying to <span className="font-semibold">{replyToAuthor}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReplyToId(null);
+                        setReplyToAuthor(null);
+                      }}
+                      className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
+                <textarea
+                  className="w-full resize-none rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 transition-all duration-200 ease-out hover:border-white/60 focus:border-white focus:outline-none focus:ring-1 focus:ring-white/40"
+                  rows={3}
+                  placeholder="Write your comment..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                />
+                <div className="flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const text = newComment.trim();
+                      if (!text) return;
+                      if (!item) return;
+                      if (locked) return;
+
+                      setInteractionsLoading(true);
+                      setInteractionsError(null);
+                      api("/api/lessons-reports/interactions", {
+                        method: "POST",
+                        headers: { "content-type": "application/json" },
+                        body: JSON.stringify({
+                          catalog: "sat",
+                          id: item.id,
+                          action: "add_comment",
+                          text,
+                          parentId: replyToId,
+                        }),
+                      })
+                        .then(async (res) => {
+                          if (!res.ok) {
+                            const t = await res.text().catch(() => "");
+                            throw new Error(t || `request_failed_${res.status}`);
+                          }
+                          const data = (await res.json()) as InteractionsResponse;
+                          setLikedByMe(!!data.likedByMe);
+                          setLikesCount(Number.isFinite(data.likesCount) ? data.likesCount : 0);
+                          setComments(Array.isArray(data.comments) ? data.comments : []);
+                          setNewComment("");
+                          setReplyToId(null);
+                          setReplyToAuthor(null);
+                        })
+                        .catch((err: any) => {
+                          setInteractionsError(String(err?.message ?? err ?? "Failed to post comment").slice(0, 160));
+                        })
+                        .finally(() => {
+                          setInteractionsLoading(false);
+                        });
+                    }}
+                    disabled={interactionsLoading}
+                    className="inline-flex items-center rounded-full border border-neutral-700 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-900 transition-colors hover:bg-white/90"
+                  >
+                    Post
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {comments.length === 0 ? (
+                  <div className="text-sm text-slate-400">No comments yet.</div>
+                ) : (
+                  (() => {
+                    const list = Array.isArray(comments) ? comments : [];
+                    const top = list
+                      .filter((c) => !c.parentId)
+                      .slice()
+                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+                    function repliesFor(parentId: string) {
+                      return list
+                        .filter((c) => c.parentId === parentId)
+                        .slice()
+                        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                    }
+
+                    return top.map((c) => {
+                      const whenText = formatRelativeTime(c.createdAt);
+                      const replies = repliesFor(c.id);
+                      const canDelete = Boolean(c.canDelete);
+                      return (
+                        <div key={c.id} className="rounded-xl border border-neutral-800 bg-neutral-950/60 px-4 py-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="text-sm font-medium text-slate-100">{c.author}</div>
+                            <div className="text-xs text-slate-500">{whenText}</div>
+                          </div>
+                          <div className="mt-2 whitespace-pre-wrap text-sm text-slate-200">{c.text}</div>
+                          <div className="mt-3 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReplyToId(c.id);
+                                  setReplyToAuthor(c.author);
+                                }}
+                                className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
+                              >
+                                Reply
+                              </button>
+                              {canDelete && (
+                                <button
+                                  type="button"
+                                  onClick={() => void deleteComment(c.id)}
+                                  className="inline-flex items-center rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-200 hover:bg-red-500/15"
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </div>
+                            {replies.length > 0 && <div className="text-xs text-slate-500">{replies.length} replies</div>}
+                          </div>
+
+                          {replies.length > 0 && (
+                            <div className="mt-4 space-y-3 border-l border-neutral-800 pl-4">
+                              {replies.map((r) => (
+                                <div
+                                  key={r.id}
+                                  className="rounded-xl border border-neutral-800 bg-neutral-950/50 px-4 py-3"
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="text-sm font-medium text-slate-100">{r.author}</div>
+                                    <div className="text-xs text-slate-500">{formatRelativeTime(r.createdAt)}</div>
+                                  </div>
+                                  <div className="mt-2 whitespace-pre-wrap text-sm text-slate-200">{r.text}</div>
+                                  <div className="mt-3 flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setReplyToId(c.id);
+                                        setReplyToAuthor(c.author);
+                                      }}
+                                      className="inline-flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-slate-200 hover:bg-neutral-800"
+                                    >
+                                      Reply
+                                    </button>
+                                    {Boolean(r.canDelete) && (
+                                      <button
+                                        type="button"
+                                        onClick={() => void deleteComment(r.id)}
+                                        className="inline-flex items-center rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-200 hover:bg-red-500/15"
+                                      >
+                                        Delete
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()
+                )}
+              </div>
+            </div>
+          </section>
         )}
       </div>
     </DashboardShell>

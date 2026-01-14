@@ -5,6 +5,8 @@ import { mkdir, readFile, rename, writeFile } from "fs/promises";
 
 export const runtime = "nodejs";
 
+ type Catalog = "ielts" | "sat";
+
 type StoredComment = {
   id: string;
   text: string;
@@ -45,13 +47,26 @@ function json(data: unknown, status = 200) {
   });
 }
 
-function getStorePath(): string {
+function normalizeCatalog(input: unknown): Catalog {
+  const v = String(input ?? "")
+    .trim()
+    .toLowerCase();
+  return v === "sat" ? "sat" : "ielts";
+}
+
+function getStorePath(catalog: Catalog): string {
+  const fromEnvKey =
+    catalog === "sat"
+      ? process.env.LESSONS_REPORTS_INTERACTIONS_PATH_SAT
+      : process.env.LESSONS_REPORTS_INTERACTIONS_PATH_IELTS;
+  if (fromEnvKey && String(fromEnvKey).trim()) return String(fromEnvKey).trim();
+
   const fromEnv = process.env.LESSONS_REPORTS_INTERACTIONS_PATH;
   if (fromEnv && String(fromEnv).trim()) return String(fromEnv).trim();
 
   // On prod the project is usually: /var/www/Edufy_Website/frontend/react
   // and storage is: /var/www/Edufy_Website/storage
-  return join(process.cwd(), "..", "..", "storage", "lessons-reports-interactions.json");
+  return join(process.cwd(), "..", "..", "storage", `lessons-reports-interactions.${catalog}.json`);
 }
 
 function getNotificationsPath(): string {
@@ -202,12 +217,13 @@ async function getUserIdentity(
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const materialId = (url.searchParams.get("id") || "").trim();
+  const catalog = normalizeCatalog(url.searchParams.get("catalog"));
 
   if (!materialId) {
     return json({ error: "missing_id" }, 400);
   }
 
-  const filePath = getStorePath();
+  const filePath = getStorePath(catalog);
   const store = await loadStore(filePath);
   const material = getMaterial(store, materialId);
 
@@ -250,6 +266,7 @@ export async function POST(request: Request) {
   const payload: any = await request.json().catch(() => null);
   const materialId = String(payload?.id ?? "").trim();
   const action = String(payload?.action ?? "").trim();
+  const catalog = normalizeCatalog(payload?.catalog);
 
   if (!materialId) {
     return json({ error: "missing_id" }, 400);
@@ -259,7 +276,7 @@ export async function POST(request: Request) {
     return json({ error: "invalid_action" }, 400);
   }
 
-  const filePath = getStorePath();
+  const filePath = getStorePath(catalog);
   const store = await loadStore(filePath);
   const material = getMaterial(store, materialId);
 
@@ -310,7 +327,10 @@ export async function POST(request: Request) {
         const nPath = getNotificationsPath();
         const nStore = await loadNotificationsStore(nPath);
         const list = nStore.users[repliedToUserKey] || [];
-        const href = `/resources/lessons-reports/watch?id=${encodeURIComponent(materialId)}`;
+        const href =
+          catalog === "sat"
+            ? `/resources/sat/lessons-reports/watch?id=${encodeURIComponent(materialId)}`
+            : `/resources/lessons-reports/watch?id=${encodeURIComponent(materialId)}`;
         const notif: StoredNotification = {
           id: randomUUID(),
           title: "Вам ответили",
