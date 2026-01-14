@@ -12,6 +12,7 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
   const renderingRef = useRef<Map<number, boolean>>(new Map());
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
   const shieldTimerRef = useRef<number | null>(null);
+  const devtoolsIntervalRef = useRef<number | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +22,8 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
   const [renderScale, setRenderScale] = useState<number>(1);
   const [pageSizes, setPageSizes] = useState<Record<number, { w: number; h: number }>>({});
   const [shielded, setShielded] = useState<boolean>(false);
+  const [watermarkText, setWatermarkText] = useState<string>("edufyuzbekistan.com");
+  const [watermarkNonce, setWatermarkNonce] = useState<number>(0);
 
   const pdfUrl = useMemo(() => {
     return `/api/lessons-reports/pdf?catalog=${encodeURIComponent(catalog)}&id=${encodeURIComponent(id)}`;
@@ -37,6 +40,23 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
   const displayRatio = useMemo(() => {
     return clampedZoom / clampedRenderScale;
   }, [clampedRenderScale, clampedZoom]);
+
+  const watermarkBg = useMemo(() => {
+    const t = String(watermarkText || "edufyuzbekistan.com");
+    const nonce = Number.isFinite(watermarkNonce) ? watermarkNonce : 0;
+    const x = 40 + (nonce % 80);
+    const y = 30 + ((nonce * 7) % 90);
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="320">
+  <rect width="100%" height="100%" fill="transparent"/>
+  <g transform="translate(${x},${y}) rotate(-28)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="22" fill="rgba(255,255,255,0.10)">${t}</text>
+    <text x="0" y="48" font-family="Arial, sans-serif" font-size="16" fill="rgba(255,255,255,0.08)">protected content</text>
+  </g>
+</svg>`;
+    const url = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    return `url('${url}')`;
+  }, [watermarkNonce, watermarkText]);
 
   const setZoomAnchored = useCallback(
     (next: number, anchor?: { x: number; y: number } | null) => {
@@ -263,6 +283,15 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
       }, ms);
     };
 
+    const isDevtoolsShortcut = (e: KeyboardEvent) => {
+      const key = String(e.key || "");
+      const lower = key.toLowerCase();
+      if (key === "F12") return true;
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (lower === "i" || lower === "j" || lower === "c")) return true;
+      if ((e.ctrlKey || e.metaKey) && lower === "u") return true;
+      return false;
+    };
+
     const onVisibility = () => {
       clearShieldTimer();
       setShielded(document.hidden);
@@ -281,13 +310,58 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
     const onKey = (e: KeyboardEvent) => {
       if (String(e.key) === "PrintScreen" || (e as any).keyCode === 44) {
         activateTempShield(1800);
+        return;
       }
+
+      if (isDevtoolsShortcut(e)) {
+        e.preventDefault();
+        e.stopPropagation();
+        activateTempShield(2500);
+      }
+    };
+
+    const onBeforePrint = () => {
+      clearShieldTimer();
+      setShielded(true);
+    };
+
+    const onAfterPrint = () => {
+      clearShieldTimer();
+      if (!document.hidden) setShielded(false);
+    };
+
+    const mql = typeof window !== "undefined" && "matchMedia" in window ? window.matchMedia("print") : null;
+    const onPrintMediaChange = () => {
+      if (!mql) return;
+      if (mql.matches) onBeforePrint();
+      else onAfterPrint();
     };
 
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("blur", onBlur);
     window.addEventListener("focus", onFocus);
     window.addEventListener("keydown", onKey, { capture: true });
+    window.addEventListener("beforeprint", onBeforePrint);
+    window.addEventListener("afterprint", onAfterPrint);
+    if (mql) {
+      mql.addEventListener?.("change", onPrintMediaChange as any);
+    }
+
+    if (!devtoolsIntervalRef.current) {
+      devtoolsIntervalRef.current = window.setInterval(() => {
+        const dx = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
+        const dy = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+        const suspected = dx > 180 || dy > 220;
+        if (suspected) {
+          setShielded(true);
+          return;
+        }
+
+        if (!document.hidden && !shieldTimerRef.current) {
+          setShielded(false);
+        }
+      }, 800);
+    }
 
     onVisibility();
 
@@ -297,7 +371,44 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
       window.removeEventListener("blur", onBlur);
       window.removeEventListener("focus", onFocus);
       window.removeEventListener("keydown", onKey, { capture: true } as any);
+      window.removeEventListener("beforeprint", onBeforePrint);
+      window.removeEventListener("afterprint", onAfterPrint);
+      if (mql) {
+        mql.removeEventListener?.("change", onPrintMediaChange as any);
+      }
+      if (devtoolsIntervalRef.current) {
+        window.clearInterval(devtoolsIntervalRef.current);
+        devtoolsIntervalRef.current = null;
+      }
     };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    api("/auth/me")
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return await res.json().catch(() => null);
+      })
+      .then((me: any) => {
+        if (cancelled) return;
+        const idVal = me?.id ?? me?.user?.id ?? me?.data?.id ?? me?.username ?? me?.user?.username ?? me?.email;
+        const userKey = String(idVal ?? "").trim();
+        setWatermarkText(userKey ? `edufyuzbekistan.com • ${userKey}` : "edufyuzbekistan.com");
+      })
+      .catch(() => {
+        // ignore
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const t = window.setInterval(() => {
+      setWatermarkNonce((n) => (n + 1) % 10_000);
+    }, 12_000);
+    return () => window.clearInterval(t);
   }, []);
 
   return (
@@ -413,6 +524,18 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
         )}
         </div>
 
+        {!shielded && (
+          <div
+            className="pointer-events-none absolute inset-0 z-[5]"
+            style={{
+              backgroundImage: watermarkBg,
+              backgroundRepeat: "repeat",
+              backgroundSize: "520px 320px",
+              mixBlendMode: "normal",
+            }}
+          />
+        )}
+
         {shielded && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 backdrop-blur-sm">
             <div className="rounded-2xl border border-neutral-700 bg-neutral-950/80 px-6 py-5 text-center">
@@ -428,6 +551,9 @@ export function ProtectedPdfViewer({ catalog, id }: { catalog: Catalog; id: stri
           scrollbar-color: rgba(156, 163, 175, 0.75) transparent;
           scrollbar-width: thin;
           overscroll-behavior: contain;
+          user-select: none;
+          -webkit-user-select: none;
+          -ms-user-select: none;
         }
         .pdfScroll::-webkit-scrollbar {
           width: 10px;
