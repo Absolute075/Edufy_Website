@@ -8,41 +8,17 @@ type Props = {
 
 export function MobileGateOverlay({ videoSrc }: Props) {
   const src = useMemo(() => String(videoSrc || "").trim(), [videoSrc]);
+  const sourceType = useMemo(() => {
+    const s = src.toLowerCase();
+    if (s.endsWith(".mp4")) return "video/mp4";
+    if (s.endsWith(".webm")) return "video/webm";
+    if (s.endsWith(".ogv") || s.endsWith(".ogg")) return "video/ogg";
+    return undefined;
+  }, [src]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
   const [phase, setPhase] = useState<"video" | "message">(src ? "video" : "message");
   const [soundBlocked, setSoundBlocked] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const media = window.matchMedia("(max-width: 900px) and (pointer: coarse)");
-
-    const sync = () => {
-      setIsMobile(Boolean(media.matches));
-    };
-
-    sync();
-    if (typeof media.addEventListener === "function") {
-      media.addEventListener("change", sync);
-      return () => media.removeEventListener("change", sync);
-    }
-
-    // @ts-ignore
-    media.addListener(sync);
-    // @ts-ignore
-    return () => media.removeListener(sync);
-  }, []);
-
-  useEffect(() => {
-    if (isMobile) return;
-    const v = videoRef.current;
-    if (!v) return;
-    try {
-      v.pause();
-    } catch {
-      // ignore
-    }
-  }, [isMobile]);
+  const [playFailed, setPlayFailed] = useState<boolean>(false);
 
   const enableSound = useCallback(() => {
     const v = videoRef.current;
@@ -74,14 +50,14 @@ export function MobileGateOverlay({ videoSrc }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!isMobile) return;
     if (!src) {
       setPhase("message");
       return;
     }
 
     setPhase("video");
-    setSoundBlocked(false);
+    setPlayFailed(false);
+    setSoundBlocked(true);
 
     const v = videoRef.current;
     if (!v) return;
@@ -90,29 +66,22 @@ export function MobileGateOverlay({ videoSrc }: Props) {
 
     const tryPlay = async () => {
       try {
-        v.muted = false;
-        v.volume = 1;
+        v.muted = true;
+        v.defaultMuted = true;
+        v.volume = 0;
+
+        try {
+          v.load();
+        } catch {
+          // ignore
+        }
 
         const p = v.play();
         if (p && typeof (p as any).then === "function") {
           await p;
         }
-
-        if (v.muted) {
-          if (!cancelled) setSoundBlocked(true);
-        }
       } catch {
-        try {
-          v.muted = true;
-          v.volume = 0;
-          const p2 = v.play();
-          if (p2 && typeof (p2 as any).then === "function") {
-            await p2;
-          }
-          if (!cancelled) setSoundBlocked(true);
-        } catch {
-          if (!cancelled) setPhase("message");
-        }
+        if (!cancelled) setPlayFailed(true);
       }
     };
 
@@ -122,7 +91,7 @@ export function MobileGateOverlay({ videoSrc }: Props) {
       if (!cancelled) setPhase("message");
     };
     const onError = () => {
-      if (!cancelled) setPhase("message");
+      if (!cancelled) setPlayFailed(true);
     };
 
     v.addEventListener("ended", onEnded);
@@ -138,10 +107,9 @@ export function MobileGateOverlay({ videoSrc }: Props) {
       v.removeEventListener("ended", onEnded);
       v.removeEventListener("error", onError);
     };
-  }, [isMobile, src]);
+  }, [src]);
 
   useEffect(() => {
-    if (!isMobile) return;
     if (phase !== "video") return;
     if (!soundBlocked) return;
 
@@ -164,9 +132,7 @@ export function MobileGateOverlay({ videoSrc }: Props) {
       window.removeEventListener("touchstart", onFirstGesture);
       window.removeEventListener("click", onFirstGesture);
     };
-  }, [enableSound, isMobile, phase, soundBlocked]);
-
-  if (!isMobile) return null;
+  }, [enableSound, phase, soundBlocked]);
 
   return (
     <div className="mobile-gate-root">
@@ -174,12 +140,14 @@ export function MobileGateOverlay({ videoSrc }: Props) {
         <video
           ref={videoRef}
           className="mobile-gate-video"
-          src={src}
+          muted
           autoPlay
           playsInline
           preload="auto"
-          controls={false}
-        />
+          controls={playFailed}
+        >
+          <source src={src} type={sourceType} />
+        </video>
       ) : null}
 
       {phase === "video" && soundBlocked ? (
