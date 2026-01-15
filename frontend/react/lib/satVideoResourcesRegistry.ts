@@ -361,4 +361,20 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     teacher: "Marstiff Teachers",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/20-lesson-homework.pdf`,
   },
+ "F8C1N6X4B9": {
+    title: "Lesson 21 - Math (Foundation)",
+    section: "math",
+    mediaType: "video",
+    requiredPlan: "premium",
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/video5173096824.mp4`,
+  },
+ "L0J7R5V8Q3": {
+    title: "Lesson 21 - Homework (Foundation)",
+    section: "math",
+    mediaType: "file",
+    requiredPlan: "premium",
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/21-lesson-homework.pdf`,
+  },
 };
