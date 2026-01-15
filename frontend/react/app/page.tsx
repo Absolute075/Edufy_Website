@@ -1890,7 +1890,7 @@ export default function HomePage() {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex flex-col text-sm text-gray-400">
                   <span className="text-white font-semibold text-base">Edufy</span>
-                  <span>© 2025 EDUFY UBZEKISTAN.</span>
+                  <span>© 2025-2026 EDUFY UBZEKISTAN.</span>
                   <span>All rights reserved.</span>
                   <span>Made in Tashkent, Uzbekistan.</span>
                 </div>

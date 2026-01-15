@@ -301,7 +301,7 @@ export function DashboardShell({ children, studentName }: Props) {
           <div className="flex-1 px-4 py-6 md:px-8">{children}</div>
 
           <footer className="border-t border-neutral-800 py-6 px-4 md:px-8 text-center text-sm text-slate-500">
-            ©2025 Edufy. Keep Learning.
+            ©2025-2026 Edufy. Keep Learning.
           </footer>
         </main>
     </div>
