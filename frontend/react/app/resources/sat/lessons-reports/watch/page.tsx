@@ -625,16 +625,6 @@ export default function SatLessonsReportsWatchPage() {
     };
   }, [accessCheckPending, item, locked]);
 
-  useEffect(() => {
-    if (!id) return;
-    if (!item) return;
-    if (accessCheckPending) return;
-    if (!locked) return;
-
-    const redirectUrl = `${userPrefix}/resources/sat/lessons-reports/watch?id=${encodeURIComponent(id)}`;
-    router.replace(`${userPrefix}/billing?redirect=${encodeURIComponent(redirectUrl)}`);
-  }, [accessCheckPending, id, item, locked, router, userPrefix]);
-
   if (!id) {
     notFound();
   }
@@ -678,8 +668,28 @@ export default function SatLessonsReportsWatchPage() {
             Loading...
           </div>
         ) : locked ? (
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 px-5 py-6 text-sm text-slate-400">
-            Redirecting to billing...
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 px-5 py-6">
+            <div className="flex flex-col gap-4">
+              <div>
+                <div className="text-sm font-semibold text-slate-100">Video explanations are available in Premium</div>
+                <div className="mt-1 text-sm text-slate-400">
+                  You are on the <span className="font-semibold">{userPlan}</span> plan. Upgrade to continue.
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const redirectUrl = `${userPrefix}/resources/sat/lessons-reports/watch?id=${encodeURIComponent(id)}`;
+                    router.push(`${userPrefix}/billing?redirect=${encodeURIComponent(redirectUrl)}`);
+                  }}
+                  className="inline-flex items-center rounded-full border border-neutral-700 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-900 transition-colors hover:bg-white/90"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
           </div>
         ) : item.mediaType === "video" ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-4">
@@ -810,20 +820,12 @@ export default function SatLessonsReportsWatchPage() {
                         : "border-neutral-700 bg-neutral-950 text-slate-100 hover:border-white/60 hover:bg-neutral-900"
                     } ${interactionsLoading ? "opacity-60" : ""}`}
                   >
-                    <svg
-                      viewBox="0 0 24 24"
-                      className={`h-4 w-4 ${dislikedByMe ? "text-blue-300" : "text-slate-300"}`}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                    <i
                       aria-hidden="true"
-                    >
-                      <path d="M10 14H5.2c-.7 0-1.2-.5-1.2-1.2V7.2C4 6.5 4.5 6 5.2 6H10" />
-                      <path d="M10 14l1.6 7.2c.2.7 1 .9 1.5.5l1.2-1c.3-.2.4-.6.3-1l-1.1-5.7" />
-                      <path d="M10 6h7.6c.6 0 1.2.4 1.3 1l1 5c.2.8-.4 1.6-1.3 1.6H14" />
-                    </svg>
+                      className={`${dislikedByMe ? "fa-solid" : "fa-regular"} fa-thumbs-down text-[16px] leading-none ${
+                        dislikedByMe ? "text-blue-300" : "text-slate-300"
+                      }`}
+                    />
                     {dislikesCount}
                   </button>
                 </div>

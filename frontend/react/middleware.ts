@@ -80,6 +80,19 @@ function parseResourceTarget(pathname: string): { userPrefix: string; category: 
   return { userPrefix, category, id };
 }
 
+function isSatLessonsReportsPath(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  const resourcesIndex = segments.indexOf("resources");
+  if (resourcesIndex === -1) return false;
+
+  const category = segments[resourcesIndex + 1] || "";
+  const id = segments[resourcesIndex + 2] || "";
+  if (category !== "sat" || id !== "lessons-reports") return false;
+
+  const rest = segments.slice(resourcesIndex + 3);
+  return rest.length === 0 || (rest.length === 1 && rest[0] === "watch");
+}
+
 function isAdminUiPath(pathname: string) {
   return pathname === "/admin" || pathname.startsWith("/admin/");
 }
@@ -360,6 +373,10 @@ export async function middleware(request: NextRequest) {
         loginUrl.searchParams.set("redirect", redirectTarget);
       }
       return applyRobotsHeader(NextResponse.redirect(loginUrl), pathname, host);
+    }
+
+    if (isSatLessonsReportsPath(pathname)) {
+      return applyRobotsHeader(NextResponse.next(), pathname, host);
     }
 
     const target = parseResourceTarget(pathname);

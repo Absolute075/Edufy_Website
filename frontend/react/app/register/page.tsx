@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePageTitle } from '../lib/usePageTitle';
 
 export default function RegisterPage() {
@@ -15,6 +15,32 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<'error' | 'success' | 'warning' | null>(null);
+  const [openRoleDropdown, setOpenRoleDropdown] = useState(false);
+
+  useEffect(() => {
+    if (!openRoleDropdown) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (!target.closest('.role-rounded-dropdown')) {
+        setOpenRoleDropdown(false);
+      }
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpenRoleDropdown(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [openRoleDropdown]);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isEmailValid = emailRegex.test(email.trim());
@@ -117,6 +143,12 @@ export default function RegisterPage() {
       : messageType === 'error'
       ? 'text-red-400'
       : 'text-gray-400';
+
+  const roleLabel = (value: string) => {
+    if (value === 'STUDENT') return 'Student';
+    if (value === 'TEACHER') return 'Teacher';
+    return 'Select role';
+  };
 
   return (
     <main className="relative min-h-screen bg-[#050509] text-white overflow-hidden flex items-center justify-center px-4">
@@ -304,21 +336,47 @@ export default function RegisterPage() {
 
           <div className="space-y-1.5">
             <label className="block text-xs text-gray-400 uppercase tracking-[0.18em]">Role</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full rounded-xl bg-black/50 border border-white/15 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/40 focus:ring-0"
-            >
-              <option value="" className="bg-black">
-                Select role
-              </option>
-              <option value="STUDENT" className="bg-black">
-                Student
-              </option>
-              <option value="TEACHER" className="bg-black">
-                Teacher
-              </option>
-            </select>
+            <div className="role-rounded-dropdown rounded-dropdown">
+              <button
+                type="button"
+                className="rounded-dropdown-trigger"
+                aria-haspopup="listbox"
+                aria-expanded={openRoleDropdown}
+                disabled={isSubmitting}
+                onClick={() => setOpenRoleDropdown((v) => !v)}
+              >
+                <span className="truncate">{roleLabel(role)}</span>
+                <span style={{ color: '#718096', fontSize: 12 }}>▼</span>
+              </button>
+              <div
+                className={`rounded-dropdown-menu${openRoleDropdown ? ' is-open' : ''}`}
+                role="listbox"
+                aria-hidden={!openRoleDropdown}
+              >
+                <button
+                  type="button"
+                  className="rounded-dropdown-item"
+                  onClick={() => {
+                    setRole('STUDENT');
+                    setOpenRoleDropdown(false);
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Student
+                </button>
+                <button
+                  type="button"
+                  className="rounded-dropdown-item"
+                  onClick={() => {
+                    setRole('TEACHER');
+                    setOpenRoleDropdown(false);
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Teacher
+                </button>
+              </div>
+            </div>
           </div>
 
           <button
@@ -367,6 +425,87 @@ export default function RegisterPage() {
             Sign In
           </a>
         </p>
+
+        <style jsx>{`
+          .rounded-dropdown {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            --panel: rgba(0, 0, 0, 0.5);
+            --border: rgba(255, 255, 255, 0.15);
+            --text: rgba(255, 255, 255, 0.92);
+            --text-soft: rgba(148, 163, 184, 0.9);
+            --hover: rgba(255, 255, 255, 0.06);
+            --shadow-menu: 0 16px 40px rgba(0, 0, 0, 0.65);
+          }
+
+          .rounded-dropdown-trigger {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            color: var(--text);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: border-color 160ms ease;
+          }
+
+          .rounded-dropdown-trigger:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+          }
+
+          .rounded-dropdown-trigger:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+
+          .rounded-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.92);
+            box-shadow: var(--shadow-menu);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(6px);
+            pointer-events: none;
+            transition: opacity 180ms ease, transform 180ms ease;
+            z-index: 20;
+          }
+
+          .rounded-dropdown-menu.is-open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+          }
+
+          .rounded-dropdown-item {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 10px 12px;
+            text-align: left;
+            color: var(--text-soft);
+            font-size: 14px;
+          }
+
+          .rounded-dropdown-item:hover {
+            background: var(--hover);
+            color: var(--text);
+          }
+
+          .rounded-dropdown-item:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        `}</style>
       </div>
     </main>
   );

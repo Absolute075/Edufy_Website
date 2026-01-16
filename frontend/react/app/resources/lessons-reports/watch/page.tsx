@@ -822,20 +822,12 @@ export default function LessonsReportsWatchPage() {
                         : "border-neutral-700 bg-neutral-950 text-slate-100 hover:border-white/60 hover:bg-neutral-900"
                     } ${interactionsLoading ? "opacity-60" : ""}`}
                   >
-                    <svg
-                      viewBox="0 0 24 24"
-                      className={`h-4 w-4 ${dislikedByMe ? "text-blue-300" : "text-slate-300"}`}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                    <i
                       aria-hidden="true"
-                    >
-                      <path d="M10 14H5.2c-.7 0-1.2-.5-1.2-1.2V7.2C4 6.5 4.5 6 5.2 6H10" />
-                      <path d="M10 14l1.6 7.2c.2.7 1 .9 1.5.5l1.2-1c.3-.2.4-.6.3-1l-1.1-5.7" />
-                      <path d="M10 6h7.6c.6 0 1.2.4 1.3 1l1 5c.2.8-.4 1.6-1.3 1.6H14" />
-                    </svg>
+                      className={`${dislikedByMe ? "fa-solid" : "fa-regular"} fa-thumbs-down text-[16px] leading-none ${
+                        dislikedByMe ? "text-blue-300" : "text-slate-300"
+                      }`}
+                    />
                     {dislikesCount}
                   </button>
                 </div>
