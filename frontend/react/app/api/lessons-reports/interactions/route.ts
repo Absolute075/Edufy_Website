@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { randomUUID } from "crypto";
 import { dirname, join } from "path";
 import { mkdir, readFile, rename, writeFile } from "fs/promises";
 
@@ -7,35 +6,13 @@ export const runtime = "nodejs";
 
  type Catalog = "ielts" | "sat";
 
-type StoredComment = {
-  id: string;
-  text: string;
-  author: string;
-  createdAt: string;
-  parentId?: string | null;
-  authorKey?: string;
-};
-
-type StoredNotification = {
-  id: string;
-  title: string;
-  text: string;
-  href?: string;
-  createdAt: string;
-  unread: boolean;
-};
-
 type MaterialInteractions = {
   likes: Record<string, true>;
-  comments: StoredComment[];
+  dislikes: Record<string, true>;
 };
 
 type InteractionsStore = {
   materials: Record<string, MaterialInteractions>;
-};
-
-type NotificationsStore = {
-  users: Record<string, StoredNotification[]>;
 };
 
 function json(data: unknown, status = 200) {
@@ -72,13 +49,6 @@ function getStorePath(catalog: Catalog): string {
   return join(process.cwd(), "..", "..", "storage", "lessons-reports-interactions.sat.json");
 }
 
-function getNotificationsPath(): string {
-  const fromEnv = process.env.NOTIFICATIONS_PATH;
-  if (fromEnv && String(fromEnv).trim()) return String(fromEnv).trim();
-
-  return join(process.cwd(), "..", "..", "storage", "notifications.json");
-}
-
 async function loadStore(filePath: string): Promise<InteractionsStore> {
   try {
     const raw = await readFile(filePath, "utf8");
@@ -100,49 +70,15 @@ async function saveStore(filePath: string, store: InteractionsStore): Promise<vo
   await rename(tmpPath, filePath);
 }
 
-async function loadNotificationsStore(filePath: string): Promise<NotificationsStore> {
-  try {
-    const raw = await readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as NotificationsStore;
-    if (!parsed || typeof parsed !== "object") return { users: {} };
-    if (!parsed.users || typeof parsed.users !== "object") return { users: {} };
-    return { users: parsed.users };
-  } catch {
-    return { users: {} };
-  }
-}
-
-async function saveNotificationsStore(filePath: string, store: NotificationsStore): Promise<void> {
-  const dir = dirname(filePath);
-  await mkdir(dir, { recursive: true });
-
-  const tmpPath = `${filePath}.tmp`;
-  await writeFile(tmpPath, JSON.stringify(store, null, 2), "utf8");
-  await rename(tmpPath, filePath);
-}
-
-function toPublicComment(c: StoredComment, viewerUserKey: string | null, viewerIsAdmin: boolean) {
-  const isOwner = Boolean(viewerUserKey && c.authorKey && String(c.authorKey).trim() === viewerUserKey);
-  const canDelete = Boolean(viewerIsAdmin || isOwner);
-  return {
-    id: c.id,
-    text: c.text,
-    author: c.author,
-    createdAt: c.createdAt,
-    parentId: c.parentId ?? null,
-    canDelete,
-  };
-}
-
 function getMaterial(store: InteractionsStore, materialId: string): MaterialInteractions {
   const existing = store.materials[materialId];
   if (existing && typeof existing === "object") {
     return {
       likes: existing.likes && typeof existing.likes === "object" ? existing.likes : {},
-      comments: Array.isArray(existing.comments) ? existing.comments : [],
+      dislikes: (existing as any).dislikes && typeof (existing as any).dislikes === "object" ? (existing as any).dislikes : {},
     };
   }
-  return { likes: {}, comments: [] };
+  return { likes: {}, dislikes: {} };
 }
 
 async function fetchFromApi(request: Request, path: string, init: RequestInit) {
@@ -231,28 +167,31 @@ export async function GET(request: Request) {
   const material = getMaterial(store, materialId);
 
   const likesCount = Object.keys(material.likes || {}).length;
+  const dislikesCount = Object.keys(material.dislikes || {}).length;
   let likedByMe = false;
+  let dislikedByMe = false;
   let viewerUserKey: string | null = null;
-  let viewerIsAdmin = false;
   try {
     const identity = await getUserIdentity(request);
     viewerUserKey = identity.userKey;
-    viewerIsAdmin = String(identity.role).toUpperCase() === "ADMIN";
     likedByMe = Boolean(material.likes && material.likes[identity.userKey]);
+    dislikedByMe = Boolean(material.dislikes && material.dislikes[identity.userKey]);
   } catch {
-    // Public read: allow seeing counts/comments without being logged in.
+    // Public read: allow seeing counts without being logged in.
     likedByMe = false;
+    dislikedByMe = false;
   }
 
   const response: any = {
     id: materialId,
     likesCount,
     likedByMe,
-    comments: (material.comments || []).map((c) => toPublicComment(c, viewerUserKey, viewerIsAdmin)),
+    dislikesCount,
+    dislikedByMe,
   };
 
   if (viewerUserKey) {
-    response.viewer = { userKey: viewerUserKey, isAdmin: viewerIsAdmin };
+    response.viewer = { userKey: viewerUserKey };
   }
 
   return json(response);
@@ -275,7 +214,7 @@ export async function POST(request: Request) {
     return json({ error: "missing_id" }, 400);
   }
 
-  if (action !== "toggle_like" && action !== "add_comment" && action !== "delete_comment") {
+  if (action !== "toggle_like" && action !== "toggle_dislike") {
     return json({ error: "invalid_action" }, 400);
   }
 
@@ -288,102 +227,21 @@ export async function POST(request: Request) {
       delete material.likes[identity.userKey];
     } else {
       material.likes[identity.userKey] = true;
-    }
-  }
-
-  if (action === "add_comment") {
-    const text = String(payload?.text ?? "").trim();
-    if (!text) {
-      return json({ error: "empty_comment" }, 400);
-    }
-
-    const parentIdRaw = payload?.parentId;
-    const parentId = parentIdRaw === undefined || parentIdRaw === null ? null : String(parentIdRaw).trim();
-    if (parentId !== null && !parentId) {
-      return json({ error: "invalid_parent" }, 400);
-    }
-
-    let repliedToUserKey: string | null = null;
-    if (parentId) {
-      const parent = (material.comments || []).find((c) => c && c.id === parentId);
-      if (!parent) {
-        return json({ error: "invalid_parent" }, 400);
-      }
-      if (parent.authorKey && String(parent.authorKey).trim()) {
-        repliedToUserKey = String(parent.authorKey).trim();
-      }
-    }
-
-    const comment: StoredComment = {
-      id: randomUUID(),
-      text: text.slice(0, 2000),
-      author: identity.author,
-      createdAt: new Date().toISOString(),
-      parentId,
-      authorKey: identity.userKey,
-    };
-
-    material.comments = [comment, ...(material.comments || [])].slice(0, 200);
-
-    if (parentId && repliedToUserKey && repliedToUserKey !== identity.userKey) {
-      try {
-        const nPath = getNotificationsPath();
-        const nStore = await loadNotificationsStore(nPath);
-        const list = nStore.users[repliedToUserKey] || [];
-        const href =
-          catalog === "sat"
-            ? `/resources/sat/lessons-reports/watch?id=${encodeURIComponent(materialId)}`
-            : `/resources/lessons-reports/watch?id=${encodeURIComponent(materialId)}`;
-        const notif: StoredNotification = {
-          id: randomUUID(),
-          title: "Вам ответили",
-          text: `Вам ответили в этом видео: ${materialId}`,
-          href,
-          createdAt: new Date().toISOString(),
-          unread: true,
-        };
-        nStore.users[repliedToUserKey] = [notif, ...list].slice(0, 200);
-        await saveNotificationsStore(nPath, nStore);
-      } catch {
-        // ignore
+      if (material.dislikes && material.dislikes[identity.userKey]) {
+        delete material.dislikes[identity.userKey];
       }
     }
   }
 
-  if (action === "delete_comment") {
-    const commentId = String(payload?.commentId ?? "").trim();
-    if (!commentId) {
-      return json({ error: "missing_comment_id" }, 400);
-    }
-
-    const viewerIsAdmin = String(identity.role).toUpperCase() === "ADMIN";
-    const target = (material.comments || []).find((c) => c && c.id === commentId);
-    if (!target) {
-      return json({ error: "comment_not_found" }, 404);
-    }
-
-    const ownerKey = target.authorKey ? String(target.authorKey).trim() : "";
-    const isOwner = Boolean(ownerKey && ownerKey === identity.userKey);
-    if (!viewerIsAdmin && !isOwner) {
-      return json({ error: "forbidden" }, 403);
-    }
-
-    const idsToDelete = new Set<string>();
-    idsToDelete.add(commentId);
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const c of material.comments || []) {
-        if (!c) continue;
-        const pid = c.parentId ? String(c.parentId).trim() : "";
-        if (pid && idsToDelete.has(pid) && !idsToDelete.has(c.id)) {
-          idsToDelete.add(c.id);
-          changed = true;
-        }
+  if (action === "toggle_dislike") {
+    if (material.dislikes && material.dislikes[identity.userKey]) {
+      delete material.dislikes[identity.userKey];
+    } else {
+      material.dislikes[identity.userKey] = true;
+      if (material.likes && material.likes[identity.userKey]) {
+        delete material.likes[identity.userKey];
       }
     }
-
-    material.comments = (material.comments || []).filter((c) => c && !idsToDelete.has(c.id));
   }
 
   store.materials[materialId] = material;
@@ -391,13 +249,15 @@ export async function POST(request: Request) {
 
   const likesCount = Object.keys(material.likes || {}).length;
   const likedByMe = Boolean(material.likes && material.likes[identity.userKey]);
-  const viewerIsAdmin = String(identity.role).toUpperCase() === "ADMIN";
+  const dislikesCount = Object.keys(material.dislikes || {}).length;
+  const dislikedByMe = Boolean(material.dislikes && material.dislikes[identity.userKey]);
 
   return json({
     id: materialId,
     likesCount,
     likedByMe,
-    viewer: { userKey: identity.userKey, isAdmin: viewerIsAdmin },
-    comments: (material.comments || []).map((c) => toPublicComment(c, identity.userKey, viewerIsAdmin)),
+    dislikesCount,
+    dislikedByMe,
+    viewer: { userKey: identity.userKey },
   });
 }
