@@ -314,7 +314,18 @@ export default function SatLessonsReportsResourcesPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        router.push(`${userPrefix}/resources/sat/lessons-reports/watch?id=${encodeURIComponent(item.id)}`);
+                        if (locked) {
+                          router.push(
+                            `${userPrefix}/billing?redirect=${encodeURIComponent(
+                              `${userPrefix}/resources/sat/lessons-reports/watch?id=${encodeURIComponent(item.id)}`
+                            )}`
+                          );
+                          return;
+                        }
+
+                        router.push(
+                          `${userPrefix}/resources/sat/lessons-reports/watch?id=${encodeURIComponent(item.id)}`
+                        );
                       }}
                       className={`shrink-0 rounded-full border px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition-colors md:self-center ${
                         locked
