@@ -155,9 +155,41 @@ export default function VerificationPage() {
           </div>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-center">Enter verification code</h1>
           <p className="mt-1 text-sm text-gray-400 text-center">Enter the 6-digit code we sent to your email.</p>
-          <p className="mt-1 text-xs text-gray-500 text-center">
-            Didn&apos;t receive the email? Please check your Spam/Junk folder.
-          </p>
+          <div className="mt-4 w-full rounded-2xl border border-yellow-400/30 bg-yellow-400/10 px-4 py-3 text-left">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 text-yellow-300">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M12 9v5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 17h.01"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-yellow-100">Important</p>
+                <p className="mt-0.5 text-xs text-yellow-100/80">
+                  The verification email can sometimes end up in Spam/Junk/Promotions. Please check those folders.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <form className="space-y-4" onSubmit={handleVerify}>
