@@ -586,7 +586,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/33-lesson-homework.pdf`,
   },
  "B7K2M5Q9L3": {
-    title: "Lesson 34 - Writing (Foundation) (1)",
+    title: "Lesson 35 - Writing (Foundation) (1)",
     section: "english",
     mediaType: "video",
     requiredPlan: "premium",
@@ -594,7 +594,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/video4703162958.mp4`,
   },
  "F1X6C4R8V0": {
-    title: "Lesson 34 - Writing (Foundation) (2)",
+    title: "Lesson 35 - Writing (Foundation) (2)",
     section: "english",
     mediaType: "video",
     requiredPlan: "premium",
@@ -602,7 +602,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/video6935820147.mp4`,
   },
   "N3L8T2Q7K5": {
-    title: "Lesson 34 - Homework (Foundation)",
+    title: "Lesson 35 - Homework (Foundation)",
     section: "english",
     mediaType: "file",
     requiredPlan: "premium",
@@ -610,7 +610,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/34-lesson-homework.pdf`,
   },
  "Y5M2K8C1V7": {
-    title: "Lesson 35 - Math (Foundation)",
+    title: "Lesson 36 - Math (Foundation)",
     section: "math",
     mediaType: "video",
     requiredPlan: "premium",
@@ -618,7 +618,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/video8057293614.mp4`,
   },
   "R0L4X9Q3B6": {
-    title: "Lesson 35 - Homework (Foundation)",
+    title: "Lesson 36 - Homework (Foundation)",
     section: "math",
     mediaType: "file",
     requiredPlan: "premium",
