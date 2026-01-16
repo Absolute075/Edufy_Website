@@ -624,5 +624,21 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     requiredPlan: "premium",
     teacher: "Marstiff Teachers",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/35-lesson-homework.pdf`,
-  }
+  },
+ "M8Q3K5L2X7": {
+    title: "Lesson 1 - Reading (SAT)",
+    section: "english",
+    mediaType: "video",
+    requiredPlan: "premium",
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/video9285074163.mp4`,
+  },
+  "C0R9B6F1V4": {
+    title: "Lesson 1 - Homework (SAT)",
+    section: "english",
+    mediaType: "file",
+    requiredPlan: "premium",
+    teacher: "Marstiff Teachers",
+    href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/1-lesson-sat.pdf`,
+  },
 };
