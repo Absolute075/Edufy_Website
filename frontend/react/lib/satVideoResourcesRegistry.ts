@@ -608,7 +608,7 @@ export const satVideoResourcesRegistry: Record<string, SatVideoResourceRule> = {
     requiredPlan: "premium",
     teacher: "Marstiff Teachers",
     href: `${SAT_LESSONS_REPORTS_BASE_URL}/marstiff-teachers/34-lesson-homework.pdf`,
-  }
+  },
  "Y5M2K8C1V7": {
     title: "Lesson 35 - Math (Foundation)",
     section: "math",
