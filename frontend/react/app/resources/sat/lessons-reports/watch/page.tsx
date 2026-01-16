@@ -33,6 +33,7 @@ function CustomVideoPlayer({ src }: { src: string }) {
   const ref = useRef<HTMLVideoElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const scrubRef = useRef<HTMLDivElement | null>(null);
+  const volumeWrapRef = useRef<HTMLDivElement | null>(null);
   const hideTimerRef = useRef<number | null>(null);
   const scrubbingRef = useRef(false);
   const hlsRef = useRef<Hls | null>(null);
@@ -207,6 +208,32 @@ function CustomVideoPlayer({ src }: { src: string }) {
   }, [playing, scheduleHide]);
 
   useEffect(() => {
+    if (!volumeOpen) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (volumeWrapRef.current && volumeWrapRef.current.contains(target)) return;
+      setVolumeOpen(false);
+      scheduleHide();
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setVolumeOpen(false);
+        scheduleHide();
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [scheduleHide, volumeOpen]);
+
+  useEffect(() => {
     return () => {
       if (hideTimerRef.current) {
         window.clearTimeout(hideTimerRef.current);
@@ -280,7 +307,7 @@ function CustomVideoPlayer({ src }: { src: string }) {
       onMouseDown={() => showControls()}
       onTouchStart={() => showControls()}
       onMouseLeave={() => {
-        if (playing) setControlsVisible(false);
+        if (playing && !volumeOpen) setControlsVisible(false);
       }}
     >
       <video
@@ -390,29 +417,16 @@ function CustomVideoPlayer({ src }: { src: string }) {
               )}
             </button>
 
-            <div className="flex items-center gap-2 text-[11px] font-medium text-white/80">
-              <span className="tabular-nums">{formatTimeShort(currentTime)}</span>
-              <span className="text-white/45">/</span>
-              <span className="tabular-nums">{ready ? formatTimeShort(duration) : "0:00"}</span>
-            </div>
-
-            <div className="flex-1" />
-
-            <div
-              className="relative hidden items-center md:flex"
-              onMouseEnter={() => {
-                setVolumeOpen(true);
-                setControlsVisible(true);
-              }}
-              onMouseLeave={() => {
-                setVolumeOpen(false);
-                scheduleHide();
-              }}
-            >
+            <div ref={volumeWrapRef} className="relative flex items-center">
               <button
                 type="button"
                 onClick={() => {
                   showControls();
+                  if (!volumeOpen) {
+                    setVolumeOpen(true);
+                    setControlsVisible(true);
+                    return;
+                  }
                   toggleMute();
                 }}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/15"
@@ -454,8 +468,8 @@ function CustomVideoPlayer({ src }: { src: string }) {
               </button>
 
               <div
-                className={`absolute bottom-12 right-0 w-36 rounded-2xl border border-white/10 bg-black/70 p-3 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-md transition-all duration-200 ${
-                  volumeOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
+                className={`absolute bottom-11 left-0 rounded-2xl border border-white/10 bg-black/70 p-3 shadow-[0_20px_80px_rgba(0,0,0,0.55)] backdrop-blur-md transition-all duration-200 ${
+                  volumeOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0 pointer-events-none"
                 }`}
               >
                 <input
@@ -464,14 +478,26 @@ function CustomVideoPlayer({ src }: { src: string }) {
                   max={100}
                   value={Math.round((muted ? 0 : volume) * 100)}
                   onChange={(e) => setVol(Number(e.target.value) / 100)}
-                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/20"
+                  className="w-2 cursor-pointer appearance-none rounded-full bg-white/20"
                   style={{
-                    background: `linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.95) ${(muted ? 0 : volume) * 100}%, rgba(255,255,255,0.18) ${(muted ? 0 : volume) * 100}%, rgba(255,255,255,0.18) 100%)`,
+                    height: "96px",
+                    writingMode: "vertical-rl",
+                    WebkitAppearance: "slider-vertical" as any,
+                    transform: "rotate(180deg)",
+                    background: `linear-gradient(to top, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.95) ${(muted ? 0 : volume) * 100}%, rgba(255,255,255,0.18) ${(muted ? 0 : volume) * 100}%, rgba(255,255,255,0.18) 100%)`,
                   }}
                   aria-label="Volume"
                 />
               </div>
             </div>
+
+            <div className="flex items-center gap-2 text-[11px] font-medium text-white/80">
+              <span className="tabular-nums">{formatTimeShort(currentTime)}</span>
+              <span className="text-white/45">/</span>
+              <span className="tabular-nums">{ready ? formatTimeShort(duration) : "0:00"}</span>
+            </div>
+
+            <div className="flex-1" />
 
             <button
               type="button"

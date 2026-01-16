@@ -12,16 +12,16 @@ export default function NotFound() {
 
         <div className="mt-6 flex flex-col gap-2">
           <Link
-            href="/"
+            href="/dashboard"
             className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-gray-900 hover:bg-white/90 transition-colors"
           >
-            Go home
+            Dashboard
           </Link>
           <Link
-            href="/dashboard"
+            href="/"
             className="inline-flex items-center justify-center rounded-full border border-white/20 bg-transparent px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white hover:bg-white/5 transition-colors"
           >
-            Dashboard
+            Go home
           </Link>
         </div>
       </div>
