@@ -41,6 +41,8 @@ function applyWrapTag(
     el.appendChild(html);
     range.insertNode(el);
   }
+
+  return el;
 }
 
 function applyLink(range: Range, href: string) {
@@ -58,6 +60,21 @@ function applyLink(range: Range, href: string) {
     const html = range.extractContents();
     a.appendChild(html);
     range.insertNode(a);
+  }
+
+  return a;
+}
+
+function placeCaretAfter(node: Node) {
+  try {
+    const sel = window.getSelection();
+    if (!sel) return;
+    const r = document.createRange();
+    r.setStartAfter(node);
+    r.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r);
+  } catch {
   }
 }
 
@@ -524,7 +541,10 @@ export default function AdminPublicationsPage() {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       const r = restoreSelection();
-                      if (r) applyWrapTag("strong", r);
+                      if (r) {
+                        const el = applyWrapTag("strong", r);
+                        if (el) placeCaretAfter(el);
+                      }
                       syncEditorHtmlToState();
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
@@ -538,7 +558,10 @@ export default function AdminPublicationsPage() {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       const r = restoreSelection();
-                      if (r) applyWrapTag("em", r);
+                      if (r) {
+                        const el = applyWrapTag("em", r);
+                        if (el) placeCaretAfter(el);
+                      }
                       syncEditorHtmlToState();
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
@@ -552,7 +575,10 @@ export default function AdminPublicationsPage() {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       const r = restoreSelection();
-                      if (r) applyWrapTag("u", r);
+                      if (r) {
+                        const el = applyWrapTag("u", r);
+                        if (el) placeCaretAfter(el);
+                      }
                       syncEditorHtmlToState();
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
@@ -566,7 +592,10 @@ export default function AdminPublicationsPage() {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       const r = restoreSelection();
-                      if (r) applyWrapTag("s", r);
+                      if (r) {
+                        const el = applyWrapTag("s", r);
+                        if (el) placeCaretAfter(el);
+                      }
                       syncEditorHtmlToState();
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
@@ -580,7 +609,10 @@ export default function AdminPublicationsPage() {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       const r = restoreSelection();
-                      if (r) applyWrapTag("code", r);
+                      if (r) {
+                        const el = applyWrapTag("code", r);
+                        if (el) placeCaretAfter(el);
+                      }
                       syncEditorHtmlToState();
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
@@ -648,7 +680,8 @@ export default function AdminPublicationsPage() {
                       onClick={() => {
                         const r = restoreSelection();
                         if (r) {
-                          applyLink(r, linkUrl);
+                          const a = applyLink(r, linkUrl);
+                          if (a) placeCaretAfter(a);
                           syncEditorHtmlToState();
                           captureSelection();
                         }
