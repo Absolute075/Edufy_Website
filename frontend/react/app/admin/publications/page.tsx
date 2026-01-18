@@ -80,6 +80,8 @@ export default function AdminPublicationsPage() {
 
   const editorRef = useRef<HTMLDivElement | null>(null);
   const lastRangeRef = useRef<Range | null>(null);
+  const toolbarRef = useRef<HTMLDivElement | null>(null);
+  const linkModalRef = useRef<HTMLDivElement | null>(null);
 
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
@@ -196,6 +198,15 @@ export default function AdminPublicationsPage() {
         setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
         return;
       }
+
+      if (toolbarRef.current && toolbarRef.current.contains(target)) {
+        return;
+      }
+
+      if (linkModalRef.current && linkModalRef.current.contains(target)) {
+        return;
+      }
+
       if (editorRef.current && editorRef.current.contains(target)) return;
       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
     }
@@ -499,6 +510,7 @@ export default function AdminPublicationsPage() {
 
               {toolbar.visible ? (
                 <div
+                  ref={toolbarRef}
                   className="fixed z-50 flex items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3 py-2 backdrop-blur-md"
                   style={{
                     top: toolbar.top,
@@ -601,6 +613,7 @@ export default function AdminPublicationsPage() {
             {linkModalOpen ? (
               <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4" onMouseDown={() => setLinkModalOpen(false)}>
                 <div
+                  ref={linkModalRef}
                   className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-900/90 p-5"
                   onMouseDown={(e) => e.stopPropagation()}
                 >
