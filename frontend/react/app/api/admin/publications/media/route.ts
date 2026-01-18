@@ -151,7 +151,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "empty_file" }, { status: 400 });
   }
 
-  if (size > 15 * 1024 * 1024) {
+  const maxBytes = ext === "gif" ? 30 * 1024 * 1024 : 15 * 1024 * 1024;
+  if (size > maxBytes) {
     return NextResponse.json({ error: "file_too_large" }, { status: 400 });
   }
 

@@ -325,7 +325,8 @@ export default function AdminPublicationsPage() {
         });
         const body: any = await res.json().catch(() => null);
         if (!res.ok || !body?.url) {
-          throw new Error("Upload failed");
+          const reason = body?.error ? String(body.error) : "upload_failed";
+          throw new Error(reason);
         }
 
         setMediaUrls((prev) => clampMediaUrls([...prev, String(body.url)]));
@@ -551,8 +552,8 @@ export default function AdminPublicationsPage() {
               {mediaUrls.length ? (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   {mediaUrls.map((src) => (
-                    <div key={src} className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-                      <img src={src} alt="media" className="w-full h-full object-cover" />
+                    <div key={src} className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                      <img src={src} alt="media" className="h-full w-full object-cover" />
                       <button
                         type="button"
                         onClick={() => setMediaUrls((prev) => prev.filter((x) => x !== src))}
