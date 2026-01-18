@@ -22,6 +22,11 @@ function mediaKind(src: string): "image" | "video" {
   return "image";
 }
 
+function isGifLikeVideo(src: string) {
+  const s = String(src || "").split("?")[0].split("#")[0].toLowerCase();
+  return s.endsWith(".gif.mp4") || s.endsWith(".gif.webm") || s.endsWith(".gif.mov") || s.endsWith(".gif.m4v");
+}
+
 type Publication = {
   id: string;
   type: "changelog";
@@ -141,9 +146,11 @@ export default function ChangelogPage() {
                             <video
                               src={src}
                               className="relative z-10 w-full h-[320px] sm:h-[420px] lg:h-[520px] object-contain bg-black"
-                              controls
                               playsInline
                               preload="metadata"
+                              {...(isGifLikeVideo(src)
+                                ? { autoPlay: true, loop: true, muted: true }
+                                : { controls: true })}
                             />
                           )}
                         </div>

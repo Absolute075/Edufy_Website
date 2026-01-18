@@ -557,13 +557,17 @@ export default function AdminPublicationsPage() {
                         const s = String(src || "").split("?")[0].split("#")[0].toLowerCase();
                         const isVideo =
                           s.endsWith(".mp4") || s.endsWith(".webm") || s.endsWith(".mov") || s.endsWith(".m4v");
+                        const isGifLike =
+                          s.endsWith(".gif.mp4") || s.endsWith(".gif.webm") || s.endsWith(".gif.mov") || s.endsWith(".gif.m4v");
                         return isVideo ? (
                           <video
                             src={src}
                             className="h-full w-full object-cover"
-                            controls
                             playsInline
                             preload="metadata"
+                            {...(isGifLike
+                              ? { autoPlay: true, loop: true, muted: true }
+                              : { controls: true })}
                           />
                         ) : (
                           <img src={src} alt="media" className="h-full w-full object-cover" />

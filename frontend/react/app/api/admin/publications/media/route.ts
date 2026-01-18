@@ -214,7 +214,8 @@ export async function POST(request: Request) {
 
   const id = crypto.randomBytes(16).toString("hex");
   const normalizedExt = ext === "jpeg" ? "jpg" : ext;
-  const filename = `${id}.${normalizedExt}`;
+  const gifLikeVideo = extGuessed === "gif" && ext !== "gif";
+  const filename = gifLikeVideo ? `${id}.gif.${normalizedExt}` : `${id}.${normalizedExt}`;
 
   const dir = path.join(process.cwd(), "data", "publications_media");
   fs.mkdirSync(dir, { recursive: true });
