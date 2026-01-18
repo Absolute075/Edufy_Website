@@ -5,7 +5,6 @@ import {
   readPublicationsFile,
   writePublicationsFile,
   type Publication,
-  type PublicationBlock,
   type PublicationType,
 } from "@/lib/publicationsStore";
 
@@ -22,7 +21,6 @@ async function requireAdmin(request: Request): Promise<{ ok: true } | { ok: fals
     }
   })();
 
-  // Preferred: role-based admin session via auth_service accessToken cookie.
   if (!tokenRaw) {
     if (!cookieHeader) {
       return { ok: false, res: NextResponse.json({ error: "unauthorized" }, { status: 401 }) };
@@ -118,16 +116,20 @@ function normalizeType(input: unknown): PublicationType {
   return String(input || "").trim().toLowerCase() === "changelog" ? "changelog" : "changelog";
 }
 
-function normalizeBlocks(input: unknown): PublicationBlock[] {
-  if (!Array.isArray(input)) return [];
-  return input
-    .map((b) => {
-      const title = String((b as any)?.title || "").trim();
-      const itemsRaw = Array.isArray((b as any)?.items) ? (b as any).items : [];
-      const items = itemsRaw.map((x: any) => String(x || "").trim()).filter(Boolean);
-      return { title, items };
-    })
-    .filter((b) => b.title && b.items.length);
+function normalizeMediaUrls(input: unknown): string[] | undefined {
+  if (!Array.isArray(input)) return undefined;
+  const urls = input
+    .map((x) => String(x || "").trim())
+    .filter(Boolean)
+    .slice(0, 5);
+  return urls.length ? urls : undefined;
+}
+
+function sanitizeHtml(input: string): string {
+  const withoutScripts = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+  const withoutHandlers = withoutScripts.replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "");
+  const withoutHandlers2 = withoutHandlers.replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "");
+  return withoutHandlers2;
 }
 
 export async function GET(request: Request) {
@@ -152,12 +154,11 @@ export async function POST(request: Request) {
   const type = normalizeType(body?.type);
   const title = String(body?.title || "").trim();
   const date = String(body?.date || "").trim();
-  const imageUrlRaw = String(body?.imageUrl || "").trim();
-  const imageUrl = imageUrlRaw ? imageUrlRaw : undefined;
-  const blocks = normalizeBlocks(body?.blocks);
+  const mediaUrls = normalizeMediaUrls(body?.mediaUrls);
+  const contentHtml = sanitizeHtml(String(body?.contentHtml || "")).trim();
   const published = Boolean(body?.published);
 
-  if (!title || !date || !blocks.length) {
+  if (!title || !date || !contentHtml) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
@@ -168,8 +169,8 @@ export async function POST(request: Request) {
     type,
     title,
     date,
-    imageUrl,
-    blocks,
+    mediaUrls,
+    contentHtml,
     published,
     createdAt: now,
     updatedAt: now,
@@ -203,12 +204,11 @@ export async function PUT(request: Request) {
 
   const title = String(body?.title ?? existing.title).trim();
   const date = String(body?.date ?? existing.date).trim();
-  const imageUrlRaw = String(body?.imageUrl ?? existing.imageUrl ?? "").trim();
-  const imageUrl = imageUrlRaw ? imageUrlRaw : undefined;
   const published = typeof body?.published === "boolean" ? body.published : existing.published;
-  const blocks = body?.blocks ? normalizeBlocks(body.blocks) : existing.blocks;
+  const mediaUrls = body?.mediaUrls ? normalizeMediaUrls(body.mediaUrls) : existing.mediaUrls;
+  const contentHtml = sanitizeHtml(String(body?.contentHtml ?? existing.contentHtml)).trim();
 
-  if (!title || !date || !blocks.length) {
+  if (!title || !date || !contentHtml) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
@@ -216,8 +216,8 @@ export async function PUT(request: Request) {
     ...existing,
     title,
     date,
-    imageUrl,
-    blocks,
+    mediaUrls,
+    contentHtml,
     published,
     updatedAt: now,
   };

@@ -1,23 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 function formatDate(iso: string) {
   const d = new Date(`${iso}T00:00:00Z`);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
+  return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" }).format(d);
 }
-
-type PublicationBlock = { title: string; items: string[] };
 
 type Publication = {
   id: string;
   type: "changelog";
   title: string;
   date: string;
-  imageUrl?: string;
-  blocks: PublicationBlock[];
+  mediaUrls?: string[];
+  contentHtml: string;
 };
 
 export default function ChangelogPage() {
@@ -82,31 +79,21 @@ export default function ChangelogPage() {
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-8">
-                  {p.imageUrl ? (
-                    <div className="relative w-full overflow-hidden rounded-2xl border border-white/15 bg-black/40 mb-6" style={{ aspectRatio: "16 / 9" }}>
-                      <Image
-                        src={p.imageUrl}
-                        alt={p.title}
-                        fill
-                        className="object-cover"
-                        sizes="(min-width: 768px) 66vw, 100vw"
-                      />
+                <div>
+                  {p.mediaUrls?.length ? (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+                      {p.mediaUrls.slice(0, 5).map((src, idx) => (
+                        <div key={`${p.id}-m-${idx}`} className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+                          <img src={src} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
+                        </div>
+                      ))}
                     </div>
                   ) : null}
 
-                  <div className="space-y-6">
-                    {p.blocks.map((block, idx) => (
-                      <div key={`${p.id}-${idx}`}>
-                        <div className="font-semibold text-white">{block.title}</div>
-                        <div className="mt-2 space-y-2 text-sm sm:text-base text-gray-300 leading-relaxed">
-                          {block.items.map((line, j) => (
-                            <div key={`${p.id}-${idx}-${j}`}>{line}</div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <div
+                    className="text-sm sm:text-base text-gray-300 leading-relaxed space-y-3"
+                    dangerouslySetInnerHTML={{ __html: p.contentHtml || "" }}
+                  />
                 </div>
               </article>
             ))

@@ -1,55 +1,50 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useAdminAuth } from "../useAdminAuth";
-
-type PublicationBlock = { title: string; items: string[] };
 
 type Publication = {
   id: string;
   type: "changelog";
   title: string;
   date: string;
-  imageUrl?: string;
-  blocks: PublicationBlock[];
+  mediaUrls?: string[];
+  contentHtml: string;
   published: boolean;
   createdAt: string;
   updatedAt: string;
 };
 
-function blocksToText(blocks: PublicationBlock[]): string {
-  return blocks
-    .map((b) => {
-      const lines = [b.title, ...b.items.map((x) => `- ${x}`)];
-      return lines.join("\n");
-    })
-    .join("\n\n");
+function clampMediaUrls(input: string[]): string[] {
+  return input.map((x) => x.trim()).filter(Boolean).slice(0, 5);
 }
 
-function textToBlocks(input: string): PublicationBlock[] {
-  const chunks = String(input || "")
-    .split(/\n\s*\n/)
-    .map((c) => c.trim())
-    .filter(Boolean);
+function applyWrapTag(tag: "strong" | "em" | "u" | "s" | "code" | "span", attrs?: Record<string, string>) {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) return;
+  const range = selection.getRangeAt(0);
+  if (range.collapsed) return;
 
-  const blocks: PublicationBlock[] = [];
-  for (const chunk of chunks) {
-    const lines = chunk
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean);
-    const title = String(lines[0] || "").trim();
-    const items = lines
-      .slice(1)
-      .map((l) => l.replace(/^[-•]\s*/, "").trim())
-      .filter(Boolean);
-
-    if (title && items.length) {
-      blocks.push({ title, items });
+  const el = document.createElement(tag);
+  if (attrs) {
+    for (const [k, v] of Object.entries(attrs)) {
+      el.setAttribute(k, v);
     }
   }
-  return blocks;
+
+  try {
+    range.surroundContents(el);
+    selection.removeAllRanges();
+    const r = document.createRange();
+    r.selectNodeContents(el);
+    r.collapse(false);
+    selection.addRange(r);
+  } catch {
+    const html = range.extractContents();
+    el.appendChild(html);
+    range.insertNode(el);
+  }
 }
 
 export default function AdminPublicationsPage() {
@@ -62,10 +57,14 @@ export default function AdminPublicationsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [mediaUrls, setMediaUrls] = useState<string[]>([""]);
   const [published, setPublished] = useState(false);
-  const [blocksText, setBlocksText] = useState("New Features\n- ...\n\nBug Fixes\n- ...");
+  const [contentHtml, setContentHtml] = useState(
+    "<h3>New Features</h3><ul><li>...</li></ul><h3>Bug Fixes</h3><ul><li>...</li></ul>"
+  );
   const [saving, setSaving] = useState(false);
+
+  const editorRef = useRef<HTMLDivElement | null>(null);
 
   const selected = useMemo(() => items.find((x) => x.id === editingId) || null, [items, editingId]);
 
@@ -95,24 +94,25 @@ export default function AdminPublicationsPage() {
     if (!selected) return;
     setTitle(selected.title);
     setDate(selected.date);
-    setImageUrl(selected.imageUrl || "");
+    setMediaUrls(selected.mediaUrls?.length ? [...selected.mediaUrls, ""] : [""]);
     setPublished(!!selected.published);
-    setBlocksText(blocksToText(selected.blocks));
+    setContentHtml(selected.contentHtml || "");
   }, [selected]);
 
   function resetForm() {
     setEditingId(null);
     setTitle("");
     setDate("");
-    setImageUrl("");
+    setMediaUrls([""]);
     setPublished(false);
-    setBlocksText("New Features\n- ...\n\nBug Fixes\n- ...");
+    setContentHtml("<h3>New Features</h3><ul><li>...</li></ul><h3>Bug Fixes</h3><ul><li>...</li></ul>");
   }
 
   async function save() {
-    const blocks = textToBlocks(blocksText);
-    if (!title.trim() || !date.trim() || blocks.length === 0) {
-      setListError("Fill title, date and blocks.");
+    const html = (editorRef.current?.innerHTML ?? contentHtml).trim();
+    const urls = clampMediaUrls(mediaUrls);
+    if (!title.trim() || !date.trim() || !html) {
+      setListError("Fill title, date and content.");
       return;
     }
 
@@ -124,9 +124,9 @@ export default function AdminPublicationsPage() {
         type: "changelog",
         title: title.trim(),
         date: date.trim(),
-        imageUrl: imageUrl.trim() || undefined,
+        mediaUrls: urls.length ? urls : undefined,
         published,
-        blocks,
+        contentHtml: html,
       };
 
       const res = editingId
@@ -296,26 +296,86 @@ export default function AdminPublicationsPage() {
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">Image URL (optional)</label>
-              <input
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40"
-                placeholder="https://..."
-              />
+              <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">
+                Media (photo/gif URLs, up to 5)
+              </label>
+              <div className="space-y-2">
+                {mediaUrls.slice(0, 5).map((value, idx) => (
+                  <input
+                    key={idx}
+                    value={value}
+                    onChange={(e) => {
+                      const next = [...mediaUrls];
+                      next[idx] = e.target.value;
+                      if (idx === next.length - 1 && e.target.value.trim()) {
+                        next.push("");
+                      }
+                      setMediaUrls(next.slice(0, 6));
+                    }}
+                    className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40"
+                    placeholder={idx === 0 ? "https://..." : "(optional) https://..."}
+                  />
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-gray-500">All media will appear above the update on /changelog.</p>
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">Blocks</label>
-              <textarea
-                value={blocksText}
-                onChange={(e) => setBlocksText(e.target.value)}
-                rows={14}
-                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40 font-mono"
+              <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">Update content</label>
+
+              <div className="flex flex-wrap gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => applyWrapTag("strong")}
+                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
+                >
+                  Bold
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyWrapTag("span", { style: "font-family: cursive" })}
+                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
+                >
+                  Cursive
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyWrapTag("em")}
+                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
+                >
+                  Italic
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyWrapTag("u")}
+                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
+                >
+                  Underline
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyWrapTag("s")}
+                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
+                >
+                  Strikethrough
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyWrapTag("code")}
+                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
+                >
+                  Monospace
+                </button>
+              </div>
+
+              <div
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                onInput={(e) => setContentHtml((e.currentTarget as HTMLDivElement).innerHTML)}
+                className="w-full rounded-2xl border border-white/10 bg-black/30 px-3 py-3 text-sm text-white focus:outline-none focus:border-white/40 min-h-[260px]"
+                dangerouslySetInnerHTML={{ __html: contentHtml }}
               />
-              <p className="mt-2 text-xs text-gray-500">
-                Format: block title on first line, then "- item" lines. Separate blocks with an empty line.
-              </p>
             </div>
 
             <button

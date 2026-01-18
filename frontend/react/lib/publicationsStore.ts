@@ -3,18 +3,13 @@ import path from "path";
 
 export type PublicationType = "changelog";
 
-export type PublicationBlock = {
-  title: string;
-  items: string[];
-};
-
 export type Publication = {
   id: string;
   type: PublicationType;
   title: string;
   date: string;
-  imageUrl?: string;
-  blocks: PublicationBlock[];
+  mediaUrls?: string[];
+  contentHtml: string;
   published: boolean;
   createdAt: string;
   updatedAt: string;
@@ -34,12 +29,79 @@ function safeParseJson(text: string): any {
   }
 }
 
+function escapeHtml(input: string) {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function legacyBlocksToHtml(blocks: any): string {
+  if (!Array.isArray(blocks)) return "";
+  const normalized = blocks
+    .map((b) => {
+      const title = String(b?.title || "").trim();
+      const items: string[] = Array.isArray(b?.items)
+        ? b.items.map((x: unknown) => String(x || "").trim()).filter(Boolean)
+        : [];
+      return { title, items };
+    })
+    .filter((b) => b.title || b.items.length);
+
+  if (!normalized.length) return "";
+
+  return normalized
+    .map((b) => {
+      const header = b.title ? `<h3>${escapeHtml(b.title)}</h3>` : "";
+      const list = b.items.length
+        ? `<ul>${b.items.map((x: string) => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`
+        : "";
+      return `${header}${list}`;
+    })
+    .join("");
+}
+
+function normalizePublication(input: any): Publication {
+  const id = String(input?.id || "");
+  const type = (String(input?.type || "changelog") === "changelog" ? "changelog" : "changelog") as PublicationType;
+  const title = String(input?.title || "");
+  const date = String(input?.date || "");
+
+  const legacyImageUrl = String(input?.imageUrl || "").trim();
+  const mediaUrls = Array.isArray(input?.mediaUrls)
+    ? input.mediaUrls.map((x: any) => String(x || "").trim()).filter(Boolean).slice(0, 5)
+    : legacyImageUrl
+      ? [legacyImageUrl]
+      : undefined;
+
+  const contentHtmlRaw = String(input?.contentHtml || "");
+  const contentHtml = contentHtmlRaw.trim() ? contentHtmlRaw : legacyBlocksToHtml(input?.blocks);
+
+  const published = Boolean(input?.published);
+  const createdAt = String(input?.createdAt || "");
+  const updatedAt = String(input?.updatedAt || "");
+
+  return {
+    id,
+    type,
+    title,
+    date,
+    mediaUrls: mediaUrls && mediaUrls.length ? mediaUrls : undefined,
+    contentHtml: contentHtml || "",
+    published,
+    createdAt,
+    updatedAt,
+  };
+}
+
 export function readPublicationsFile(): PublicationsFile {
   try {
     const raw = fs.readFileSync(DATA_PATH, "utf8");
     const parsed = safeParseJson(raw);
     if (parsed && Array.isArray(parsed.publications)) {
-      return { publications: parsed.publications as Publication[] };
+      return { publications: parsed.publications.map(normalizePublication) };
     }
   } catch {}
   return { publications: [] };
