@@ -542,7 +542,7 @@ export default function AdminPublicationsPage() {
               <div className="flex items-center justify-between gap-3">
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   multiple
                   onChange={(e) => handleMediaFilesSelected(e.target.files)}
                   className="block w-full text-sm text-gray-300 file:mr-4 file:rounded-full file:border-0 file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-black hover:file:bg-gray-100"
@@ -553,7 +553,22 @@ export default function AdminPublicationsPage() {
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   {mediaUrls.map((src) => (
                     <div key={src} className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-                      <img src={src} alt="media" className="h-full w-full object-cover" />
+                      {(() => {
+                        const s = String(src || "").split("?")[0].split("#")[0].toLowerCase();
+                        const isVideo =
+                          s.endsWith(".mp4") || s.endsWith(".webm") || s.endsWith(".mov") || s.endsWith(".m4v");
+                        return isVideo ? (
+                          <video
+                            src={src}
+                            className="h-full w-full object-cover"
+                            controls
+                            playsInline
+                            preload="metadata"
+                          />
+                        ) : (
+                          <img src={src} alt="media" className="h-full w-full object-cover" />
+                        );
+                      })()}
                       <button
                         type="button"
                         onClick={() => setMediaUrls((prev) => prev.filter((x) => x !== src))}
