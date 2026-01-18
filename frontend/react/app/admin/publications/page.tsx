@@ -527,6 +527,7 @@ export default function AdminPublicationsPage() {
                       if (r) applyWrapTag("strong", r);
                       syncEditorHtmlToState();
                       captureSelection();
+                      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
@@ -537,13 +538,14 @@ export default function AdminPublicationsPage() {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       const r = restoreSelection();
-                      if (r) applyWrapTag("span", r, { style: "font-family: cursive" });
+                      if (r) applyWrapTag("em", r);
                       syncEditorHtmlToState();
                       captureSelection();
+                      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
-                    Cursive
+                    Italic
                   </button>
                   <button
                     type="button"
@@ -553,6 +555,7 @@ export default function AdminPublicationsPage() {
                       if (r) applyWrapTag("u", r);
                       syncEditorHtmlToState();
                       captureSelection();
+                      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
@@ -566,6 +569,7 @@ export default function AdminPublicationsPage() {
                       if (r) applyWrapTag("s", r);
                       syncEditorHtmlToState();
                       captureSelection();
+                      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
@@ -579,6 +583,7 @@ export default function AdminPublicationsPage() {
                       if (r) applyWrapTag("code", r);
                       syncEditorHtmlToState();
                       captureSelection();
+                      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
@@ -590,6 +595,7 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       setLinkUrl("");
                       setLinkModalOpen(true);
+                      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
