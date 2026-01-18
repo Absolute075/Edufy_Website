@@ -8,6 +8,14 @@ function formatDate(iso: string) {
   return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" }).format(d);
 }
 
+function normalizeChangelogHtml(raw: string) {
+  let s = String(raw || "");
+  s = s.replace(/<(p|div)>(\s|&nbsp;)*<br\s*\/?>(\s|&nbsp;)*<\/(p|div)>/gi, "<br>");
+  s = s.replace(/<(p|div)>(\s|&nbsp;)*<\/(p|div)>/gi, "");
+  s = s.replace(/(<br\s*\/?>\s*){2,}/gi, "<br>");
+  return s;
+}
+
 type Publication = {
   id: string;
   type: "changelog";
@@ -126,8 +134,8 @@ export default function ChangelogPage() {
                   ) : null}
 
                   <div
-                    className="text-sm sm:text-base text-white leading-[1.32] [&_p]:my-0 [&_div]:my-0 [&_ul]:my-0.5 [&_ol]:my-0.5 [&_li]:my-0 [&_h2]:my-2 [&_h3]:my-1.5 [&_a]:text-blue-400 [&_a]:underline [&_a:hover]:text-blue-300"
-                    dangerouslySetInnerHTML={{ __html: p.contentHtml || "" }}
+                    className="text-sm sm:text-base text-white leading-[1.24] [&_p]:my-0 [&_div]:my-0 [&_ul]:my-0.5 [&_ol]:my-0.5 [&_li]:my-0 [&_h2]:my-2 [&_h3]:my-1.5 [&_a]:text-blue-400 [&_a]:underline [&_a:hover]:text-blue-300"
+                    dangerouslySetInnerHTML={{ __html: normalizeChangelogHtml(p.contentHtml || "") }}
                   />
                 </div>
               </article>
