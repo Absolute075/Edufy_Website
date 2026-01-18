@@ -1070,7 +1070,7 @@ export default function HomePage() {
                               Baha — CTO &amp; Co-Founder
                             </p>
                             <p className="mt-1 px-3 sm:px-4 text-xs sm:text-sm md:text-sm text-gray-300">
-                              Behruz takes care of all technical aspects of Edufy, from building and maintaining the platform to implementing new features. He also helps with day-to-day operations to ensure everything runs smoothly. Behruz works behind the scenes to keep the platform stable, efficient, and reliable, making sure that students can focus on learning without interruptions.
+                              Baha takes care of all technical aspects of Edufy, from building and maintaining the platform to implementing new features. He also helps with day-to-day operations to ensure everything runs smoothly. Baha works behind the scenes to keep the platform stable, efficient, and reliable, making sure that students can focus on learning without interruptions.
                             </p>
                           </div>
                         </div>
