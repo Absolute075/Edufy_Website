@@ -81,6 +81,9 @@ export default function AdminPublicationsPage() {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const lastRangeRef = useRef<Range | null>(null);
 
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+
   const [toolbar, setToolbar] = useState<{ visible: boolean; top: number; left: number }>({
     visible: false,
     top: 0,
@@ -118,6 +121,10 @@ export default function AdminPublicationsPage() {
     setMediaUrls(Array.isArray(selected.mediaUrls) ? selected.mediaUrls.slice(0, 5) : []);
     setPublished(!!selected.published);
     setContentHtml(selected.contentHtml || "");
+
+    if (editorRef.current) {
+      editorRef.current.innerHTML = selected.contentHtml || "";
+    }
   }, [selected]);
 
   function resetForm() {
@@ -127,6 +134,15 @@ export default function AdminPublicationsPage() {
     setMediaUrls([]);
     setPublished(false);
     setContentHtml("<h3>New Features</h3><ul><li>...</li></ul><h3>Bug Fixes</h3><ul><li>...</li></ul>");
+
+    if (editorRef.current) {
+      editorRef.current.innerHTML = "<h3>New Features</h3><ul><li>...</li></ul><h3>Bug Fixes</h3><ul><li>...</li></ul>";
+    }
+  }
+
+  function syncEditorHtmlToState() {
+    const html = editorRef.current?.innerHTML ?? "";
+    setContentHtml(html);
   }
 
   function captureSelection() {
@@ -497,6 +513,7 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       const r = restoreSelection();
                       if (r) applyWrapTag("strong", r);
+                      syncEditorHtmlToState();
                       captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -509,6 +526,7 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       const r = restoreSelection();
                       if (r) applyWrapTag("span", r, { style: "font-family: cursive" });
+                      syncEditorHtmlToState();
                       captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -521,6 +539,7 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       const r = restoreSelection();
                       if (r) applyWrapTag("u", r);
+                      syncEditorHtmlToState();
                       captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -533,6 +552,7 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       const r = restoreSelection();
                       if (r) applyWrapTag("s", r);
+                      syncEditorHtmlToState();
                       captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -545,6 +565,7 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       const r = restoreSelection();
                       if (r) applyWrapTag("code", r);
+                      syncEditorHtmlToState();
                       captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -555,12 +576,8 @@ export default function AdminPublicationsPage() {
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      const r = restoreSelection();
-                      if (!r) return;
-                      const url = window.prompt("URL");
-                      if (!url) return;
-                      applyLink(r, url);
-                      captureSelection();
+                      setLinkUrl("");
+                      setLinkModalOpen(true);
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
@@ -578,9 +595,54 @@ export default function AdminPublicationsPage() {
                 onContextMenu={handleEditorContextMenu}
                 className="w-full rounded-2xl border border-white/10 bg-black/30 px-3 py-3 text-sm text-white focus:outline-none focus:border-white/40 min-h-[260px] text-left"
                 style={{ direction: "ltr", textAlign: "left", unicodeBidi: "plaintext" }}
-                dangerouslySetInnerHTML={{ __html: contentHtml }}
               />
             </div>
+
+            {linkModalOpen ? (
+              <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4" onMouseDown={() => setLinkModalOpen(false)}>
+                <div
+                  className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-900/90 p-5"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  <div className="text-sm font-semibold text-white">Create link</div>
+                  <div className="mt-3">
+                    <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">URL</label>
+                    <input
+                      value={linkUrl}
+                      onChange={(e) => setLinkUrl(e.target.value)}
+                      placeholder="https://..."
+                      className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setLinkModalOpen(false)}
+                      className="rounded-full border border-white/15 bg-black/30 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const r = restoreSelection();
+                        if (r) {
+                          applyLink(r, linkUrl);
+                          syncEditorHtmlToState();
+                          captureSelection();
+                        }
+                        setLinkModalOpen(false);
+                      }}
+                      className="rounded-full bg-white px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-black hover:bg-gray-100"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <button
               type="button"
