@@ -819,6 +819,22 @@ export default function HomePage() {
                       </ul>
                     </div>
                   </>
+                ) : activeExam === 'SAT' ? (
+                  <>
+                    <h3 className="text-2xl md:text-3xl font-space font-bold text-white">SAT</h3>
+                    <p className="text-gray-300 text-sm md:text-base">
+                      SAT (Scholastic Assessment Test) is a standardized exam widely used for university admissions.
+                      It checks key skills in Reading, Writing, and Math through time-based practice and strategy.
+                    </p>
+                    <div className="text-gray-300 text-sm md:text-base space-y-2">
+                      <div className="font-semibold text-white">What you get in Edufy SAT:</div>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Structured SAT lessons with step-by-step explanations and guided practice.</li>
+                        <li>Practice materials and reports to reinforce concepts and track progress.</li>
+                        <li>Clear learning path to build speed, accuracy, and confidence for the test day.</li>
+                      </ul>
+                    </div>
+                  </>
                 ) : (
                   <>
                     <h3 className="text-2xl md:text-3xl font-space font-bold text-white">{activeExam}</h3>
@@ -1051,7 +1067,7 @@ export default function HomePage() {
                             style={{ transform: 'translate(-155px, -8px) rotate(-18deg)' }}
                           >
                             <p className="text-sm sm:text-base md:text-lg font-semibold text-white">
-                              Behruz — CTO &amp; Co-Founder
+                              Baha — CTO &amp; Co-Founder
                             </p>
                             <p className="mt-1 px-3 sm:px-4 text-xs sm:text-sm md:text-sm text-gray-300">
                               Behruz takes care of all technical aspects of Edufy, from building and maintaining the platform to implementing new features. He also helps with day-to-day operations to ensure everything runs smoothly. Behruz works behind the scenes to keep the platform stable, efficient, and reliable, making sure that students can focus on learning without interruptions.
