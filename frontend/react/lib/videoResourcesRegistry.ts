@@ -98,4 +98,13 @@ export const videoResourcesRegistry: Record<string, VideoResourceRule> = {
     href: `${LESSONS_REPORTS_BASE_URL}/shirin/video3734014428.mp4`,
     telegramHref: "https://t.me/sweetsielts",
   },
+  "q8Zk3M1vXr": {
+    title: "How to give examples in Task 2",
+    section: "writing",
+    mediaType: "video",
+    requiredPlan: "free",
+    teacher: "Shirin 9.0",
+    href: `${LESSONS_REPORTS_BASE_URL}/shirin/video1453556687.mp4`,
+    telegramHref: "https://t.me/sweetsielts",
+  },
 };
