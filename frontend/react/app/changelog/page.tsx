@@ -12,8 +12,14 @@ function normalizeChangelogHtml(raw: string) {
   let s = String(raw || "");
   s = s.replace(/<(p|div)>(\s|&nbsp;)*<br\s*\/?>(\s|&nbsp;)*<\/(p|div)>/gi, "<br>");
   s = s.replace(/<(p|div)>(\s|&nbsp;)*<\/(p|div)>/gi, "");
-  s = s.replace(/(<br\s*\/?>\s*){2,}/gi, "<br>");
+  s = s.replace(/(<br\s*\/?>(\s*)?){2,}/gi, "<br>");
   return s;
+}
+
+function mediaKind(src: string): "image" | "video" {
+  const s = String(src || "").split("?")[0].split("#")[0].toLowerCase();
+  if (s.endsWith(".mp4") || s.endsWith(".webm") || s.endsWith(".mov") || s.endsWith(".m4v")) return "video";
+  return "image";
 }
 
 type Publication = {
@@ -115,19 +121,31 @@ export default function ChangelogPage() {
                           key={`${p.id}-m-${idx}`}
                           className="relative overflow-hidden rounded-2xl border border-white/10"
                         >
-                          <img
-                            src={src}
-                            alt=""
-                            className="absolute inset-0 h-full w-full object-cover blur-2xl scale-110 opacity-60"
-                            aria-hidden="true"
-                          />
-                          <img
-                            src={src}
-                            alt={p.title}
-                            className="relative z-10 w-full h-[320px] sm:h-[420px] lg:h-[520px] object-contain cursor-zoom-in"
-                            loading="lazy"
-                            onClick={() => setLightboxSrc(src)}
-                          />
+                          {mediaKind(src) === "image" ? (
+                            <>
+                              <img
+                                src={src}
+                                alt=""
+                                className="absolute inset-0 h-full w-full object-cover blur-2xl scale-110 opacity-60"
+                                aria-hidden="true"
+                              />
+                              <img
+                                src={src}
+                                alt={p.title}
+                                className="relative z-10 w-full h-[320px] sm:h-[420px] lg:h-[520px] object-contain cursor-zoom-in"
+                                loading="lazy"
+                                onClick={() => setLightboxSrc(src)}
+                              />
+                            </>
+                          ) : (
+                            <video
+                              src={src}
+                              className="relative z-10 w-full h-[320px] sm:h-[420px] lg:h-[520px] object-contain bg-black"
+                              controls
+                              playsInline
+                              preload="metadata"
+                            />
+                          )}
                         </div>
                       ))}
                     </div>

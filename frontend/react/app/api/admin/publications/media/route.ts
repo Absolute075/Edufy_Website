@@ -140,7 +140,9 @@ export async function POST(request: Request) {
   }
 
   const type = String(file.type || "");
-  if (!type.startsWith("image/")) {
+  const ext = guessExtension(file.name, type);
+  const allowedExts = ["png", "jpg", "jpeg", "webp", "gif"];
+  if (!type.toLowerCase().startsWith("image/") && !allowedExts.includes(ext)) {
     return NextResponse.json({ error: "invalid_type" }, { status: 400 });
   }
 
@@ -153,7 +155,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "file_too_large" }, { status: 400 });
   }
 
-  const ext = guessExtension(file.name, type);
   if (!(["png", "jpg", "jpeg", "webp", "gif"].includes(ext))) {
     return NextResponse.json({ error: "unsupported_extension" }, { status: 400 });
   }

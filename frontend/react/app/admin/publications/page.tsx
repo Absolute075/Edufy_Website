@@ -85,6 +85,30 @@ function placeCaretAfter(node: Node) {
   }
 }
 
+function detectFontSizePxFromSelection(editorEl: HTMLDivElement): string | null {
+  try {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return null;
+
+    const range = sel.getRangeAt(0);
+    const anchor = sel.anchorNode;
+    if (!anchor || !editorEl.contains(anchor)) return null;
+
+    const container: Node = range.commonAncestorContainer;
+    const el = (container.nodeType === Node.ELEMENT_NODE
+      ? (container as Element)
+      : container.parentElement) as Element | null;
+    if (!el) return null;
+
+    const cs = window.getComputedStyle(el);
+    const px = parseFloat(cs.fontSize || "");
+    if (!Number.isFinite(px) || px <= 0) return null;
+    return String(Math.round(px));
+  } catch {
+    return null;
+  }
+}
+
 export default function AdminPublicationsPage() {
   const { info, loading, error } = useAdminAuth();
 
@@ -191,6 +215,11 @@ export default function AdminPublicationsPage() {
       lastRangeRef.current = range.cloneRange();
     } catch {
       lastRangeRef.current = null;
+    }
+
+    const detected = detectFontSizePxFromSelection(ed);
+    if (detected && detected !== fontSize) {
+      setFontSize(detected);
     }
   }
 
