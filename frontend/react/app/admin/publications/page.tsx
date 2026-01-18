@@ -20,11 +20,12 @@ function clampMediaUrls(input: string[]): string[] {
   return input.map((x) => x.trim()).filter(Boolean).slice(0, 5);
 }
 
-function applyWrapTag(tag: "strong" | "em" | "u" | "s" | "code" | "span", attrs?: Record<string, string>) {
-  const selection = window.getSelection();
-  if (!selection || selection.rangeCount === 0) return;
-  const range = selection.getRangeAt(0);
-  if (range.collapsed) return;
+function applyWrapTag(
+  tag: "strong" | "em" | "u" | "s" | "code" | "span",
+  range: Range,
+  attrs?: Record<string, string>
+) {
+  if (!range || range.collapsed) return;
 
   const el = document.createElement(tag);
   if (attrs) {
@@ -35,11 +36,6 @@ function applyWrapTag(tag: "strong" | "em" | "u" | "s" | "code" | "span", attrs?
 
   try {
     range.surroundContents(el);
-    selection.removeAllRanges();
-    const r = document.createRange();
-    r.selectNodeContents(el);
-    r.collapse(false);
-    selection.addRange(r);
   } catch {
     const html = range.extractContents();
     el.appendChild(html);
@@ -65,6 +61,7 @@ export default function AdminPublicationsPage() {
   const [saving, setSaving] = useState(false);
 
   const editorRef = useRef<HTMLDivElement | null>(null);
+  const lastRangeRef = useRef<Range | null>(null);
 
   const [toolbar, setToolbar] = useState<{ visible: boolean; top: number; left: number }>({
     visible: false,
@@ -140,10 +137,26 @@ export default function AdminPublicationsPage() {
       return;
     }
 
+    try {
+      lastRangeRef.current = range.cloneRange();
+    } catch {
+      lastRangeRef.current = null;
+    }
+
     const padding = 8;
     const top = Math.max(padding, rect.top - 44);
     const left = Math.max(padding, rect.left + rect.width / 2);
     setToolbar({ visible: true, top, left });
+  }
+
+  function restoreSelection() {
+    const r = lastRangeRef.current;
+    if (!r) return null;
+    const sel = window.getSelection();
+    if (!sel) return null;
+    sel.removeAllRanges();
+    sel.addRange(r);
+    return r;
   }
 
   useEffect(() => {
@@ -430,7 +443,8 @@ export default function AdminPublicationsPage() {
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      applyWrapTag("strong");
+                      const r = restoreSelection();
+                      if (r) applyWrapTag("strong", r);
                       requestAnimationFrame(updateToolbarFromSelection);
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -441,7 +455,8 @@ export default function AdminPublicationsPage() {
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      applyWrapTag("span", { style: "font-family: cursive" });
+                      const r = restoreSelection();
+                      if (r) applyWrapTag("span", r, { style: "font-family: cursive" });
                       requestAnimationFrame(updateToolbarFromSelection);
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -452,7 +467,8 @@ export default function AdminPublicationsPage() {
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      applyWrapTag("em");
+                      const r = restoreSelection();
+                      if (r) applyWrapTag("em", r);
                       requestAnimationFrame(updateToolbarFromSelection);
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -463,7 +479,8 @@ export default function AdminPublicationsPage() {
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      applyWrapTag("u");
+                      const r = restoreSelection();
+                      if (r) applyWrapTag("u", r);
                       requestAnimationFrame(updateToolbarFromSelection);
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -474,7 +491,8 @@ export default function AdminPublicationsPage() {
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      applyWrapTag("s");
+                      const r = restoreSelection();
+                      if (r) applyWrapTag("s", r);
                       requestAnimationFrame(updateToolbarFromSelection);
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
@@ -485,7 +503,8 @@ export default function AdminPublicationsPage() {
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      applyWrapTag("code");
+                      const r = restoreSelection();
+                      if (r) applyWrapTag("code", r);
                       requestAnimationFrame(updateToolbarFromSelection);
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
