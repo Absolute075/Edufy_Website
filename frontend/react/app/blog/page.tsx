@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { FooterPagesHeader } from "@/components/FooterPagesHeader";
 
 type TagName =
   | "Education"
@@ -95,10 +94,9 @@ export default function BlogPage() {
 
   return (
     <main className="min-h-screen text-white legal-page-main">
-      <FooterPagesHeader />
       <div className="flex min-h-screen">
         {/* Левый сайдбар на всю высоту */}
-        <aside className="hidden md:flex w-72 lg:w-80 xl:w-96 border-r border-white/10 bg-white/5 px-5 sm:px-6 pt-24 pb-8 space-y-5 flex-col">
+        <aside className="hidden md:flex w-72 lg:w-80 xl:w-96 border-r border-white/10 bg-white/5 px-5 sm:px-6 py-8 space-y-5 flex-col">
           <div className="mb-4">
             <Link href="/">
               <span className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">
@@ -149,7 +147,7 @@ export default function BlogPage() {
 
         {/* Правая область: header + карточки в центрированном контейнере */}
         <div className="flex-1">
-          <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+          <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-20">
             <header className="mb-12 legal-hero-block">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas tracking-[0.35em] uppercase text-white mb-4 text-left">
                 <span className="mr-3">Edufy</span>

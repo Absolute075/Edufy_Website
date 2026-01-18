@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { FooterPagesHeader } from "@/components/FooterPagesHeader";
 
 function formatDate(iso: string) {
   const d = new Date(`${iso}T00:00:00Z`);
@@ -53,8 +52,7 @@ export default function ChangelogPage() {
 
   return (
     <main className="min-h-screen text-white legal-page-main">
-      <FooterPagesHeader />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20">
         <header className="mb-12 legal-hero-block">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas tracking-[0.35em] uppercase text-left text-white">
             Changelog

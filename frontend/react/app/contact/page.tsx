@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePageTitle } from '../lib/usePageTitle';
-import { FooterPagesHeader } from "@/components/FooterPagesHeader";
 
 export default function ContactPage() {
   usePageTitle('Edufy – Contact');
@@ -65,8 +64,7 @@ export default function ContactPage() {
 
   return (
     <main className="min-h-screen bg-black text-white contact-page-wrapper">
-      <FooterPagesHeader />
-      <div className="pt-24 pb-10">
+      <div className="pt-28 pb-10">
         <div className="font-bebas tracking-[0.35em] text-sm sm:text-lg md:text-2xl uppercase text-white text-center mb-4">
           Edufy
         </div>

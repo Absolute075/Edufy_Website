@@ -1,10 +1,7 @@
-import { FooterPagesHeader } from "@/components/FooterPagesHeader";
-
 export default function PrivacyPolicyPage() {
   return (
     <main className="min-h-screen text-white legal-page-main">
-      <FooterPagesHeader />
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 max-w-5xl">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-20 max-w-5xl">
         <div className="text-center mb-12 legal-hero-block">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas tracking-[0.35em] uppercase text-white mb-4">
             <span className="logo-glow mr-3">Edufy</span>

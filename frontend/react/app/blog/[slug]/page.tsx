@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { FooterPagesHeader } from "@/components/FooterPagesHeader";
 
 interface BlogPostPageProps {
   params: { slug: string };
@@ -71,8 +70,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <main className="min-h-screen text-white legal-page-main">
-      <FooterPagesHeader />
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-20">
         <header className="mb-10 legal-hero-block">
           <div className="mb-6">
             <Link href="/blog">

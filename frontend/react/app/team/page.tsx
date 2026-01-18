@@ -1,5 +1,3 @@
-import { FooterPagesHeader } from "@/components/FooterPagesHeader";
-
 const defaultAvatarUrl =
   'https://resources.edufyuzbekistan.com/storage/images/stockuser.jpg';
 
@@ -89,8 +87,7 @@ const teamSections = [
 export default function TeamPage() {
   return (
     <main className="min-h-screen text-white legal-page-main">
-      <FooterPagesHeader />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20">
         <header className="mb-12 legal-hero-block">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bebas tracking-[0.35em] uppercase text-left text-white">
             Our Team

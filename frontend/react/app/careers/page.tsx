@@ -1,9 +1,6 @@
-import { FooterPagesHeader } from "@/components/FooterPagesHeader";
-
 export default function CareersPage() {
   return (
-    <main className="min-h-screen text-white legal-page-main flex items-center careers-page-wrapper pt-24">
-      <FooterPagesHeader />
+    <main className="min-h-screen text-white legal-page-main flex items-center careers-page-wrapper">
       <div className="w-full">
         <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center legal-hero-block">
           <div className="pl-12 sm:pl-16 lg:pl-24">

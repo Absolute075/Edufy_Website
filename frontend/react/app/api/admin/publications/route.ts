@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import {
   listPublications,
   readPublicationsFile,
@@ -9,8 +10,11 @@ import {
 } from "@/lib/publicationsStore";
 
 async function requireAdmin(request: Request): Promise<{ ok: true } | { ok: false; res: NextResponse }> {
-  const cookie = request.headers.get("cookie") || "";
-  const origin = (() => {
+  const cookieStore = await cookies();
+  const tokenRaw = cookieStore.get("admin_token")?.value;
+  const cookieHeader = request.headers.get("cookie") || "";
+
+  const requestOrigin = (() => {
     try {
       return new URL(request.url).origin;
     } catch {
@@ -18,24 +22,96 @@ async function requireAdmin(request: Request): Promise<{ ok: true } | { ok: fals
     }
   })();
 
-  if (!origin) {
-    return { ok: false, res: NextResponse.json({ error: "bad_request" }, { status: 400 }) };
-  }
-
-  try {
-    const res = await fetch(`${origin}/api/admin/info`, {
-      headers: { cookie, Accept: "application/json" },
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      return { ok: false, res: NextResponse.json({ error: "unauthorized" }, { status: res.status }) };
+  // Preferred: role-based admin session via auth_service accessToken cookie.
+  if (!tokenRaw) {
+    if (!cookieHeader) {
+      return { ok: false, res: NextResponse.json({ error: "unauthorized" }, { status: 401 }) };
     }
 
-    return { ok: true };
-  } catch {
-    return { ok: false, res: NextResponse.json({ error: "auth_check_failed" }, { status: 502 }) };
+    const candidates = [
+      process.env.API_ORIGIN,
+      process.env.NEXT_PUBLIC_API_ORIGIN,
+      "http://127.0.0.1:8082",
+      requestOrigin,
+    ].filter((v): v is string => Boolean(v));
+
+    for (const base of candidates) {
+      try {
+        const meUrl = new URL("/auth/me", base);
+        const res = await fetch(meUrl, {
+          headers: {
+            cookie: cookieHeader,
+            "x-edufy-middleware": "1",
+            Accept: "application/json",
+          },
+          cache: "no-store",
+        });
+
+        if (res.status === 401) {
+          return { ok: false, res: NextResponse.json({ error: "unauthorized" }, { status: 401 }) };
+        }
+
+        if (!res.ok) {
+          continue;
+        }
+
+        const data: any = await res.json().catch(() => null);
+        const role = String(data?.role ?? "").toUpperCase();
+        if (role !== "ADMIN") {
+          return { ok: false, res: NextResponse.json({ error: "forbidden" }, { status: 403 }) };
+        }
+
+        return { ok: true };
+      } catch {
+        // try next candidate
+      }
+    }
+
+    return { ok: false, res: NextResponse.json({ error: "upstream_unreachable" }, { status: 502 }) };
   }
+
+  let token = tokenRaw;
+  if (token.includes("%")) {
+    try {
+      token = decodeURIComponent(token);
+    } catch {}
+  }
+
+  const candidates = [process.env.ADMIN_API_ORIGIN, "http://127.0.0.1:8090", requestOrigin].filter(
+    (v): v is string => Boolean(v)
+  );
+
+  let res: Response | null = null;
+  for (const base of candidates) {
+    try {
+      const infoUrl = new URL("/admin-api/admin/info", base);
+      res = await fetch(infoUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "x-edufy-middleware": "1",
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      });
+      break;
+    } catch {
+      res = null;
+    }
+  }
+
+  if (!res) {
+    return { ok: false, res: NextResponse.json({ error: "upstream_unreachable" }, { status: 502 }) };
+  }
+
+  if (res.status === 401 || res.status === 403) {
+    return { ok: false, res: NextResponse.json({ error: "unauthorized" }, { status: res.status }) };
+  }
+
+  if (!res.ok) {
+    return { ok: false, res: NextResponse.json({ error: "upstream_error" }, { status: 502 }) };
+  }
+
+  return { ok: true };
 }
 
 function normalizeType(input: unknown): PublicationType {
