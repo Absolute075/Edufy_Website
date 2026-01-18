@@ -182,10 +182,6 @@ export default function AdminPublicationsPage() {
     }
 
     const range = selection.getRangeAt(0);
-    if (range.collapsed) {
-      return;
-    }
-
     const anchorNode = selection.anchorNode;
     if (!anchorNode || !ed.contains(anchorNode)) {
       return;
@@ -568,6 +564,7 @@ export default function AdminPublicationsPage() {
                     onChange={(e) => {
                       const v = e.target.value;
                       setFontSize(v);
+                      editorRef.current?.focus();
                       const r = restoreSelection();
                       if (r) {
                         const el = applyWrapTag("span", r, { style: `font-size: ${v}px` });
@@ -693,6 +690,8 @@ export default function AdminPublicationsPage() {
                 dir="ltr"
                 suppressContentEditableWarning
                 onInput={(e) => setContentHtml((e.currentTarget as HTMLDivElement).innerHTML)}
+                onMouseUp={() => captureSelection()}
+                onKeyUp={() => captureSelection()}
                 onContextMenu={handleEditorContextMenu}
                 className="w-full rounded-2xl border border-white/10 bg-black/30 px-3 py-3 text-sm text-white focus:outline-none focus:border-white/40 min-h-[260px] text-left"
                 style={{ direction: "ltr", textAlign: "left", unicodeBidi: "plaintext" }}

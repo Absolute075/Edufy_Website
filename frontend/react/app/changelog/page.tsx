@@ -54,12 +54,12 @@ export default function ChangelogPage() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas tracking-[0.35em] uppercase text-left text-white">
             Changelog
           </h1>
-          <p className="mt-3 text-gray-300 max-w-2xl text-left">
+          <p className="mt-3 text-white/90 max-w-2xl text-left">
             Weekly updates and product improvements.
           </p>
         </header>
 
-        <section className="legal-content-block space-y-10">
+        <section className="legal-content-block space-y-14">
           {loading ? (
             <p className="text-sm text-gray-400">Loading...</p>
           ) : error ? (
@@ -83,11 +83,11 @@ export default function ChangelogPage() {
                   {p.mediaUrls?.length ? (
                     <div className="space-y-6 mb-8">
                       {p.mediaUrls.slice(0, 5).map((src, idx) => (
-                        <div key={`${p.id}-m-${idx}`} className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+                        <div key={`${p.id}-m-${idx}`} className="overflow-hidden rounded-2xl border border-white/10">
                           <img
                             src={src}
                             alt={p.title}
-                            className="w-full h-[320px] sm:h-[420px] lg:h-[520px] object-contain bg-black"
+                            className="w-full h-[320px] sm:h-[420px] lg:h-[520px] object-cover"
                             loading="lazy"
                           />
                         </div>
@@ -96,7 +96,7 @@ export default function ChangelogPage() {
                   ) : null}
 
                   <div
-                    className="text-sm sm:text-base text-gray-300 leading-relaxed [&_p]:my-2 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-1 [&_h2]:my-4 [&_h3]:my-3"
+                    className="text-sm sm:text-base text-white leading-[1.45] [&_p]:my-1.5 [&_ul]:my-1.5 [&_ol]:my-1.5 [&_li]:my-1 [&_h2]:my-3 [&_h3]:my-2.5 [&_br]:leading-none"
                     dangerouslySetInnerHTML={{ __html: p.contentHtml || "" }}
                   />
                 </div>
