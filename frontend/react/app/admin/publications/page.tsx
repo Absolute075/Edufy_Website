@@ -57,7 +57,7 @@ export default function AdminPublicationsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
-  const [mediaUrls, setMediaUrls] = useState<string[]>([""]);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [published, setPublished] = useState(false);
   const [contentHtml, setContentHtml] = useState(
     "<h3>New Features</h3><ul><li>...</li></ul><h3>Bug Fixes</h3><ul><li>...</li></ul>"
@@ -65,6 +65,12 @@ export default function AdminPublicationsPage() {
   const [saving, setSaving] = useState(false);
 
   const editorRef = useRef<HTMLDivElement | null>(null);
+
+  const [toolbar, setToolbar] = useState<{ visible: boolean; top: number; left: number }>({
+    visible: false,
+    top: 0,
+    left: 0,
+  });
 
   const selected = useMemo(() => items.find((x) => x.id === editingId) || null, [items, editingId]);
 
@@ -94,7 +100,7 @@ export default function AdminPublicationsPage() {
     if (!selected) return;
     setTitle(selected.title);
     setDate(selected.date);
-    setMediaUrls(selected.mediaUrls?.length ? [...selected.mediaUrls, ""] : [""]);
+    setMediaUrls(Array.isArray(selected.mediaUrls) ? selected.mediaUrls.slice(0, 5) : []);
     setPublished(!!selected.published);
     setContentHtml(selected.contentHtml || "");
   }, [selected]);
@@ -103,9 +109,88 @@ export default function AdminPublicationsPage() {
     setEditingId(null);
     setTitle("");
     setDate("");
-    setMediaUrls([""]);
+    setMediaUrls([]);
     setPublished(false);
     setContentHtml("<h3>New Features</h3><ul><li>...</li></ul><h3>Bug Fixes</h3><ul><li>...</li></ul>");
+  }
+
+  function updateToolbarFromSelection() {
+    const ed = editorRef.current;
+    const selection = window.getSelection();
+    if (!ed || !selection || selection.rangeCount === 0) {
+      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
+      return;
+    }
+
+    const range = selection.getRangeAt(0);
+    if (range.collapsed) {
+      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
+      return;
+    }
+
+    const anchorNode = selection.anchorNode;
+    if (!anchorNode || !ed.contains(anchorNode)) {
+      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
+      return;
+    }
+
+    const rect = range.getBoundingClientRect();
+    if (!rect || (!rect.width && !rect.height)) {
+      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
+      return;
+    }
+
+    const padding = 8;
+    const top = Math.max(padding, rect.top - 44);
+    const left = Math.max(padding, rect.left + rect.width / 2);
+    setToolbar({ visible: true, top, left });
+  }
+
+  useEffect(() => {
+    function onSelectionChange() {
+      updateToolbarFromSelection();
+    }
+    document.addEventListener("selectionchange", onSelectionChange);
+    window.addEventListener("scroll", onSelectionChange, true);
+    window.addEventListener("resize", onSelectionChange);
+    return () => {
+      document.removeEventListener("selectionchange", onSelectionChange);
+      window.removeEventListener("scroll", onSelectionChange, true);
+      window.removeEventListener("resize", onSelectionChange);
+    };
+  }, []);
+
+  async function handleMediaFilesSelected(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const remaining = 5 - mediaUrls.length;
+    if (remaining <= 0) return;
+
+    const slice = Array.from(files).slice(0, remaining);
+
+    setSaving(true);
+    setListError(null);
+    try {
+      for (const file of slice) {
+        const formData = new FormData();
+        formData.append("file", file, file.name);
+
+        const res = await fetch("/api/admin/publications/media", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        });
+        const body: any = await res.json().catch(() => null);
+        if (!res.ok || !body?.url) {
+          throw new Error("Upload failed");
+        }
+
+        setMediaUrls((prev) => clampMediaUrls([...prev, String(body.url)]));
+      }
+    } catch (e: any) {
+      setListError(String(e?.message || e || "Upload failed").slice(0, 200));
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function save() {
@@ -290,90 +375,134 @@ export default function AdminPublicationsPage() {
                     checked={published}
                     onChange={(e) => setPublished(e.target.checked)}
                   />
-                  Published
+                  Show on site
                 </label>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">
-                Media (photo/gif URLs, up to 5)
-              </label>
-              <div className="space-y-2">
-                {mediaUrls.slice(0, 5).map((value, idx) => (
-                  <input
-                    key={idx}
-                    value={value}
-                    onChange={(e) => {
-                      const next = [...mediaUrls];
-                      next[idx] = e.target.value;
-                      if (idx === next.length - 1 && e.target.value.trim()) {
-                        next.push("");
-                      }
-                      setMediaUrls(next.slice(0, 6));
-                    }}
-                    className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white/40"
-                    placeholder={idx === 0 ? "https://..." : "(optional) https://..."}
-                  />
-                ))}
+              <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-2">Media (photo/gif, up to 5)</label>
+
+              <div className="flex items-center justify-between gap-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleMediaFilesSelected(e.target.files)}
+                  className="block w-full text-sm text-gray-300 file:mr-4 file:rounded-full file:border-0 file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-black hover:file:bg-gray-100"
+                />
               </div>
-              <p className="mt-2 text-xs text-gray-500">All media will appear above the update on /changelog.</p>
+
+              {mediaUrls.length ? (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {mediaUrls.map((src) => (
+                    <div key={src} className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                      <img src={src} alt="media" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setMediaUrls((prev) => prev.filter((x) => x !== src))}
+                        className="absolute top-2 right-2 rounded-full border border-white/15 bg-black/60 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              <p className="mt-2 text-xs text-gray-500">Media will appear above the update on /changelog.</p>
             </div>
 
             <div>
               <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-1">Update content</label>
 
-              <div className="flex flex-wrap gap-2 mb-2">
-                <button
-                  type="button"
-                  onClick={() => applyWrapTag("strong")}
-                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
+              {toolbar.visible ? (
+                <div
+                  className="fixed z-50 flex items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3 py-2 backdrop-blur-md"
+                  style={{
+                    top: toolbar.top,
+                    left: toolbar.left,
+                    transform: "translateX(-50%)",
+                  }}
+                  onMouseDown={(e) => e.preventDefault()}
                 >
-                  Bold
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyWrapTag("span", { style: "font-family: cursive" })}
-                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
-                >
-                  Cursive
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyWrapTag("em")}
-                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
-                >
-                  Italic
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyWrapTag("u")}
-                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
-                >
-                  Underline
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyWrapTag("s")}
-                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
-                >
-                  Strikethrough
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyWrapTag("code")}
-                  className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40"
-                >
-                  Monospace
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      applyWrapTag("strong");
+                      requestAnimationFrame(updateToolbarFromSelection);
+                    }}
+                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                  >
+                    Bold
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      applyWrapTag("span", { style: "font-family: cursive" });
+                      requestAnimationFrame(updateToolbarFromSelection);
+                    }}
+                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                  >
+                    Cursive
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      applyWrapTag("em");
+                      requestAnimationFrame(updateToolbarFromSelection);
+                    }}
+                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                  >
+                    Italic
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      applyWrapTag("u");
+                      requestAnimationFrame(updateToolbarFromSelection);
+                    }}
+                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                  >
+                    Underline
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      applyWrapTag("s");
+                      requestAnimationFrame(updateToolbarFromSelection);
+                    }}
+                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                  >
+                    Strike
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      applyWrapTag("code");
+                      requestAnimationFrame(updateToolbarFromSelection);
+                    }}
+                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                  >
+                    Mono
+                  </button>
+                </div>
+              ) : null}
 
               <div
                 ref={editorRef}
                 contentEditable
+                dir="ltr"
                 suppressContentEditableWarning
                 onInput={(e) => setContentHtml((e.currentTarget as HTMLDivElement).innerHTML)}
-                className="w-full rounded-2xl border border-white/10 bg-black/30 px-3 py-3 text-sm text-white focus:outline-none focus:border-white/40 min-h-[260px]"
+                className="w-full rounded-2xl border border-white/10 bg-black/30 px-3 py-3 text-sm text-white focus:outline-none focus:border-white/40 min-h-[260px] text-left"
+                style={{ direction: "ltr", textAlign: "left", unicodeBidi: "plaintext" }}
                 dangerouslySetInnerHTML={{ __html: contentHtml }}
               />
             </div>

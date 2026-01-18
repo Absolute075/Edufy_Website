@@ -40,6 +40,15 @@ public class AuthService {
         return sentAt.plusSeconds(minIntervalSeconds).isAfter(now());
     }
 
+    private boolean emailVerificationEnabled() {
+        String raw = System.getenv("EMAIL_VERIFICATION_ENABLED");
+        if (raw == null || raw.isBlank()) {
+            raw = System.getProperty("EMAIL_VERIFICATION_ENABLED", "");
+        }
+        raw = raw == null ? "" : raw.trim();
+        return raw.equalsIgnoreCase("true") || raw.equals("1") || raw.equalsIgnoreCase("yes");
+    }
+
     // ================== REGISTER ==================
     public AuthResponse register(RegisterRequest request) {
         // Базовая валидация
@@ -61,6 +70,15 @@ public class AuthService {
             }
 
             UserEntity existing = existingOpt.get();
+            if (!emailVerificationEnabled()) {
+                try {
+                    existing.setEmailVerified(true);
+                    existing.setVerificationCode(null);
+                    existing.setVerificationCodeExpiresAt(null);
+                    userRepository.save(existing);
+                } catch (Exception ignore) {}
+                return new AuthResponse("✅ User registered successfully!");
+            }
             if (existing.getEmailVerified() != null && existing.getEmailVerified()) {
                 return new AuthResponse("❌ Email already registered!");
             }
@@ -122,10 +140,18 @@ public class AuthService {
         user.setCreatedAt(LocalDateTime.now(ZoneId.of("Asia/Tashkent")));
         user.setPublicId(generateUniquePublicId());
 
-        user.setEmailVerified(false);
-        String code = generateSixDigitCode();
-        user.setVerificationCode(code);
-        user.setVerificationCodeExpiresAt(now().plusMinutes(15));
+        final boolean verificationEnabled = emailVerificationEnabled();
+        String code = null;
+        if (verificationEnabled) {
+            user.setEmailVerified(false);
+            code = generateSixDigitCode();
+            user.setVerificationCode(code);
+            user.setVerificationCodeExpiresAt(now().plusMinutes(15));
+        } else {
+            user.setEmailVerified(true);
+            user.setVerificationCode(null);
+            user.setVerificationCodeExpiresAt(null);
+        }
 
         // Сохраняем пользователя с обработкой ошибок БД
         try {
@@ -144,15 +170,19 @@ public class AuthService {
             return new AuthResponse("❌ Registration failed. Please contact support.");
         }
 
-        try {
-            infobipEmailService.sendVerificationCodeEmail(user.getEmail(), code);
-        } catch (Exception e) {
+        if (verificationEnabled) {
             try {
-                System.out.println("[auth_service] sendVerificationCodeEmail error: " + e.getClass().getSimpleName());
-            } catch (Exception ignore) {}
+                infobipEmailService.sendVerificationCodeEmail(user.getEmail(), code);
+            } catch (Exception e) {
+                try {
+                    System.out.println("[auth_service] sendVerificationCodeEmail error: " + e.getClass().getSimpleName());
+                } catch (Exception ignore) {}
+            }
+
+            return new AuthResponse("✅ User registered successfully! Please verify your email.");
         }
 
-        return new AuthResponse("✅ User registered successfully! Please verify your email.");
+        return new AuthResponse("✅ User registered successfully!");
     }
 
     // ================== LOGIN ==================
@@ -165,7 +195,7 @@ public class AuthService {
 
         UserEntity user = userOpt.get();
 
-        if (user.getEmailVerified() == null || !user.getEmailVerified()) {
+        if (emailVerificationEnabled() && (user.getEmailVerified() == null || !user.getEmailVerified())) {
             throw new RuntimeException("❌ Please verify your email to continue!");
         }
 
