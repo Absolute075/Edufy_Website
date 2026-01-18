@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
@@ -12,7 +13,8 @@ function contentTypeFor(file: string) {
   return "application/octet-stream";
 }
 
-export async function GET(_req: Request, { params }: { params: { file: string } }) {
+export async function GET(_req: NextRequest, context: { params: Promise<{ file: string }> }) {
+  const params = await context.params;
   const raw = String(params.file || "");
   if (!raw || raw.includes("..") || raw.includes("/") || raw.includes("\\")) {
     return new Response("Not found", { status: 404 });
