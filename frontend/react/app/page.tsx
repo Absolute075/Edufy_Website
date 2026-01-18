@@ -1787,6 +1787,16 @@ export default function HomePage() {
                   </li>
                   <li>
                     <a
+                      href="/changelog"
+                      target="_blank"
+                      rel="noopener"
+                      className="text-gray-400 hover:text-white text-sm transition-colors"
+                    >
+                      Changelog
+                    </a>
+                  </li>
+                  <li>
+                    <a
                       href="/blog"
                       target="_blank"
                       rel="noopener"

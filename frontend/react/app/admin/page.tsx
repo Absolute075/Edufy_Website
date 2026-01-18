@@ -164,6 +164,14 @@ export default function AdminDashboardPage() {
         <p className="mt-2 text-sm text-gray-400">
           Signed in as <span className="font-mono text-gray-200">{info?.admin ?? 'Unknown'}</span>
         </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/admin/publications"
+            className="rounded-full border border-white/15 bg-black/30 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40 hover:bg-white/5 transition-colors"
+          >
+            Changelog Publications
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-4">

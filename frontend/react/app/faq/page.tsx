@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { FooterPagesHeader } from "@/components/FooterPagesHeader";
 
 const faqs = [
   {
@@ -48,7 +49,8 @@ export default function FaqPage() {
 
   return (
     <main className="min-h-screen text-white legal-page-main">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-20 max-w-5xl">
+      <FooterPagesHeader />
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 max-w-5xl">
         <div className="mb-12 legal-hero-block">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas tracking-[0.35em] uppercase text-white mb-4 text-left">
             <span className="mr-3">Questions?</span>
