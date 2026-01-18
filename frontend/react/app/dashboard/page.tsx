@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePageTitle } from "../lib/usePageTitle";
 import { useUserProfile } from "../UserProfileProvider";
@@ -9,10 +9,25 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getCompletedTestsState } from "@/lib/completedTests";
 import { isPlanSufficient, resourcesRegistry } from "@/lib/resourcesRegistry";
 
-function getWeeklyStudyHours(): number[] {
+function getStoredUserKeyFallback(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const key =
+      (window as any).__edufyUserKey ||
+      window.sessionStorage.getItem("edufy.user.key") ||
+      window.localStorage.getItem("edufy.user.key");
+    const normalized = key ? String(key).trim() : "";
+    return normalized ? normalized : null;
+  } catch {
+    return null;
+  }
+}
+
+function getWeeklyStudyHours(userKey: string | null): number[] {
   if (typeof window === "undefined") return [0, 0, 0, 0, 0, 0, 0];
   try {
-    const KEY_PREFIX = "edufy.study.weekly.";
+    const basePrefix = "edufy.study.weekly.";
+    const KEY_PREFIX = userKey ? `${basePrefix}${userKey}.` : basePrefix;
     const now = new Date();
     const tmp = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
     const dayNum = (tmp.getUTCDay() + 6) % 7; // Mon=0
@@ -52,10 +67,11 @@ function getIsoYearWeek(date: Date): { year: number; week: number } {
   return { year: tmp.getUTCFullYear(), week };
 }
 
-function getWeeklyStudyHoursForIsoWeek(year: number, week: number): number[] {
+function getWeeklyStudyHoursForIsoWeek(userKey: string | null, year: number, week: number): number[] {
   if (typeof window === "undefined") return [0, 0, 0, 0, 0, 0, 0];
   try {
-    const KEY_PREFIX = "edufy.study.weekly.";
+    const basePrefix = "edufy.study.weekly.";
+    const KEY_PREFIX = userKey ? `${basePrefix}${userKey}.` : basePrefix;
     const key = `${KEY_PREFIX}${year}-${String(week).padStart(2, "0")}`;
     const raw = window.localStorage.getItem(key) || "null";
     const arr = JSON.parse(raw) || [0, 0, 0, 0, 0, 0, 0];
@@ -83,16 +99,20 @@ export default function DashboardPage() {
   const userPrefix = hasNumericUserPrefix ? `/${firstSegment}` : "";
   const resourcesHref = `${userPrefix}/resources`;
 
+  const userKey = useMemo(() => {
+    return hasNumericUserPrefix ? firstSegment : getStoredUserKeyFallback();
+  }, [hasNumericUserPrefix, firstSegment]);
+
   useEffect(() => {
     const syncStudy = () => {
-      setWeeklyHours(getWeeklyStudyHours());
+      setWeeklyHours(getWeeklyStudyHours(userKey));
 
       const now = new Date();
       const weeks = [3, 2, 1, 0].map((back, idx) => {
         const d = new Date(now);
         d.setDate(d.getDate() - back * 7);
         const { year, week } = getIsoYearWeek(d);
-        const hoursArr = getWeeklyStudyHoursForIsoWeek(year, week);
+        const hoursArr = getWeeklyStudyHoursForIsoWeek(userKey, year, week);
         const total = Math.round(hoursArr.reduce((a, b) => a + b, 0) * 10) / 10;
         return { label: `W${idx + 1}`, hours: total };
       });
@@ -147,7 +167,9 @@ export default function DashboardPage() {
 
     const onStorage = (e: StorageEvent) => {
       if (!e.key) return;
-      if (e.key.startsWith("edufy.study.weekly.")) {
+      const basePrefix = "edufy.study.weekly.";
+      const scopedPrefix = userKey ? `${basePrefix}${userKey}.` : basePrefix;
+      if (e.key.startsWith(scopedPrefix) || (!userKey && e.key.startsWith(basePrefix))) {
         syncStudy();
       }
       if (e.key === "edufy.completedTests.v1" || e.key.startsWith("edufy.completedTests.v1.")) {
@@ -164,7 +186,7 @@ export default function DashboardPage() {
       window.removeEventListener("focus", syncProgress);
       window.removeEventListener("focus", syncStudy);
     };
-  }, [profileData?.plan]);
+  }, [profileData?.plan, userKey]);
 
   const maxHours = Math.max(...weeklyHours, 1);
   const totalWeeklyHours = Math.round(weeklyHours.reduce((a, b) => a + b, 0) * 10) / 10;

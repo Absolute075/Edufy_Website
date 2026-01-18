@@ -31,7 +31,8 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ file: 
     status: 200,
     headers: {
       "content-type": contentTypeFor(raw),
-      "cache-control": "public, max-age=31536000, immutable",
+      "cache-control": "no-store",
+      vary: "Accept-Encoding",
     },
   });
 }

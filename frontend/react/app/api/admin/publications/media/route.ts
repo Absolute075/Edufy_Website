@@ -140,9 +140,18 @@ export async function POST(request: Request) {
   }
 
   const type = String(file.type || "");
+  const typeLower = type.toLowerCase();
   const ext = guessExtension(file.name, type);
   const allowedExts = ["png", "jpg", "jpeg", "webp", "gif"];
-  if (!type.toLowerCase().startsWith("image/") && !allowedExts.includes(ext)) {
+
+  // Some browsers/proxies may send an empty/unknown content-type.
+  // But we must never accept video/* disguised by a .gif filename.
+  if (typeLower.startsWith("video/")) {
+    return NextResponse.json({ error: "invalid_type" }, { status: 400 });
+  }
+
+  const allowExtensionFallback = typeLower === "" || typeLower === "application/octet-stream";
+  if (!typeLower.startsWith("image/") && !(allowExtensionFallback && allowedExts.includes(ext))) {
     return NextResponse.json({ error: "invalid_type" }, { status: 400 });
   }
 
@@ -158,6 +167,19 @@ export async function POST(request: Request) {
 
   if (!(["png", "jpg", "jpeg", "webp", "gif"].includes(ext))) {
     return NextResponse.json({ error: "unsupported_extension" }, { status: 400 });
+  }
+
+  // Validate that a .gif is actually a GIF (otherwise browsers will download but not render it).
+  if (ext === "gif") {
+    try {
+      const head = Buffer.from(await file.slice(0, 6).arrayBuffer());
+      const sig = head.toString("ascii");
+      if (sig !== "GIF87a" && sig !== "GIF89a") {
+        return NextResponse.json({ error: "invalid_gif" }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: "invalid_gif" }, { status: 400 });
+    }
   }
 
   const id = crypto.randomBytes(16).toString("hex");
