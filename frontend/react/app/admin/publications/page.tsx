@@ -43,6 +43,24 @@ function applyWrapTag(
   }
 }
 
+function applyLink(range: Range, href: string) {
+  const url = String(href || "").trim();
+  if (!range || range.collapsed || !url) return;
+
+  const a = document.createElement("a");
+  a.setAttribute("href", url);
+  a.setAttribute("target", "_blank");
+  a.setAttribute("rel", "noopener noreferrer");
+
+  try {
+    range.surroundContents(a);
+  } catch {
+    const html = range.extractContents();
+    a.appendChild(html);
+    range.insertNode(a);
+  }
+}
+
 export default function AdminPublicationsPage() {
   const { info, loading, error } = useAdminAuth();
 
@@ -111,7 +129,77 @@ export default function AdminPublicationsPage() {
     setContentHtml("<h3>New Features</h3><ul><li>...</li></ul><h3>Bug Fixes</h3><ul><li>...</li></ul>");
   }
 
-  function updateToolbarFromSelection() {
+  function captureSelection() {
+    const ed = editorRef.current;
+    const selection = window.getSelection();
+    if (!ed || !selection || selection.rangeCount === 0) {
+      return;
+    }
+
+    const range = selection.getRangeAt(0);
+    if (range.collapsed) {
+      return;
+    }
+
+    const anchorNode = selection.anchorNode;
+    if (!anchorNode || !ed.contains(anchorNode)) {
+      return;
+    }
+
+    try {
+      lastRangeRef.current = range.cloneRange();
+    } catch {
+      lastRangeRef.current = null;
+    }
+  }
+
+  function restoreSelection() {
+    const r = lastRangeRef.current;
+    if (!r) return null;
+    const sel = window.getSelection();
+    if (!sel) return null;
+    sel.removeAllRanges();
+    sel.addRange(r);
+    return r;
+  }
+
+  useEffect(() => {
+    function onSelectionChange() {
+      captureSelection();
+    }
+    document.addEventListener("selectionchange", onSelectionChange);
+    return () => {
+      document.removeEventListener("selectionchange", onSelectionChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    function onDocMouseDown(e: MouseEvent) {
+      const target = e.target as Node | null;
+      if (!target) {
+        setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
+        return;
+      }
+      if (editorRef.current && editorRef.current.contains(target)) return;
+      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
+      }
+    }
+    document.addEventListener("mousedown", onDocMouseDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onDocMouseDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
+
+  function handleEditorContextMenu(e: React.MouseEvent) {
+    e.preventDefault();
+    captureSelection();
+
     const ed = editorRef.current;
     const selection = window.getSelection();
     if (!ed || !selection || selection.rangeCount === 0) {
@@ -131,47 +219,11 @@ export default function AdminPublicationsPage() {
       return;
     }
 
-    const rect = range.getBoundingClientRect();
-    if (!rect || (!rect.width && !rect.height)) {
-      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
-      return;
-    }
-
-    try {
-      lastRangeRef.current = range.cloneRange();
-    } catch {
-      lastRangeRef.current = null;
-    }
-
     const padding = 8;
-    const top = Math.max(padding, rect.top - 44);
-    const left = Math.max(padding, rect.left + rect.width / 2);
+    const top = Math.max(padding, e.clientY);
+    const left = Math.max(padding, e.clientX);
     setToolbar({ visible: true, top, left });
   }
-
-  function restoreSelection() {
-    const r = lastRangeRef.current;
-    if (!r) return null;
-    const sel = window.getSelection();
-    if (!sel) return null;
-    sel.removeAllRanges();
-    sel.addRange(r);
-    return r;
-  }
-
-  useEffect(() => {
-    function onSelectionChange() {
-      updateToolbarFromSelection();
-    }
-    document.addEventListener("selectionchange", onSelectionChange);
-    window.addEventListener("scroll", onSelectionChange, true);
-    window.addEventListener("resize", onSelectionChange);
-    return () => {
-      document.removeEventListener("selectionchange", onSelectionChange);
-      window.removeEventListener("scroll", onSelectionChange, true);
-      window.removeEventListener("resize", onSelectionChange);
-    };
-  }, []);
 
   async function handleMediaFilesSelected(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -435,7 +487,7 @@ export default function AdminPublicationsPage() {
                   style={{
                     top: toolbar.top,
                     left: toolbar.left,
-                    transform: "translateX(-50%)",
+                    transform: "translateY(-100%)",
                   }}
                   onMouseDown={(e) => e.preventDefault()}
                 >
@@ -445,7 +497,7 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       const r = restoreSelection();
                       if (r) applyWrapTag("strong", r);
-                      requestAnimationFrame(updateToolbarFromSelection);
+                      captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
@@ -457,7 +509,7 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       const r = restoreSelection();
                       if (r) applyWrapTag("span", r, { style: "font-family: cursive" });
-                      requestAnimationFrame(updateToolbarFromSelection);
+                      captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
@@ -468,20 +520,8 @@ export default function AdminPublicationsPage() {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       const r = restoreSelection();
-                      if (r) applyWrapTag("em", r);
-                      requestAnimationFrame(updateToolbarFromSelection);
-                    }}
-                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
-                  >
-                    Italic
-                  </button>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      const r = restoreSelection();
                       if (r) applyWrapTag("u", r);
-                      requestAnimationFrame(updateToolbarFromSelection);
+                      captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
@@ -493,7 +533,7 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       const r = restoreSelection();
                       if (r) applyWrapTag("s", r);
-                      requestAnimationFrame(updateToolbarFromSelection);
+                      captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
@@ -505,11 +545,26 @@ export default function AdminPublicationsPage() {
                     onClick={() => {
                       const r = restoreSelection();
                       if (r) applyWrapTag("code", r);
-                      requestAnimationFrame(updateToolbarFromSelection);
+                      captureSelection();
                     }}
                     className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
                   >
                     Mono
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      const r = restoreSelection();
+                      if (!r) return;
+                      const url = window.prompt("URL");
+                      if (!url) return;
+                      applyLink(r, url);
+                      captureSelection();
+                    }}
+                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                  >
+                    Link
                   </button>
                 </div>
               ) : null}
@@ -520,6 +575,7 @@ export default function AdminPublicationsPage() {
                 dir="ltr"
                 suppressContentEditableWarning
                 onInput={(e) => setContentHtml((e.currentTarget as HTMLDivElement).innerHTML)}
+                onContextMenu={handleEditorContextMenu}
                 className="w-full rounded-2xl border border-white/10 bg-black/30 px-3 py-3 text-sm text-white focus:outline-none focus:border-white/40 min-h-[260px] text-left"
                 style={{ direction: "ltr", textAlign: "left", unicodeBidi: "plaintext" }}
                 dangerouslySetInnerHTML={{ __html: contentHtml }}
