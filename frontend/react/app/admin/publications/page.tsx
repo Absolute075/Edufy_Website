@@ -69,8 +69,15 @@ function placeCaretAfter(node: Node) {
   try {
     const sel = window.getSelection();
     if (!sel) return;
+
+    const parent = node.parentNode;
+    if (!parent) return;
+
+    const zws = document.createTextNode("\u200B");
+    parent.insertBefore(zws, node.nextSibling);
+
     const r = document.createRange();
-    r.setStartAfter(node);
+    r.setStart(zws, 1);
     r.collapse(true);
     sel.removeAllRanges();
     sel.addRange(r);
@@ -99,6 +106,8 @@ export default function AdminPublicationsPage() {
   const lastRangeRef = useRef<Range | null>(null);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
   const linkModalRef = useRef<HTMLDivElement | null>(null);
+
+  const [fontSize, setFontSize] = useState("16");
 
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
@@ -161,7 +170,7 @@ export default function AdminPublicationsPage() {
 
   function syncEditorHtmlToState() {
     const html = editorRef.current?.innerHTML ?? "";
-    setContentHtml(html);
+    setContentHtml(html.replace(/\u200B/g, ""));
   }
 
   function captureSelection() {
@@ -303,7 +312,7 @@ export default function AdminPublicationsPage() {
   }
 
   async function save() {
-    const html = (editorRef.current?.innerHTML ?? contentHtml).trim();
+    const html = (editorRef.current?.innerHTML ?? contentHtml).replace(/\u200B/g, "").trim();
     const urls = clampMediaUrls(mediaUrls);
     if (!title.trim() || !date.trim() || !html) {
       setListError("Fill title, date and content.");
@@ -528,7 +537,7 @@ export default function AdminPublicationsPage() {
               {toolbar.visible ? (
                 <div
                   ref={toolbarRef}
-                  className="fixed z-50 flex items-center gap-2 rounded-full border border-white/15 bg-black/80 px-3 py-2 backdrop-blur-md"
+                  className="fixed z-50 flex flex-col items-stretch gap-2 rounded-2xl border border-white/15 bg-black/80 px-3 py-3 backdrop-blur-md"
                   style={{
                     top: toolbar.top,
                     left: toolbar.left,
@@ -536,6 +545,31 @@ export default function AdminPublicationsPage() {
                   }}
                   onMouseDown={(e) => e.preventDefault()}
                 >
+                  <select
+                    value={fontSize}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setFontSize(v);
+                      const r = restoreSelection();
+                      if (r) {
+                        const el = applyWrapTag("span", r, { style: `font-size: ${v}px` });
+                        if (el) placeCaretAfter(el);
+                      }
+                      syncEditorHtmlToState();
+                      captureSelection();
+                      setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
+                    }}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 focus:outline-none"
+                  >
+                    <option value="12">Size 12</option>
+                    <option value="14">Size 14</option>
+                    <option value="16">Size 16</option>
+                    <option value="18">Size 18</option>
+                    <option value="20">Size 20</option>
+                    <option value="24">Size 24</option>
+                    <option value="28">Size 28</option>
+                  </select>
                   <button
                     type="button"
                     onMouseDown={(e) => e.preventDefault()}
@@ -549,7 +583,7 @@ export default function AdminPublicationsPage() {
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
-                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40 hover:text-white"
                   >
                     Bold
                   </button>
@@ -566,7 +600,7 @@ export default function AdminPublicationsPage() {
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
-                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40 hover:text-white"
                   >
                     Italic
                   </button>
@@ -583,7 +617,7 @@ export default function AdminPublicationsPage() {
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
-                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40 hover:text-white"
                   >
                     Underline
                   </button>
@@ -600,7 +634,7 @@ export default function AdminPublicationsPage() {
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
-                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40 hover:text-white"
                   >
                     Strike
                   </button>
@@ -617,7 +651,7 @@ export default function AdminPublicationsPage() {
                       captureSelection();
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
-                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40 hover:text-white"
                   >
                     Mono
                   </button>
@@ -629,7 +663,7 @@ export default function AdminPublicationsPage() {
                       setLinkModalOpen(true);
                       setToolbar((t) => (t.visible ? { ...t, visible: false } : t));
                     }}
-                    className="text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:text-white"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-200 hover:border-white/40 hover:text-white"
                   >
                     Link
                   </button>
