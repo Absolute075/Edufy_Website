@@ -96,11 +96,12 @@ export default function AdminPublicationsPage() {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
-  const [published, setPublished] = useState(false);
+  const [published, setPublished] = useState(true);
   const [contentHtml, setContentHtml] = useState(
     "<h3>New Features</h3><ul><li>...</li></ul><h3>Bug Fixes</h3><ul><li>...</li></ul>"
   );
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const editorRef = useRef<HTMLDivElement | null>(null);
   const lastRangeRef = useRef<Range | null>(null);
@@ -160,7 +161,7 @@ export default function AdminPublicationsPage() {
     setTitle("");
     setDate("");
     setMediaUrls([]);
-    setPublished(false);
+    setPublished(true);
     setContentHtml("<h3>New Features</h3><ul><li>...</li></ul><h3>Bug Fixes</h3><ul><li>...</li></ul>");
 
     if (editorRef.current) {
@@ -362,20 +363,27 @@ export default function AdminPublicationsPage() {
 
   async function remove(id: string) {
     if (!id) return;
-    setSaving(true);
     setListError(null);
+    if (deletingId) return;
+
+    const snapshot = items;
+    setDeletingId(id);
+    setItems((prev) => prev.filter((p) => p.id !== id));
+    if (editingId === id) {
+      resetForm();
+    }
     try {
       const res = await fetch(`/api/admin/publications?id=${encodeURIComponent(id)}`, {
         method: "DELETE",
         credentials: "include",
       });
       if (!res.ok) throw new Error(`delete_failed_${res.status}`);
-      await reload();
-      if (editingId === id) resetForm();
     } catch (e: any) {
+      setItems(snapshot);
       setListError(String(e?.message || e || "Delete failed").slice(0, 200));
     } finally {
-      setSaving(false);
+      setDeletingId(null);
+      await reload();
     }
   }
 
@@ -442,13 +450,17 @@ export default function AdminPublicationsPage() {
                     </div>
                     <button
                       type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         remove(p.id);
                       }}
                       className="text-[11px] uppercase tracking-[0.2em] text-red-400 hover:text-red-300"
-                      disabled={saving}
+                      disabled={!!deletingId}
                     >
                       Delete
                     </button>
@@ -543,11 +555,16 @@ export default function AdminPublicationsPage() {
                     left: toolbar.left,
                     transform: "translateY(-100%)",
                   }}
-                  onMouseDown={(e) => e.preventDefault()}
+                  onMouseDown={(e) => {
+                    const el = e.target as HTMLElement | null;
+                    if (!el) return;
+                    const tag = el.tagName;
+                    if (tag === "SELECT" || tag === "OPTION") return;
+                    e.preventDefault();
+                  }}
                 >
                   <select
                     value={fontSize}
-                    onMouseDown={(e) => e.preventDefault()}
                     onChange={(e) => {
                       const v = e.target.value;
                       setFontSize(v);

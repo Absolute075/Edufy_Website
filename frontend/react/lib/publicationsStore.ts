@@ -119,5 +119,13 @@ export function listPublications(type?: PublicationType, onlyPublished?: boolean
   return publications
     .filter((p) => (type ? p.type === type : true))
     .filter((p) => (onlyPublished ? !!p.published : true))
-    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    .sort((a, b) => {
+      const d = String(b.date).localeCompare(String(a.date));
+      if (d !== 0) return d;
+      const bt = String(b.updatedAt || b.createdAt || "");
+      const at = String(a.updatedAt || a.createdAt || "");
+      const t = bt.localeCompare(at);
+      if (t !== 0) return t;
+      return String(b.id).localeCompare(String(a.id));
+    });
 }

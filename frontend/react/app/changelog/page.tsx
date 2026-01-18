@@ -72,7 +72,7 @@ export default function ChangelogPage() {
                 key={p.id}
                 className="grid gap-6 md:grid-cols-[220px_minmax(0,1fr)]"
               >
-                <div className="md:sticky md:top-24 self-start">
+                <div className="sticky top-24 self-start">
                   <div className="text-lg font-semibold text-white">{p.title}</div>
                   <div className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-400">
                     {formatDate(p.date)}
@@ -81,17 +81,22 @@ export default function ChangelogPage() {
 
                 <div>
                   {p.mediaUrls?.length ? (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+                    <div className="space-y-6 mb-8">
                       {p.mediaUrls.slice(0, 5).map((src, idx) => (
                         <div key={`${p.id}-m-${idx}`} className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
-                          <img src={src} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
+                          <img
+                            src={src}
+                            alt={p.title}
+                            className="w-full h-[320px] sm:h-[420px] lg:h-[520px] object-contain bg-black"
+                            loading="lazy"
+                          />
                         </div>
                       ))}
                     </div>
                   ) : null}
 
                   <div
-                    className="text-sm sm:text-base text-gray-300 leading-relaxed space-y-3"
+                    className="text-sm sm:text-base text-gray-300 leading-relaxed [&_p]:my-2 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-1 [&_h2]:my-4 [&_h3]:my-3"
                     dangerouslySetInnerHTML={{ __html: p.contentHtml || "" }}
                   />
                 </div>
