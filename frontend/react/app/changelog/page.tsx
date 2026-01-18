@@ -69,7 +69,7 @@ export default function ChangelogPage() {
 
   return (
     <main className="min-h-screen text-white legal-page-main">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-32">
         <header className="mb-12 legal-hero-block">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas tracking-[0.35em] uppercase text-left text-white">
             Changelog
@@ -136,7 +136,7 @@ export default function ChangelogPage() {
         </section>
       </div>
 
-      <footer className="border-t border-white/10 py-8 px-4 sm:px-6 lg:px-8 text-center text-sm text-white/60">
+      <footer className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-black/70 backdrop-blur-md py-4 px-4 sm:px-6 lg:px-8 text-center text-sm text-white/60">
         ©2025-2026 Edufy. Keep Learning.
       </footer>
 
