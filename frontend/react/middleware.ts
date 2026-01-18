@@ -381,6 +381,18 @@ export async function middleware(request: NextRequest) {
 
     const target = parseResourceTarget(pathname);
     if (target) {
+      // SAT resources do not use the generic resourcesRegistry gating.
+      // Per-item plan checks (if any) are handled inside SAT pages.
+      if (target.category === "sat") {
+        return applyRobotsHeader(NextResponse.next(), pathname, host);
+      }
+
+      // IELTS video Lessons & Reports do their own per-item plan gating on the client.
+      // The watch route looks like /resources/lessons-reports/watch and should not redirect to billing here.
+      if (target.category === "lessons-reports") {
+        return applyRobotsHeader(NextResponse.next(), pathname, host);
+      }
+
       const rule = isRegistryCategory(target.category)
         ? resourcesRegistry[target.category]?.[target.id]
         : undefined;
