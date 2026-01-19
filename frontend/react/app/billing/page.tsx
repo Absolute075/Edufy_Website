@@ -5,34 +5,16 @@ import { useRouter } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { usePageTitle } from "../lib/usePageTitle";
 
-type BillingPeriod = "monthly" | "sixMonths" | "yearly";
 type PlanId = "Free" | "Premium";
 type Currency = "USD" | "UZS";
 
-const BILLING_PERIODS: { id: BillingPeriod; label: string }[] = [
-  { id: "monthly", label: "Monthly" },
-  { id: "sixMonths", label: "6 months" },
-  { id: "yearly", label: "Yearly" },
-];
+type BillingPeriod = "monthly";
 
-const PRICING: Record<
-  BillingPeriod,
-  { label: string; premium: string; helper: string }
-> = {
+const PRICING: Record<BillingPeriod, { label: string; premium: string; helper: string }> = {
   monthly: {
     label: "month",
     premium: "$5.99/UZS 70.000",
     helper: "Best if you want to test Edufy month by month.",
-  },
-  sixMonths: {
-    label: "6 months",
-    premium: "$39.99/UZS 474.000",
-    helper: "Save more with a 6-month commitment.",
-  },
-  yearly: {
-    label: "year",
-    premium: "$59.99/UZS 709.000",
-    helper: "Maximum savings for long-term learners.",
   },
 };
 
@@ -63,47 +45,12 @@ function getPriceForCurrency(raw: string, currency: Currency, usdToUzsRate: numb
   return uzsRaw.startsWith("UZS") ? uzsRaw : `UZS ${uzsRaw}`;
 }
 
-function getOldPrice(
-  plan: PlanId,
-  period: BillingPeriod,
-  currency: Currency,
-  usdToUzsRate: number | null,
-): string | null {
-  if (plan === "Free") return null;
-
-  let usdOld: string | null = null;
-
-  if (plan === "Premium") {
-    if (period === "sixMonths") {
-      usdOld = "$47,90";
-    } else if (period === "yearly") {
-      usdOld = "$97,90";
-    }
-  }
-
-  if (!usdOld) return null;
-
-  if (currency === "USD") {
-    return usdOld;
-  }
-
-  if (usdToUzsRate && usdToUzsRate > 0) {
-    const usdValue = parseUsdAmount(usdOld);
-    if (usdValue !== null) {
-      const uzsValue = Math.round((usdValue * usdToUzsRate) / 100) * 100;
-      return `UZS ${uzsValue.toLocaleString("uz-UZ")}`;
-    }
-  }
-
-  return null;
-}
-
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function BillingPage() {
   usePageTitle("Edufy – Billing");
   const router = useRouter();
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
+  const billingPeriod: BillingPeriod = "monthly";
   const [activePlan, setActivePlan] = useState<PlanId>("Free");
   const [subscriptionActiveSince, setSubscriptionActiveSince] = useState<Date | null>(null);
   const [subscriptionActiveUntil, setSubscriptionActiveUntil] = useState<Date | null>(null);
@@ -164,11 +111,6 @@ export default function BillingPage() {
   const periodConfig = PRICING[billingPeriod];
   const displayFreePrice = currency === "USD" ? "$0" : "UZS 0";
   const displayPremiumPrice = getPriceForCurrency(periodConfig.premium, currency, usdToUzsRate);
-  const oldPremiumPrice = getOldPrice("Premium", billingPeriod, currency, usdToUzsRate);
-  const activePeriodIndex = Math.max(
-    0,
-    BILLING_PERIODS.findIndex((p) => p.id === billingPeriod),
-  );
 
   const activePlanLabel = activePlan;
 
@@ -322,27 +264,8 @@ export default function BillingPage() {
                 </p>
               </div>
             </div>
-
-            <div className="relative inline-flex rounded-xl border border-neutral-800 bg-neutral-950 text-xs font-medium text-slate-300">
-              <div
-                className="pointer-events-none absolute inset-y-[2px] w-1/3 rounded-xl bg-neutral-900 transition-transform duration-200 ease-out"
-                style={{ transform: `translateX(${activePeriodIndex * 100}%)` }}
-              />
-              {BILLING_PERIODS.map((p) => {
-                const active = billingPeriod === p.id;
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setBillingPeriod(p.id)}
-                    className={`relative z-10 flex-1 px-3 py-1.5 transition-colors duration-150 ${
-                      active ? "text-slate-100" : "text-slate-400"
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                );
-              })}
+            <div className="inline-flex rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs font-medium text-slate-300">
+              Monthly
             </div>
           </div>
 
@@ -406,11 +329,6 @@ export default function BillingPage() {
                 <div className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-900 px-2.5 py-0.5 text-[11px] font-semibold text-slate-100">
                   Full Access
                 </div>
-                {oldPremiumPrice && (
-                  <div className="text-[16px] font-medium text-slate-500 line-through">
-                    {oldPremiumPrice}
-                  </div>
-                )}
                 <div className="text-2xl font-bold text-slate-100">
                   {displayPremiumPrice}
                   <span className="text-xs font-normal text-slate-400"> / {periodConfig.label}</span>

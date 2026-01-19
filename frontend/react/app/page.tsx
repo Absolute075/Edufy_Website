@@ -77,7 +77,7 @@ function getLandingOldPrice(
 
 export default function HomePage() {
   usePageTitle('Edufy – Exam Prep Platform');
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | '6months' | 'yearly'>('monthly');
+  const billingPeriod: 'monthly' = 'monthly';
   const [billingCurrency, setBillingCurrency] = useState<Currency>('USD');
   const [usdToUzsRate, setUsdToUzsRate] = useState<number | null>(null);
   const [openBlogPost, setOpenBlogPost] = useState<string | null>(null);
@@ -93,12 +93,7 @@ export default function HomePage() {
   const [blogExpanded, setBlogExpanded] = useState(false);
   const blogModalRef = useRef<HTMLDivElement | null>(null);
 
-  const premiumPrice =
-    billingPeriod === '6months'
-      ? '$39.99/UZS 474.000'
-      : billingPeriod === 'yearly'
-      ? '$59.99/UZS 709.000'
-      : '$5.99/UZS 70.000';
+  const premiumPrice = '$5.99/UZS 70.000';
 
   const displayPremiumPrice = getPriceForCurrency(premiumPrice, billingCurrency, usdToUzsRate);
   const landingOldPremiumPrice = getLandingOldPrice('Pro', billingPeriod, billingCurrency, usdToUzsRate);
@@ -1231,44 +1226,7 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-3 justify-start">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 backdrop-blur-md px-2 py-1 text-[11px] sm:text-xs text-gray-300 transition-colors duration-300 ease-out hover:border-white/30">
                 <span className="mr-1 hidden sm:inline text-gray-400">Billing:</span>
-                <div className="relative flex rounded-full bg-white/5 px-0.5 py-0.5">
-                  <div
-                    className={`absolute inset-y-0 left-0 w-1/3 rounded-full bg-white shadow-sm transition-transform duration-300 ease-out ${
-                      billingPeriod === 'monthly'
-                        ? 'translate-x-0'
-                        : billingPeriod === '6months'
-                        ? 'translate-x-full'
-                        : 'translate-x-[200%]'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setBillingPeriod('monthly')}
-                    className={`relative z-10 flex-1 px-3 py-1 rounded-full text-center transition-colors duration-300 ${
-                      billingPeriod === 'monthly' ? 'text-gray-900' : 'text-gray-200 hover:text-white'
-                    }`}
-                  >
-                    Monthly
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBillingPeriod('6months')}
-                    className={`relative z-10 flex-1 px-3 py-1 rounded-full text-center transition-colors duration-300 ${
-                      billingPeriod === '6months' ? 'text-gray-900' : 'text-gray-200 hover:text-white'
-                    }`}
-                  >
-                    6 months
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBillingPeriod('yearly')}
-                    className={`relative z-10 flex-1 px-3 py-1 rounded-full text-center transition-colors duration-300 ${
-                      billingPeriod === 'yearly' ? 'text-gray-900' : 'text-gray-200 hover:text-white'
-                    }`}
-                  >
-                    Yearly
-                  </button>
-                </div>
+                <span className="rounded-full bg-white/5 px-3 py-1">Monthly</span>
               </div>
 
               <div className="inline-flex items-center gap-2 text-[11px] sm:text-xs text-gray-300">

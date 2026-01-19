@@ -5,7 +5,7 @@ import { usePageTitle } from "../lib/usePageTitle";
 
 type SelectedPlan = {
   plan: "Free" | "Premium";
-  period: "monthly" | "sixMonths" | "yearly";
+  period: "monthly";
 };
 
 function PaymentPageInner() {
@@ -19,12 +19,13 @@ function PaymentPageInner() {
     try {
       const raw = window.localStorage.getItem("edufy-selected-plan");
       if (!raw) return;
-      const parsed = JSON.parse(raw) as Partial<SelectedPlan>;
+      const parsed = JSON.parse(raw) as Partial<SelectedPlan> & { period?: string };
       if (!parsed.plan || !parsed.period) return;
       const rawPlan = String(parsed.plan);
       const normalizedPlan = rawPlan === "Free" ? "Free" : "Premium";
+      // Keep backward compatibility with old stored values but always show Monthly.
       if (parsed.period !== "monthly" && parsed.period !== "sixMonths" && parsed.period !== "yearly") return;
-      setSelectedPlan({ plan: normalizedPlan, period: parsed.period });
+      setSelectedPlan({ plan: normalizedPlan, period: "monthly" });
     } catch {
       // ignore JSON/parse errors
     }
@@ -47,12 +48,7 @@ function PaymentPageInner() {
 
   let selectedPlanLine: ReactNode = null;
   if (selectedPlan && selectedPlan.plan !== "Free") {
-    const periodLabel =
-      selectedPlan.period === "sixMonths"
-        ? "6 months"
-        : selectedPlan.period === "yearly"
-        ? "Yearly"
-        : "Monthly";
+    const periodLabel = "Monthly";
     selectedPlanLine = (
       <p className="text-xs sm:text-sm text-gray-300 max-w-md">
         Selected plan: <span className="text-gray-100 font-medium">Premium {periodLabel}</span>
