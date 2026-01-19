@@ -96,20 +96,6 @@ export default function ContactPage() {
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <h2 className="text-lg font-semibold text-white">Phone</h2>
-              <p className="mt-2 text-sm text-gray-300">+998 77 110 23 39</p> 
-              <p className="mt-3 text-xs text-gray-400">
-                Mon–Sat - 13:00–22:00, Sunday - 9:00–22:00 (GMT +5)
-              </p>
-              <a
-                href="tel:+998771102339"
-                className="mt-4 inline-flex text-sm text-black px-4 py-2 rounded-full bg-white hover:bg-gray-100 transition-colors"
-              >
-                Call
-              </a>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
               <h2 className="text-lg font-semibold text-white">Telegram</h2>
               <p className="mt-2 text-sm text-gray-300">@edufysupport</p>
               <p className="mt-3 text-xs text-gray-400">

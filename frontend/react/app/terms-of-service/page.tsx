@@ -225,12 +225,6 @@ export default function TermsOfServicePage() {
               </a>
             </li>
             <li>
-              Phone:{' '}
-              <a href="tel:+998771102339" className="text-blue-400 hover:underline">
-                +998 77 110 23 39
-              </a>
-            </li>
-            <li>
               Telegram:{' '}
               <a
                 href="https://t.me/edufysupport"

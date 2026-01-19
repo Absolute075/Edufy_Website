@@ -143,26 +143,6 @@ export default function SettingsPage() {
                 </a>
 
                 <a
-                  href="tel:+998771102339"
-                  className="inline-flex items-center gap-2 rounded-full border border-emerald-400/60 bg-neutral-950 px-3 py-1.5 text-xs font-semibold text-emerald-300 shadow-sm hover:border-emerald-300 hover:bg-neutral-900"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 3.11 4.18 2 2 0 0 1 5.11 2h3a2 2 0 0 1 2 1.72 12.44 12.44 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.44 12.44 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"
-                      className="fill-none stroke-current"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  +998 77 110 23 39
-                </a>
-
-                <a
                   href="https://t.me/edufysupport"
                   target="_blank"
                   rel="noopener noreferrer"

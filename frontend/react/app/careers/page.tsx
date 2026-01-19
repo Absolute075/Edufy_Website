@@ -40,14 +40,6 @@ export default function CareersPage() {
               </p>
               <p>
                 <a
-                  href="tel:+998771102339"
-                  className="hover:text-white transition-colors underline-offset-4 hover:underline"
-                >
-                  +998 77 110 23 39
-                </a>
-              </p>
-              <p>
-                <a
                   href="https://t.me/edufysupport"
                   target="_blank"
                   rel="noopener noreferrer"
